@@ -5,16 +5,16 @@
 #ifdef SOGLB_DEBUGGING
 #  include <boost/log/trivial.hpp>
 #  include <boost/throw_exception.hpp>
-#  include <gsl/gsl-lite.hpp>
+#  include <gsl-lite/gsl-lite.hpp>
 #  include <stdexcept>
 
-void gl::checkGlError(gsl::czstring code)
+void gl::checkGlError(const gsl_lite::czstring code)
 {
   const auto error = api::getError();
   if(error == api::ErrorCode::NoError)
     return;
 
-  gsl::czstring errStr;
+  gsl_lite::czstring errStr;
   switch(error)
   {
   case api::ErrorCode::InvalidEnum:

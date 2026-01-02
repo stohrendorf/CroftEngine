@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <gl/cimgwrapper.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -15,10 +15,10 @@
 namespace render
 {
 /**
- * @brief A Binary Space Partition Tree for 2D space.
- *
- * Based on https://blackpawn.com/texts/lightmaps/default.html.
- */
+* @brief A Binary Space Partition Tree for 2D space.
+*
+* Based on https://blackpawn.com/texts/lightmaps/default.html.
+*/
 #ifdef _MSC_VER
 #  pragma warning(push)
 #  pragma warning(disable : 4324)
@@ -69,9 +69,9 @@ struct alignas(64) BSPTree final
   }
 
   /**
-     * @brief Split this node along its Y axis (X is split).
-     * @param splitLocation Local X coordinate of the split point
-     */
+* @brief Split this node along its Y axis (X is split).
+* @param splitLocation Local X coordinate of the split point
+*/
   void splitX(const int32_t splitLocation)
   {
     gsl_Expects(splitLocation < width);
@@ -80,9 +80,9 @@ struct alignas(64) BSPTree final
   }
 
   /**
-     * @brief Split this node along its X axis (Y is split).
-     * @param splitLocation Local Y coordinate of the split point
-     */
+* @brief Split this node along its X axis (Y is split).
+* @param splitLocation Local Y coordinate of the split point
+*/
   void splitY(const int32_t splitLocation)
   {
     gsl_Expects(splitLocation < height);
@@ -99,8 +99,8 @@ struct alignas(64) BSPTree final
   }
 
   /**
-     * @brief Find a free space in this node or its children
-     */
+* @brief Find a free space in this node or its children
+*/
   // NOLINTNEXTLINE(misc-no-recursion)
   std::optional<glm::ivec2> tryInsert(const int32_t insWidth, const int32_t insHeight)
   {
@@ -152,8 +152,7 @@ struct alignas(64) BSPTree final
     else
     {
       const auto dw = width - insWidth;
-      const auto dh = height - insHeight;
-      if(dw > dh)
+      if(const auto dh = height - insHeight; dw > dh)
       {
         splitX(insWidth);
       }
@@ -177,7 +176,7 @@ class TextureAtlas final
   std::shared_ptr<gl::CImgWrapper> m_image;
 
 public:
-  explicit TextureAtlas(const int32_t pageSize, bool onlyLayout)
+  explicit TextureAtlas(const int32_t pageSize, const bool onlyLayout)
       : m_layout{0, 0, pageSize, pageSize}
       , m_image{onlyLayout ? nullptr : std::make_shared<gl::CImgWrapper>(pageSize)}
   {
@@ -194,7 +193,7 @@ public:
   std::optional<glm::ivec2> put(gl::CImgWrapper& img)
   {
     gsl_Assert(m_image != nullptr);
-    auto dstArea = m_layout.tryInsert(img.width(), img.height());
+    const auto dstArea = m_layout.tryInsert(img.width(), img.height());
     if(!dstArea.has_value())
       return std::nullopt;
 
@@ -230,7 +229,7 @@ class MultiTextureAtlas final
 public:
   static constexpr int BoundaryMargin = 16;
 
-  explicit MultiTextureAtlas(const int32_t pageSize, bool onlyLayout)
+  explicit MultiTextureAtlas(const int32_t pageSize, const bool onlyLayout)
       : m_pageSize{pageSize}
       , m_onlyLayout{onlyLayout}
   {
@@ -254,7 +253,7 @@ public:
         return {i, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
 
     m_atlases.emplace_back(m_pageSize, m_onlyLayout);
-    auto position = m_atlases.back().put(extended);
+    const auto position = m_atlases.back().put(extended);
     gsl_Assert(position.has_value());
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {m_atlases.size() - 1, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
@@ -269,7 +268,7 @@ public:
         return {i, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
 
     m_atlases.emplace_back(m_pageSize, m_onlyLayout);
-    auto position = m_atlases.back().put(size + 2 * glm::ivec2{BoundaryMargin, BoundaryMargin});
+    const auto position = m_atlases.back().put(size + 2 * glm::ivec2{BoundaryMargin, BoundaryMargin});
     gsl_Assert(position.has_value());
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {m_atlases.size() - 1, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
@@ -281,13 +280,12 @@ public:
 
     std::vector<std::shared_ptr<gl::CImgWrapper>> result;
     result.reserve(m_atlases.size());
-    std::transform(m_atlases.begin(),
-                   m_atlases.end(),
-                   std::back_inserter(result),
-                   [](auto& atlas)
-                   {
-                     return atlas.takeImage();
-                   });
+    std::ranges::transform(m_atlases,
+                           std::back_inserter(result),
+                           [](auto& atlas)
+                           {
+                             return atlas.takeImage();
+                           });
     return result;
   }
 

@@ -28,7 +28,7 @@ void rotateForSelection(MenuObject& object)
   object.rotationY -= object.rotationY % Speed;
 }
 
-void idleRotation(engine::world::World& world, MenuObject& object, bool force)
+void idleRotation(engine::world::World& world, MenuObject& object, const bool force)
 {
   if(force || world.getPresenter().getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Null)
   {

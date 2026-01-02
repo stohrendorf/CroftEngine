@@ -22,7 +22,7 @@
 #include <boost/throw_exception.hpp>
 #include <cstdint>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -32,7 +32,7 @@ namespace engine::objects
 void AimInfo::serialize(const serialization::Serializer<world::World>& ser) const
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
+  const auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
   ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context->getWorldGeometry().getPoseFrames()), std::cref(ptr)),
       S_NV("frame", frame),
       S_NV("aiming", aiming),
@@ -225,7 +225,7 @@ void AimInfo::updateAnimShotgun(LaraObject& lara)
   }
 }
 
-void AimInfo::holsterTwoWeapons(LaraObject& lara, WeaponType weaponType)
+void AimInfo::holsterTwoWeapons(LaraObject& lara, const WeaponType weaponType)
 {
   if(frame >= TwoWeaponsRecoilAnimStart)
   {
@@ -323,7 +323,7 @@ void AimInfo::holsterShotgun(LaraObject& lara)
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType)
+void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, const WeaponType weaponType)
 {
   TR1ItemId srcId;
   switch(weaponType)
@@ -341,19 +341,19 @@ void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weapo
     BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
   }
 
-  const auto& src = *gsl::not_null{lara.getWorld().getWorldGeometry().findAnimatedModelForType(srcId).get()};
+  const auto& src = *gsl_lite::not_null{lara.getWorld().getWorldGeometry().findAnimatedModelForType(srcId).get()};
   auto& laraSkeleton = *lara.getSkeleton();
   BOOST_ASSERT(src.bones.size() == laraSkeleton.getBoneCount());
   const auto& normalLara
-    = *gsl::not_null{lara.getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara).get()};
+    = *gsl_lite::not_null{lara.getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara).get()};
   BOOST_ASSERT(normalLara.bones.size() == laraSkeleton.getBoneCount());
-  laraSkeleton.setMesh(handBoneId, gsl::at(normalLara.bones, handBoneId).mesh);
-  laraSkeleton.setMesh(thighBoneId, gsl::at(src.bones, thighBoneId).mesh);
+  laraSkeleton.setMesh(handBoneId, gsl_lite::at(normalLara.bones, handBoneId).mesh);
+  laraSkeleton.setMesh(thighBoneId, gsl_lite::at(src.bones, thighBoneId).mesh);
   laraSkeleton.rebuildMesh();
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType)
+void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, const WeaponType weaponType)
 {
   TR1ItemId id;
   switch(weaponType)
@@ -377,8 +377,8 @@ void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponTy
   BOOST_ASSERT(src->bones.size() == laraSkeleton.getBoneCount());
   const auto& normalLara = *lara.getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == laraSkeleton.getBoneCount());
-  laraSkeleton.setMesh(handBoneId, gsl::at(src->bones, handBoneId).mesh);
-  laraSkeleton.setMesh(thighBoneId, gsl::at(normalLara.bones, thighBoneId).mesh);
+  laraSkeleton.setMesh(handBoneId, gsl_lite::at(src->bones, handBoneId).mesh);
+  laraSkeleton.setMesh(thighBoneId, gsl_lite::at(normalLara.bones, thighBoneId).mesh);
 }
 
 void AimInfo::updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector) noexcept

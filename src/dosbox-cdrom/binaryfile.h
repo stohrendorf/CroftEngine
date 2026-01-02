@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <iosfwd>
 
@@ -14,8 +14,9 @@ class BinaryFile final
 public:
   explicit BinaryFile(const std::filesystem::path& filepath);
   BinaryFile() = delete;
-  bool read(const gsl::span<uint8_t>& buffer, const std::streampos& seek);
+  bool read(const gsl_lite::span<uint8_t>& buffer, const std::streampos& seek);
   std::streamsize size();
+
   [[nodiscard]] const auto& getFilepath() const
   {
     return m_filepath;

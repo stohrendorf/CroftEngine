@@ -17,7 +17,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <map>
 #include <regex>
 #include <stdexcept>
@@ -168,12 +168,11 @@ void Equiv::resolve(const std::filesystem::path& root,
 
   BOOST_LOG_TRIVIAL(info) << "Resolving " << m_equivalentSets.size() << " equiv sets...";
 
-  auto resolved = std::count_if(m_equivalentSets.begin(),
-                                m_equivalentSets.end(),
-                                [](const EquivalenceSet& set)
-                                {
-                                  return set.isResolved();
-                                });
+  auto resolved = std::ranges::count_if(m_equivalentSets,
+                                        [](const EquivalenceSet& set)
+                                        {
+                                          return set.isResolved();
+                                        });
 
   statusCallback(_("Glidos - Resolving maps (%1%%%)", resolved * 100 / m_equivalentSets.size()));
 
@@ -186,8 +185,7 @@ void Equiv::resolve(const std::filesystem::path& root,
     std::filesystem::path partFile;
     for(const auto& part : set.getParts())
     {
-      auto it = filesByPart.find(part);
-      if(it != filesByPart.end())
+      if(auto it = filesByPart.find(part); it != filesByPart.end())
       {
         if(!partFile.empty() && partFile != it->second)
         {
@@ -283,7 +281,7 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName,
 
       gsl_Assert(parts[0].size() == 32);
 
-      if(dirByTextureId.find(parts[0]) != dirByTextureId.end())
+      if(dirByTextureId.contains(parts[0]))
       {
         BOOST_THROW_EXCEPTION(std::runtime_error("Texture path mapping already registered"));
       }

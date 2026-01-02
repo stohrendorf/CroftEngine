@@ -8,6 +8,7 @@
 
 #include <limits>
 
+
 namespace serialization
 {
 inline core::TypeId::type ptrSave(const engine::world::SkeletalModelType* const& model,

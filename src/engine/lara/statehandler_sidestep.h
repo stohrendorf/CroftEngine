@@ -6,14 +6,14 @@
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_SideStep : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_SideStep(const gsl::not_null<objects::LaraObject*>& lara,
+  explicit StateHandler_SideStep(const gsl_lite::not_null<objects::LaraObject*>& lara,
                                  const LaraStateId& stateId,
                                  const hid::AxisMovement& inputAxis,
                                  const core::Angle& rotation)

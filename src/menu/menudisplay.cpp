@@ -45,7 +45,7 @@
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <stdexcept>
@@ -226,7 +226,8 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   return false;
 }
 
-std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::World& world, bool withHomePolaroid)
+std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::World& world,
+                                                          const bool withHomePolaroid)
 {
   std::vector objects{MenuObject{/* translators: TR charmap encoding */ _("Game"),
                                  engine::TR1ItemId::PassportClosed,
@@ -274,13 +275,11 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::W
                                     384_len});
   }
 
-  objects.erase(std::remove_if(objects.begin(),
-                               objects.end(),
-                               [&world](const MenuObject& obj)
-                               {
-                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
-                               }),
-                objects.end());
+  std::erase_if(objects,
+                [&world](const MenuObject& obj)
+                {
+                  return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
+                });
   for(auto& object : objects)
     object.initModel(world, m_lightsBuffer);
 
@@ -413,13 +412,11 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
                                     216_len});
   }
 
-  objects.erase(std::remove_if(objects.begin(),
-                               objects.end(),
-                               [&world](const MenuObject& obj)
-                               {
-                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
-                               }),
-                objects.end());
+  std::erase_if(objects,
+                [&world](const MenuObject& obj)
+                {
+                  return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
+                });
   for(auto& object : objects)
     object.initModel(world, m_lightsBuffer);
 
@@ -487,22 +484,20 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
       MenuObject{"Scion", engine::TR1ItemId::ScionPieceCounter, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
 
-  objects.erase(std::remove_if(objects.begin(),
-                               objects.end(),
-                               [&world](const MenuObject& obj)
-                               {
-                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
-                               }),
-                objects.end());
+  std::erase_if(objects,
+                [&world](const MenuObject& obj)
+                {
+                  return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
+                });
   for(auto& object : objects)
     object.initModel(world, m_lightsBuffer);
 
   return objects;
 }
 
-MenuDisplay::MenuDisplay(InventoryMode mode,
-                         SaveGamePageMode saveGamePageMode,
-                         bool allowPassportExit,
+MenuDisplay::MenuDisplay(const InventoryMode mode,
+                         const SaveGamePageMode saveGamePageMode,
+                         const bool allowPassportExit,
                          engine::world::World& world,
                          const glm::ivec2& viewport)
     : mode{mode}
@@ -513,7 +508,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
     , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
-    , m_fb{gsl::make_shared<render::pass::Framebuffer>(
+    , m_fb{gsl_lite::make_shared<render::pass::Framebuffer>(
         "menu-objects", m_material, render::scene::Translucency::Opaque, viewport)}
     , m_lightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
         "lights-buffer",
@@ -552,7 +547,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
 void MenuDisplay::setViewport(const glm::ivec2& viewport)
 {
   if(m_fb->getOutput()->getTexture()->size() != viewport)
-    m_fb = gsl::make_shared<render::pass::Framebuffer>(
+    m_fb = gsl_lite::make_shared<render::pass::Framebuffer>(
       "menu-objects", m_material, render::scene::Translucency::Opaque, viewport);
 }
 
@@ -562,22 +557,22 @@ void MenuDisplay::renderObjects(ui::Ui& ui, engine::world::World& world)
 
   const auto& camera = world.getCameraController().getCamera();
   camera->setViewMatrix(ringTransform->getView());
-  const auto resetFov = gsl::finally(
-    [oldFOV = camera->getFieldOfViewY(), &camera]()
+  const auto resetFov = gsl_lite::finally(
+    [oldFOV = camera->getFieldOfViewY(), &camera]
     {
       camera->setFieldOfView(oldFOV);
     });
   camera->setFieldOfView(engine::Presenter::DefaultFov);
 
   m_fb->render(
-    [this, &world, &ui]()
+    [this, &world, &ui]
     {
       SOGLB_DEBUGGROUP("menu-objects");
       m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
       m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
       world.getCameraController().getCamera()->setViewport(m_fb->getOutput()->getTexture()->size());
 
-      core::Angle itemAngle{0_deg};
+      auto itemAngle{0_deg};
       for(auto& menuObject : getCurrentRing().list)
       {
         MenuObject* object = &menuObject;

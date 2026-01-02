@@ -9,20 +9,20 @@
 #include <cstddef>
 #include <gl/pixel.h>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 
 namespace ui::widgets
 {
-ListBox::ListBox(size_t pageSize)
+ListBox::ListBox(const size_t pageSize)
     : m_pageSize{pageSize}
 {
 }
 
 ListBox::~ListBox() = default;
 
-void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void ListBox::draw(Ui& ui, const engine::Presenter& presenter) const
 {
   size_t first = 0;
   size_t last = m_widgets.size();
@@ -35,30 +35,30 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   }
   gsl_Assert(first < last);
 
-  static const auto outerCorner = gl::SRGBA8{0, 0, 0, 0};
-  static const auto center = gl::SRGBA8{128, 64, 64, DefaultBackgroundAlpha};
-  static const auto innerCorner = gl::SRGBA8{128, 64, 0, DefaultBackgroundAlpha};
-  static const auto innerCenter = gl::SRGBA8{255, 255, 255, 255};
-  static const auto scrollIndicatorBottom = ui::BackgroundGouraud{
-    ui::BoxGouraud{
+  static constexpr auto outerCorner = gl::SRGBA8{0, 0, 0, 0};
+  static constexpr auto center = gl::SRGBA8{128, 64, 64, DefaultBackgroundAlpha};
+  static constexpr auto innerCorner = gl::SRGBA8{128, 64, 0, DefaultBackgroundAlpha};
+  static constexpr auto innerCenter = gl::SRGBA8{255, 255, 255, 255};
+  static constexpr auto scrollIndicatorBottom = BackgroundGouraud{
+    BoxGouraud{
       outerCorner,
       outerCorner,
       center,
       outerCorner,
     },
-    ui::BoxGouraud{
+    BoxGouraud{
       outerCorner,
       outerCorner,
       outerCorner,
       center,
     },
-    ui::BoxGouraud{
+    BoxGouraud{
       center,
       outerCorner,
       innerCorner,
       innerCenter,
     },
-    ui::BoxGouraud{
+    BoxGouraud{
       outerCorner,
       center,
       innerCenter,
@@ -69,13 +69,12 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   if(first != 0)
   {
     scrollIndicatorBottom.mirroredY().draw(
-      ui, m_position - glm::ivec2{0, ui::FontHeight}, glm::ivec2{m_size.x, FontHeight});
+      ui, m_position - glm::ivec2{0, FontHeight}, glm::ivec2{m_size.x, FontHeight});
   }
   if(last != m_widgets.size())
   {
-    scrollIndicatorBottom.draw(ui,
-                               m_position + glm::ivec2{0, m_size.y - ui::FontHeight - 2 * ui::OutlineBorderWidth},
-                               glm::ivec2{m_size.x, FontHeight});
+    scrollIndicatorBottom.draw(
+      ui, m_position + glm::ivec2{0, m_size.y - FontHeight - 2 * OutlineBorderWidth}, glm::ivec2{m_size.x, FontHeight});
   }
 
   int y = m_position.y;
@@ -86,7 +85,7 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     widget->setSize({m_size.x, widget->getSize().y});
     widget->draw(ui, presenter);
 
-    y += widget->getSize().y + ui::OutlineBorderWidth;
+    y += widget->getSize().y + OutlineBorderWidth;
   }
 }
 
@@ -101,7 +100,7 @@ void ListBox::setPosition(const glm::ivec2& position)
   m_position = position;
 }
 
-void ListBox::update(bool hasFocus)
+void ListBox::update(const bool hasFocus)
 {
   for(size_t i = 0; i < m_widgets.size(); ++i)
     m_widgets[i]->update(hasFocus && m_selected == i);
@@ -133,7 +132,7 @@ void ListBox::fitToContent()
     maxHeight = std::max(maxHeight, y);
     maxWidth = std::max(maxWidth, widget->getSize().x);
 
-    y += ui::OutlineBorderWidth;
+    y += OutlineBorderWidth;
   }
 
   m_size = {maxWidth, maxHeight};

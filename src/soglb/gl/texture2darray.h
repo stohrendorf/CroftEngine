@@ -5,7 +5,7 @@
 #include <boost/assert.hpp>
 #include <gl/glassert.h>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string_view>
 
 namespace gl
@@ -31,13 +31,13 @@ public:
   }
 
   // NOLINTNEXTLINE(*-easily-swappable-parameters)
-  Texture2DArray<_PixelT>& assign(const gsl::span<const _PixelT>& data, int z, int level = 0)
+  Texture2DArray& assign(const gsl_lite::span<const _PixelT>& data, int z, int level = 0)
   {
     BOOST_ASSERT(z >= 0 && z < m_size.z);
 
     const int levelDiv = 1 << level;
     const auto size = glm::max(glm::ivec3{1, 1, 1}, m_size / levelDiv);
-    gsl_Assert(gsl::narrow_cast<size_t>(size.x) * gsl::narrow_cast<size_t>(size.y) == data.size());
+    gsl_Assert(gsl_lite::narrow_cast<size_t>(size.x) * gsl_lite::narrow_cast<size_t>(size.y) == data.size());
 
     GL_ASSERT(api::textureSubImage3D(
       getHandle(), level, 0, 0, z, size.x, size.y, 1, Pixel::PixelFormat, Pixel::PixelType, data.data()));

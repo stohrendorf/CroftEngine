@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -32,7 +32,7 @@ enum class AnimationId : uint16_t;
 namespace loader::file::level
 {
 class Level;
-};
+}
 
 namespace engine
 {
@@ -61,7 +61,7 @@ public:
     return m_geometry;
   }
 
-  [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetDustMesh(uint8_t i) const
+  [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetDustMesh(const uint8_t i) const
   {
     if(const auto it = m_dustCache.find(i); it != m_dustCache.end())
       return it->second;
@@ -69,7 +69,7 @@ public:
     return nullptr;
   }
 
-  void setDustCache(uint8_t i, const gslu::nn_shared<render::scene::Mesh>& mesh)
+  void setDustCache(const uint8_t i, const gslu::nn_shared<render::scene::Mesh>& mesh)
   {
     gsl_Assert(m_dustCache.try_emplace(i, mesh).second);
   }
@@ -162,9 +162,9 @@ public:
 private:
   void initAnimationData(const loader::file::level::Level& level);
   void initMeshes(const loader::file::level::Level& level);
-  std::vector<gsl::not_null<const Mesh*>> initAnimatedModels(const loader::file::level::Level& level);
+  std::vector<gsl_lite::not_null<const Mesh*>> initAnimatedModels(const loader::file::level::Level& level);
   void initStaticMeshes(const loader::file::level::Level& level,
-                        const std::vector<gsl::not_null<const Mesh*>>& meshesDirect,
+                        const std::vector<gsl_lite::not_null<const Mesh*>>& meshesDirect,
                         const Engine& engine);
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void initTextures(Engine& engine, const loader::file::level::Level& level);

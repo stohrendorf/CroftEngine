@@ -4,7 +4,7 @@
 #include "core/units.h"
 #include "serialization/serialization_fwd.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string>
 
 namespace engine
@@ -46,16 +46,16 @@ private:
 class WalkingMutant final : public FlyingMutant
 {
 public:
-  WalkingMutant(const gsl::not_null<world::World*>& world, const Location& location)
+  WalkingMutant(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : FlyingMutant{world, location}
   {
   }
 
   WalkingMutant(const std::string& name,
-                const gsl::not_null<world::World*>& world,
-                const gsl::not_null<const world::Room*>& room,
+                const gsl_lite::not_null<world::World*>& world,
+                const gsl_lite::not_null<const world::Room*>& room,
                 const loader::file::Item& item,
-                const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
+                const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 };
 
 class CentaurMutant final : public AIAgent
@@ -80,5 +80,4 @@ private:
   bool m_hasHitLara = false;
   core::Frame m_turnStartFrame = 0_frame;
 };
-
 } // namespace engine::objects

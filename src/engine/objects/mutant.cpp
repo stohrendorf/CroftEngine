@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <bitset>
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 #include <utility>
@@ -59,8 +59,8 @@ void FlyingMutant::update()
   static constexpr auto DoAttack = 11_as;
   static constexpr auto DoFly = 13_as;
 
-  core::Angle turn = 0_deg;
-  core::Angle headRot = 0_deg;
+  auto turn = 0_deg;
+  auto headRot = 0_deg;
   if(!alive())
   {
     if(shatterModel(*this, 0xffffffffu, 100_len))
@@ -315,8 +315,8 @@ void CentaurMutant::update()
 {
   activateAi();
 
-  core::Angle turn = 0_deg;
-  core::Angle headRot = 0_deg;
+  auto turn = 0_deg;
+  auto headRot = 0_deg;
   if(getHealth() > 0_hp)
   {
     const ai::EnemyLocation enemyLocation{*this};
@@ -379,8 +379,8 @@ void CentaurMutant::update()
   else if(m_state.current_anim_state != 5_as)
   {
     m_state.current_anim_state = 5_as;
-    getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8]});
+    getSkeleton()->setAnim(gsl_lite::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8]});
   }
 
   rotateCreatureHead(headRot);
@@ -412,7 +412,7 @@ void TorsoBoss::update()
 
   activateAi();
 
-  core::Angle headRot = 0_deg;
+  auto headRot = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
@@ -476,8 +476,8 @@ void TorsoBoss::update()
       }
       else
       {
-        const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
-        if(frameDelta > 13_frame && frameDelta < 23_frame)
+        if(const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
+           frameDelta > 13_frame && frameDelta < 23_frame)
         {
           m_state.rotation.Y -= 9_deg;
         }
@@ -493,8 +493,8 @@ void TorsoBoss::update()
       }
       else
       {
-        const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
-        if(frameDelta > 16_frame && frameDelta < 23_frame)
+        if(const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
+           frameDelta > 16_frame && frameDelta < 23_frame)
         {
           m_state.rotation.Y += 14_deg;
         }
@@ -522,7 +522,7 @@ void TorsoBoss::update()
       {
         goal(LaraKilled);
         auto& lara = getWorld().getObjectManager().getLara();
-        lara.getSkeleton()->setAnim(gsl::not_null{
+        lara.getSkeleton()->setAnim(gsl_lite::not_null{
           &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
         lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
         lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
@@ -562,8 +562,8 @@ void TorsoBoss::update()
   {
     if(m_state.current_anim_state != BossKilled)
     {
-      getSkeleton()->setAnim(
-        gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13]});
+      getSkeleton()->setAnim(gsl_lite::not_null{
+        &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13]});
       m_state.current_anim_state = BossKilled;
     }
   }
@@ -611,10 +611,10 @@ void TorsoBoss::deserialize(const serialization::Deserializer<world::World>& ser
 }
 
 WalkingMutant::WalkingMutant(const std::string& name,
-                             const gsl::not_null<world::World*>& world,
-                             const gsl::not_null<const world::Room*>& room,
+                             const gsl_lite::not_null<world::World*>& world,
+                             const gsl_lite::not_null<const world::Room*>& room,
                              const loader::file::Item& item,
-                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : FlyingMutant{name, world, room, item, animatedModel}
 {
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)

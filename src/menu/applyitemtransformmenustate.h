@@ -24,7 +24,6 @@ struct MenuRingTransform;
 
 class ApplyItemTransformMenuState : public MenuState
 {
-private:
   static constexpr core::Frame Duration = 16_frame / 2;
   core::Frame m_duration{0_frame};
 

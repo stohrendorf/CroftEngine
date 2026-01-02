@@ -39,8 +39,8 @@ public:
   virtual void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) = 0;
   virtual std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) = 0;
 
-  template<typename T, typename... Ts>
-  auto create(Ts&&... args) -> std::enable_if_t<std::is_base_of_v<MenuState, T>, std::unique_ptr<T>>
+  template<std::derived_from<MenuState> T, typename... Ts>
+  std::unique_ptr<T> create(Ts&&... args)
   {
     return std::make_unique<T>(m_ringTransform, std::forward<Ts>(args)...);
   }

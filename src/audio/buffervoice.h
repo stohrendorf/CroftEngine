@@ -13,7 +13,6 @@ class SourceHandle;
 
 class BufferVoice final : public Voice
 {
-private:
   gslu::nn_shared<BufferHandle> m_buffer;
 
 public:

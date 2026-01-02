@@ -9,14 +9,14 @@
 #include "statehandler_underwater.h"
 
 #include <algorithm>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_18 final : public StateHandler_Underwater
 {
 public:
-  explicit StateHandler_18(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_18(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : StateHandler_Underwater{lara, LaraStateId::UnderwaterInertia}
   {
   }

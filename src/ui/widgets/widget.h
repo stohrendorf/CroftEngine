@@ -26,6 +26,6 @@ public:
   virtual void update(bool hasFocus) = 0;
   virtual void fitToContent() = 0;
 
-  virtual void draw(ui::Ui& ui, const engine::Presenter& presenter) const = 0;
+  virtual void draw(Ui& ui, const engine::Presenter& presenter) const = 0;
 };
 } // namespace ui::widgets

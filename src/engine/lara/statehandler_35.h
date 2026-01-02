@@ -7,14 +7,14 @@
 #include "hid/inputstate.h"
 #include "statehandler_underwater.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_35 final : public StateHandler_Underwater
 {
 public:
-  explicit StateHandler_35(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_35(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : StateHandler_Underwater{lara, LaraStateId::UnderwaterDiving}
   {
   }

@@ -20,13 +20,12 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
 
-class IdleRingMenuState : public MenuState
+class IdleRingMenuState final : public MenuState
 {
-private:
   bool m_autoSelect;
 
 public:
-  explicit IdleRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, bool autoSelect)
+  explicit IdleRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, const bool autoSelect)
       : MenuState{ringTransform}
       , m_autoSelect{autoSelect}
   {

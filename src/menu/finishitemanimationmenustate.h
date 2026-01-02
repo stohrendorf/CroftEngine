@@ -23,7 +23,6 @@ struct MenuRingTransform;
 
 class FinishItemAnimationMenuState : public MenuState
 {
-private:
   std::unique_ptr<MenuState> m_next;
 
 public:

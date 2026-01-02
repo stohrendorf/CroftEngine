@@ -13,7 +13,7 @@
 #include "selectedmenustate.h"
 #include "ui/detailedlevelstats.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 
@@ -24,14 +24,14 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
                                    engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
-    , m_stats{gsl::make_shared<ui::DetailedLevelStats>(world)}
+    , m_stats{gsl_lite::make_shared<ui::DetailedLevelStats>(world)}
 {
 }
 
 std::unique_ptr<MenuState> CompassMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
-  if(inputHandler.hasDebouncedAction(hid::Action::Return))
+  if(const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
+     inputHandler.hasDebouncedAction(hid::Action::Return))
   {
     auto& object = display.getCurrentRing().getSelectedObject();
     object.animDirection = -1_frame;

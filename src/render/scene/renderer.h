@@ -28,18 +28,18 @@ public:
     return std::chrono::high_resolution_clock::now() - m_constructionTime.time_since_epoch();
   }
 
-  void render();
+  void render() const;
 
   void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
              const gl::SRGBA8& clearColor,
              float clearDepth);
 
   void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
-             uint8_t red,
-             uint8_t green,
-             uint8_t blue,
-             uint8_t alpha,
-             float clearDepth)
+             const uint8_t red,
+             const uint8_t green,
+             const uint8_t blue,
+             const uint8_t alpha,
+             const float clearDepth)
   {
     clear(flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth);
   }

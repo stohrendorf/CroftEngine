@@ -34,6 +34,7 @@ class PhysicalTrackBuilder final
 {
 public:
   explicit PhysicalTrackBuilder(const std::filesystem::path& cueFilepath);
+
   [[nodiscard]] auto getTracks() &&
   {
     return std::move(m_tracks);

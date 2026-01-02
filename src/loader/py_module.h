@@ -11,6 +11,6 @@ inline void initLoaderModule(pybind11::module& m)
   namespace py = pybind11;
 
   auto fileModule = m.def_submodule("file");
-  loader::file::initFileModule(fileModule);
+  file::initFileModule(fileModule);
 }
 } // namespace loader

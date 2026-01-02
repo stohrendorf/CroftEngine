@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -40,21 +40,24 @@ public:
   void bind(const scene::Node* node, const scene::Mesh& mesh) const;
 
   [[nodiscard]] std::shared_ptr<UniformParameter> tryGetUniform(const std::string& name) const;
+
   [[nodiscard]] gslu::nn_shared<UniformParameter> getUniform(const std::string& name) const
   {
-    return gsl::not_null{tryGetUniform(name)};
+    return gsl_lite::not_null{tryGetUniform(name)};
   }
 
   [[nodiscard]] std::shared_ptr<UniformBlockParameter> tryGetUniformBlock(const std::string& name) const;
+
   [[nodiscard]] gslu::nn_shared<UniformBlockParameter> getUniformBlock(const std::string& name) const
   {
-    return gsl::not_null{tryGetUniformBlock(name)};
+    return gsl_lite::not_null{tryGetUniformBlock(name)};
   }
 
   [[nodiscard]] std::shared_ptr<BufferParameter> tryGetBuffer(const std::string& name) const;
+
   [[nodiscard]] gslu::nn_shared<BufferParameter> getBuffer(const std::string& name) const
   {
-    return gsl::not_null{tryGetBuffer(name)};
+    return gsl_lite::not_null{tryGetBuffer(name)};
   }
 
   [[nodiscard]] gl::RenderState& getRenderState()

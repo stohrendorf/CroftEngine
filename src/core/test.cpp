@@ -46,11 +46,11 @@ BOOST_AUTO_TEST_CASE(test_angle_axis_with_margin)
 
 BOOST_AUTO_TEST_CASE(test_interval_construction)
 {
-  core::Interval<int> i1{};
+  constexpr core::Interval<int> i1{};
   BOOST_CHECK_EQUAL(i1.min, 0);
   BOOST_CHECK_EQUAL(i1.max, 0);
 
-  core::Interval<int> i2{3, 1};
+  const core::Interval i2{3, 1};
   BOOST_CHECK(!i2.isValid());
   BOOST_CHECK_EQUAL(i2.min, 3);
   BOOST_CHECK_EQUAL(i2.max, 1);
@@ -58,12 +58,12 @@ BOOST_AUTO_TEST_CASE(test_interval_construction)
 
 BOOST_AUTO_TEST_CASE(test_interval_validity)
 {
-  core::Interval<int> i{3, 1};
+  const core::Interval i{3, 1};
   BOOST_CHECK(!i.isValid());
   BOOST_CHECK_EQUAL(i.min, 3);
   BOOST_CHECK_EQUAL(i.max, 1);
 
-  auto i2 = i.sanitized();
+  const auto i2 = i.sanitized();
   BOOST_CHECK(i2.isValid());
   BOOST_CHECK_EQUAL(i2.min, 1);
   BOOST_CHECK_EQUAL(i2.max, 3);
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(test_interval_validity)
 
 BOOST_AUTO_TEST_CASE(test_interval_checks)
 {
-  core::Interval<int> i{1, 3};
+  const core::Interval i{1, 3};
   BOOST_CHECK(!i.contains(0));
   BOOST_CHECK(i.contains(1));
   BOOST_CHECK(i.contains(2));
@@ -87,46 +87,46 @@ BOOST_AUTO_TEST_CASE(test_interval_checks)
   BOOST_CHECK(i.intersects(i));
   BOOST_CHECK(i.intersectsExclusive(i));
 
-  core::Interval<int> i2{2, 5};
+  const core::Interval i2{2, 5};
   BOOST_CHECK(i.intersects(i2));
   BOOST_CHECK(i.intersectsExclusive(i2));
 
-  core::Interval<int> i3{3, 5};
+  const core::Interval i3{3, 5};
   BOOST_CHECK(i.intersects(i3));
   BOOST_CHECK(!i.intersectsExclusive(i3));
 }
 
 BOOST_AUTO_TEST_CASE(test_interval_queries)
 {
-  const core::Interval<int> i{0, 3};
+  const core::Interval i{0, 3};
   BOOST_CHECK_EQUAL(i.size(), 3);
   BOOST_CHECK_EQUAL(i.mid(), 1);
   BOOST_CHECK_EQUAL(i.clamp(-1), 0);
   BOOST_CHECK_EQUAL(i.clamp(1), 1);
   BOOST_CHECK_EQUAL(i.clamp(5), 3);
 
-  auto i2 = i.narrowed(1);
+  const auto i2 = i.narrowed(1);
   BOOST_CHECK_EQUAL(i2.min, 1);
   BOOST_CHECK_EQUAL(i2.max, 2);
 
-  auto i3 = i.broadened(1);
+  const auto i3 = i.broadened(1);
   BOOST_CHECK_EQUAL(i3.min, -1);
   BOOST_CHECK_EQUAL(i3.max, 4);
 
-  const core::Interval<int> i4{2, 5};
-  auto i5 = i.intersect(i4);
+  const core::Interval i4{2, 5};
+  const auto i5 = i.intersect(i4);
   BOOST_CHECK_EQUAL(i5.min, 2);
   BOOST_CHECK_EQUAL(i5.max, 3);
 
-  auto i6 = i4.intersect(i);
+  const auto i6 = i4.intersect(i);
   BOOST_CHECK_EQUAL(i6.min, 2);
   BOOST_CHECK_EQUAL(i6.max, 3);
 }
 
 BOOST_AUTO_TEST_CASE(test_interval_ops)
 {
-  const core::Interval<int> i{0, 3};
-  auto i2 = i + 5;
+  const core::Interval i{0, 3};
+  const auto i2 = i + 5;
   BOOST_CHECK_EQUAL(i2.min, 5);
   BOOST_CHECK_EQUAL(i2.max, 8);
 
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(test_interval_ops)
   BOOST_CHECK_EQUAL(i3.min, 10);
   BOOST_CHECK_EQUAL(i3.max, 13);
 
-  auto i4 = 20 + i;
+  const auto i4 = 20 + i;
   BOOST_CHECK_EQUAL(i4.min, 20);
   BOOST_CHECK_EQUAL(i4.max, 23);
 }
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(test_bounding_box_validity)
 
 BOOST_AUTO_TEST_CASE(test_bounding_box_contains)
 {
-  core::BoundingBox bbox{{1_len, 2_len, 3_len}, {4_len, 5_len, 6_len}};
+  const core::BoundingBox bbox{{1_len, 2_len, 3_len}, {4_len, 5_len, 6_len}};
   BOOST_CHECK(bbox.x.isValid());
   BOOST_CHECK(bbox.y.isValid());
   BOOST_CHECK(bbox.z.isValid());

@@ -3,28 +3,29 @@
 #include "access.h"
 #include "serialization.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <type_traits>
 
 namespace serialization
 {
 template<typename T, typename TContext>
-auto create(const TypeId<gsl::not_null<T>>&, const Deserializer<TContext>& ser)
-  -> std::remove_reference_t<decltype(access<T, true>::dispatch(ser), std::declval<gsl::not_null<T>>())>
+auto create(const TypeId<gsl_lite::not_null<T>>&,
+            const Deserializer<TContext>& ser)
+  -> std::remove_reference_t<decltype(access::dispatch<T>(ser), std::declval<gsl_lite::not_null<T>>())>
 {
-  return gsl::not_null<T>{access<T, true>::dispatch(ser)};
+  return gsl_lite::not_null<T>{access::dispatch<T>(ser)};
 }
 
 template<typename T, typename TContext>
-void serialize(const gsl::not_null<T>& data, const Serializer<TContext>& ser)
+void serialize(const gsl_lite::not_null<T>& data, const Serializer<TContext>& ser)
 {
   auto tmp = data.get();
-  access<decltype(tmp), false>::dispatch(tmp, ser);
+  access::dispatch(tmp, ser);
 }
 
 template<typename T, typename TContext>
-void deserialize(gsl::not_null<T>& data, const Deserializer<TContext>& ser)
+void deserialize(gsl_lite::not_null<T>& data, const Deserializer<TContext>& ser)
 {
-  data = create(TypeId<gsl::not_null<T>>{}, ser);
+  data = create(TypeId<gsl_lite::not_null<T>>{}, ser);
 }
 } // namespace serialization

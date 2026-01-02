@@ -10,7 +10,7 @@
 #include "qs/qs.h"
 #include "serialization/serialization_fwd.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 #include <string>
 
@@ -30,21 +30,20 @@ namespace engine::objects
 {
 class SlopedBridge : public ModelObject
 {
-private:
   int m_flatness;
 
 public:
-  SlopedBridge(const gsl::not_null<world::World*>& world, const Location& location)
+  SlopedBridge(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
       , m_flatness{0}
   {
   }
 
   SlopedBridge(const std::string& name,
-               const gsl::not_null<world::World*>& world,
-               const gsl::not_null<const world::Room*>& room,
+               const gsl_lite::not_null<world::World*>& world,
+               const gsl_lite::not_null<const world::Room*>& room,
                const loader::file::Item& item,
-               const gsl::not_null<const world::SkeletalModelType*>& animatedModel,
+               const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel,
                const int flatness)
       : ModelObject{name, world, room, item, false, animatedModel, false}
       , m_flatness{flatness}
@@ -81,7 +80,7 @@ public:
 private:
   core::Length getBridgeSlopeHeight(const core::TRVec& pos) const
   {
-    auto axis = axisFromAngle(m_state.rotation.Y, 1_deg);
+    const auto axis = axisFromAngle(m_state.rotation.Y, 1_deg);
     gsl_Assert(axis.has_value());
 
     switch(*axis)
@@ -103,16 +102,16 @@ private:
 class BridgeSlope1 final : public SlopedBridge
 {
 public:
-  BridgeSlope1(const gsl::not_null<world::World*>& world, const Location& location)
+  BridgeSlope1(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : SlopedBridge{world, location}
   {
   }
 
   BridgeSlope1(const std::string& name,
-               const gsl::not_null<world::World*>& world,
-               const gsl::not_null<const world::Room*>& room,
+               const gsl_lite::not_null<world::World*>& world,
+               const gsl_lite::not_null<const world::Room*>& room,
                const loader::file::Item& item,
-               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+               const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
       : SlopedBridge{name, world, room, item, animatedModel, 4}
   {
   }
@@ -121,16 +120,16 @@ public:
 class BridgeSlope2 final : public SlopedBridge
 {
 public:
-  BridgeSlope2(const gsl::not_null<world::World*>& world, const Location& location)
+  BridgeSlope2(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : SlopedBridge{world, location}
   {
   }
 
   BridgeSlope2(const std::string& name,
-               const gsl::not_null<world::World*>& world,
-               const gsl::not_null<const world::Room*>& room,
+               const gsl_lite::not_null<world::World*>& world,
+               const gsl_lite::not_null<const world::Room*>& room,
                const loader::file::Item& item,
-               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+               const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
       : SlopedBridge{name, world, room, item, animatedModel, 2}
   {
   }

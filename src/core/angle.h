@@ -10,7 +10,7 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <limits>
 #include <optional>
 
@@ -23,7 +23,7 @@ namespace core
 {
 [[nodiscard]] inline Angle angleFromRad(const float r)
 {
-  return Angle{gsl::narrow_cast<Angle::type>(r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale)};
+  return Angle{gsl_lite::narrow_cast<Angle::type>(r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale)};
 }
 
 [[nodiscard]] inline Angle angleFromAtan(const float dx, const float dz)
@@ -33,7 +33,7 @@ namespace core
 
 [[nodiscard]] inline Angle angleFromDegrees(const float value) noexcept
 {
-  return Angle{gsl::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation * AngleStorageScale))};
+  return Angle{gsl_lite::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation * AngleStorageScale))};
 }
 
 [[nodiscard]] inline Angle angleFromAtan(const Length& dx, const Length& dz)
@@ -68,8 +68,7 @@ namespace core
 
 [[nodiscard]] inline Angle abs(const Angle& a) noexcept
 {
-  const auto tmp = Angle{std::abs(a.get())};
-  if(tmp >= 0_deg)
+  if(const auto tmp = Angle{std::abs(a.get())}; tmp >= 0_deg)
     return tmp;
 
   // abs(-180_deg) == -180_deg unfortunately
@@ -135,7 +134,7 @@ enum class Axis : uint8_t
 
 [[nodiscard]] inline std::optional<Angle> snapRotation(const Angle& angle, const Angle& margin)
 {
-  auto axis = axisFromAngle(angle, margin);
+  const auto axis = axisFromAngle(angle, margin);
   if(!axis)
     return {};
 

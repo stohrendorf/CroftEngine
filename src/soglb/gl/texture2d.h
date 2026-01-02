@@ -5,7 +5,7 @@
 #include <boost/assert.hpp>
 #include <gl/glassert.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string_view>
 
 namespace gl
@@ -20,7 +20,7 @@ public:
   using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::clear;
 
   explicit Texture2D(const glm::ivec2& size, const std::string_view& label)
-      : Texture2D<_PixelT>{size, 1, label}
+      : Texture2D{size, 1, label}
   {
   }
 
@@ -36,12 +36,12 @@ public:
       clear(Pixel{}, i);
   }
 
-  Texture2D<_PixelT>& assign(const gsl::span<const _PixelT>& data, int level = 0)
+  Texture2D& assign(const gsl_lite::span<const _PixelT>& data, int level = 0)
   {
     const int levelDiv = 1 << level;
     const auto sizeX = glm::max(1, m_size.x / levelDiv);
     const auto sizeY = glm::max(1, m_size.y / levelDiv);
-    gsl_Assert(gsl::narrow<size_t>(sizeX) * gsl::narrow<size_t>(sizeY) == data.size());
+    gsl_Assert(gsl_lite::narrow<size_t>(sizeX) * gsl_lite::narrow<size_t>(sizeY) == data.size());
 
     GL_ASSERT(api::textureSubImage2D(
       getHandle(), level, 0, 0, sizeX, sizeY, Pixel::PixelFormat, Pixel::PixelType, data.data()));

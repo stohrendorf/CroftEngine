@@ -78,12 +78,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <ios>
 #include <locale>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -94,12 +95,12 @@ namespace engine
 {
 namespace
 {
-const gsl::czstring QuicksaveFilename = "quicksave.yaml";
+const auto QuicksaveFilename = "quicksave.yaml";
 
 void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& world, core::Frame& ammoDisplayDuration)
 {
   if(const auto handStatus = world.getObjectManager().getLara().getHandStatus();
-     handStatus != engine::objects::HandStatus::Combat)
+     handStatus != objects::HandStatus::Combat)
   {
     ammoDisplayDuration = 0_frame;
   }
@@ -110,10 +111,10 @@ void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& wo
 
     ammoDisplayDuration = std::min(ammoDisplayDuration + 1_frame, StaticDuration + TransitionDuration);
 
-    auto drawAmmoText = [&ui, &world, &trFont](float bias)
+    auto drawAmmoText = [&ui, &world, &trFont](const float bias)
     {
       const auto& ammo = world.getPlayer().getInventory().getAmmo(world.getPlayer().selectedWeaponType);
-      auto text = ui::Text{ui::makeAmmoString(ammo.getDisplayString())};
+      const auto text = ui::Text{ui::makeAmmoString(ammo.getDisplayString())};
       const auto margin = ui::FontHeight / 2 + glm::mix(ui::FontHeight, 0, bias);
       const auto targetPos
         = glm::ivec2{ui.getSize().x - ui::FontHeight - 1 - margin - text.getWidth(), ui::FontHeight * 2 + margin};
@@ -125,12 +126,12 @@ void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& wo
 
     switch(world.getPlayer().selectedWeaponType)
     {
-    case engine::WeaponType::None:
-    case engine::WeaponType::Pistols:
+    case WeaponType::None:
+    case WeaponType::Pistols:
       break;
-    case engine::WeaponType::Shotgun:
-    case engine::WeaponType::Magnums:
-    case engine::WeaponType::Uzis:
+    case WeaponType::Shotgun:
+    case WeaponType::Magnums:
+    case WeaponType::Uzis:
       drawAmmoText(glm::smoothstep(
         0.0f,
         1.0f,
@@ -143,14 +144,14 @@ void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& wo
 
 void drawBugReportMessage(ui::Ui& ui, const ui::TRFont& trFont)
 {
-  auto text = ui::Text{/* translators: TR charmap encoding */ _("Bug Report Saved")};
+  const auto text = ui::Text{/* translators: TR charmap encoding */ _("Bug Report Saved")};
   const auto pos = glm::ivec2{(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y / 2 - ui::FontHeight};
   text.draw(ui, trFont, pos);
 }
 
 void drawSaveReminder(ui::Ui& ui, const ui::TRFont& trFont)
 {
-  auto text = ui::Text{/* translators: TR charmap encoding */ _("Save Game")};
+  const auto text = ui::Text{/* translators: TR charmap encoding */ _("Save Game")};
   const auto pos = glm::ivec2{(ui.getSize().x - text.getWidth()) / 2, ui::FontHeight};
   text.draw(ui, trFont, pos);
 }
@@ -161,7 +162,7 @@ void makeScreenshot(const Presenter& presenter, const std::filesystem::path& use
   if(!std::filesystem::is_directory(userDataPath / "screenshots"))
     std::filesystem::create_directories(userDataPath / "screenshots");
 
-  auto filename = util::getCurrentHumanReadableTimestamp() + ".png";
+  const auto filename = util::getCurrentHumanReadableTimestamp() + ".png";
   img.savePng(userDataPath / "screenshots" / filename, false);
 }
 
@@ -169,7 +170,7 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter,
                     world::World& world,
                     const std::filesystem::path& userDataPath)
 {
-  static constexpr const auto BlendDuration = 30_frame;
+  static constexpr auto BlendDuration = 30_frame;
   auto currentBlendDuration = 0_frame;
 
   const ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
@@ -230,7 +231,7 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter,
 }
 
 void updateGhostRoom(const std::vector<world::Room>& rooms,
-                     const gsl::not_null<std::shared_ptr<ghosting::GhostModel>>& ghost)
+                     const gsl_lite::not_null<std::shared_ptr<ghosting::GhostModel>>& ghost)
 {
   for(const auto& room : rooms)
   {
@@ -276,7 +277,7 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
       continue;
 
     for(const auto v : dataVec)
-      tmp += gsl::narrow_cast<char>(v);
+      tmp += gsl_lite::narrow_cast<char>(v);
     std::istringstream stateDataStream{tmp, std::ios::in | std::ios::binary};
     ghostFrame.read(stateDataStream);
 
@@ -293,8 +294,8 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
     {
       it = ghostManager.getRemoteModels().emplace(peerId, std::make_shared<ghosting::GhostModel>()).first;
 
-      static constexpr const glm::ivec2 nameTextureSize{512, 128};
-      static constexpr const int nameFontSize = 48;
+      static constexpr glm::ivec2 nameTextureSize{512, 128};
+      static constexpr int nameFontSize = 48;
 
       gl::Image<gl::ScalarByte> img{nameTextureSize, nullptr};
 
@@ -307,25 +308,25 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
         {(nameTextureSize.x - fontMeasurement.second.x) / 2, nameTextureSize.y - 1 + fontMeasurement.first.y},
         nameFontSize);
 
-      auto texture = gsl::make_shared<gl::Texture2D<gl::ScalarByte>>(nameTextureSize, 8, "ghost-name");
+      auto texture = gsl_lite::make_shared<gl::Texture2D<gl::ScalarByte>>(nameTextureSize, 8, "ghost-name");
       texture->assign(img.getData());
       texture->generateMipmaps();
-      auto nameHandle = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
+      auto nameHandle = gsl_lite::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         texture,
-        gsl::make_unique<gl::Sampler>("ghost-name" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear)
+        gsl_lite::make_unique<gl::Sampler>("ghost-name" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear)
           | set(gl::api::TextureMinFilter::Linear));
 
       auto mesh = render::scene::createSpriteMesh(-nameTextureSize.x / 2.0f,
                                                   0,
                                                   nameTextureSize.x / 2.0f,
-                                                  gsl::narrow_cast<float>(nameTextureSize.y),
+                                                  gsl_lite::narrow_cast<float>(nameTextureSize.y),
                                                   {0.0f, 1.0f},
                                                   {1.0f, 0.0f},
                                                   render::material::RenderMode::FullNonOpaque,
                                                   world.getPresenter().getMaterialManager()->getGhostName(),
                                                   0,
                                                   "ghost-name");
-      auto nameNode = gsl::make_shared<render::scene::Node>("ghost-name");
+      auto nameNode = gsl_lite::make_shared<render::scene::Node>("ghost-name");
       nameNode->setRenderable(mesh);
       nameNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, glm::vec3{0.0f, core::LaraWalkHeight.get(), 0.0f}));
       nameNode->bind("u_color",
@@ -342,20 +343,20 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
       setParent(nameNode, it->second);
     }
 
-    const gsl::not_null remoteGhost{it->second};
+    const gsl_lite::not_null remoteGhost{it->second};
     remoteGhost->apply(world, ghostFrame);
     remoteGhost->setColor(glColor);
     updateGhostRoom(world.getRooms(), remoteGhost);
   }
 
   std::set<uint64_t> ghostsToDrop;
-  for(const auto& [id, _] : ghostManager.getRemoteModels())
+  for(const auto& id : ghostManager.getRemoteModels() | std::views::keys)
     ghostsToDrop.emplace(id);
-  for(const auto& [id, _] : states)
+  for(const auto& id : states | std::views::keys)
     ghostsToDrop.erase(id);
   for(const auto& id : ghostsToDrop)
   {
-    setParent(gsl::not_null{ghostManager.getRemoteModels().at(id)}, nullptr);
+    setParent(gsl_lite::not_null{ghostManager.getRemoteModels().at(id)}, nullptr);
     ghostManager.getRemoteModels().erase(id);
   }
 }
@@ -371,7 +372,7 @@ Engine::Engine(std::filesystem::path userDataPath,
     , m_engineDataPath{engineDataPath}
     , m_gameflowId{gameflowId}
     , m_scriptEngine{engineDataPath / "gameflows" / gameflowId}
-    , m_engineConfig{gsl::make_shared<EngineConfig>()}
+    , m_engineConfig{gsl_lite::make_shared<EngineConfig>()}
 {
   {
     const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(getAssetDataPath());
@@ -394,15 +395,16 @@ Engine::Engine(std::filesystem::path userDataPath,
   if(std::filesystem::is_regular_file(m_userDataPath / "config.yaml"))
   {
     serialization::YAMLDocument<true> doc{m_userDataPath / "config.yaml"};
-    doc.deserialize("config", gsl::not_null{m_engineConfig.get().get()}, *m_engineConfig);
+    doc.deserialize("config", gsl_lite::not_null{m_engineConfig.get().get()}, *m_engineConfig);
   }
 
   m_presenter
     = std::make_shared<Presenter>(m_engineDataPath, resolution, m_engineConfig->renderSettings, borderlessFullscreen);
   if(gl::hasAnisotropicFilteringExtension()
-     && gsl::narrow_cast<float>(m_engineConfig->renderSettings.anisotropyLevel) > gl::getMaxAnisotropyLevel())
+     && gsl_lite::narrow_cast<float>(m_engineConfig->renderSettings.anisotropyLevel) > gl::getMaxAnisotropyLevel())
   {
-    m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
+    m_engineConfig->renderSettings.anisotropyLevel
+      = gsl_lite::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
   }
 
   applySettings();
@@ -413,7 +415,7 @@ Engine::Engine(std::filesystem::path userDataPath,
 Engine::~Engine()
 {
   serialization::YAMLDocument<false> doc{m_userDataPath / "config.yaml"};
-  doc.serialize("config", gsl::not_null{m_engineConfig.get().get()}, *m_engineConfig);
+  doc.serialize("config", gsl_lite::not_null{m_engineConfig.get().get()}, *m_engineConfig);
   doc.write();
 }
 
@@ -431,12 +433,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   applySettings();
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
-  core::Frame laraDeadTime = 0_frame;
+  auto laraDeadTime = 0_frame;
 
-  core::Frame runtime = 0_frame;
+  auto runtime = 0_frame;
   static constexpr auto BlendInDuration = core::FrameRate * 2_sec;
-  core::Frame ammoDisplayDuration = 0_frame;
-  core::Frame bugReportSavedDuration = 0_frame;
+  auto ammoDisplayDuration = 0_frame;
+  auto bugReportSavedDuration = 0_frame;
 
   const auto ghostRoot = m_userDataPath / "ghosts" / m_gameflowId;
   std::filesystem::create_directories(ghostRoot);
@@ -444,8 +446,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
   network::HauntedCoopClient coop{world.getEngine().getGameflowId(), world.getLevelFilename().stem().string()};
   coop.start();
-  const auto coopStop = gsl::final_action(
-    [&coop]()
+  const auto coopStop = gsl_lite::final_action(
+    [&coop]
     {
       coop.stop();
     });
@@ -505,7 +507,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       }
 
       m_presenter->withBackbuffer(
-        [&menu, &world]()
+        [&menu, &world]
         {
           const render::scene::RenderContext context{
             render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
@@ -666,7 +668,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(ghostManager.getReader() != nullptr)
       {
         ghostManager.getModel()->apply(world, ghostManager.getReader()->read());
-        updateGhostRoom(world.getRooms(), gsl::not_null{ghostManager.getModel()});
+        updateGhostRoom(world.getRooms(), gsl_lite::not_null{ghostManager.getModel()});
       }
 
       world.getPlayer().timeSpent += 1_frame;
@@ -732,17 +734,17 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 {
   applySettings();
 
-  for(const auto& [slot, slotStream] : world.getAudioEngine().getSoundEngine().getSlots())
+  for(const auto& slotStream : world.getAudioEngine().getSoundEngine().getSlots() | std::views::values)
   {
     if(const auto stream = slotStream.stream.lock())
       stream->setLooping(true);
   }
 
-  const auto backdrop = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
+  const auto backdrop = gsl_lite::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(
                       getAssetDataPath() / std::filesystem::path{m_scriptEngine.getGameflow().getTitleMenuBackdrop()})}
       .toTexture("title"),
-    gsl::make_unique<gl::Sampler>("title" + gl::SamplerSuffix));
+    gsl_lite::make_unique<gl::Sampler>("title" + gl::SamplerSuffix));
   const auto menu = std::make_shared<menu::MenuDisplay>(
     menu::InventoryMode::TitleMode, menu::SaveGamePageMode::NewGame, false, world, m_presenter->getRenderViewport());
   Throttler throttler;
@@ -792,7 +794,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     menu->renderObjects(ui, world);
     menu->update(ui, world);
     m_presenter->withBackbuffer(
-      [&backdropMesh, &menu, &world]()
+      [&backdropMesh, &menu, &world]
       {
         {
           render::scene::RenderContext context{
@@ -854,7 +856,7 @@ std::pair<RunResult, std::optional<size_t>>
 {
   m_presenter->clear();
   applySettings();
-  return item.run(gsl::not_null{this}, player, levelStartPlayer);
+  return item.run(gsl_lite::not_null{this}, player, levelStartPlayer);
 }
 
 std::pair<RunResult, std::optional<size_t>>
@@ -865,7 +867,7 @@ std::pair<RunResult, std::optional<size_t>>
 {
   m_presenter->clear();
   applySettings();
-  return item.runFromSave(gsl::not_null{this}, slot, player, levelStartPlayer);
+  return item.runFromSave(gsl_lite::not_null{this}, slot, player, levelStartPlayer);
 }
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
@@ -883,8 +885,8 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
   return std::make_unique<loader::trx::Glidos>(m_engineConfig->renderSettings.glidosPack.value(),
                                                [this, &lastUpdate](const std::string& s)
                                                {
-                                                 const auto now = std::chrono::high_resolution_clock::now();
-                                                 if(lastUpdate + core::TimePerFrame < now)
+                                                 if(const auto now = std::chrono::high_resolution_clock::now();
+                                                    lastUpdate + core::TimePerFrame < now)
                                                  {
                                                    lastUpdate = now;
                                                    m_presenter->drawLoadingScreen(s);
@@ -900,7 +902,7 @@ std::optional<SavegameMeta> Engine::getSavegameMeta(const std::filesystem::path&
 
   serialization::YAMLDocument<true> doc{filepath};
   SavegameMeta meta{};
-  doc.deserialize("meta", gsl::not_null{&meta}, meta);
+  doc.deserialize("meta", gsl_lite::not_null{&meta}, meta);
   return meta;
 }
 

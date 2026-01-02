@@ -32,8 +32,8 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode,
                                                     const std::function<int32_t()>& lightingMode);
 
-  [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal, const std::function<bool()>& smooth);
-  [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal, const std::function<bool()>& smooth);
+  [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal, const std::function<bool()>& smooth) const;
+  [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal, const std::function<bool()>& smooth) const;
 
   [[nodiscard]] gslu::nn_shared<Material> getGeometry(bool inWater,
                                                       bool skeletal,

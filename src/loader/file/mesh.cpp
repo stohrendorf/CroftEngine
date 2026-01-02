@@ -6,7 +6,7 @@
 #include "qs/quantity.h"
 
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace loader::file
 {
@@ -14,13 +14,12 @@ Mesh Mesh::readTr1(io::SDLReader& reader)
 {
   Mesh mesh{};
   mesh.collision_center = readCoordinates16(reader);
-  mesh.collision_radius = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh.collision_radius = core::Length{gsl_lite::narrow_cast<core::Length::type>(reader.readI16())};
   mesh.flags = reader.readU16();
 
   reader.readVector(mesh.vertices, reader.readU16(), &io::readCoordinates16);
 
-  const auto num_normals = reader.readI16();
-  if(num_normals >= 0)
+  if(const auto num_normals = reader.readI16(); num_normals >= 0)
   {
     gsl_Assert(static_cast<size_t>(num_normals) == mesh.vertices.size());
     reader.readVector(mesh.normals, num_normals, &io::readCoordinates16);
@@ -43,12 +42,11 @@ Mesh Mesh::readTr4(io::SDLReader& reader)
 {
   Mesh mesh{};
   mesh.collision_center = readCoordinates16(reader);
-  mesh.collision_radius = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  mesh.collision_radius = core::Length{gsl_lite::narrow_cast<core::Length::type>(reader.readI32())};
 
   reader.readVector(mesh.vertices, reader.readU16(), &io::readCoordinates16);
 
-  const auto num_normals = reader.readI16();
-  if(num_normals >= 0)
+  if(const auto num_normals = reader.readI16(); num_normals >= 0)
   {
     reader.readVector(mesh.normals, num_normals, &io::readCoordinates16);
   }

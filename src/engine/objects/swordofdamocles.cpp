@@ -21,7 +21,7 @@
 #include "util/helpers.h"
 
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -55,8 +55,8 @@ void SwordOfDamocles::update()
   else if(m_state.location.position.Y != m_state.floor)
   {
     m_state.rotation.Y += m_rotateSpeed * 1_frame;
-    const auto d = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
-    if(abs(d.X) <= 1536_len && abs(d.Z) <= 1536_len && d.Y > 0_len && d.Y < 3_sectors)
+    if(const auto d = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
+       abs(d.X) <= 1536_len && abs(d.Z) <= 1536_len && d.Y > 0_len && d.Y < 3_sectors)
     {
       m_dropSpeedX = d.X / 32_frame;
       m_dropSpeedZ = d.Z / 32_frame;
@@ -81,10 +81,10 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
   getWorld().hitLara(100_hp);
   const auto tmp = getWorld().getObjectManager().getLara().m_state.location.position
                    + core::TRVec{util::rand15s(128_len), -util::rand15(745_len), util::rand15s(128_len)};
-  auto fx = createBloodSplat(getWorld(),
-                             Location{m_state.location.room, tmp},
-                             getWorld().getObjectManager().getLara().m_state.speed,
-                             util::rand15s(22.5_deg) + m_state.rotation.Y);
+  const auto fx = createBloodSplat(getWorld(),
+                                   Location{m_state.location.room, tmp},
+                                   getWorld().getObjectManager().getLara().m_state.speed,
+                                   util::rand15s(22.5_deg) + m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);
 }
 
@@ -101,16 +101,16 @@ void SwordOfDamocles::deserialize(const serialization::Deserializer<world::World
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-SwordOfDamocles::SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location)
+SwordOfDamocles::SwordOfDamocles(const gsl_lite::not_null<world::World*>& world, const Location& location)
     : ModelObject{world, location}
 {
 }
 
 SwordOfDamocles::SwordOfDamocles(const std::string& name,
-                                 const gsl::not_null<world::World*>& world,
-                                 const gsl::not_null<const world::Room*>& room,
+                                 const gsl_lite::not_null<world::World*>& world,
+                                 const gsl_lite::not_null<const world::Room*>& room,
                                  const loader::file::Item& item,
-                                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                                 const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   m_state.rotation.Y += util::rand15s(180_deg) + util::rand15s(180_deg);

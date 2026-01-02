@@ -12,14 +12,14 @@
 #include "hid/inputhandler.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_0 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_0(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_0(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::WalkForward}
   {
   }
@@ -84,8 +84,7 @@ public:
 
     if(checkWallCollision(collisionInfo))
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
-      if(fr >= 29_frame && fr <= 47_frame)
+      if(const auto fr = getLara().getSkeleton()->getFrame(); fr >= 29_frame && fr <= 47_frame)
       {
         setAnimation(AnimationId::END_WALK_LEFT);
       }
@@ -110,8 +109,7 @@ public:
 
     if(collisionInfo.mid.floor.dy > core::SteppableHeight)
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
-      if(fr < 28_frame || fr > 45_frame)
+      if(const auto fr = getLara().getSkeleton()->getFrame(); fr < 28_frame || fr > 45_frame)
       {
         setAnimation(AnimationId::WALK_DOWN_RIGHT);
       }
@@ -123,8 +121,7 @@ public:
 
     if(collisionInfo.mid.floor.dy >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.dy < -core::SteppableHeight)
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
-      if(fr < 27_frame || fr > 44_frame)
+      if(const auto fr = getLara().getSkeleton()->getFrame(); fr < 27_frame || fr > 44_frame)
       {
         setAnimation(AnimationId::WALK_UP_STEP_RIGHT);
       }

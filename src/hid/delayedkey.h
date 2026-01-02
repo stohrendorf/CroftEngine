@@ -12,7 +12,7 @@ enum class GlfwKey;
 class DelayedKey
 {
 public:
-  explicit DelayedKey(GlfwKey key, int seconds)
+  explicit DelayedKey(const GlfwKey key, const int seconds)
       : m_key{key}
       , m_delay{seconds}
   {

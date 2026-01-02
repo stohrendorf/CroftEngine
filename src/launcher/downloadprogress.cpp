@@ -5,7 +5,7 @@
 #include <boost/log/trivial.hpp>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <QMessageBox>
 #include <utility>
@@ -41,10 +41,10 @@ DownloadProgress::~DownloadProgress()
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void DownloadProgress::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+void DownloadProgress::downloadProgress(const qint64 bytesReceived, const qint64 bytesTotal)
 {
-  ui->progressBar->setMaximum(gsl::narrow<int>(bytesTotal));
-  ui->progressBar->setValue(gsl::narrow<int>(bytesReceived));
+  ui->progressBar->setMaximum(gsl_lite::narrow<int>(bytesTotal));
+  ui->progressBar->setValue(gsl_lite::narrow<int>(bytesReceived));
 }
 
 void DownloadProgress::finished()

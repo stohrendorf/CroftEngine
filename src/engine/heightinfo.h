@@ -7,7 +7,7 @@
 #include "qs/qs.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 
@@ -38,11 +38,11 @@ struct HeightInfo
 
   static bool skipSteepSlants;
 
-  static HeightInfo fromFloor(gsl::not_null<const world::Sector*> roomSector,
+  static HeightInfo fromFloor(gsl_lite::not_null<const world::Sector*> roomSector,
                               const core::TRVec& pos,
                               const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects);
 
-  static HeightInfo fromCeiling(gsl::not_null<const world::Sector*> roomSector,
+  static HeightInfo fromCeiling(gsl_lite::not_null<const world::Sector*> roomSector,
                                 const core::TRVec& pos,
                                 const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects);
 
@@ -65,7 +65,7 @@ struct VerticalDistances
   //! Ceiling distance relative to the object's top
   RelativeHeightInfo ceiling;
 
-  void init(const gsl::not_null<const world::Sector*>& roomSector,
+  void init(const gsl_lite::not_null<const world::Sector*>& roomSector,
             const core::TRVec& position,
             const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects,
             const core::Length& objectY,

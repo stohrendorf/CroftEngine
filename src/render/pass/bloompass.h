@@ -32,7 +32,7 @@ public:
       , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() / 2, m_name + "-downsample-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-downsample-color" + gl::SamplerSuffix)
+          gsl_lite::make_unique<gl::Sampler>(m_name + "-downsample-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -89,19 +89,17 @@ public:
   {
     for(uint8_t i = 0; i < NSteps; ++i)
     {
-      m_steps[i]
-        = std::make_shared<SingleBloomDownsample<TPixel>>(name + ":" + std::to_string(int(i)), materialManager, input);
+      m_steps[i] = std::make_shared<SingleBloomDownsample<TPixel>>(
+        name + ":" + std::to_string(static_cast<int>(i)), materialManager, input);
       input = m_steps[i]->getOutput();
     }
   }
 
   void render()
   {
-    std::shared_ptr<SingleBloomDownsample<TPixel>> prevStep;
     for(const auto& step : m_steps)
     {
       step->render();
-      prevStep = step;
     }
   }
 
@@ -128,7 +126,7 @@ public:
       , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() * 2, m_name + "-upsample-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-upsample-color" + gl::SamplerSuffix)
+          gsl_lite::make_unique<gl::Sampler>(m_name + "-upsample-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -185,19 +183,17 @@ public:
   {
     for(uint8_t i = 0; i < NSteps; ++i)
     {
-      m_steps[i]
-        = std::make_shared<SingleBloomUpsample<TPixel>>(name + ":" + std::to_string(int(i)), materialManager, input);
+      m_steps[i] = std::make_shared<SingleBloomUpsample<TPixel>>(
+        name + ":" + std::to_string(static_cast<int>(i)), materialManager, input);
       input = m_steps[i]->getOutput();
     }
   }
 
   void render()
   {
-    std::shared_ptr<SingleBloomUpsample<TPixel>> prevStep;
     for(const auto& step : m_steps)
     {
       step->render();
-      prevStep = step;
     }
   }
 

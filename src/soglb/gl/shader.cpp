@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <iterator>
 #include <set>
@@ -37,7 +37,7 @@ std::string readAll(const std::filesystem::path& filePath)
   return std::string{std::istream_iterator<char>{stream}, std::istream_iterator<char>{}};
 }
 
-std::string replaceDefines(const std::vector<std::string>& defines, bool isInput)
+std::string replaceDefines(const std::vector<std::string>& defines, const bool isInput)
 {
   std::string out;
   if(!defines.empty())
@@ -106,7 +106,7 @@ void replaceIncludes(const std::filesystem::path& filepath,
       // File path to include and 'stitch' in the value in the quotes to the file path and source it.
       const size_t len = endQuote - startQuote;
       const auto includePath = filepath.parent_path() / std::filesystem::path{source.substr(startQuote, len)};
-      if(included.count(includePath) > 0)
+      if(included.contains(includePath))
       {
         continue;
       }
@@ -133,11 +133,11 @@ void replaceIncludes(const std::filesystem::path& filepath,
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::ShaderType _Type>
-Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string_view& label)
+Shader<_Type>::Shader(const gsl_lite::span<gsl_lite::czstring>& src, const std::string_view& label)
     : m_handle{GL_ASSERT_FN(api::createShader(Type))}
 {
   gsl_Ensures(m_handle != 0);
-  GL_ASSERT(api::shaderSource(m_handle, gsl::narrow<api::core::SizeType>(src.size()), src.data(), nullptr));
+  GL_ASSERT(api::shaderSource(m_handle, gsl_lite::narrow<api::core::SizeType>(src.size()), src.data(), nullptr));
   GL_ASSERT(api::compileShader(m_handle));
 
   if(const auto log = getInfoLog(); !log.empty())
@@ -154,7 +154,7 @@ Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string_vie
   if(!label.empty())
   {
     GL_ASSERT(api::objectLabel(
-      api::ObjectIdentifier::Shader, m_handle, gsl::narrow<api::core::SizeType>(label.size()), label.data()));
+      api::ObjectIdentifier::Shader, m_handle, gsl_lite::narrow<api::core::SizeType>(label.size()), label.data()));
   }
 }
 
@@ -171,7 +171,7 @@ std::string Shader<_Type>::getInfoLog() const
   if(length <= 0)
     return {};
 
-  std::vector<char> infoLog(length, '\0');
+  std::vector infoLog(length, '\0');
   GL_ASSERT(api::getShaderInfoLog(m_handle, length, nullptr, infoLog.data()));
   infoLog.back() = '\0';
   return infoLog.data();
@@ -185,7 +185,7 @@ Shader<_Type> Shader<_Type>::create(const std::filesystem::path& sourcePath,
                                     const std::string_view& label)
 {
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
-  std::array<gsl::czstring, SHADER_SOURCE_LENGTH> shaderSource{nullptr};
+  std::array<gsl_lite::czstring, SHADER_SOURCE_LENGTH> shaderSource{nullptr};
   shaderSource[0]
     = "#version 450 core\n"
       "#extension GL_ARB_bindless_texture : require\n"
@@ -203,7 +203,7 @@ Shader<_Type> Shader<_Type>::create(const std::filesystem::path& sourcePath,
   }
   shaderSource[2] = !sourcePath.empty() ? sourceStr.c_str() : source.c_str();
 
-  return Shader<_Type>{shaderSource, label};
+  return Shader{shaderSource, label};
 }
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)

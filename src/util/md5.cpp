@@ -36,7 +36,7 @@ documentation and/or software.
 #include <array>
 #include <cstdint>
 #include <cstdio>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string>
 
 constexpr size_t Blocksize = 64;
@@ -178,9 +178,9 @@ struct State
   // the message digest and zeroizing the context.
   void finalize()
   {
-    static const std::array<uint8_t, 64> padding{0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                                 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                                 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    static constexpr std::array<uint8_t, 64> padding{
+      0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     if(!finalized)
     {
@@ -303,13 +303,13 @@ struct State
     size_t index = count[0] / 8 % Blocksize;
 
     // Update number of bits
-    const auto nBits = gsl::narrow_cast<uint32_t>(length << 3u);
+    const auto nBits = gsl_lite::narrow_cast<uint32_t>(length << 3u);
     count[0] += nBits;
     if(count[0] < nBits)
     {
       ++count[1];
     }
-    count[1] += gsl::narrow_cast<uint32_t>(length >> 29u);
+    count[1] += gsl_lite::narrow_cast<uint32_t>(length >> 29u);
 
     // number of bytes we need to fill in buffer
     const size_t firstpart = 64 - index;

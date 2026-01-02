@@ -21,7 +21,7 @@
 
 #include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <map>
 #include <stdexcept>
 
@@ -143,18 +143,18 @@ const world::Sector* ObjectState::getCurrentSector() const
   return location.room->getSectorByAbsolutePosition(location.position);
 }
 
-gsl::not_null<const world::Box*> ObjectState::getCurrentBox() const
+gsl_lite::not_null<const world::Box*> ObjectState::getCurrentBox() const
 {
-  return gsl::not_null{tryGetCurrentBox()};
+  return gsl_lite::not_null{tryGetCurrentBox()};
 }
 
 const world::Box* ObjectState::tryGetCurrentBox() const
 {
-  const gsl::not_null sector{getCurrentSector()};
+  const gsl_lite::not_null sector{getCurrentSector()};
   return sector->box;
 }
 
-void ObjectState::hitLara(const core::Health& damage, bool noHits)
+void ObjectState::hitLara(const core::Health& damage, const bool noHits)
 {
   BOOST_ASSERT(damage >= 0_hp);
   if(damage > 0_hp && noHits)

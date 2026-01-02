@@ -5,9 +5,10 @@
 #include "serialization.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <optional>
+
 
 namespace serialization
 {
@@ -17,7 +18,7 @@ inline std::optional<uint32_t> ptrSave(const engine::world::Box* box, const Seri
     return std::nullopt;
 
   ser.tag("box");
-  return gsl::narrow<uint32_t>(std::distance(&ser.context->getBoxes().at(0), box));
+  return gsl_lite::narrow<uint32_t>(std::distance(&ser.context->getBoxes().at(0), box));
 }
 
 inline std::optional<uint32_t> ptrSave(engine::world::Box* box, const Serializer<engine::world::World>& ser)

@@ -30,17 +30,17 @@
 #include <bitset>
 #include <boost/log/trivial.hpp>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
 namespace engine::objects
 {
 CentaurStatue::CentaurStatue(const std::string& name,
-                             const gsl::not_null<world::World*>& world,
-                             const gsl::not_null<const world::Room*>& room,
+                             const gsl_lite::not_null<world::World*>& world,
+                             const gsl_lite::not_null<const world::Room*>& room,
                              loader::file::Item item,
-                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   if(const auto& model = world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::CentaurMutant); model != nullptr)
@@ -52,16 +52,17 @@ CentaurStatue::CentaurStatue(const std::string& name,
       world,
       room,
       item,
-      gsl::not_null{model.get()});
+      gsl_lite::not_null{model.get()});
     auto& childState = m_childObject->m_state;
     childState.activationState.setOneshot(true);
-    m_childObject->getSkeleton()->setAnimation(
-      childState.current_anim_state, gsl::not_null{&model->animations[7]}, model->animations[7].firstFrame + 36_frame);
+    m_childObject->getSkeleton()->setAnimation(childState.current_anim_state,
+                                               gsl_lite::not_null{&model->animations[7]},
+                                               model->animations[7].firstFrame + 36_frame);
     childState.goal_anim_state = childState.current_anim_state = model->animations[7].state_id;
     childState.rotation.Y = m_state.rotation.Y;
     m_childObject->getSkeleton()->updatePose();
     m_childObject->m_state.triggerState = TriggerState::Invisible;
-    getWorld().getObjectManager().registerObject(gsl::not_null{m_childObject});
+    getWorld().getObjectManager().registerObject(gsl_lite::not_null{m_childObject});
   }
   else
   {

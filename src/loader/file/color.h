@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace loader::file
@@ -39,15 +39,16 @@ struct ByteColor
     return gl::SRGBA8{r, g, b, a};
   }
 
-  [[nodiscard]] gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const noexcept
+  [[nodiscard]] gl::SRGBA8 toTextureColor(const uint8_t alphaOverride) const noexcept
   {
     return gl::SRGBA8{r, g, b, alphaOverride};
   }
 
   [[nodiscard]] glm::vec3 toGLColor3() const
   {
-    return glm::vec3{
-      gsl::narrow_cast<float>(r) / 255.0f, gsl::narrow_cast<float>(g) / 255.0f, gsl::narrow_cast<float>(b) / 255.0f};
+    return glm::vec3{gsl_lite::narrow_cast<float>(r) / 255.0f,
+                     gsl_lite::narrow_cast<float>(g) / 255.0f,
+                     gsl_lite::narrow_cast<float>(b) / 255.0f};
   }
 
 private:

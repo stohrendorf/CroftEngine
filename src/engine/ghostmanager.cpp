@@ -28,8 +28,9 @@
 
 #include <boost/log/trivial.hpp>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <system_error>
 
@@ -147,7 +148,7 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
 
     const auto ymlFilepath = std::filesystem::path{m_readerPath}.replace_extension(".yml");
     serialization::YAMLDocument<false> metaDoc{ymlFilepath};
-    metaDoc.serialize("ghost", gsl::not_null{&ghostMeta}, ghostMeta);
+    metaDoc.serialize("ghost", gsl_lite::not_null{&ghostMeta}, ghostMeta);
     metaDoc.write();
 
     const auto tarXzFilepath = std::filesystem::path{m_readerPath}.replace_extension(".tar.xz");
@@ -166,9 +167,9 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
   }
 }
 
-void GhostManager::setChildrenVisibility(bool visible)
+void GhostManager::setChildrenVisibility(const bool visible)
 {
-  for(const auto& [peerId, model] : m_remoteModels)
+  for(const auto& model : m_remoteModels | std::views::values)
   {
     if(model == nullptr)
       continue;

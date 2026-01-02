@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 #ifndef NDEBUG
 #  define SOGLB_DEBUGGING
@@ -9,9 +9,9 @@
 namespace gl
 {
 #ifdef SOGLB_DEBUGGING
-extern void checkGlError(gsl::czstring code);
+extern void checkGlError(gsl_lite::czstring code);
 #else
-inline void checkGlError(gsl::czstring /*code*/)
+inline void checkGlError(gsl_lite::czstring /*code*/)
 {
 }
 #endif
@@ -19,7 +19,7 @@ inline void checkGlError(gsl::czstring /*code*/)
 namespace detail
 {
 template<typename F>
-auto glAssertFn(F code, const gsl::czstring codeStr) -> decltype(code())
+auto glAssertFn(F code, const gsl_lite::czstring codeStr) -> decltype(code())
 {
   const auto result = code();
   checkGlError(codeStr);

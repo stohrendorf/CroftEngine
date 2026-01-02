@@ -5,13 +5,15 @@
 #include "serialization.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
+
 
 namespace serialization
 {
 // cppcheck-suppress constParameter
-void serialize(const std::shared_ptr<engine::world::RenderMeshData>& mesh, const Serializer<engine::world::World>& ser)
+inline void serialize(const std::shared_ptr<engine::world::RenderMeshData>& mesh,
+                      const Serializer<engine::world::World>& ser)
 {
   if(mesh == nullptr)
   {
@@ -33,7 +35,8 @@ void serialize(const std::shared_ptr<engine::world::RenderMeshData>& mesh, const
   gsl_Assert(false);
 }
 
-void deserialize(std::shared_ptr<engine::world::RenderMeshData>& data, const Deserializer<engine::world::World>& ser)
+inline void deserialize(std::shared_ptr<engine::world::RenderMeshData>& data,
+                        const Deserializer<engine::world::World>& ser)
 {
   if(ser.isNull())
   {
@@ -47,8 +50,9 @@ void deserialize(std::shared_ptr<engine::world::RenderMeshData>& data, const Des
   data = ser.context->getWorldGeometry().getRenderMesh(tmp);
 }
 
-std::shared_ptr<engine::world::RenderMeshData> create(const TypeId<std::shared_ptr<engine::world::RenderMeshData>>&,
-                                                      const Deserializer<engine::world::World>& ser)
+inline std::shared_ptr<engine::world::RenderMeshData> create(
+  const TypeId<std::shared_ptr<engine::world::RenderMeshData>>&,
+  const Deserializer<engine::world::World>& ser)
 {
   std::shared_ptr<engine::world::RenderMeshData> tmp;
   deserialize(tmp, ser);

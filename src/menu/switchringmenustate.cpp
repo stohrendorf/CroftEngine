@@ -50,8 +50,8 @@ void SwitchRingMenuState::handleObject(ui::Ui& /*ui*/,
 }
 
 SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                         size_t next,
-                                         bool down)
+                                         const size_t next,
+                                         const bool down)
     : MenuState{ringTransform}
     , m_next{next}
     , m_down{down}

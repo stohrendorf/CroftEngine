@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace core
 {
@@ -18,14 +18,16 @@ QS_DECLARE_QUANTITY(Length, int32_t, "u");
 QS_LITERAL_OP_ULL(Length, _len)
 QS_LITERAL_OP_LD(Length, _len)
 
-using Area = QS_COMBINE_UNITS(Length, *, Length);
+using Area = QS_COMBINE_UNITS(
+
+  Length, *, Length);
 
 [[nodiscard]] inline Length sqrt(const Area& area) noexcept
 {
   return Length{static_cast<Length::type>(std::sqrt(area.get()))};
 }
 
-[[nodiscard]] constexpr Length lerp(const Length& a, const Length& b, float bias)
+[[nodiscard]] constexpr Length lerp(const Length& a, const Length& b, const float bias)
 {
   return Length{static_cast<Length::type>(a.get() * (1 - bias) + b.get() * bias)};
 }
@@ -33,10 +35,14 @@ using Area = QS_COMBINE_UNITS(Length, *, Length);
 QS_DECLARE_QUANTITY(Seconds, int32_t, "s");
 QS_LITERAL_OP_ULL(Seconds, _sec)
 
-using Speed = QS_COMBINE_UNITS(Length, /, Frame);
+using Speed = QS_COMBINE_UNITS(
+
+  Length, /, Frame);
 QS_LITERAL_OP_ULL(Speed, _spd)
 
-using Acceleration = QS_COMBINE_UNITS(Speed, /, Frame);
+using Acceleration = QS_COMBINE_UNITS(
+
+  Speed, /, Frame);
 
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 [[nodiscard]] inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value) noexcept
@@ -59,25 +65,29 @@ QS_DECLARE_QUANTITY(Brightness, float, "brightness");
 }
 
 QS_DECLARE_QUANTITY(Angle, int32_t, "au");
-using RotationSpeed = QS_COMBINE_UNITS(Angle, /, Frame);
-using RotationAcceleration = QS_COMBINE_UNITS(RotationSpeed, /, Frame);
+using RotationSpeed = QS_COMBINE_UNITS(
+
+  Angle, /, Frame);
+using RotationAcceleration = QS_COMBINE_UNITS(
+
+  RotationSpeed, /, Frame);
 
 constexpr int32_t FullRotation = 1u << 16u;
 constexpr int32_t AngleStorageScale = 1u << 16u;
 
-[[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept
+[[nodiscard]] constexpr Angle auToAngle(const int16_t value) noexcept
 {
   return Angle{static_cast<Angle::type>(value) * AngleStorageScale};
 }
 
 [[nodiscard]] constexpr Angle operator"" _au(const unsigned long long value) noexcept
 {
-  return auToAngle(gsl::narrow_cast<int16_t>(value));
+  return auToAngle(gsl_lite::narrow_cast<int16_t>(value));
 }
 
 [[nodiscard]] constexpr Angle operator"" _deg(const unsigned long long value) noexcept
 {
-  return Angle{gsl::narrow_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
+  return Angle{gsl_lite::narrow_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
 }
 
 [[nodiscard]] constexpr Angle operator"" _deg(const long double value) noexcept

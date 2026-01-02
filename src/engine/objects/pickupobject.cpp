@@ -50,7 +50,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       return;
     }
 
-    static const core::GenericVec<core::Speed> aimSpeed{0_spd, -200_spd, -350_spd};
+    static constexpr core::GenericVec aimSpeed{0_spd, -200_spd, -350_spd};
 
     if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
     {

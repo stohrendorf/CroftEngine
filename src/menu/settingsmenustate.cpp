@@ -32,7 +32,7 @@
 #include <functional>
 #include <gl/glad_init.h>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <ios>
 #include <memory>
@@ -51,7 +51,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                      engine::Engine& engine)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
-    , m_tabs{gsl::make_unique<ui::widgets::TabBox>()}
+    , m_tabs{gsl_lite::make_unique<ui::widgets::TabBox>()}
 
 {
   static const auto toggle = [](engine::Engine& engine, bool& value)
@@ -60,20 +60,20 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
     engine.applySettings();
   };
 
-  auto tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Effects"));
+  auto tab = gsl_lite::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Effects"));
 
-  auto listBox = gsl::make_shared<ui::widgets::CheckListBox>();
+  auto listBox = gsl_lite::make_shared<ui::widgets::CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   m_tabs->addTab(tab, listBox);
   m_descriptions.emplace_back();
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("CRT Version \x1f\x6c %1% \x1f\x6d", value + 1);
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.crtVersion = value;
         engine.applySettings();
@@ -81,11 +81,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       std::vector<uint8_t>{0, 1});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.crtActive;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.crtActive);
       });
@@ -99,11 +99,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Depth-of-Field"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.dof;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.dof);
     });
@@ -115,11 +115,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Lens Distortion"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.lensDistortion;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.lensDistortion);
     });
@@ -131,11 +131,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Film Grain"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.filmGrain;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.filmGrain);
     });
@@ -145,11 +145,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Velvia"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.velvia;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.velvia);
     });
@@ -159,11 +159,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Bloom"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.bloom;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.bloom);
     });
@@ -174,11 +174,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Edge Outlines"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.edges;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.edges);
     });
@@ -187,11 +187,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Muzzle Flash Lighting"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.muzzleFlashLight;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.muzzleFlashLight);
     });
@@ -205,12 +205,12 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       values.emplace_back(v);
 
     auto tmp = std::make_shared<ui::widgets::ValueSelector<int8_t>>(
-      [](int8_t value)
+      [](const int8_t value)
       {
         return /* translators: TR charmap encoding */ _("Brightness \x1f\x6c %1% \x1f\x6d",
                                                         boost::io::group(std::showpos, static_cast<int32_t>(value)));
       },
-      [&engine](int8_t value)
+      [&engine](const int8_t value)
       {
         engine.getEngineConfig()->renderSettings.brightness = value;
         engine.applySettings();
@@ -218,11 +218,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       values);
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.brightnessEnabled;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.brightnessEnabled);
       });
@@ -238,12 +238,12 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       values.emplace_back(v);
 
     auto tmp = std::make_shared<ui::widgets::ValueSelector<int8_t>>(
-      [](int8_t value)
+      [](const int8_t value)
       {
         return /* translators: TR charmap encoding */ _("Contrast \x1f\x6c %1% \x1f\x6d",
                                                         boost::io::group(std::showpos, static_cast<int32_t>(value)));
       },
-      [&engine](int8_t value)
+      [&engine](const int8_t value)
       {
         engine.getEngineConfig()->renderSettings.contrast = value;
         engine.applySettings();
@@ -251,11 +251,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       values);
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.contrastEnabled;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.contrastEnabled);
       });
@@ -266,10 +266,10 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   }
 
   {
-    const std::vector<int32_t> values{1, 2, 3};
+    const std::vector values{1, 2, 3};
 
     auto tmp = std::make_shared<ui::widgets::ValueSelector<int32_t>>(
-      [](int32_t value)
+      [](const int32_t value)
       {
         std::string mode;
         switch(value)
@@ -288,7 +288,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
         }
         return /* translators: TR charmap encoding */ _("\x1f\x6c %1% \x1f\x6d Dynamic Lighting", mode);
       },
-      [&engine](int32_t value)
+      [&engine](const int32_t value)
       {
         engine.getEngineConfig()->renderSettings.lightingMode = value;
         engine.applySettings();
@@ -296,11 +296,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       values);
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.lightingModeActive;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.lightingModeActive);
       });
@@ -312,9 +312,9 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       MaxDescriptionWidth));
   }
 
-  listBox = gsl::make_shared<ui::widgets::CheckListBox>();
+  listBox = gsl_lite::make_shared<ui::widgets::CheckListBox>();
   m_listBoxes.emplace_back(listBox);
-  tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));
+  tab = gsl_lite::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));
   m_descriptions.emplace_back();
 
   m_tabs->addTab(tab, listBox);
@@ -322,11 +322,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Bilinear Filtering"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.bilinearFiltering;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.bilinearFiltering);
     });
@@ -335,7 +335,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
     MaxDescriptionWidth));
   if(gl::hasAnisotropicFilteringExtension())
   {
-    const auto maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()));
+    const auto maxLevel = gsl_lite::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()));
     std::vector<uint32_t> levels;
     for(uint32_t i = 1; i <= maxLevel; i *= 2)
     {
@@ -348,7 +348,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
         {
           return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d Anisotropic Filtering", level);
         },
-        [&engine](uint32_t value)
+        [&engine](const uint32_t value)
         {
           engine.getEngineConfig()->renderSettings.anisotropyLevel = value;
           engine.applySettings();
@@ -358,11 +358,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
       listBox->addSetting(
         gslu::nn_shared<ui::widgets::Widget>{tmp},
-        [&engine]()
+        [&engine]
         {
           return engine.getEngineConfig()->renderSettings.anisotropyActive;
         },
-        [&engine, maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()))]()
+        [&engine, maxLevel = gsl_lite::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()))]
         {
           toggle(engine, engine.getEngineConfig()->renderSettings.anisotropyActive);
         });
@@ -374,11 +374,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Denoise Water Surface"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.waterDenoise;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.waterDenoise);
     });
@@ -387,11 +387,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("HBAO"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.hbao;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.hbao);
     });
@@ -403,7 +403,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         const char* quality = nullptr;
         switch(value)
@@ -425,7 +425,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
         }
         return /* translators: TR charmap encoding */ _("FXAA \x1f\x6c %1% \x1f\x6d", quality);
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.fxaaPreset = value;
         engine.applySettings();
@@ -433,11 +433,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       std::vector<uint8_t>{10, 15, 29, 39});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.fxaaActive;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.fxaaActive);
       });
@@ -452,11 +452,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("High Quality Shadows"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.highQualityShadows;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows);
     });
@@ -468,12 +468,12 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("\x1f\x6c 1/%1% \x1f\x6d Render Scale",
                                                         static_cast<uint32_t>(value));
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.renderResolutionDivisor = value;
         engine.applySettings();
@@ -481,11 +481,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive);
       });
@@ -498,12 +498,12 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d UI Scale",
                                                         static_cast<uint32_t>(value));
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.uiScaleMultiplier = value;
         engine.applySettings();
@@ -511,11 +511,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.uiScaleActive;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.uiScaleActive);
       });
@@ -527,31 +527,31 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Smoother Animations"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->animSmoothing;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->animSmoothing);
     });
   m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
     /* translators: TR charmap encoding */ _("Smoothes out some choppy model animations."), MaxDescriptionWidth));
 
-  listBox = gsl::make_shared<ui::widgets::CheckListBox>();
+  listBox = gsl_lite::make_shared<ui::widgets::CheckListBox>();
   m_listBoxes.emplace_back(listBox);
-  tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Other"));
+  tab = gsl_lite::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Other"));
   m_tabs->addTab(tab, listBox);
   m_descriptions.emplace_back();
 
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Fullscreen"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.fullscreen;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.fullscreen);
     });
@@ -560,11 +560,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("\x1f\x6c %1% \x1f\x6d Percent Dust Particles", 100 / value);
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.dustDensity = value;
         engine.applySettings();
@@ -572,11 +572,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       std::vector<uint8_t>{10, 5, 4, 3, 2, 1});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->renderSettings.dustActive;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->renderSettings.dustActive);
       });
@@ -591,11 +591,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("More Lights"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->renderSettings.moreLights;
     },
-    [&engine]()
+    [&engine]
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.moreLights);
     });
@@ -607,11 +607,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Ghost"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->displaySettings.ghost;
     },
-    [&engine]()
+    [&engine]
     {
       auto& b = engine.getEngineConfig()->displaySettings.ghost;
       b = !b;
@@ -624,11 +624,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
     listBox->addSetting(
       /* translators: TR charmap encoding */
       _("Show Players' Names"),
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->displaySettings.showCoopNames;
       },
-      [&engine]()
+      [&engine]
       {
         auto& b = engine.getEngineConfig()->displaySettings.showCoopNames;
         b = !b;
@@ -639,27 +639,28 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Restore Health on Level Start"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->restoreHealth;
     },
-    [&engine]()
+    [&engine]
     {
       auto& b = engine.getEngineConfig()->restoreHealth;
       b = !b;
     });
   m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
-    /* translators: TR charmap encoding */ _("Enable to restore your health on each level start. When disabled, your"
-                                             " health won't get filled up after each level."),
+    /* translators: TR charmap encoding */
+    _("Enable to restore your health on each level start. When disabled, your"
+      " health won't get filled up after each level."),
     MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Low Health: Pulse Health Bar"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->pulseLowHealthHealthBar;
     },
-    [&engine]()
+    [&engine]
     {
       auto& b = engine.getEngineConfig()->pulseLowHealthHealthBar;
       b = !b;
@@ -671,27 +672,28 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Low Health: Reduce Color"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->lowHealthMonochrome;
     },
-    [&engine]()
+    [&engine]
     {
       auto& b = engine.getEngineConfig()->lowHealthMonochrome;
       b = !b;
     });
   m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
-    /* translators: TR charmap encoding */ _("Enable to make the screen go black and white the lower your health is. "
-                                             "This effect will only start to take effect on very low health."),
+    /* translators: TR charmap encoding */
+    _("Enable to make the screen go black and white the lower your health is. "
+      "This effect will only start to take effect on very low health."),
     MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Water Bed Bubbles"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->waterBedBubbles;
     },
-    [&engine]()
+    [&engine]
     {
       auto& b = engine.getEngineConfig()->waterBedBubbles;
       b = !b;
@@ -701,11 +703,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Butt Bubbles"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->buttBubbles;
     },
-    [&engine]()
+    [&engine]
     {
       auto& b = engine.getEngineConfig()->buttBubbles;
       b = !b;
@@ -714,25 +716,25 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
     /* translators: TR charmap encoding */ _("Give Lara a bubbly personality."), MaxDescriptionWidth));
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         return /* translators: TR charmap encoding */ P_("Save Reminder after \x1f\x6c %1% \x1f\x6d Minute",
                                                          "Save Reminder after \x1f\x6c %1% \x1f\x6d Minutes",
                                                          value,
                                                          static_cast<uint32_t>(value));
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->saveReminderMinutes = value;
       },
       std::vector<uint8_t>{1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 45, 60});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->saveReminderEnabled;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->saveReminderEnabled);
       });
@@ -744,11 +746,11 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Select First Free or Oldest Slot"),
-    [&engine]()
+    [&engine]
     {
       return engine.getEngineConfig()->selectFirstFreeOrOldestSlot;
     },
-    [&engine]()
+    [&engine]
     {
       auto& b = engine.getEngineConfig()->selectFirstFreeOrOldestSlot;
       b = !b;
@@ -760,25 +762,25 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
     MaxDescriptionWidth));
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         return /* translators: TR charmap encoding */ P_("Delay Overwrite for \x1f\x6c %1% \x1f\x6d Second",
                                                          "Delay Overwrite for \x1f\x6c %1% \x1f\x6d Seconds",
                                                          value,
                                                          static_cast<uint32_t>(value));
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->delaySaveDurationSeconds = value;
       },
       std::vector<uint8_t>{1, 2, 3, 4, 5});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->delaySaveEnabled;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->delaySaveEnabled);
       });
@@ -791,23 +793,23 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   }
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint8_t value)
+      [](const uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("Preserve \x1f\x6c %1% \x1f\x6d Percent of Medi Packs",
                                                         static_cast<uint32_t>(value));
       },
-      [&engine](uint8_t value)
+      [&engine](const uint8_t value)
       {
         engine.getEngineConfig()->mediPackPreservation = value;
       },
       std::vector<uint8_t>{10, 20, 30, 40, 50, 60, 70, 80, 90});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
-      [&engine]()
+      [&engine]
       {
         return engine.getEngineConfig()->mediPackPreservationEnabled;
       },
-      [&engine]()
+      [&engine]
       {
         toggle(engine, engine.getEngineConfig()->mediPackPreservationEnabled);
       });
@@ -883,7 +885,7 @@ std::unique_ptr<MenuState> SettingsMenuState::onFrame(ui::Ui& ui, engine::world:
   {
     return std::move(m_previous);
   }
-  else if(auto tmp = gslu::dynamic_pointer_cast<ui::widgets::ValueSelectorBase>(
+  else if(const auto tmp = gslu::dynamic_pointer_cast<ui::widgets::ValueSelectorBase>(
             std::get<2>(listBox->getSelected())->getContent());
           tmp != nullptr)
   {
@@ -895,5 +897,6 @@ std::unique_ptr<MenuState> SettingsMenuState::onFrame(ui::Ui& ui, engine::world:
 
   return nullptr;
 }
+
 SettingsMenuState::~SettingsMenuState() = default;
 } // namespace menu

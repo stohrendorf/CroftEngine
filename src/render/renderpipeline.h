@@ -42,7 +42,6 @@ namespace render
 {
 class RenderPipeline
 {
-private:
   const std::chrono::high_resolution_clock::time_point m_creationTime = std::chrono::high_resolution_clock::now();
 
   RenderSettings m_renderSettings{};

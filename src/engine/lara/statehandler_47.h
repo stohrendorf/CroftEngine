@@ -8,14 +8,14 @@
 #include "statehandler_onwater.h"
 
 #include <algorithm>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_47 final : public StateHandler_OnWater
 {
 public:
-  explicit StateHandler_47(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_47(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : StateHandler_OnWater{lara, LaraStateId::OnWaterBackward}
   {
   }

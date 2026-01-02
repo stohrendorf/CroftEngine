@@ -28,9 +28,8 @@ namespace menu
 struct MenuDisplay;
 struct MenuRingTransform;
 
-class AudioSettingsMenuState : public SelectedMenuState
+class AudioSettingsMenuState final : public SelectedMenuState
 {
-private:
   std::unique_ptr<MenuState> m_previous;
   gslu::nn_shared<ui::widgets::GridBox> m_grid;
   gslu::nn_shared<ui::widgets::GroupBox> m_container;

@@ -16,7 +16,7 @@ namespace ui::widgets
 class ListBox;
 class Checkbox;
 
-class CheckListBox : public Widget
+class CheckListBox final : public Widget
 {
 public:
   // getter, toggler, checkbox
@@ -36,7 +36,7 @@ public:
 
   void fitToContent() override;
 
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   gslu::nn_shared<Checkbox>
     addSetting(const gslu::nn_shared<Widget>& content, std::function<bool()>&& getter, std::function<void()>&& toggler);

@@ -12,7 +12,7 @@
 
 namespace hid
 {
-std::string getName(GlfwKey key)
+std::string getName(const GlfwKey key)
 {
   switch(key)
   {
@@ -260,7 +260,7 @@ std::string getName(GlfwKey key)
   BOOST_THROW_EXCEPTION(std::domain_error("key"));
 }
 
-std::string getName(GlfwGamepadButton button)
+std::string getName(const GlfwGamepadButton button)
 {
   switch(button)
   {
@@ -303,7 +303,7 @@ std::string getName(GlfwGamepadButton button)
   BOOST_THROW_EXCEPTION(std::domain_error("button"));
 }
 
-std::string getName(Action action)
+std::string getName(const Action action)
 {
   switch(action)
   {

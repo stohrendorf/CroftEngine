@@ -11,7 +11,7 @@
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <string>
 #include <vector>
@@ -79,7 +79,7 @@ public:
   };
 
   explicit RenderMeshData(const loader::file::Mesh& mesh,
-                          const std::vector<engine::world::AtlasTile>& atlasTiles,
+                          const std::vector<AtlasTile>& atlasTiles,
                           const std::array<gl::SRGBA8, 256>& palette);
 
   [[nodiscard]] const auto& getVertices() const noexcept
@@ -108,7 +108,7 @@ class RenderMeshDataCompositor final
 public:
   void append(const RenderMeshData& data, const gl::SRGBA8& reflective)
   {
-    const auto vertexOffset = gsl::narrow<RenderMeshData::IndexType>(m_vertices.size());
+    const auto vertexOffset = gsl_lite::narrow<RenderMeshData::IndexType>(m_vertices.size());
     for(auto v : data.getVertices())
     {
       v.boneIndex = m_boneIndex;
@@ -116,15 +116,15 @@ public:
       m_vertices.emplace_back(v);
     }
 
-    for(auto i : data.getOpaqueIndices())
+    for(const auto i : data.getOpaqueIndices())
     {
       // cppcheck-suppress useStlAlgorithm
-      m_opaqueIndices.emplace_back(gsl::narrow<RenderMeshData::IndexType>(i + vertexOffset));
+      m_opaqueIndices.emplace_back(gsl_lite::narrow<RenderMeshData::IndexType>(i + vertexOffset));
     }
-    for(auto i : data.getNonOpaqueIndices())
+    for(const auto i : data.getNonOpaqueIndices())
     {
       // cppcheck-suppress useStlAlgorithm
-      m_nonOpaqueIndices.emplace_back(gsl::narrow<RenderMeshData::IndexType>(i + vertexOffset));
+      m_nonOpaqueIndices.emplace_back(gsl_lite::narrow<RenderMeshData::IndexType>(i + vertexOffset));
     }
 
     ++m_boneIndex;

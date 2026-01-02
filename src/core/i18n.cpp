@@ -3,7 +3,7 @@
 #include <boost/log/trivial.hpp>
 #include <clocale>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <libintl.h>
 #include <string>
 

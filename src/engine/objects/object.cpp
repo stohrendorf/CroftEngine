@@ -29,7 +29,7 @@
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -43,15 +43,15 @@ void Object::applyTransform()
   getNode()->setLocalMatrix(translate(glm::mat4{1.0f}, tr) * m_state.rotation.toMatrix());
 }
 
-Object::Object(const gsl::not_null<world::World*>& world, const Location& location)
+Object::Object(const gsl_lite::not_null<world::World*>& world, const Location& location)
     : m_world{world}
-    , m_state{gsl::not_null{world->getPresenter().getSoundEngine().get()}, location}
+    , m_state{gsl_lite::not_null{world->getPresenter().getSoundEngine().get()}, location}
     , m_hasUpdateFunction{false}
 {
 }
 
-Object::Object(const gsl::not_null<world::World*>& world,
-               const gsl::not_null<const world::Room*>& room,
+Object::Object(const gsl_lite::not_null<world::World*>& world,
+               const gsl_lite::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                const bool hasUpdateFunction)
     : Object{world, Location{room, item.position}}
@@ -89,9 +89,9 @@ Object::Object(const gsl::not_null<world::World*>& world,
   }
 }
 
-void Object::setCurrentRoom(const gsl::not_null<const world::Room*>& newRoom)
+void Object::setCurrentRoom(const gsl_lite::not_null<const world::Room*>& newRoom)
 {
-  setParent(gsl::not_null{getNode()}, newRoom->node);
+  setParent(gsl_lite::not_null{getNode()}, newRoom->node);
 
   m_state.location.room = newRoom;
   applyTransform();
@@ -160,9 +160,9 @@ bool Object::triggerPickUp() noexcept
 
 bool InteractionLimits::canInteract(const ObjectState& objectState, const ObjectState& laraState) const
 {
-  const auto angle = laraState.rotation - objectState.rotation;
-  if(angle.X < minAngle.X || angle.X > maxAngle.X || angle.Y < minAngle.Y || angle.Y > maxAngle.Y
-     || angle.Z < minAngle.Z || angle.Z > maxAngle.Z)
+  if(const auto angle = laraState.rotation - objectState.rotation; angle.X < minAngle.X || angle.X > maxAngle.X
+                                                                   || angle.Y < minAngle.Y || angle.Y > maxAngle.Y
+                                                                   || angle.Z < minAngle.Z || angle.Z > maxAngle.Z)
   {
     return false;
   }
@@ -174,10 +174,10 @@ bool InteractionLimits::canInteract(const ObjectState& objectState, const Object
 
 void Object::emitRicochet(const Location& location)
 {
-  const auto particle = gsl::make_shared<RicochetParticle>(location, getWorld());
+  const auto particle = gsl_lite::make_shared<RicochetParticle>(location, getWorld());
   setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
-  getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, gsl::not_null{particle.get().get()});
+  getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, gsl_lite::not_null{particle.get().get()});
 }
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
@@ -191,8 +191,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
                                    const core::Angle& maxAngle)
 {
   auto d = targetPos - m_state.location.position;
-  const auto dist = length(d);
-  if(maxDistance < dist)
+  if(const auto dist = length(d); maxDistance < dist)
   {
     m_state.location.move(maxDistance.cast<float>().get() * normalize(d.toRenderSystem()));
   }
@@ -231,7 +230,7 @@ void Object::deserialize(const serialization::Deserializer<world::World>& ser)
 
   ser << [this](const serialization::Deserializer<world::World>& /*ser*/)
   {
-    setParent(gsl::not_null{getNode()}, m_state.location.room->node);
+    setParent(gsl_lite::not_null{getNode()}, m_state.location.room->node);
 
     applyTransform();
   };

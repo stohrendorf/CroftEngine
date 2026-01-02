@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine
 {
@@ -17,10 +17,10 @@ enum class TR1SoundEffect;
 namespace core
 {
 /**
- * @brief A simple wrapper for specifying something without arithmetic support.
- * @tparam StorageType ID type
- * @tparam Tag Tag for avoiding mixing different IDs with the same storage type
- */
+* @brief A simple wrapper for specifying something without arithmetic support.
+* @tparam StorageType ID type
+* @tparam Tag Tag for avoiding mixing different IDs with the same storage type
+*/
 template<typename StorageType, typename Tag, typename... Enums>
 struct Id
 {
@@ -37,7 +37,7 @@ struct Id
   template<typename T>
   // cppcheck-suppress noExplicitConstructor
   constexpr Id(T value) // NOLINT(google-explicit-constructor)
-      : m_value{gsl::narrow_cast<type>(value)}
+      : m_value{gsl_lite::narrow_cast<type>(value)}
   {
     static_assert(sizeof...(Enums) == 0 || tpl::is_one_of_v<T, Enums...>, "Incompatible type");
   }
@@ -52,7 +52,7 @@ struct Id
   constexpr auto& operator=(T value)
   {
     static_assert(sizeof...(Enums) == 0 || tpl::is_one_of_v<T, Enums...>, "Incompatible type");
-    m_value = gsl::narrow_cast<type>(value);
+    m_value = gsl_lite::narrow_cast<type>(value);
     return *this;
   }
 
@@ -73,17 +73,17 @@ struct Id
     return static_cast<T>(m_value);
   }
 
-  [[nodiscard]] constexpr bool operator<(const Id<type, tag, Enums...>& r) const
+  [[nodiscard]] constexpr bool operator<(const Id& r) const
   {
     return get() < r.get();
   }
 
-  [[nodiscard]] constexpr bool operator==(const Id<type, tag, Enums...>& r) const
+  [[nodiscard]] constexpr bool operator==(const Id& r) const
   {
     return get() == r.get();
   }
 
-  [[nodiscard]] constexpr bool operator!=(const Id<type, tag, Enums...>& r) const
+  [[nodiscard]] constexpr bool operator!=(const Id& r) const
   {
     return get() != r.get();
   }
@@ -128,21 +128,21 @@ struct Id
   void serialize(const serialization::Serializer<TContext>& ser) const
   {
     ser.tag("id");
-    serialization::access<StorageType, false>::dispatch(m_value, ser);
+    serialization::access::dispatch(m_value, ser);
   }
 
   template<typename TContext>
   void deserialize(const serialization::Deserializer<TContext>& ser)
   {
     ser.tag("id");
-    serialization::access<StorageType, true>::dispatch(m_value, ser);
+    serialization::access::dispatch(m_value, ser);
   }
 
   template<typename TContext>
-  [[nodiscard]] static Id<StorageType, Tag, Enums...> create(const serialization::Deserializer<TContext>& ser)
+  [[nodiscard]] static Id create(const serialization::Deserializer<TContext>& ser)
   {
     ser.tag("id");
-    return Id<StorageType, Tag, Enums...>{serialization::access<StorageType, true>::dispatch(ser)};
+    return Id{serialization::access::dispatch<StorageType>(ser)};
   }
 
 private:
@@ -180,9 +180,9 @@ DECLARE_ID(ItemId, uint16_t);
 DECLARE_ID_E(TypeId, uint16_t, engine::TR1ItemId);
 DECLARE_ID_E(SoundEffectId, uint16_t, engine::TR1SoundEffect);
 
-[[nodiscard]] constexpr AnimStateId operator"" _as(unsigned long long value)
+[[nodiscard]] constexpr AnimStateId operator""_as(unsigned long long value)
 {
-  return AnimStateId{gsl::narrow_cast<AnimStateId::type>(value)};
+  return AnimStateId{gsl_lite::narrow_cast<AnimStateId::type>(value)};
 }
 } // namespace core
 

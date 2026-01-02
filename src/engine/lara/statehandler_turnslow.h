@@ -5,14 +5,14 @@
 #include "core/units.h"
 #include "engine/collisioninfo.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_TurnSlow : public AbstractStateHandler
 {
 protected:
-  explicit StateHandler_TurnSlow(const gsl::not_null<objects::LaraObject*>& lara, const LaraStateId id)
+  explicit StateHandler_TurnSlow(const gsl_lite::not_null<objects::LaraObject*>& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }

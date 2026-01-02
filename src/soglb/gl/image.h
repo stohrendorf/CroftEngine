@@ -8,7 +8,7 @@
 #include <cstring>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <vector>
 
 namespace gl
@@ -20,7 +20,7 @@ struct FastFill
 {
   static_assert(sizeof(T) == N, "Type size mismatch");
 
-  static void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+  static void fill(const gsl_lite::not_null<T*>& data, size_t n, const T& value)
   {
     std::fill_n(data.get(), n, value);
   }
@@ -31,7 +31,7 @@ struct FastFill<T, 1>
 {
   static_assert(sizeof(T) == 1, "Type size mismatch");
 
-  static void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+  static void fill(const gsl_lite::not_null<T*>& data, size_t n, const T& value)
   {
     std::memset(data.get(), value, n);
   }
@@ -42,7 +42,7 @@ struct FastFill<T, 2>
 {
   static_assert(sizeof(T) == 2, "Type size mismatch");
 
-  static void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+  static void fill(const gsl_lite::not_null<T*>& data, size_t n, const T& value)
   {
     std::wmemset(data.get(), value, n);
   }
@@ -53,10 +53,10 @@ struct FastFill<SRGBA8, 4>
 {
   static_assert(sizeof(SRGBA8) == 4, "Type size mismatch");
 
-  static void fill(const gsl::not_null<SRGBA8*>& data, const size_t n, const SRGBA8& value)
+  static void fill(const gsl_lite::not_null<SRGBA8*>& data, const size_t n, const SRGBA8& value)
   {
-    const auto scalar = value.channels[0];
-    if(scalar == value.channels[1] && scalar == value.channels[2] && scalar == value.channels[3])
+    if(const auto scalar = value.channels[0];
+       scalar == value.channels[1] && scalar == value.channels[2] && scalar == value.channels[3])
       std::memset(value_ptr(data->channels), scalar, n * 4u);
     else
       std::fill_n(data.get(), n, value);
@@ -64,7 +64,7 @@ struct FastFill<SRGBA8, 4>
 };
 
 template<typename T>
-void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+void fill(const gsl_lite::not_null<T*>& data, size_t n, const T& value)
 {
   FastFill<T, sizeof(T)>::fill(data, n, value);
 }
@@ -166,7 +166,7 @@ public:
     if(xy.x < 0 || xy.x >= m_size.x || xy.y < 0 || xy.y >= m_size.y)
       return;
 
-    const auto o = gsl::narrow_cast<size_t>(xy.y * m_size.x + xy.x);
+    const auto o = gsl_lite::narrow_cast<size_t>(xy.y * m_size.x + xy.x);
 
     if(!blend)
     {
@@ -183,7 +183,7 @@ public:
     if(xy.x < 0 || xy.x >= m_size.x || xy.y < 0 || xy.y >= m_size.y)
       return;
 
-    const auto o = gsl::narrow_cast<size_t>(xy.y * m_size.x + xy.x);
+    const auto o = gsl_lite::narrow_cast<size_t>(xy.y * m_size.x + xy.x);
 
     m_data[o] = pixel;
   }
@@ -201,7 +201,7 @@ public:
   void fill(const StorageType& color)
   {
     if(!m_data.empty())
-      detail::fill(gsl::not_null{m_data.data()}, m_data.size(), color);
+      detail::fill(gsl_lite::not_null{m_data.data()}, m_data.size(), color);
   }
 
 private:

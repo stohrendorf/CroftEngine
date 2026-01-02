@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -22,7 +22,6 @@ namespace gl
 {
 class CImgWrapper
 {
-private:
   std::unique_ptr<cimg_library::CImg<uint8_t>> m_image;
   bool m_interleaved = false;
 
@@ -72,15 +71,15 @@ public:
 
   [[nodiscard]] const uint8_t* data() const;
 
-  [[nodiscard]] gsl::span<const gl::SRGBA8> pixels();
+  [[nodiscard]] gsl_lite::span<const SRGBA8> pixels();
 
-  [[nodiscard]] gsl::span<const gl::PremultipliedSRGBA8> asPremultipliedPixels();
+  [[nodiscard]] gsl_lite::span<const PremultipliedSRGBA8> asPremultipliedPixels();
 
   void premultiplyPixels();
 
   void savePng(const std::string& filename, bool premultiply);
 
-  void savePng(const std::filesystem::path& filename, bool premultiply)
+  void savePng(const std::filesystem::path& filename, const bool premultiply)
   {
     savePng(filename.string(), premultiply);
   }
@@ -91,7 +90,7 @@ public:
 
   void fromScreenshot();
 
-  gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> toTexture(const std::string_view& label);
+  gslu::nn_shared<Texture2D<PremultipliedSRGBA8>> toTexture(const std::string_view& label);
 
 private:
   void unshare();

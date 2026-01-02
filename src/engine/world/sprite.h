@@ -6,7 +6,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <tuple>
 
@@ -19,7 +19,7 @@ namespace engine::world
 {
 struct Sprite
 {
-  core::AtlasId atlasId{uint16_t(0)};
+  core::AtlasId atlasId{static_cast<uint16_t>(0)};
 
   glm::vec2 uv0;
   glm::vec2 uv1;
@@ -40,7 +40,7 @@ struct Sprite
 
 struct SpriteSequence
 {
-  core::TypeId type{uint16_t(0)};
-  gsl::span<const Sprite> sprites;
+  core::TypeId type{static_cast<uint16_t>(0)};
+  gsl_lite::span<const Sprite> sprites;
 };
 } // namespace engine::world

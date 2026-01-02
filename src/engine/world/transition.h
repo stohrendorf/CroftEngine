@@ -4,7 +4,7 @@
 #include "core/units.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::world
 {
@@ -21,7 +21,7 @@ struct TransitionCase
 
 struct Transitions
 {
-  core::AnimStateId stateId{uint16_t(0)};
-  gsl::span<const TransitionCase> transitionCases;
+  core::AnimStateId stateId{static_cast<uint16_t>(0)};
+  gsl_lite::span<const TransitionCase> transitionCases;
 };
 } // namespace engine::world

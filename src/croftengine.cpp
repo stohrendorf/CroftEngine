@@ -17,7 +17,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -34,8 +34,7 @@
 
 namespace
 {
-
-const gsl::czstring logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
+const auto logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
 
 using sink_t = boost::log::sinks::synchronous_sink<boost::log::sinks::text_file_backend>;
 boost::shared_ptr<sink_t> logFileSink;
@@ -89,7 +88,7 @@ bool initCrashReporting()
       BOOST_LOG_TRIVIAL(fatal) << stackTraceEntry;
     });
   chillout.setCrashCallback(
-    [&chillout]()
+    [&chillout]
     {
       BOOST_LOG_TRIVIAL(fatal) << "Croft engine has crashed";
       chillout.backtrace();
@@ -134,7 +133,7 @@ void dumpCpuInfo()
   BOOST_LOG_TRIVIAL(info) << "CPU features: " << flags.str();
 }
 
-void runGame(const std::string& localeOverride, const std::string& gameflowId, bool borderlessFullscreen)
+void runGame(const std::string& localeOverride, const std::string& gameflowId, const bool borderlessFullscreen)
 {
   engine::Engine engine{findUserDataDir().value(),
                         findEngineDataDir().value(),
@@ -193,7 +192,8 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
       gsl_Assert(!doLoad);
       player = std::make_shared<engine::Player>();
       for(const auto& item : gameflow.getLaraHome())
-        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer); // cppcheck-suppress useStlAlgorithm
+        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
+      // cppcheck-suppress useStlAlgorithm
       break;
     case Mode::Game:
       if(doLoad)
@@ -201,7 +201,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
         player = std::make_shared<engine::Player>();
         levelStartPlayer = std::make_shared<engine::Player>();
         runResult = engine.runLevelSequenceItemFromSave(
-          *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player, levelStartPlayer);
+          *gsl_lite::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player, levelStartPlayer);
       }
       else
       {
@@ -215,7 +215,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
         levelStartPlayer = std::make_shared<engine::Player>(*player);
 
         runResult = engine.runLevelSequenceItem(
-          *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player, levelStartPlayer);
+          *gsl_lite::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player, levelStartPlayer);
       }
       break;
     }
@@ -338,7 +338,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
-int main(int argc, char** argv)
+int main(const int argc, char** argv)
 {
   const bool crashReportInitSuccess = initCrashReporting();
   boost::log::add_common_attributes();

@@ -10,6 +10,7 @@
 #include <limits>
 #include <type_traits>
 
+
 namespace gl
 {
 template<typename T,
@@ -31,7 +32,7 @@ struct alignas(Alignment) Pixel
 
   static_assert(_Channels > 0, "Pixel must contain at least one channel");
 
-  using Self = Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>;
+  using Self = Pixel;
 
   using Type = T;
 
@@ -40,29 +41,29 @@ struct alignas(Alignment) Pixel
   static constexpr api::SizedInternalFormat SizedInternalFormat = _SizedInternalFormat;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   static constexpr bool Premultiplied = _Premultiplied;
-  using Vec = glm::vec<Channels, Type, glm::qualifier::defaultp>;
+  using Vec = glm::vec<Channels, Type>;
 
   Vec channels;
 
   explicit constexpr Pixel() noexcept
-      : Pixel{Type{}}
+    : Pixel{Type{}}
   {
   }
 
   explicit constexpr Pixel(Type scalar) noexcept
-      : channels{scalar}
+    : channels{scalar}
   {
   }
 
   template<typename... U>
   constexpr Pixel(Type value0, Type value1, U... tail) noexcept
-      : channels{value0, value1, static_cast<Type>(tail)...}
+    : channels{value0, value1, static_cast<Type>(tail)...}
   {
     static_assert(sizeof...(U) + 2 == _Channels, "Invalid constructor call");
   }
 
   explicit constexpr Pixel(Vec channels) noexcept
-      : channels{std::move(channels)}
+    : channels{std::move(channels)}
   {
   }
 
@@ -91,6 +92,7 @@ struct alignas(Alignment) Pixel
   }
 };
 
+
 template<typename T,
          typename U,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -102,12 +104,12 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          bool _Premultiplied,
          size_t Alignment>
-auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
-          const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs,
-          U bias, // NOLINT(*-easily-swappable-parameters)
-          U biasMax = std::numeric_limits<U>::max())
-  -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>, // lgtm [cpp/comparison-of-identical-expressions]
-                      Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>>
+Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>
+  imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
+       const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs,
+       U bias,
+       // NOLINT(*-easily-swappable-parameters)
+       U biasMax = std::numeric_limits<U>::max()) requires(std::is_unsigned_v<T> == std::is_unsigned_v<U>)
 {
   if(bias >= biasMax)
     return rhs;
@@ -131,9 +133,9 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          bool _Premultiplied,
          size_t Alignment>
-Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>
-  mixAlpha(const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
-           const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs)
+Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment> mixAlpha(
+  const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
+  const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs)
 {
   return imix(lhs, rhs, rhs.channels[3]);
 }
@@ -169,6 +171,7 @@ using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
 using Scalar16F = Scalar<api::core::Half>;
 
+
 namespace detail
 {
 template<typename T>
@@ -177,7 +180,7 @@ constexpr T premultiply(T value, T alpha) noexcept
   return value * alpha / std::numeric_limits<T>::max();
 }
 
-constexpr float premultiply(float value, float alpha) noexcept
+constexpr float premultiply(const float value, const float alpha) noexcept
 {
   return value * alpha;
 }
@@ -203,6 +206,7 @@ constexpr glm::vec4 premultiply(const glm::vec4& color)
   };
 }
 
+
 template<typename T>
 struct ScalarDepth final
 {
@@ -211,22 +215,23 @@ struct ScalarDepth final
 
   using Type = T;
 
-  static constexpr api::PixelFormat PixelFormat = api::PixelFormat::DepthComponent;
+  static constexpr auto PixelFormat = api::PixelFormat::DepthComponent;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   static constexpr auto InternalFormat = DepthInternalFormat<T>;
 
   explicit ScalarDepth()
-      : ScalarDepth{0}
+    : ScalarDepth{0}
   {
   }
 
   explicit constexpr ScalarDepth(Type value) noexcept
-      : value{value}
+    : value{value}
   {
   }
 
   Type value;
 };
+
 
 using ScalarDepth32F = ScalarDepth<float>;
 using ScalarDepth16F = ScalarDepth<api::core::Half>;

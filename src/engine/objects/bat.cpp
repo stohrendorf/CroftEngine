@@ -23,7 +23,7 @@ void Bat::update()
   static constexpr uint16_t Circling = 4;
   static constexpr uint16_t Dying = 5;
 
-  core::Angle turn = 0_deg;
+  auto turn = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};

@@ -5,12 +5,12 @@
 
 #include <cstdint>
 #include <glm/common.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace gl
 {
 // NOLINTNEXTLINE(misc-no-recursion)
-inline RenderState& getCurrentState(bool reset = false)
+inline RenderState& getCurrentState(const bool reset = false)
 {
   static RenderState currentState{};
   static bool initialized = false;
@@ -18,7 +18,7 @@ inline RenderState& getCurrentState(bool reset = false)
   if(!initialized || reset)
   {
     currentState = RenderState{};
-    auto oldWanted = RenderState::getWantedState();
+    const auto oldWanted = RenderState::getWantedState();
     RenderState::resetWantedState();
     initialized = true;
     RenderState::getWantedState() = oldWanted;
@@ -171,10 +171,10 @@ void RenderState::apply() const
     const auto& [xy, size] = *getCurrentState().m_scissorRegion;
     const auto screenXy = glm::floor(vp * (xy + glm::vec2{1, 1}) * 0.5f);
     const auto screenSize = glm::ceil(vp * size * 0.5f);
-    GL_ASSERT(api::scissor(gsl::narrow_cast<int32_t>(screenXy.x),
-                           gsl::narrow_cast<int32_t>(screenXy.y),
-                           gsl::narrow_cast<api::core::SizeType>(screenSize.x),
-                           gsl::narrow_cast<api::core::SizeType>(screenSize.y)));
+    GL_ASSERT(api::scissor(gsl_lite::narrow_cast<int32_t>(screenXy.x),
+                           gsl_lite::narrow_cast<int32_t>(screenXy.y),
+                           gsl_lite::narrow_cast<api::core::SizeType>(screenSize.x),
+                           gsl_lite::narrow_cast<api::core::SizeType>(screenSize.y)));
   }
   if(RS_CHANGED(m_polygonOffsetFillEnabled) || RS_CHANGED(m_polygonOffset))
   {

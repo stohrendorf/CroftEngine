@@ -13,7 +13,7 @@
 #include "serialization/serialization.h" // IWYU pragma: keep
 
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -77,10 +77,10 @@ void TallBlock::deserialize(const serialization::Deserializer<world::World>& ser
 }
 
 TallBlock::TallBlock(const std::string& name,
-                     const gsl::not_null<world::World*>& world,
-                     const gsl::not_null<const world::Room*>& room,
+                     const gsl_lite::not_null<world::World*>& world,
+                     const gsl_lite::not_null<const world::Room*>& room,
                      const loader::file::Item& item,
-                     const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                     const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   world::patchHeightsForBlock(*this, -2_sectors);

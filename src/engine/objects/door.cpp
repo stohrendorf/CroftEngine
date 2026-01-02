@@ -19,7 +19,7 @@
 
 #include <functional>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -28,10 +28,10 @@ namespace engine::objects
 // #define NO_DOOR_BLOCK
 
 Door::Door(const std::string& name,
-           const gsl::not_null<world::World*>& world,
-           const gsl::not_null<const world::Room*>& room,
+           const gsl_lite::not_null<world::World*>& world,
+           const gsl_lite::not_null<const world::Room*>& room,
            const loader::file::Item& item,
-           const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+           const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
 #ifndef NO_DOOR_BLOCK
@@ -87,8 +87,8 @@ Door::Door(const std::string& name,
 
 void Door::update()
 {
-  static const constexpr auto Closed = 0_as;
-  static const constexpr auto Opened = 1_as;
+  static constexpr auto Closed = 0_as;
+  static constexpr auto Opened = 1_as;
 
   if(m_state.updateActivationTimeout())
   {

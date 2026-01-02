@@ -19,9 +19,8 @@ public:
   {
     // frame rate throttling
     const auto now = std::chrono::high_resolution_clock::now();
-    const auto wait = std::chrono::duration_cast<TimeType>(m_nextFrameTime - now).count();
 
-    if(wait > 0)
+    if(const auto wait = std::chrono::duration_cast<TimeType>(m_nextFrameTime - now).count(); wait > 0)
     {
       std::this_thread::sleep_until(m_nextFrameTime);
       m_nextFrameTime += FrameDuration;

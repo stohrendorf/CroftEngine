@@ -1,7 +1,7 @@
 #pragma once
 
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 struct archive;
 
@@ -15,5 +15,5 @@ public:
   void addFile(const std::filesystem::path& srcPath, const std::filesystem::path& archivePath);
 
 private:
-  gsl::not_null<archive*> m_archive;
+  gsl_lite::not_null<archive*> m_archive;
 };

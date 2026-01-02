@@ -11,7 +11,7 @@
 #include <gl/glassert.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <memory>
@@ -28,7 +28,7 @@ Renderer::Renderer(gslu::nn_shared<Camera> camera)
 
 Renderer::~Renderer() = default;
 
-void Renderer::render()
+void Renderer::render() const
 {
   for(const auto translucencySelector : {Translucency::Opaque, Translucency::NonOpaque})
   {
@@ -38,11 +38,11 @@ void Renderer::render()
                           translucencySelector};
     {
       gl::RenderState tmp{};
-      tmp.setDepthWrite(translucencySelector == render::scene::Translucency::Opaque);
+      tmp.setDepthWrite(translucencySelector == Translucency::Opaque);
       context.pushState(tmp);
     }
 
-    Visitor visitor{gsl::not_null{&context}};
+    Visitor visitor{gsl_lite::not_null{&context}};
     m_rootNode->accept(visitor);
     visitor.render(m_camera->getPosition());
 
@@ -87,6 +87,6 @@ void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& fl
 
 void Renderer::resetRootNode()
 {
-  m_rootNode = gsl::make_shared<Node>("<rootnode>");
+  m_rootNode = gsl_lite::make_shared<Node>("<rootnode>");
 }
 } // namespace render::scene

@@ -24,9 +24,8 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
 
-class RotateLeftRightMenuState : public MenuState
+class RotateLeftRightMenuState final : public MenuState
 {
-private:
   static constexpr core::Frame Duration = 24_frame / 2;
   size_t m_targetObject{0};
   core::Frame m_duration{Duration};

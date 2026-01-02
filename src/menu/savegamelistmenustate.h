@@ -37,9 +37,8 @@ namespace menu
 struct MenuDisplay;
 struct MenuRingTransform;
 
-class SavegameListMenuState : public ListDisplayMenuState
+class SavegameListMenuState final : public ListDisplayMenuState
 {
-private:
   class SavegameEntry;
 
   std::unique_ptr<MenuState> m_previous;
@@ -49,12 +48,14 @@ private:
   bool m_loading;
   std::shared_ptr<ui::widgets::MessageBox> m_overwriteConfirmation;
   std::shared_ptr<ui::widgets::MessageBox> m_cleanupConfirmation;
+
   enum class Ordering : uint8_t
   {
     Slot,
     DateAsc,
     DateDesc
   };
+
   Ordering m_ordering = Ordering::Slot;
   std::chrono::steady_clock::time_point m_confirmOverwritePressedSince;
 
@@ -83,7 +84,7 @@ public:
                                  const engine::world::World& world,
                                  bool loading);
 
-  std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> onSelected(size_t selectedIdx, engine::world::World& world, MenuDisplay& display) override;
   std::unique_ptr<MenuState> onAborted() override;
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };

@@ -18,7 +18,7 @@
 #include <cstddef>
 #include <functional>
 #include <glm/glm.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <mutex>
@@ -47,14 +47,14 @@ namespace audio
 {
 namespace
 {
-const std::array<ALCint, 5> deviceQueryParamList{// reserve additional 2 sources for audio tracks
-                                                 ALC_STEREO_SOURCES,
-                                                 Device::SourceHandleSlots + 2,
-                                                 ALC_SYNC,
-                                                 ALC_FALSE,
-                                                 ALC_INVALID};
+constexpr std::array<ALCint, 5> deviceQueryParamList{// reserve additional 2 sources for audio tracks
+                                                     ALC_STEREO_SOURCES,
+                                                     Device::SourceHandleSlots + 2,
+                                                     ALC_SYNC,
+                                                     ALC_FALSE,
+                                                     ALC_INVALID};
 
-void logDeviceInfo(const gsl::not_null<ALCdevice*>& device)
+void logDeviceInfo(const gsl_lite::not_null<ALCdevice*>& device)
 {
   BOOST_LOG_TRIVIAL(info) << "OpenAL device: " << alcGetString(device, ALC_ALL_DEVICES_SPECIFIER);
   BOOST_LOG_TRIVIAL(info) << "OpenAL version: " << AL_ASSERT_FN(alGetString(AL_VERSION));
@@ -159,9 +159,9 @@ Device::Device()
   AL_ASSERT(alListenerf(AL_METERS_PER_UNIT, 1 / 512.0f));
   AL_ASSERT(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
 
-  loadALExtFunctions(gsl::not_null{m_device});
+  loadALExtFunctions(gsl_lite::not_null{m_device});
 
-  logDeviceInfo(gsl::not_null{m_device});
+  logDeviceInfo(gsl_lite::not_null{m_device});
 
   ALC_ASSERT(m_device, alcGetIntegerv(m_device, ALC_FREQUENCY, 1, &m_frq));
 
@@ -171,7 +171,7 @@ Device::Device()
   AL_ASSERT(alFilterf(*m_underwaterFilter, AL_LOWPASS_GAIN, 0.7f));   // Low frequencies gain.
   AL_ASSERT(alFilterf(*m_underwaterFilter, AL_LOWPASS_GAINHF, 0.1f)); // High frequencies gain.
 
-  m_streamUpdater = std::thread{[this]()
+  m_streamUpdater = std::thread{[this]
                                 {
                                   while(!this->m_shutdown)
                                   {
@@ -213,33 +213,31 @@ void Device::update()
   // remove expired streams and voices
   {
     const std::lock_guard lock{m_streamsLock};
-    auto streams = std::move(m_streams);
-    for(const auto& stream : streams)
+    for(const auto streams = std::move(m_streams); const auto& stream : streams)
     {
       if(!stream->done())
         m_streams.emplace(stream);
     }
   }
-  m_allVoices.erase(std::remove_if(m_allVoices.begin(),
-                                   m_allVoices.end(),
-                                   [](const auto& v)
-                                   {
-                                     return v->done();
-                                   }),
-                    m_allVoices.end());
+  std::erase_if(m_allVoices,
+                [](const auto& v)
+                {
+                  return v->done();
+                });
 
   // order voices by non-positional, then by distance
   glm::vec3 listenerPos;
   AL_ASSERT(alGetListener3f(AL_POSITION, &listenerPos.x, &listenerPos.y, &listenerPos.z));
-  std::stable_sort(m_allVoices.begin(),
-                   m_allVoices.end(),
-                   [&listenerPos](const auto& a, const auto& b)
-                   {
-                     // non-positional voices have the highest priority
-                     const auto aDist = a->isPositional() ? glm::distance(listenerPos, *a->getPosition()) : 0.0f;
-                     const auto bDist = b->isPositional() ? glm::distance(listenerPos, *b->getPosition()) : 0.0f;
-                     return aDist < bDist;
-                   });
+  std::ranges::stable_sort(m_allVoices,
+                           [&listenerPos](const auto& a, const auto& b)
+                           {
+                             // non-positional voices have the highest priority
+                             const auto aDist
+                               = a->isPositional() ? glm::distance(listenerPos, *a->getPosition()) : 0.0f;
+                             const auto bDist
+                               = b->isPositional() ? glm::distance(listenerPos, *b->getPosition()) : 0.0f;
+                             return aDist < bDist;
+                           });
 
   size_t vi = 0;
   for(const auto& voice : m_allVoices)
@@ -269,7 +267,7 @@ gslu::nn_shared<StreamVoice> Device::createStream(std::unique_ptr<AbstractStream
                                                   const size_t bufferCount,
                                                   const std::chrono::milliseconds& initialPosition)
 {
-  auto stream = gsl::make_shared<StreamVoice>(
+  auto stream = gsl_lite::make_shared<StreamVoice>(
     std::make_unique<StreamingSourceHandle>(), std::move(src), bufferSize, bufferCount, initialPosition);
 
   const std::lock_guard lock{m_streamsLock};
@@ -282,8 +280,7 @@ void Device::updateStreams()
   const std::lock_guard lock{m_streamsLock};
   for(const auto& stream : m_streams)
     stream->update();
-  auto tmp = std::move(m_updateCallbacks);
-  for(auto& [fn, t] : tmp)
+  for(auto tmp = std::move(m_updateCallbacks); auto& [fn, t] : tmp)
   {
     if(fn(std::chrono::high_resolution_clock::now() - t))
     {
@@ -305,12 +302,12 @@ void Device::setListenerTransform(const glm::vec3& pos, const glm::vec3& front, 
 {
   AL_ASSERT(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 
-  const std::array<ALfloat, 6> o{front.x, front.y, front.z, up.x, up.y, up.z};
+  const std::array o{front.x, front.y, front.z, up.x, up.y, up.z};
   AL_ASSERT(alListenerfv(AL_ORIENTATION, o.data()));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const, readability-convert-member-functions-to-static)
-void Device::setListenerGain(float gain)
+void Device::setListenerGain(const float gain)
 {
   gsl_Expects(gain >= 0);
   AL_ASSERT(alListenerf(AL_GAIN, gain));

@@ -44,7 +44,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <tuple>
@@ -53,7 +53,7 @@
 
 namespace engine
 {
-void Particle::initRenderables(world::World& world, render::material::SpriteMaterialMode mode)
+void Particle::initRenderables(world::World& world, const render::material::SpriteMaterialMode mode)
 {
   if(const auto& modelType = world.getWorldGeometry().findAnimatedModelForType(object_number))
   {
@@ -69,7 +69,7 @@ void Particle::initRenderables(world::World& world, render::material::SpriteMate
                               {
                                 return world.getEngine().getEngineConfig()->animSmoothing;
                               },
-                              [&world]()
+                              [&world]
                               {
                                 const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
                                 return !settings.lightingModeActive ? 0 : settings.lightingMode;
@@ -117,13 +117,13 @@ glm::vec3 Particle::getPosition() const
 
 Particle::Particle(const std::string& id,
                    const core::TypeId& objectNumber,
-                   const gsl::not_null<const world::Room*>& room,
+                   const gsl_lite::not_null<const world::Room*>& room,
                    world::World& world,
-                   render::material::SpriteMaterialMode mode,
-                   bool withoutParent,
+                   const render::material::SpriteMaterialMode mode,
+                   const bool withoutParent,
                    const std::shared_ptr<render::scene::Mesh>& renderable)
     : Node{id}
-    , Emitter{gsl::not_null{world.getPresenter().getSoundEngine().get()}}
+    , Emitter{gsl_lite::not_null{world.getPresenter().getSoundEngine().get()}}
     , location{room}
     , object_number{objectNumber}
     , m_withoutParent{withoutParent}
@@ -134,7 +134,7 @@ Particle::Particle(const std::string& id,
   }
   else
   {
-    m_meshes.emplace_back(gsl::not_null{renderable}, nullptr);
+    m_meshes.emplace_back(gsl_lite::not_null{renderable}, nullptr);
     setRenderable(std::get<0>(m_meshes.front()));
     m_lighting.bind(*this, world);
   }
@@ -144,11 +144,11 @@ Particle::Particle(const std::string& id,
                    const core::TypeId& objectNumber,
                    Location location,
                    world::World& world,
-                   render::material::SpriteMaterialMode mode,
-                   bool withoutParent,
+                   const render::material::SpriteMaterialMode mode,
+                   const bool withoutParent,
                    const std::shared_ptr<render::scene::Mesh>& renderable)
     : Node{id}
-    , Emitter{gsl::not_null{world.getPresenter().getSoundEngine().get()}}
+    , Emitter{gsl_lite::not_null{world.getPresenter().getSoundEngine().get()}}
     , location{std::move(location)}
     , object_number{objectNumber}
     , m_withoutParent{withoutParent}
@@ -222,7 +222,7 @@ bool BloodSplatterParticle::update(world::World& world)
 
   timePerSpriteFrame = 0;
   nextFrame();
-  if(gsl::narrow<size_t>(-negSpriteFrameId)
+  if(gsl_lite::narrow<size_t>(-negSpriteFrameId)
      >= world.getWorldGeometry().findSpriteSequenceForType(object_number)->sprites.size())
     return false;
 
@@ -234,7 +234,7 @@ bool SplashParticle::update(world::World& world)
 {
   nextFrame();
 
-  if(gsl::narrow<size_t>(-negSpriteFrameId)
+  if(gsl_lite::narrow<size_t>(-negSpriteFrameId)
      >= world.getWorldGeometry().findSpriteSequenceForType(object_number)->sprites.size())
   {
     return false;
@@ -262,7 +262,10 @@ SplashParticle::SplashParticle(const Location& location, world::World& world, co
   getRenderState().setScissorTest(false);
 }
 
-BubbleParticle::BubbleParticle(const Location& location, world::World& world, bool onlyInWater, bool instanced)
+BubbleParticle::BubbleParticle(const Location& location,
+                               world::World& world,
+                               const bool onlyInWater,
+                               const bool instanced)
     : Particle{"bubble",
                TR1ItemId::Bubbles,
                location,
@@ -300,7 +303,7 @@ bool BubbleParticle::update(world::World& world)
   return true;
 }
 
-FlameParticle::FlameParticle(const Location& location, world::World& world, bool randomize)
+FlameParticle::FlameParticle(const Location& location, world::World& world, const bool randomize)
     : Particle{"flame", TR1ItemId::Flame, location, world, render::material::SpriteMaterialMode::YAxisBound}
 {
   timePerSpriteFrame = 0;
@@ -310,7 +313,7 @@ FlameParticle::FlameParticle(const Location& location, world::World& world, bool
   if(randomize)
   {
     timePerSpriteFrame
-      = -util::rand15(gsl::narrow_cast<int16_t>(world.getObjectManager().getLara().getSkeleton()->getBoneCount()))
+      = -util::rand15(gsl_lite::narrow_cast<int16_t>(world.getObjectManager().getLara().getSkeleton()->getBoneCount()))
         - int16_t{1};
     for(auto n = util::rand15(getLength()); n != 0; --n)
       nextFrame();
@@ -324,7 +327,7 @@ bool FlameParticle::update(world::World& world)
   if(spriteSequence == nullptr)
     return false;
 
-  if(gsl::narrow<size_t>(-negSpriteFrameId) >= spriteSequence->sprites.size())
+  if(gsl_lite::narrow<size_t>(-negSpriteFrameId) >= spriteSequence->sprites.size())
     negSpriteFrameId = 0;
 
   const auto& lara = world.getObjectManager().getLara();
@@ -353,17 +356,16 @@ bool FlameParticle::update(world::World& world)
         // only attach a new flame to lara every 100 frames
         timePerSpriteFrame = 100;
 
-        const auto alreadyAttachedToLara
-          = std::any_of(world.getObjectManager().getParticles().begin(),
-                        world.getObjectManager().getParticles().end(),
-                        [](const gslu::nn_shared<Particle>& particle)
-                        {
-                          return particle->object_number == TR1ItemId::Flame && particle->timePerSpriteFrame == -1;
-                        });
+        const auto alreadyAttachedToLara = std::ranges::any_of(world.getObjectManager().getParticles(),
+                                                               [](const gslu::nn_shared<Particle>& particle)
+                                                               {
+                                                                 return particle->object_number == TR1ItemId::Flame
+                                                                        && particle->timePerSpriteFrame == -1;
+                                                               });
 
         if(!alreadyAttachedToLara)
         {
-          const auto particle = gsl::make_shared<FlameParticle>(location, world);
+          const auto particle = gsl_lite::make_shared<FlameParticle>(location, world);
           particle->timePerSpriteFrame = -1;
           if(!withoutParent())
             setParent(particle, location.room->node);
@@ -377,7 +379,7 @@ bool FlameParticle::update(world::World& world)
     // this flame is attached to lara
     const auto itemSpheres = lara.getSkeleton()->getBoneCollisionSpheres();
     location.position = core::TRVec{
-      itemSpheres.at(gsl::narrow_cast<int>(-timePerSpriteFrame) - 1)
+      itemSpheres.at(gsl_lite::narrow_cast<int>(-timePerSpriteFrame) - 1)
         .relative(core::TRVec{0_len, timePerSpriteFrame == -1 ? -100_len : 0_len, 0_len}.toRenderSystem())};
 
     if(const auto waterHeight = world::getWaterSurfaceHeight(location);
@@ -407,8 +409,8 @@ bool MeshShrapnelParticle::update(world::World& world)
   location.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
 
   const auto sector = location.updateRoom();
-  const auto ceiling = HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y;
-  if(ceiling > location.position.Y)
+  if(const auto ceiling = HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y;
+     ceiling > location.position.Y)
   {
     location.position.Y = ceiling;
     fall_speed = -fall_speed;
@@ -445,7 +447,7 @@ bool MeshShrapnelParticle::update(world::World& world)
   if(!explode)
     return true;
 
-  const auto particle = gsl::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
+  const auto particle = gsl_lite::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
   if(!withoutParent())
     setParent(particle, location.room->node);
   world.getObjectManager().registerParticle(particle);
@@ -503,7 +505,7 @@ bool MutantBulletParticle::update(world::World& world)
      || HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y
           >= location.position.Y)
   {
-    auto particle = gsl::make_shared<RicochetParticle>(location, world);
+    const auto particle = gsl_lite::make_shared<RicochetParticle>(location, world);
     particle->timePerSpriteFrame = 6;
     if(!withoutParent())
       setParent(particle, location.room->node);
@@ -515,7 +517,7 @@ bool MutantBulletParticle::update(world::World& world)
   {
     world.hitLara(30_hp);
     const auto& laraState = world.getObjectManager().getLara().m_state;
-    auto particle = gsl::make_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
+    const auto particle = gsl_lite::make_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
     if(!withoutParent())
       setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
@@ -541,15 +543,14 @@ bool MutantGrenadeParticle::update(world::World& world)
      || HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y
           >= location.position.Y)
   {
-    auto particle = gsl::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
+    const auto particle = gsl_lite::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
     if(!withoutParent())
       setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion, particle.get().get());
 
     const auto dd = location.position - world.getObjectManager().getLara().m_state.location.position;
-    const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
-    if(d < util::square(1024_len))
+    if(const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z); d < util::square(1024_len))
     {
       world.hitLara(100_hp * (util::square(1_sectors) - d) / util::square(1_sectors));
     }
@@ -559,7 +560,7 @@ bool MutantGrenadeParticle::update(world::World& world)
   else if(world.getObjectManager().getLara().isNearInexact(location.position, 200_len))
   {
     world.hitLara(100_hp);
-    auto particle = gsl::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
+    const auto particle = gsl_lite::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
     if(!withoutParent())
       setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
@@ -632,7 +633,7 @@ bool SparkleParticle::update(world::World&)
 
   --negSpriteFrameId;
   timePerSpriteFrame = 0;
-  return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
+  return gsl_lite::narrow<size_t>(-negSpriteFrameId) < getLength();
 }
 
 MuzzleFlashParticle::MuzzleFlashParticle(const Location& location, world::World& world, const core::Angle& yAngle)
@@ -698,7 +699,7 @@ bool SmokeParticle::update(world::World&)
 
   timePerSpriteFrame = 0;
   nextFrame();
-  return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
+  return gsl_lite::narrow<size_t>(-negSpriteFrameId) < getLength();
 }
 
 RicochetParticle::RicochetParticle(const Location& location, world::World& world)
@@ -724,7 +725,7 @@ gslu::nn_shared<Particle> createMuzzleFlash(world::World& world,
                                             const core::Speed& /*speed*/,
                                             const core::Angle& angle)
 {
-  auto particle = gsl::make_shared<MuzzleFlashParticle>(location, world, angle);
+  auto particle = gsl_lite::make_shared<MuzzleFlashParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
@@ -734,7 +735,7 @@ gslu::nn_shared<Particle> createMutantBullet(world::World& world,
                                              const core::Speed& /*speed*/,
                                              const core::Angle& angle)
 {
-  auto particle = gsl::make_shared<MutantBulletParticle>(location, world, angle);
+  auto particle = gsl_lite::make_shared<MutantBulletParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
@@ -744,7 +745,7 @@ gslu::nn_shared<Particle> createMutantGrenade(world::World& world,
                                               const core::Speed& /*speed*/,
                                               const core::Angle& angle)
 {
-  auto particle = gsl::make_shared<MutantGrenadeParticle>(location, world, angle);
+  auto particle = gsl_lite::make_shared<MutantGrenadeParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
@@ -752,7 +753,7 @@ gslu::nn_shared<Particle> createMutantGrenade(world::World& world,
 gslu::nn_shared<Particle>
   createBloodSplat(world::World& world, const Location& location, const core::Speed& speed, const core::Angle& angle)
 {
-  auto particle = gsl::make_shared<BloodSplatterParticle>(location, speed, angle, world);
+  auto particle = gsl_lite::make_shared<BloodSplatterParticle>(location, speed, angle, world);
   setParent(particle, location.room->node);
   return particle;
 }

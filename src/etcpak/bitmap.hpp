@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <mutex>
 #include <tuple>
 #include <vector>
@@ -11,17 +11,19 @@ class Bitmap
 {
 public:
   explicit Bitmap(const glm::ivec2& size);
-  explicit Bitmap(const glm::ivec2& size, const gsl::span<const uint32_t>& rgba);
+  explicit Bitmap(const glm::ivec2& size, const gsl_lite::span<const uint32_t>& rgba);
   virtual ~Bitmap() = default;
 
   [[nodiscard]] uint32_t* data() noexcept
   {
     return m_data.data();
   }
+
   [[nodiscard]] const uint32_t* data() const noexcept
   {
     return m_data.data();
   }
+
   [[nodiscard]] const glm::ivec2& size() const noexcept
   {
     return m_size;

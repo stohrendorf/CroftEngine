@@ -8,7 +8,7 @@
 #include <gl/program.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -30,18 +30,18 @@ class GhostModel final : public render::scene::Node
 {
 public:
   GhostModel()
-      : render::scene::Node{"ghost"}
+      : Node{"ghost"}
   {
     setColor(gl::SRGB8{51, 51, 204});
   }
 
-  void apply(const engine::world::World& world, const GhostFrame& frame);
+  void apply(const world::World& world, const GhostFrame& frame);
 
   [[nodiscard]] const auto& getMeshMatricesBuffer() const
   {
     if(m_meshMatricesBuffer == nullptr)
       m_meshMatricesBuffer = std::make_unique<gl::ShaderStorageBuffer<glm::mat4>>(
-        "mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, gsl::span<glm::mat4>{});
+        "mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, gsl_lite::span<glm::mat4>{});
     return *m_meshMatricesBuffer;
   }
 
@@ -53,8 +53,8 @@ public:
   void setColor(const gl::SRGB8& color)
   {
     bind("u_color",
-         [color = glm::vec3{color.channels}
-                  / 255.0f](const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+         [color
+          = glm::vec3{color.channels} / 255.0f](const Node*, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
          {
            uniform.set(color);
          });

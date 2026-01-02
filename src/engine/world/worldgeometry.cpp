@@ -50,7 +50,7 @@
 #include <gl/renderstate.h>
 #include <gl/texture2darray.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <ios>
 #include <iterator>
@@ -66,8 +66,7 @@ namespace engine::world
 {
 const std::unique_ptr<SpriteSequence>& WorldGeometry::findSpriteSequenceForType(const core::TypeId& type) const
 {
-  const auto it = m_spriteSequences.find(type);
-  if(it != m_spriteSequences.end())
+  if(const auto it = m_spriteSequences.find(type); it != m_spriteSequences.end())
     return it->second;
 
   static const std::unique_ptr<SpriteSequence> none;
@@ -76,7 +75,7 @@ const std::unique_ptr<SpriteSequence>& WorldGeometry::findSpriteSequenceForType(
 
 const StaticMesh* WorldGeometry::findStaticMeshById(const core::StaticMeshId& meshId) const
 {
-  auto it = m_staticMeshes.find(meshId);
+  const auto it = m_staticMeshes.find(meshId);
   if(it != m_staticMeshes.end())
     return &it->second;
 
@@ -85,8 +84,7 @@ const StaticMesh* WorldGeometry::findStaticMeshById(const core::StaticMeshId& me
 
 const std::unique_ptr<SkeletalModelType>& WorldGeometry::findAnimatedModelForType(const core::TypeId& type) const
 {
-  const auto it = m_animatedModels.find(type);
-  if(it != m_animatedModels.end())
+  if(const auto it = m_animatedModels.find(type); it != m_animatedModels.end())
     return it->second;
 
   static const std::unique_ptr<SkeletalModelType> none;
@@ -100,12 +98,11 @@ gslu::nn_shared<RenderMeshData> WorldGeometry::getRenderMesh(const size_t idx) c
 
 core::TypeId WorldGeometry::find(const SkeletalModelType* model) const
 {
-  auto it = std::find_if(m_animatedModels.begin(),
-                         m_animatedModels.end(),
-                         [&model](const auto& item) noexcept
-                         {
-                           return item.second.get() == model;
-                         });
+  const auto it = std::ranges::find_if(m_animatedModels,
+                                       [&model](const auto& item) noexcept
+                                       {
+                                         return item.second.get() == model;
+                                       });
   if(it != m_animatedModels.end())
     return it->first;
 
@@ -114,12 +111,12 @@ core::TypeId WorldGeometry::find(const SkeletalModelType* model) const
 
 core::TypeId WorldGeometry::find(const Sprite* sprite) const
 {
-  auto it = std::find_if(m_spriteSequences.begin(),
-                         m_spriteSequences.end(),
-                         [&sprite](const auto& sequence)
-                         {
-                           return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite;
-                         });
+  const auto it
+    = std::ranges::find_if(m_spriteSequences,
+                           [&sprite](const auto& sequence)
+                           {
+                             return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite;
+                           });
   if(it != m_spriteSequences.end())
     return it->first;
 
@@ -128,61 +125,58 @@ core::TypeId WorldGeometry::find(const Sprite* sprite) const
 
 void WorldGeometry::initMeshes(const loader::file::level::Level& level)
 {
-  std::transform(level.m_meshes.begin(),
-                 level.m_meshes.end(),
-                 std::back_inserter(m_meshes),
-                 [this](const loader::file::Mesh& mesh)
-                 {
-                   return Mesh{mesh.collision_center,
-                               mesh.collision_radius,
-                               gsl::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
-                 });
+  std::ranges::transform(level.m_meshes,
+                         std::back_inserter(m_meshes),
+                         [this](const loader::file::Mesh& mesh)
+                         {
+                           return Mesh{mesh.collision_center,
+                                       mesh.collision_radius,
+                                       gsl_lite::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
+                         });
 }
 
 void WorldGeometry::initTextureDependentDataFromLevel(const loader::file::level::Level& level)
 {
-  std::transform(level.m_textureTiles.begin(),
-                 level.m_textureTiles.end(),
-                 std::back_inserter(m_atlasTiles),
-                 [](const loader::file::TextureTile& tile)
-                 {
-                   return AtlasTile{tile.textureKey,
-                                    {tile.uvCoordinates[0].toGl(),
-                                     tile.uvCoordinates[1].toGl(),
-                                     tile.uvCoordinates[2].toGl(),
-                                     tile.uvCoordinates[3].toGl()}};
-                 });
+  std::ranges::transform(level.m_textureTiles,
+                         std::back_inserter(m_atlasTiles),
+                         [](const loader::file::TextureTile& tile)
+                         {
+                           return AtlasTile{tile.textureKey,
+                                            {tile.uvCoordinates[0].toGl(),
+                                             tile.uvCoordinates[1].toGl(),
+                                             tile.uvCoordinates[2].toGl(),
+                                             tile.uvCoordinates[3].toGl()}};
+                         });
 
-  std::transform(level.m_sprites.begin(),
-                 level.m_sprites.end(),
-                 std::back_inserter(m_sprites),
-                 [](const loader::file::Sprite& sprite)
-                 {
-                   return Sprite{sprite.atlas_id,
-                                 sprite.uv0.toGl(),
-                                 sprite.uv1.toGl(),
-                                 sprite.render0,
-                                 sprite.render1,
-                                 nullptr,
-                                 nullptr,
-                                 {nullptr, nullptr}};
-                 });
+  std::ranges::transform(level.m_sprites,
+                         std::back_inserter(m_sprites),
+                         [](const loader::file::Sprite& sprite)
+                         {
+                           return Sprite{sprite.atlas_id,
+                                         sprite.uv0.toGl(),
+                                         sprite.uv1.toGl(),
+                                         sprite.render0,
+                                         sprite.render1,
+                                         nullptr,
+                                         nullptr,
+                                         {nullptr, nullptr}};
+                         });
 
   for(const auto& [sequenceId, sequence] : level.m_spriteSequences)
   {
     gsl_Assert(sequence != nullptr);
     gsl_Assert(sequence->length <= 0);
-    gsl_Assert(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_sprites.size());
+    gsl_Assert(gsl_lite::narrow<size_t>(sequence->offset - sequence->length) <= m_sprites.size());
 
     auto seq = std::make_unique<SpriteSequence>();
-    *seq = SpriteSequence{sequence->type, gsl::make_span(&m_sprites.at(sequence->offset), -sequence->length)};
+    *seq = SpriteSequence{sequence->type, gsl_lite::make_span(&m_sprites.at(sequence->offset), -sequence->length)};
     const bool distinct = m_spriteSequences.emplace(sequenceId, std::move(seq)).second;
     gsl_Assert(distinct);
   }
 }
 
 void WorldGeometry::initStaticMeshes(const loader::file::level::Level& level,
-                                     const std::vector<gsl::not_null<const Mesh*>>& meshesDirect,
+                                     const std::vector<gsl_lite::not_null<const Mesh*>>& meshesDirect,
                                      const Engine& engine)
 {
   for(const auto& staticMesh : level.m_staticMeshes)
@@ -194,11 +188,11 @@ void WorldGeometry::initStaticMeshes(const loader::file::level::Level& level,
       *engine.getPresenter().getMaterialManager(),
       false,
       false,
-      []()
+      []
       {
         return false;
       },
-      [&engine]()
+      [&engine]
       {
         const auto& settings = engine.getEngineConfig()->renderSettings;
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
@@ -213,16 +207,15 @@ void WorldGeometry::initStaticMeshes(const loader::file::level::Level& level,
   }
 }
 
-std::vector<gsl::not_null<const Mesh*>> WorldGeometry::initAnimatedModels(const loader::file::level::Level& level)
+std::vector<gsl_lite::not_null<const Mesh*>> WorldGeometry::initAnimatedModels(const loader::file::level::Level& level)
 {
-  std::vector<gsl::not_null<const Mesh*>> meshesDirect;
-  std::transform(level.m_meshIndices.begin(),
-                 level.m_meshIndices.end(),
-                 std::back_inserter(meshesDirect),
-                 [this](auto& idx)
-                 {
-                   return gsl::not_null{&m_meshes.at(idx)};
-                 });
+  std::vector<gsl_lite::not_null<const Mesh*>> meshesDirect;
+  std::ranges::transform(level.m_meshIndices,
+                         std::back_inserter(meshesDirect),
+                         [this](auto& idx)
+                         {
+                           return gsl_lite::not_null{&m_meshes.at(idx)};
+                         });
 
   for(const auto& [modelId, model] : level.m_animatedModels)
   {
@@ -237,13 +230,13 @@ std::vector<gsl::not_null<const Mesh*>> WorldGeometry::initAnimatedModels(const 
     const auto frames = reinterpret_cast<const loader::file::AnimFrame*>(&model->pose_data_offset.from(m_poseFrames));
     if(model->nMeshes > 1)
     {
-      model->boneTree = gsl::make_span(
+      model->boneTree = gsl_lite::make_span(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         reinterpret_cast<const loader::file::BoneTreeEntry*>(&model->bone_index.from(m_boneTrees)),
         model->nMeshes - 1);
     }
 
-    Animation* animations = nullptr;
+    const Animation* animations = nullptr;
     if(model->animation_index.index != 0xffff)
       animations = &model->animation_index.from(m_animations);
 
@@ -251,7 +244,7 @@ std::vector<gsl::not_null<const Mesh*>> WorldGeometry::initAnimatedModels(const 
     if(model->nMeshes > 0)
     {
       BOOST_ASSERT(model->boneTree.empty() || static_cast<size_t>(model->nMeshes) == model->boneTree.size() + 1);
-      for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
+      for(size_t i = 0; i < gsl_lite::narrow_cast<size_t>(model->nMeshes); ++i)
       {
         const auto mesh = (model->mesh_base_index + i).from(meshesDirect);
         bones.emplace_back(mesh->meshData,
@@ -304,7 +297,7 @@ void WorldGeometry::initAnimationData(const loader::file::level::Level& level)
     }
 
     gsl_Assert(anim.nextAnimationIndex < m_animations.size());
-    auto nextAnimation = &m_animations[anim.nextAnimationIndex];
+    const auto nextAnimation = &m_animations[anim.nextAnimationIndex];
 
     const auto validAnimCommands
       = anim.animCommandCount == 0 || (anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands);
@@ -316,9 +309,9 @@ void WorldGeometry::initAnimationData(const loader::file::level::Level& level)
 
     gsl_Assert(anim.transitionsCount == 0
                || (anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
-    gsl::span<const Transitions> transitions;
+    gsl_lite::span<const Transitions> transitions;
     if(anim.transitionsCount > 0)
-      transitions = gsl::span{&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
+      transitions = gsl_lite::span{&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
 
     gsl_Assert(anim.segmentLength > 0_frame);
     gsl_Assert(anim.firstFrame <= anim.lastFrame);
@@ -354,9 +347,8 @@ void WorldGeometry::initAnimationData(const loader::file::level::Level& level)
   gsl_Ensures(m_transitionCases.size() == level.m_transitionCases.size());
 
   gsl_Assert(m_transitions.size() == level.m_transitions.size());
-  std::transform(
-    level.m_transitions.begin(),
-    level.m_transitions.end(),
+  std::ranges::transform(
+    level.m_transitions,
     m_transitions.begin(),
     [this](const loader::file::Transitions& transitions)
     {
@@ -364,7 +356,7 @@ void WorldGeometry::initAnimationData(const loader::file::level::Level& level)
       if(transitions.transitionCaseCount > 0)
         return Transitions{
           transitions.stateId,
-          gsl::span{&transitions.firstTransitionCase.from(m_transitionCases), transitions.transitionCaseCount}};
+          gsl_lite::span{&transitions.firstTransitionCase.from(m_transitionCases), transitions.transitionCaseCount}};
       return Transitions{};
     });
   gsl_Ensures(m_transitions.size() == level.m_transitions.size());
@@ -416,7 +408,7 @@ void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Leve
     atlases,
     util::ensureFileExists(engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
     engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                          []()
+                                                          []
                                                           {
                                                             return 0;
                                                           }));
@@ -431,8 +423,7 @@ void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Leve
       m_sprites,
       [&lastDrawUpdate, &engine](const std::string& s)
       {
-        const auto now = std::chrono::high_resolution_clock::now();
-        if(lastDrawUpdate + core::TimePerFrame < now)
+        if(const auto now = std::chrono::high_resolution_clock::now(); lastDrawUpdate + core::TimePerFrame < now)
         {
           lastDrawUpdate = now;
           engine.getPresenter().drawLoadingScreen(s);
@@ -440,7 +431,7 @@ void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Leve
       },
       cacheDir);
   }
-  engine.getPresenter().getMaterialManager()->setGeometryTextures(gsl::not_null{m_allTextures});
+  engine.getPresenter().getMaterialManager()->setGeometryTextures(gsl_lite::not_null{m_allTextures});
 
   // NOLINTNEXTLINE(bugprone-unused-raii)
   std::ofstream{getTextureCacheVersionFilePath(cacheDir), std::ios::trunc};
@@ -460,7 +451,7 @@ void WorldGeometry::initSpriteMeshes(const Engine& engine)
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
       engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::YAxisBound,
-                                                            [config = engine.getEngineConfig()]()
+                                                            [config = engine.getEngineConfig()]
                                                             {
                                                               return !config->renderSettings.lightingModeActive
                                                                        ? 0
@@ -477,7 +468,7 @@ void WorldGeometry::initSpriteMeshes(const Engine& engine)
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
       engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                            [config = engine.getEngineConfig()]()
+                                                            [config = engine.getEngineConfig()]
                                                             {
                                                               return !config->renderSettings.lightingModeActive
                                                                        ? 0
@@ -494,7 +485,7 @@ void WorldGeometry::initSpriteMeshes(const Engine& engine)
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
       engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::InstancedBillboard,
-                                                            [config = engine.getEngineConfig()]()
+                                                            [config = engine.getEngineConfig()]
                                                             {
                                                               return !config->renderSettings.lightingModeActive
                                                                        ? 0
@@ -514,13 +505,12 @@ WorldGeometry::WorldGeometry(Engine& engine, const loader::file::level::Level& l
   initTextures(engine, level);
   initSpriteMeshes(engine);
 
-  std::transform(level.m_palette->colors.begin(),
-                 level.m_palette->colors.end(),
-                 m_palette.begin(),
-                 [](const loader::file::ByteColor& color) noexcept
-                 {
-                   return color.toTextureColor();
-                 });
+  std::ranges::transform(level.m_palette->colors,
+                         m_palette.begin(),
+                         [](const loader::file::ByteColor& color) noexcept
+                         {
+                           return color.toTextureColor();
+                         });
 
   initAnimationData(level);
   initMeshes(level);

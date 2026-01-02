@@ -38,7 +38,7 @@
 #include <ctime>
 #include <filesystem>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -68,12 +68,12 @@ class SavegameListMenuState::CleanupWidget final : public ui::widgets::Widget
 {
 public:
   explicit CleanupWidget(const std::optional<std::string>& slotDate)
-      : ui::widgets::Widget{}
+      : Widget{}
       , m_referenceDate{slotDate}
   {
     createList();
-    m_container = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Clean Up Saves"),
-                                                          gsl::not_null{m_list});
+    m_container = std::make_shared<ui::widgets::GroupBox>(
+      /* translators: TR charmap encoding */ _("Clean Up Saves"), gsl_lite::not_null{m_list});
     fitToContent();
   }
 
@@ -109,12 +109,12 @@ public:
     m_container->setSize(size);
   }
 
-  void update(bool hasFocus) override
+  void update(const bool hasFocus) override
   {
     m_container->update(hasFocus);
   }
 
-  void fitToContent() final
+  void fitToContent() override
   {
     m_container->fitToContent();
   }
@@ -137,44 +137,44 @@ public:
 private:
   void createList()
   {
-    m_list = gsl::make_shared<ui::widgets::ListBox>();
+    m_list = gsl_lite::make_shared<ui::widgets::ListBox>();
     if(m_referenceDate.has_value())
     {
       m_actionPerListItem.emplace_back(CleanupAction::Current);
-      m_list->append(
-        gsl::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Clear Selected Slot")));
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
+        /* translators: TR charmap encoding */ _("Clear Selected Slot")));
 
       m_actionPerListItem.emplace_back(CleanupAction::BeforeDate);
-      m_list->append(gsl::make_shared<ui::widgets::Label>(
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
         /* translators: TR charmap encoding */ _("Clear Slots Before %1%", *m_referenceDate)));
 
       m_actionPerListItem.emplace_back(CleanupAction::AllOther);
-      m_list->append(gsl::make_shared<ui::widgets::Label>(
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
         /* translators: TR charmap encoding */ _("Clear All Other Slots")));
 
       m_actionPerListItem.emplace_back(CleanupAction::AllOtherForLevel);
-      m_list->append(gsl::make_shared<ui::widgets::Label>(
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
         /* translators: TR charmap encoding */ _("Clear All Other Level Slots")));
     }
 
     m_actionPerListItem.emplace_back(CleanupAction::AllExceptNewestPerLevel);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Clear All Slots, Keep Most Recent Level Slots, and Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::Compact);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::OrderByDateAndCompact);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Order by Date and Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::OrderByDateLevelAndCompact);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Group by Level, Order by Date, and Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::Cancel);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Cancel")));
 
     m_list->fitToContent();
@@ -220,7 +220,7 @@ public:
     m_label.setSize(size);
   }
 
-  void update(bool hasFocus) override
+  void update(const bool hasFocus) override
   {
     m_label.update(hasFocus);
   }
@@ -261,7 +261,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
                                              std::unique_ptr<MenuState> previous,
                                              const std::string& heading,
                                              const engine::world::World& world,
-                                             bool loading)
+                                             const bool loading)
     : ListDisplayMenuState{ringTransform, heading, 10}
     , m_previous{std::move(previous)}
     , m_loading{loading}
@@ -279,9 +279,14 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
 }
 
 std::unique_ptr<MenuState>
-  SavegameListMenuState::onSelected(size_t selectedIdx, engine::world::World& world, MenuDisplay& display)
+  SavegameListMenuState::onSelected(const size_t selectedIdx, engine::world::World& world, MenuDisplay& display)
 {
-  if(m_loading && world.getEngine().getGameplayRules().noMeds)
+  if(m_loading
+     && world
+
+          .getEngine()
+          .getGameplayRules()
+          .noMeds)
   {
     world.getObjectManager().getLara().playSoundEffect(engine::TR1SoundEffect::LaraNo);
     return nullptr;
@@ -347,47 +352,46 @@ void SavegameListMenuState::sortEntries()
 {
   clear();
 
-  std::sort(m_entries.begin(),
-            m_entries.end(),
-            [this](const auto& lhs, const auto& rhs)
-            {
-              const auto& lhsT = lhs->getTime();
-              const auto& rhsT = rhs->getTime();
-              switch(m_ordering)
-              {
-              case Ordering::Slot:
-                break;
-              case Ordering::DateAsc:
-                if(!lhsT.has_value() && !rhsT.has_value())
-                  break;
-                else if(lhsT.has_value() && !rhsT.has_value())
-                  return true;
-                else if(!lhsT.has_value() && rhsT.has_value())
-                  return false;
-                else if(*lhsT != *rhsT)
-                  return *lhsT < *rhsT;
-                break;
-              case Ordering::DateDesc:
-                if(!lhsT.has_value() && !rhsT.has_value())
-                  break;
-                else if(lhsT.has_value() && !rhsT.has_value())
-                  return true;
-                else if(!lhsT.has_value() && rhsT.has_value())
-                  return false;
-                else if(*lhsT != *rhsT)
-                  return *lhsT > *rhsT;
-                break;
-              }
+  std::ranges::sort(m_entries,
+                    [this](const auto& lhs, const auto& rhs)
+                    {
+                      const auto& lhsT = lhs->getTime();
+                      const auto& rhsT = rhs->getTime();
+                      switch(m_ordering)
+                      {
+                      case Ordering::Slot:
+                        break;
+                      case Ordering::DateAsc:
+                        if(!lhsT.has_value() && !rhsT.has_value())
+                          break;
+                        else if(lhsT.has_value() && !rhsT.has_value())
+                          return true;
+                        else if(!lhsT.has_value() && rhsT.has_value())
+                          return false;
+                        else if(*lhsT != *rhsT)
+                          return *lhsT < *rhsT;
+                        break;
+                      case Ordering::DateDesc:
+                        if(!lhsT.has_value() && !rhsT.has_value())
+                          break;
+                        else if(lhsT.has_value() && !rhsT.has_value())
+                          return true;
+                        else if(!lhsT.has_value() && rhsT.has_value())
+                          return false;
+                        else if(*lhsT != *rhsT)
+                          return *lhsT > *rhsT;
+                        break;
+                      }
 
-              return lhs->getSlot() < rhs->getSlot();
-            });
+                      return lhs->getSlot() < rhs->getSlot();
+                    });
 
   for(const auto& entry : m_entries)
     append(entry);
 }
 
 std::unique_ptr<MenuState>
-  SavegameListMenuState::onDefaultFrame(ui::Ui& ui, engine::world::World& world, menu::MenuDisplay& display)
+  SavegameListMenuState::onDefaultFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
   {
@@ -620,12 +624,11 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     std::string levelTitle;
     if(slot.has_value())
     {
-      const auto titlesIt = std::find_if(levelFilepathsTitles.cbegin(),
-                                         levelFilepathsTitles.cend(),
-                                         [&info](const auto& entry)
-                                         {
-                                           return util::preferredEqual(entry.first, info.meta.filename);
-                                         });
+      const auto titlesIt = std::ranges::find_if(levelFilepathsTitles,
+                                                 [&info](const auto& entry)
+                                                 {
+                                                   return util::preferredEqual(entry.first, info.meta.filename);
+                                                 });
       gsl_Assert(titlesIt != levelFilepathsTitles.cend());
       auto titleIt = titlesIt->second.find(world.getEngine().getLocaleWithoutEncoding());
       if(titleIt == titlesIt->second.end())
@@ -639,10 +642,11 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     {
       levelTitle = /* translators: TR charmap encoding */ pgettext("SavegameTitle", "Quicksave");
     }
-    const auto title = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
+    const auto title = (boost::format(
+                          /* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
                         % timeStr % levelTitle)
                          .str();
-    const auto entry = gsl::make_shared<SavegameEntry>(slot, title, levelTitle, info.saveTime);
+    const auto entry = gsl_lite::make_shared<SavegameEntry>(slot, title, levelTitle, info.saveTime);
     append(entry);
     m_entries.emplace_back(entry);
   };
@@ -653,7 +657,7 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
   }
   else
   {
-    const auto entry = gsl::make_shared<SavegameEntry>(
+    const auto entry = gsl_lite::make_shared<SavegameEntry>(
       std::nullopt,
       /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- NO QUICKSAVE"),
       std::string{},
@@ -671,7 +675,7 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     }
     else
     {
-      auto label = gsl::make_shared<SavegameEntry>(
+      auto label = gsl_lite::make_shared<SavegameEntry>(
         slot,
         /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- EMPTY SLOT %1%", slot + 1),
         std::string{},
@@ -752,12 +756,12 @@ void SavegameListMenuState::initCleanupConfirmation()
       MaxTextWidth));
     break;
   case CleanupAction::OrderByDateLevelAndCompact:
-    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
-      ui::breakLines(/* translators: TR charmap encoding */ _("Order by Level and Date and Compact All Slots?\n\n"
-                                                              "This will order your saves by level,"
-                                                              " then by date, and move all slots"
-                                                              " to the start of the list."),
-                     MaxTextWidth));
+    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(ui::breakLines(
+      /* translators: TR charmap encoding */ _("Order by Level and Date and Compact All Slots?\n\n"
+                                               "This will order your saves by level,"
+                                               " then by date, and move all slots"
+                                               " to the start of the list."),
+      MaxTextWidth));
     break;
   case CleanupAction::Cancel:
     m_cleanupWidget.reset();

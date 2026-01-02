@@ -23,7 +23,7 @@
 #include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -55,7 +55,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
   {
     int context{};
     serialization::YAMLDocument<true> doc{configFile};
-    doc.deserialize("layouts", gsl::not_null{&context}, layouts);
+    doc.deserialize("layouts", gsl_lite::not_null{&context}, layouts);
   }
 
   ControllerLayouts controllerLayouts;
@@ -74,8 +74,8 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
       const auto atlasLoc
         = atlases.isOnlyLayout() ? atlases.put(glm::ivec2{src.width(), src.height()}) : atlases.put(src);
       const glm::vec2 uvLoc
-        = (glm::vec2{atlasLoc.second} + glm::vec2{0.5f, 0.5f}) / gsl::narrow_cast<float>(atlases.getSize());
-      const glm::vec2 uvSize = glm::vec2{src.width(), src.height()} / gsl::narrow_cast<float>(atlases.getSize());
+        = (glm::vec2{atlasLoc.second} + glm::vec2{0.5f, 0.5f}) / gsl_lite::narrow_cast<float>(atlases.getSize());
+      const glm::vec2 uvSize = glm::vec2{src.width(), src.height()} / gsl_lite::narrow_cast<float>(atlases.getSize());
       static constexpr int YOffset = -ui::FontHeight + 1;
       world::Sprite sprite{atlasLoc.first,
                            uvLoc,

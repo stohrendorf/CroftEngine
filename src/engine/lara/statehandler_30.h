@@ -5,14 +5,14 @@
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_30 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_30(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_30(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::ShimmyLeft}
   {
   }
@@ -21,8 +21,8 @@ public:
   {
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     getWorld().getCameraController().setRotationAroundLara(-60_deg, 0_deg);
-    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
-    if(inputHandler.getInputState().xMovement != hid::AxisMovement::Left
+    if(const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+       inputHandler.getInputState().xMovement != hid::AxisMovement::Left
        && inputHandler.getInputState().stepMovement != hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::Hang);

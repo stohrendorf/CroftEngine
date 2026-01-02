@@ -2,64 +2,77 @@
 
 #include "serialization_fwd.h"
 
-namespace serialization
+namespace serialization::access
 {
-template<typename T, bool Loading>
-struct access;
-
-template<typename T>
-struct access<T, false>
+template<typename T, typename TContext>
+concept MemberSerializable = requires(const T& data, const Serializer<TContext>& ser)
 {
-  template<typename TContext, typename T2>
-  static auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return data.serialize(ser);
-  }
-
-  template<typename TContext, typename T2>
-  static auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return serialize(data, ser);
-  }
+  data.serialize(ser);
 };
 
-template<typename T>
-struct access<T, true>
+template<typename T, typename TContext>
+concept NonMemberSerializable = requires(const T& data, const Serializer<TContext>& ser)
 {
-  template<typename TContext, typename T2>
-  static auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(data.deserialize(ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return data.deserialize(ser);
-  }
-
-  template<typename TContext, typename T2>
-  static auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(deserialize(data, ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return deserialize(data, ser);
-  }
-
-  template<typename TContext, typename T2 = T>
-  static auto dispatch(const Deserializer<TContext>& ser) -> decltype(T2::create(ser))
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return T::create(ser);
-  }
-
-  template<typename TContext, typename T2 = T>
-  static auto dispatch(const Deserializer<TContext>& ser) -> decltype(create(TypeId<T2>{}, ser))
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return create(TypeId<T>{}, ser);
-  }
+  serialize(data, ser);
 };
-} // namespace serialization
+
+template<typename T, typename TContext>
+concept MemberDeserializable = requires(T & data, const Deserializer<TContext>& ser)
+{
+  data.deserialize(ser);
+};
+
+template<typename T, typename TContext>
+concept NonMemberDeserializable = requires(T & data, const Deserializer<TContext>& ser)
+{
+  deserialize(data, ser);
+};
+
+template<typename T, typename TContext>
+concept MemberCreatable = requires(const Deserializer<TContext>& ser)
+{
+  T::create(ser);
+};
+
+template<typename T, typename TContext>
+concept NonMemberCreatable = requires(const Deserializer<TContext>& ser)
+{
+  create(TypeId<T>{}, ser);
+};
+
+template<typename T, typename TContext>
+requires MemberSerializable<T, TContext> void dispatch(const T& data, const Serializer<TContext>& ser)
+{
+  data.serialize(ser);
+}
+
+template<typename T, typename TContext>
+requires NonMemberSerializable<T, TContext> void dispatch(const T& data, const Serializer<TContext>& ser)
+{
+  serialize(data, ser);
+}
+
+template<typename T, typename TContext>
+requires MemberDeserializable<T, TContext> void dispatch(T& data, const Deserializer<TContext>& ser)
+{
+  data.deserialize(ser);
+}
+
+template<typename T, typename TContext>
+requires NonMemberDeserializable<T, TContext> void dispatch(T& data, const Deserializer<TContext>& ser)
+{
+  deserialize(data, ser);
+}
+
+template<typename T, typename TContext>
+requires MemberCreatable<T, TContext> T dispatch(const Deserializer<TContext>& ser)
+{
+  return T::create(ser);
+}
+
+template<typename T, typename TContext>
+requires NonMemberCreatable<T, TContext> T dispatch(const Deserializer<TContext>& ser)
+{
+  return create(TypeId<T>{}, ser);
+}
+} // namespace serialization::access

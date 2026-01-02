@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 #include <string>
 
@@ -40,6 +40,6 @@ public:
 
 private:
   bool m_failure = true;
-  gsl::not_null<archive*> m_archive;
+  gsl_lite::not_null<archive*> m_archive;
   archive_entry* m_entry = nullptr;
 };

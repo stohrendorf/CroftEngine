@@ -8,7 +8,7 @@
 #include <gl/debuggroup.h>
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -32,7 +32,7 @@ void Visitor::visit(const Node& node)
   m_context->popState();
 }
 
-void Visitor::add(const gsl::not_null<const Node*>& node)
+void Visitor::add(const gsl_lite::not_null<const Node*>& node)
 {
   if(node->getRenderable() != nullptr)
     m_nodes.emplace_back(node, m_context->getCurrentState());
@@ -43,20 +43,19 @@ void Visitor::render(const std::optional<glm::vec3>& camera) const
   if(camera.has_value())
   {
     // logic: first order by render order, then order by distance to camera back-to-front
-    std::sort(m_nodes.begin(),
-              m_nodes.end(),
-              [this, camera](const RenderableInfo& a, const RenderableInfo& b)
-              {
-                if(auto aOrder = std::get<0>(a)->getRenderOrder(), bOrder = std::get<0>(b)->getRenderOrder();
-                   aOrder != bOrder)
-                {
-                  return aOrder < bOrder;
-                }
+    std::ranges::sort(m_nodes,
+                      [this, camera](const RenderableInfo& a, const RenderableInfo& b)
+                      {
+                        if(auto aOrder = std::get<0>(a)->getRenderOrder(), bOrder = std::get<0>(b)->getRenderOrder();
+                           aOrder != bOrder)
+                        {
+                          return aOrder < bOrder;
+                        }
 
-                auto da = glm::distance(std::get<0>(a)->getTranslationWorld(), *camera);
-                auto db = glm::distance(std::get<0>(b)->getTranslationWorld(), *camera);
-                return m_backToFront ? db > da : da > db;
-              });
+                        const auto da = glm::distance(std::get<0>(a)->getTranslationWorld(), *camera);
+                        const auto db = glm::distance(std::get<0>(b)->getTranslationWorld(), *camera);
+                        return m_backToFront ? db > da : da > db;
+                      });
   }
 
   for(const auto& [node, state] : m_nodes)

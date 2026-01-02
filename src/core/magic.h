@@ -1,11 +1,10 @@
 #pragma once
 
-#include "core/units.h"
 #include "units.h"
 
 #include <chrono>
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace core
 {
@@ -85,9 +84,9 @@ constexpr auto FreeLookHeadTurnSpeed = 2_deg / 1_frame;
 
 constexpr size_t SavegameSlots = 99;
 
-constexpr Length operator"" _sectors(unsigned long long value) noexcept
+constexpr Length operator""_sectors(unsigned long long value) noexcept
 {
-  return gsl::narrow_cast<Length::type>(value) * SectorSize;
+  return gsl_lite::narrow_cast<Length::type>(value) * SectorSize;
 }
 
 [[nodiscard]] constexpr auto sectorOf(const Length& l)

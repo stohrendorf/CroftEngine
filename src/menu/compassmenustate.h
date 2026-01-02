@@ -24,7 +24,6 @@ struct MenuDisplay;
 
 class CompassMenuState : public SelectedMenuState
 {
-private:
   std::unique_ptr<MenuState> m_previous;
   gslu::nn_shared<ui::DetailedLevelStats> m_stats;
 

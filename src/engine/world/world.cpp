@@ -79,7 +79,6 @@
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -89,12 +88,13 @@
 #include <gl/pixel.h>
 #include <glm/common.hpp>
 #include <glm/gtx/norm.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <iterator>
 #include <map>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <tuple>
 #include <type_traits>
 #include <unordered_map>
@@ -107,7 +107,7 @@ namespace
 {
 void activateCommand(objects::Object& object,
                      const floordata::ActivationState& activationRequest,
-                     floordata::SequenceCondition condition)
+                     const floordata::SequenceCondition condition)
 {
   if(object.m_state.activationState.isOneshot())
     return;
@@ -146,8 +146,8 @@ void activateCommand(objects::Object& object,
 
 bool flipMapCommand(floordata::ActivationState& state,
                     const floordata::ActivationState& request,
-                    floordata::SequenceCondition condition,
-                    bool roomsAreSwapped)
+                    const floordata::SequenceCondition condition,
+                    const bool roomsAreSwapped)
 {
   if(state.isOneshot())
     return false;
@@ -178,7 +178,7 @@ bool flipMapCommand(floordata::ActivationState& state,
   return false;
 }
 
-bool evaluateLaraCondition(floordata::SequenceCondition condition,
+bool evaluateLaraCondition(const floordata::SequenceCondition condition,
                            const floordata::ActivationState& request,
                            const ObjectManager& objectManager,
                            const floordata::FloorDataValue*& floorData,
@@ -193,7 +193,7 @@ bool evaluateLaraCondition(floordata::SequenceCondition condition,
     return objectManager.getLara().m_state.location.position.Y == objectManager.getLara().m_state.floor;
   case floordata::SequenceCondition::ItemActivated:
   {
-    auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
+    const auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     gsl_Assert(swtch != nullptr);
     if(!swtch->triggerSwitch(request.getTimeout()))
       return false;
@@ -203,13 +203,13 @@ bool evaluateLaraCondition(floordata::SequenceCondition condition,
   }
   case floordata::SequenceCondition::KeyUsed:
   {
-    auto key = objectManager.getObject(floordata::Command{*floorData++}.parameter);
+    const auto key = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     gsl_Assert(key != nullptr);
     return key->triggerKey();
   }
   case floordata::SequenceCondition::ItemPickedUp:
   {
-    auto item = objectManager.getObject(floordata::Command{*floorData++}.parameter);
+    const auto item = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     gsl_Assert(item != nullptr);
     return item->triggerPickUp();
   }
@@ -223,19 +223,19 @@ bool evaluateLaraCondition(floordata::SequenceCondition condition,
   }
 }
 
-void emitGroundBubbles(const gsl::not_null<Room*>& room, World& world)
+void emitGroundBubbles(const gsl_lite::not_null<Room*>& room, World& world)
 {
   if(!room->isWaterRoom || !room->node->isVisible())
     return;
 
-  static constexpr const size_t MaxParticlesPerSector = 3;
-  static constexpr const float EmissionProbability = 0.01f;
+  static constexpr size_t MaxParticlesPerSector = 3;
+  static constexpr float EmissionProbability = 0.01f;
 
   for(int x = 0; x < room->sectorCountX; ++x)
   {
     for(int z = 0; z < room->sectorCountZ; ++z)
     {
-      const gsl::not_null s{room->getSectorByIndex(x, z)};
+      const gsl_lite::not_null s{room->getSectorByIndex(x, z)};
       if(s->roomBelow != nullptr)
         continue;
 
@@ -248,7 +248,8 @@ void emitGroundBubbles(const gsl::not_null<Room*>& room, World& world)
         const auto pz = room->position.Z + z * core::SectorSize + util::rand15(core::SectorSize);
         const auto py = s->floorHeight;
 
-        auto particle = gsl::make_shared<BubbleParticle>(Location{room, core::TRVec{px, py, pz}}, world, true, true);
+        auto particle
+          = gsl_lite::make_shared<BubbleParticle>(Location{room, core::TRVec{px, py, pz}}, world, true, true);
         particle->scale = 0.5f;
         particle->circleRadius = 1_len;
         room->particles.registerParticle(std::move(particle));
@@ -325,7 +326,7 @@ void World::laraNormalEffect()
   m_objectManager.getLara().setCurrentAnimState(loader::file::LaraStateId::Stop);
   m_objectManager.getLara().setRequiredAnimState(loader::file::LaraStateId::Unknown12);
   m_objectManager.getLara().getSkeleton()->setAnim(
-    gsl::not_null{&m_worldGeometry->getAnimation(loader::file::AnimationId::STAY_SOLID)});
+    gsl_lite::not_null{&m_worldGeometry->getAnimation(loader::file::AnimationId::STAY_SOLID)});
   m_cameraController->setMode(CameraMode::Chase);
   getPresenter().getRenderer().getCamera()->setFieldOfView(Presenter::DefaultFov);
 }
@@ -348,7 +349,8 @@ void World::laraBubblesEffect(objects::Object& object)
 
   while(bubbleCount-- > 0)
   {
-    auto particle = gsl::make_shared<BubbleParticle>(Location{object.m_state.location.room, position}, *this);
+    const auto particle
+      = gsl_lite::make_shared<BubbleParticle>(Location{object.m_state.location.room, position}, *this);
     setParent(particle, object.m_state.location.room->node);
     m_objectManager.registerParticle(particle);
   }
@@ -395,7 +397,7 @@ void World::floodEffect()
   if(m_effectTimer <= core::FrameRate * 4_sec)
   {
     auto pos = m_objectManager.getLara().m_state.location.position;
-    core::Frame mul = 0_frame;
+    auto mul = 0_frame;
     if(m_effectTimer >= core::FrameRate * 1_sec)
     {
       mul = m_effectTimer - (core::FrameRate * 1_sec).cast<core::Frame>();
@@ -444,13 +446,13 @@ void World::stairsToSlopeEffect()
   else if(m_effectTimer == 0_frame)
   {
     m_audioEngine->playSoundEffect(TR1SoundEffect::HeavyDoorSlam, nullptr);
-    auto voice = m_audioEngine->playSoundEffect(TR1SoundEffect::FlowingAir,
-                                                m_cameraController->getLookAt().position.toRenderSystem());
+    const auto voice = m_audioEngine->playSoundEffect(TR1SoundEffect::FlowingAir,
+                                                      m_cameraController->getLookAt().position.toRenderSystem());
     m_audioEngine->getSoundEngine().getDevice().registerUpdateCallback(
       audio::FadeVolumeCallback{0.0f,
                                 std::chrono::seconds{4},
-                                gsl::not_null{voice},
-                                [this]()
+                                gsl_lite::not_null{voice},
+                                [this]
                                 {
                                   m_audioEngine->stopSoundEffect(TR1SoundEffect::FlowingAir, nullptr);
                                 }});
@@ -519,7 +521,7 @@ void World::flickerEffect()
 void World::swapWithAlternate(Room& orig, Room& alternate)
 {
   // find any blocks in the original room and un-patch the floor heights
-  for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
+  for(const auto& object : m_objectManager.getObjects() | std::views::values)
   {
     if(object->m_state.location.room != &orig)
       continue;
@@ -549,16 +551,16 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
   // patch heights in the new room, and swap object ownerships.
   // note that this is exactly the same code as above,
   // except for the heights.
-  for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
+  for(const auto& object : m_objectManager.getObjects() | std::views::values)
   {
     if(object->m_state.location.room == &orig)
     {
       // although this seems contradictory, remember the nodes have been swapped above
-      setParent(gsl::not_null{object->getNode()}, orig.node);
+      setParent(gsl_lite::not_null{object->getNode()}, orig.node);
     }
     else if(object->m_state.location.room == &alternate)
     {
-      setParent(gsl::not_null{object->getNode()}, alternate.node);
+      setParent(gsl_lite::not_null{object->getNode()}, alternate.node);
       continue;
     }
     else
@@ -582,21 +584,22 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
   {
     if(object->m_state.location.room == &orig)
     {
-      setParent(gsl::not_null{object->getNode()}, orig.node);
+      setParent(gsl_lite::not_null{object->getNode()}, orig.node);
     }
     else if(object->m_state.location.room == &alternate)
     {
-      setParent(gsl::not_null{object->getNode()}, alternate.node);
+      setParent(gsl_lite::not_null{object->getNode()}, alternate.node);
     }
   }
 }
 
-gslu::nn_shared<objects::PickupObject>
-  World::createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position)
+gslu::nn_shared<objects::PickupObject> World::createPickup(const core::TypeId& type,
+                                                           const gsl_lite::not_null<const Room*>& room,
+                                                           const core::TRVec& position)
 {
   loader::file::Item item;
   item.type = type;
-  item.room = uint16_t(-1);
+  item.room = static_cast<uint16_t>(-1);
   item.position = position;
   item.rotation = 0_deg;
   item.shade = core::Shade{core::Shade::type{0}};
@@ -606,15 +609,15 @@ gslu::nn_shared<objects::PickupObject>
   gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const Sprite& sprite = spriteSequence->sprites[0];
 
-  auto object = gsl::make_shared<objects::PickupObject>(
+  auto object = gsl_lite::make_shared<objects::PickupObject>(
     objects::makeObjectName(item.type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
-    gsl::not_null{this},
+    gsl_lite::not_null{this},
     room,
     item,
-    gsl::not_null{&sprite});
+    gsl_lite::not_null{&sprite});
 
   m_objectManager.registerDynamicObject(object);
-  addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
+  addChild(gsl_lite::not_null{room->node}, gsl_lite::not_null{object->getNode()});
 
   return object;
 }
@@ -638,8 +641,8 @@ void World::update(const bool godMode)
   if(const auto lara = m_objectManager.getLaraPtr();
      getEngine().getEngineConfig()->lowHealthMonochrome && lara != nullptr)
   {
-    const auto newStrength = 1 - lara->m_state.health.cast<float>() / core::LaraHealth * 5;
-    if(newStrength < m_currentDeathStrength)
+    if(const auto newStrength = 1 - lara->m_state.health.cast<float>() / core::LaraHealth * 5;
+       newStrength < m_currentDeathStrength)
       m_currentDeathStrength = std::max(m_currentDeathStrength - DeathStrengthFadeDeltaPerFrame, newStrength);
     else if(newStrength > m_currentDeathStrength)
       m_currentDeathStrength = std::min(m_currentDeathStrength + DeathStrengthFadeDeltaPerFrame, newStrength);
@@ -663,13 +666,11 @@ void World::update(const bool godMode)
     m_uvAnimTime -= UVAnimTime;
   }
 
-  m_pickupWidgets.erase(std::remove_if(m_pickupWidgets.begin(),
-                                       m_pickupWidgets.end(),
-                                       [](const ui::PickupWidget& w)
-                                       {
-                                         return w.expired();
-                                       }),
-                        m_pickupWidgets.end());
+  std::erase_if(m_pickupWidgets,
+                [](const ui::PickupWidget& w)
+                {
+                  return w.expired();
+                });
   for(auto& w : m_pickupWidgets)
     w.nextFrame();
 
@@ -810,7 +811,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     {
       const auto& sink = m_cameraSinks.at(command.parameter);
       {
-        m_objectManager.getLara().m_underwaterRoute.setTargetBox(gsl::not_null{&m_boxes.at(sink.box_index)});
+        m_objectManager.getLara().m_underwaterRoute.setTargetBox(gsl_lite::not_null{&m_boxes.at(sink.box_index)});
         auto newTarget = sink.position;
         newTarget.X = m_boxes[sink.box_index].xInterval.clamp(newTarget.X);
         newTarget.Z = m_boxes[sink.box_index].zInterval.clamp(newTarget.Z);
@@ -833,7 +834,10 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       break;
     case floordata::CommandOpcode::FlipOff:
       BOOST_ASSERT(command.parameter < m_mapFlipActivationStates.size());
-      if(m_roomsAreSwapped && m_mapFlipActivationStates[command.parameter].isFullyActivated())
+      if(m_roomsAreSwapped
+         && m_mapFlipActivationStates[command.parameter]
+
+              .isFullyActivated())
         swapRooms = true;
       break;
     case floordata::CommandOpcode::FlipEffect:
@@ -870,7 +874,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     if(m_cameraController->getMode() == CameraMode::FixedPosition
        || m_cameraController->getMode() == CameraMode::HeavyFixedPosition)
     {
-      m_cameraController->setLookAtObject(gsl::not_null{lookAtObject});
+      m_cameraController->setLookAtObject(gsl_lite::not_null{lookAtObject});
     }
   }
 
@@ -886,13 +890,12 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
 void World::serialize(const serialization::Serializer<World>& ser) const
 {
   std::vector<size_t> physicalIds;
-  std::transform(m_rooms.begin(),
-                 m_rooms.end(),
-                 std::back_inserter(physicalIds),
-                 [](const Room& room)
-                 {
-                   return room.physicalId;
-                 });
+  std::ranges::transform(m_rooms,
+                         std::back_inserter(physicalIds),
+                         [](const Room& room)
+                         {
+                           return room.physicalId;
+                         });
 
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
@@ -915,19 +918,18 @@ void World::serialize(const serialization::Serializer<World>& ser) const
 void World::deserialize(const serialization::Deserializer<World>& ser)
 {
   std::vector<size_t> physicalIds;
-  std::transform(m_rooms.begin(),
-                 m_rooms.end(),
-                 std::back_inserter(physicalIds),
-                 [](const Room& room)
-                 {
-                   return room.physicalId;
-                 });
+  std::ranges::transform(m_rooms,
+                         std::back_inserter(physicalIds),
+                         [](const Room& room)
+                         {
+                           return room.physicalId;
+                         });
 
   getPresenter().getRenderer().getRootNode()->clear();
   for(auto& room : m_rooms)
   {
     room.resetScenery();
-    setParent(gsl::not_null{room.node}, getPresenter().getRenderer().getRootNode());
+    setParent(gsl_lite::not_null{room.node}, getPresenter().getRenderer().getRootNode());
   }
 
   ser(S_NV("roomPhysicalIds", serialization::DeserializingFrozenVector{std::ref(physicalIds)}));
@@ -962,7 +964,7 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
   updateStaticSoundEffects();
 }
 
-void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
+void World::gameLoop(const bool godMode, const float blackAlpha, ui::Ui& ui)
 {
   update(godMode);
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
@@ -995,7 +997,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   getPresenter().renderScreenOverlay();
   if(blackAlpha > 0)
   {
-    ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, gsl::narrow_cast<uint8_t>(255 * blackAlpha)});
+    ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, gsl_lite::narrow_cast<uint8_t>(255 * blackAlpha)});
   }
 
   getPresenter().renderUi(ui, 1);
@@ -1006,7 +1008,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   {
     for(auto& room : m_rooms)
     {
-      emitGroundBubbles(gsl::not_null{&room}, *this);
+      emitGroundBubbles(gsl_lite::not_null{&room}, *this);
     }
   }
 }
@@ -1014,7 +1016,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 bool World::cinematicLoop()
 {
   m_cameraController->m_cinematicFrame += 1_frame;
-  if(gsl::narrow<size_t>(m_cameraController->m_cinematicFrame.get()) >= m_cinematicFrames.size())
+  if(gsl_lite::narrow<size_t>(m_cameraController->m_cinematicFrame.get()) >= m_cinematicFrames.size())
     return false;
 
   update(false);
@@ -1041,18 +1043,18 @@ void World::load(const std::optional<size_t>& slot)
   BOOST_LOG_TRIVIAL(info) << "Load " << filename;
   serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
-  doc.deserialize("meta", gsl::not_null{&meta}, meta);
+  doc.deserialize("meta", gsl_lite::not_null{&meta}, meta);
   if(!util::preferredEqual(meta.filename, std::filesystem::relative(m_levelFilename, m_engine->getAssetDataPath())))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_levelFilename;
     return;
   }
-  doc.deserialize("data", gsl::not_null{this}, *this);
+  doc.deserialize("data", gsl_lite::not_null{this}, *this);
 
   {
     GameplayRules rules{};
-    doc.deserialize("gameplayRules", gsl::not_null{this}, rules);
+    doc.deserialize("gameplayRules", gsl_lite::not_null{this}, rules);
     m_engine->setGameplayRules(rules);
   }
 
@@ -1069,13 +1071,13 @@ void World::save(const std::filesystem::path& filename)
   BOOST_LOG_TRIVIAL(info) << "Save " << filename;
   serialization::YAMLDocument<false> doc{filename};
   SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine->getAssetDataPath()).string()};
-  doc.serialize("meta", gsl::not_null{&meta}, meta);
-  doc.serialize("data", gsl::not_null{this}, *this);
-  doc.serialize("gameplayRules", gsl::not_null{this}, m_engine->getGameplayRules());
+  doc.serialize("meta", gsl_lite::not_null{&meta}, meta);
+  doc.serialize("data", gsl_lite::not_null{this}, *this);
+  doc.serialize("gameplayRules", gsl_lite::not_null{this}, m_engine->getGameplayRules());
   doc.write();
 
   serialization::YAMLDocument<false> metaCacheDoc{makeMetaFilepath(filename)};
-  metaCacheDoc.serialize("meta", gsl::not_null{&meta}, meta);
+  metaCacheDoc.serialize("meta", gsl_lite::not_null{&meta}, meta);
   metaCacheDoc.write();
 
   m_engine->onGameSavedOrLoaded();
@@ -1100,15 +1102,15 @@ std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::g
     {
       serialization::YAMLDocument<true> metaCacheDoc{metaPath};
       SavegameMeta meta{};
-      metaCacheDoc.deserialize("meta", gsl::not_null{&meta}, meta);
+      metaCacheDoc.deserialize("meta", gsl_lite::not_null{&meta}, meta);
       return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
     }
 
     serialization::YAMLDocument<true> doc{path};
     SavegameMeta meta{};
-    doc.deserialize("meta", gsl::not_null{&meta}, meta);
+    doc.deserialize("meta", gsl_lite::not_null{&meta}, meta);
     serialization::YAMLDocument<false> newMetaCacheDoc{metaPath};
-    newMetaCacheDoc.serialize("meta", gsl::not_null{&meta}, meta);
+    newMetaCacheDoc.serialize("meta", gsl_lite::not_null{&meta}, meta);
     newMetaCacheDoc.write();
     return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
   };
@@ -1130,8 +1132,7 @@ bool World::hasSavedGames() const
 
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
-    const auto path = m_engine->getSavegamePath(i);
-    if(!std::filesystem::is_regular_file(path))
+    if(const auto path = m_engine->getSavegamePath(i); !std::filesystem::is_regular_file(path))
       continue;
 
     return true;
@@ -1139,28 +1140,28 @@ bool World::hasSavedGames() const
   return false;
 }
 
-World::World(const gsl::not_null<Engine*>& engine,
+World::World(const gsl_lite::not_null<Engine*>& engine,
              std::unique_ptr<loader::file::level::Level>&& level,
              std::string title,
              const std::optional<TR1TrackId>& ambient,
-             bool useAlternativeLara,
+             const bool useAlternativeLara,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
              std::shared_ptr<Player> player,
              std::shared_ptr<Player> levelStartPlayer,
-             bool fromSave,
+             const bool fromSave,
              std::shared_ptr<WorldGeometry>&& worldGeometry,
              const std::filesystem::path& worldGeometryCacheKey)
     : m_engine{engine}
     , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
-        gsl::not_null{this}, engine->getAssetDataPath(), engine->getPresenter().getSoundEngine())}
+        gsl_lite::not_null{this}, engine->getAssetDataPath(), engine->getPresenter().getSoundEngine())}
     , m_title{std::move(title)}
     , m_itemTitles{std::move(itemTitles)}
     , m_player{std::move(player)}
     , m_levelStartPlayer{std::move(levelStartPlayer)}
     , m_samplesData{std::move(level->m_samplesData)}
     , m_worldGeometry{worldGeometry != nullptr ? std::move(worldGeometry)
-                                               : gsl::make_shared<WorldGeometry>(*m_engine, *level)}
+                                               : gsl_lite::make_shared<WorldGeometry>(*m_engine, *level)}
 {
   m_engine->setWorldGeometryCache(worldGeometryCacheKey, m_worldGeometry);
   m_engine->registerWorld(this);
@@ -1173,7 +1174,7 @@ World::World(const gsl::not_null<Engine*>& engine,
 
   for(const auto offset : level->m_sampleIndices)
   {
-    m_audioEngine->addWav(gsl::not_null{&m_samplesData.at(offset)});
+    m_audioEngine->addWav(gsl_lite::not_null{&m_samplesData.at(offset)});
   }
 
   getPresenter().drawLoadingScreen(util::unescape(m_title));
@@ -1199,7 +1200,7 @@ World::World(const gsl::not_null<Engine*>& engine,
 
 World::~World()
 {
-  m_engine->unregisterWorld(gsl::not_null{this});
+  m_engine->unregisterWorld(gsl_lite::not_null{this});
 }
 
 void World::drawPickupWidgets(ui::Ui& ui)
@@ -1214,7 +1215,7 @@ void World::drawPickupWidgets(ui::Ui& ui)
     if(widget.expired())
       continue;
 
-    x -= std::lround(gsl::narrow_cast<float>(widget.getWidth()) * WidgetScale);
+    x -= std::lround(gsl_lite::narrow_cast<float>(widget.getWidth()) * WidgetScale);
     widget.draw(ui, x, y, m_engine->getPresenter().getTrFont(), WidgetScale);
   }
 }
@@ -1229,18 +1230,18 @@ Presenter& World::getPresenter()
   return m_engine->getPresenter();
 }
 
-std::optional<std::string> World::getItemTitle(TR1ItemId id) const
+std::optional<std::string> World::getItemTitle(const TR1ItemId id) const
 {
-  if(auto langIt = m_itemTitles.find(m_engine->getLocaleWithoutEncoding()); langIt != m_itemTitles.end())
+  if(const auto langIt = m_itemTitles.find(m_engine->getLocaleWithoutEncoding()); langIt != m_itemTitles.end())
   {
-    if(auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
+    if(const auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
     {
       return itemIt->second;
     }
   }
-  if(auto langIt = m_itemTitles.find("en_GB"); langIt != m_itemTitles.end())
+  if(const auto langIt = m_itemTitles.find("en_GB"); langIt != m_itemTitles.end())
   {
-    if(auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
+    if(const auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
     {
       return itemIt->second;
     }
@@ -1249,7 +1250,7 @@ std::optional<std::string> World::getItemTitle(TR1ItemId id) const
   return std::nullopt;
 }
 
-void World::initFromLevel(loader::file::level::Level& level, bool fromSave)
+void World::initFromLevel(loader::file::level::Level& level, const bool fromSave)
 {
   BOOST_LOG_TRIVIAL(info) << "Pre-flight checks for " << m_levelFilename.stem();
   for(const auto& idItem : level.m_items | boost::adaptors::indexed())
@@ -1266,8 +1267,8 @@ void World::initFromLevel(loader::file::level::Level& level, bool fromSave)
     const auto& room = level.m_rooms[item.room.get()];
     const auto inRoom = item.position - room.position;
     const auto sectorX = sectorOf(inRoom.X);
-    const auto sectorZ = sectorOf(inRoom.Z);
-    if(sectorX < 1 || sectorX >= room.sectorCountX - 1 || sectorZ < 1 || sectorZ >= room.sectorCountZ - 1)
+    if(const auto sectorZ = sectorOf(inRoom.Z);
+       sectorX < 1 || sectorX >= room.sectorCountX - 1 || sectorZ < 1 || sectorZ >= room.sectorCountZ - 1)
     {
       BOOST_LOG_TRIVIAL(warning) << "invalid item #" << i << "(" << toString(item.type.get_as<TR1ItemId>())
                                  << "): horizontally out of bounds";
@@ -1315,7 +1316,7 @@ void World::initStaticSoundEffects(const loader::file::level::Level& level)
   for(const loader::file::SoundSource& src : level.m_soundSources)
   {
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(),
-                                      gsl::not_null{getPresenter().getSoundEngine().get()});
+                                      gsl_lite::not_null{getPresenter().getSoundEngine().get()});
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     gsl_Assert(voice != nullptr);
     voice->pause();
@@ -1331,9 +1332,9 @@ void World::initCameraController()
   if(m_objectManager.getLaraPtr() == nullptr)
   {
     m_cameraController
-      = std::make_unique<CameraController>(gsl::not_null{this}, getPresenter().getRenderer().getCamera(), true);
+      = std::make_unique<CameraController>(gsl_lite::not_null{this}, getPresenter().getRenderer().getCamera(), true);
 
-    for(const auto& item : m_objectManager.getObjects() | boost::adaptors::map_values)
+    for(const auto& item : m_objectManager.getObjects() | std::views::values)
     {
       if(item->m_state.type == TR1ItemId::CutsceneActor1)
       {
@@ -1344,7 +1345,7 @@ void World::initCameraController()
   else
   {
     m_cameraController
-      = std::make_unique<CameraController>(gsl::not_null{this}, getPresenter().getRenderer().getCamera());
+      = std::make_unique<CameraController>(gsl_lite::not_null{this}, getPresenter().getRenderer().getCamera());
   }
 }
 
@@ -1366,24 +1367,22 @@ void World::countSecrets()
 
 void World::initCameras(const loader::file::level::Level& level)
 {
-  std::transform(level.m_cameras.begin(),
-                 level.m_cameras.end(),
-                 std::back_inserter(m_cameraSinks),
-                 [](const loader::file::Camera& camera)
-                 {
-                   return CameraSink{camera.position, {camera.room}, {camera.flags}};
-                 });
+  std::ranges::transform(level.m_cameras,
+                         std::back_inserter(m_cameraSinks),
+                         [](const loader::file::Camera& camera)
+                         {
+                           return CameraSink{camera.position, {camera.room}, {camera.flags}};
+                         });
 }
 
 void World::initCinematicFrames(const loader::file::level::Level& level)
 {
-  std::transform(level.m_cinematicFrames.begin(),
-                 level.m_cinematicFrames.end(),
-                 std::back_inserter(m_cinematicFrames),
-                 [](const loader::file::CinematicFrame& frame) noexcept
-                 {
-                   return CinematicFrame{frame.lookAt, frame.position, toRad(frame.fov), toRad(frame.rotZ)};
-                 });
+  std::ranges::transform(level.m_cinematicFrames,
+                         std::back_inserter(m_cinematicFrames),
+                         [](const loader::file::CinematicFrame& frame) noexcept
+                         {
+                           return CinematicFrame{frame.lookAt, frame.position, toRad(frame.fov), toRad(frame.rotZ)};
+                         });
 }
 
 void World::initRooms(const loader::file::level::Level& level)
@@ -1399,27 +1398,25 @@ void World::initRooms(const loader::file::level::Level& level)
   for(size_t i = 0; i < m_rooms.size(); ++i)
   {
     const auto& srcRoom = level.m_rooms.at(i);
-    std::transform(srcRoom.sectors.begin(),
-                   srcRoom.sectors.end(),
-                   std::back_inserter(m_rooms[i].sectors),
-                   [this](const loader::file::Sector& sector)
-                   {
-                     return Sector{sector, m_rooms, m_boxes, m_floorData};
-                   });
+    std::ranges::transform(srcRoom.sectors,
+                           std::back_inserter(m_rooms[i].sectors),
+                           [this](const loader::file::Sector& sector)
+                           {
+                             return Sector{sector, m_rooms, m_boxes, m_floorData};
+                           });
     gsl_Assert(srcRoom.sectors.size() == m_rooms[i].sectors.size());
-    std::transform(srcRoom.lights.begin(),
-                   srcRoom.lights.end(),
-                   std::back_inserter(m_rooms[i].lights),
-                   [](const loader::file::Light& light)
-                   {
-                     return Light{light.position, light.intensity, light.fadeDistance};
-                   });
+    std::ranges::transform(srcRoom.lights,
+                           std::back_inserter(m_rooms[i].lights),
+                           [](const loader::file::Light& light)
+                           {
+                             return Light{light.position, light.intensity, light.fadeDistance};
+                           });
     for(const auto& rsm : srcRoom.staticMeshes)
     {
       if(const auto mesh = m_worldGeometry->findStaticMeshById(rsm.meshId); mesh != nullptr)
       {
         m_rooms[i].staticMeshes.emplace_back(
-          RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, gsl::not_null{mesh}});
+          RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, gsl_lite::not_null{mesh}});
       }
       else
       {
@@ -1430,19 +1427,19 @@ void World::initRooms(const loader::file::level::Level& level)
 
     m_rooms[i].createSceneNode(
       level.m_rooms.at(i), *this, level.m_animatedTextures, *getPresenter().getMaterialManager());
-    setParent(gsl::not_null{m_rooms[i].node}, getPresenter().getRenderer().getRootNode());
+    setParent(gsl_lite::not_null{m_rooms[i].node}, getPresenter().getRenderer().getRootNode());
   }
 }
 
 void World::initBoxes(const loader::file::level::Level& level)
 {
   m_boxes.resize(level.m_boxes.size());
-  auto getOverlaps = [this, &level](const uint16_t idx) -> std::vector<gsl::not_null<Box*>>
+  auto getOverlaps = [this, &level](const uint16_t idx) -> std::vector<gsl_lite::not_null<Box*>>
   {
     if(idx >= level.m_overlaps.size())
       return {};
 
-    std::vector<gsl::not_null<Box*>> result;
+    std::vector<gsl_lite::not_null<Box*>> result;
     const auto first = &level.m_overlaps.at(idx);
     auto current = first;
     const auto endOfUniverse = &level.m_overlaps.back() + 1;
@@ -1457,18 +1454,17 @@ void World::initBoxes(const loader::file::level::Level& level)
     return result;
   };
 
-  std::transform(level.m_boxes.begin(),
-                 level.m_boxes.end(),
-                 m_boxes.begin(),
-                 [&getOverlaps](const loader::file::Box& box)
-                 {
-                   return Box{{box.xmin, box.xmax},
-                              {box.zmin, box.zmax},
-                              box.floor,
-                              box.blocked,
-                              box.blockable,
-                              getOverlaps(box.overlap_index)};
-                 });
+  std::ranges::transform(level.m_boxes,
+                         m_boxes.begin(),
+                         [&getOverlaps](const loader::file::Box& box)
+                         {
+                           return Box{{box.xmin, box.xmax},
+                                      {box.zmin, box.zmax},
+                                      box.floor,
+                                      box.blocked,
+                                      box.blockable,
+                                      getOverlaps(box.overlap_index)};
+                         });
   gsl_Ensures(m_boxes.size() == level.m_boxes.size());
 
   gsl_Assert(level.m_baseZones.flyZone.size() == m_boxes.size());

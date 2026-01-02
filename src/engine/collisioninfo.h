@@ -8,7 +8,7 @@
 #include "type_safe/flag_set.hpp"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp> // IWYU pragma: keep
+#include <gsl-lite/gsl-lite.hpp> // IWYU pragma: keep
 #include <set>
 
 namespace engine::world
@@ -43,9 +43,9 @@ struct CollisionInfo
   };
 
   using PolicyFlagSet = type_safe::flag_set<PolicyFlags>;
-  static constexpr const type_safe::flag_combo<PolicyFlags> SlopeBlockingPolicy
+  static constexpr type_safe::flag_combo<PolicyFlags> SlopeBlockingPolicy
     = PolicyFlags::SlopesAreWalls | PolicyFlags::SlopesArePits;
-  static constexpr const type_safe::flag_combo<PolicyFlags> SpazPushPolicy
+  static constexpr type_safe::flag_combo<PolicyFlags> SpazPushPolicy
     = PolicyFlags::EnableBaddiePush | PolicyFlags::EnableSpaz;
 
   AxisColl collisionType = AxisColl::None;
@@ -70,10 +70,10 @@ struct CollisionInfo
 
   void initHeightInfo(const core::TRVec& laraPos, const world::World& world, const core::Length& height);
 
-  static std::set<gsl::not_null<const world::Room*>> collectTouchingRooms(const core::TRVec& position,
-                                                                          const core::Length& radius,
-                                                                          const core::Length& height,
-                                                                          const world::World& world);
+  static std::set<gsl_lite::not_null<const world::Room*>> collectTouchingRooms(const core::TRVec& position,
+                                                                               const core::Length& radius,
+                                                                               const core::Length& height,
+                                                                               const world::World& world);
 
   bool checkStaticMeshCollisions(const core::TRVec& objectPos,
                                  const core::Length& objectHeight,

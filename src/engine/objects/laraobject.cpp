@@ -49,7 +49,6 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <cmath>
 #include <cstddef>
@@ -62,12 +61,13 @@
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <limits>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <set>
 #include <stack>
 #include <stdexcept>
@@ -118,10 +118,10 @@ Location getUpperThirdBBoxCtr(const ModelObject& object)
 }
 } // namespace
 
-void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
+void LaraObject::setAnimation(const AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
   getSkeleton()->setAnimation(m_state.current_anim_state,
-                              gsl::not_null{&getWorld().getWorldGeometry().getAnimation(anim)},
+                              gsl_lite::not_null{&getWorld().getWorldGeometry().getAnimation(anim)},
                               firstFrame.value_or(0_frame));
 }
 
@@ -132,7 +132,7 @@ void LaraObject::handleLaraStateOnLand()
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
   collisionInfo.policies = CollisionInfo::SpazPushPolicy;
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->handleInput(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->handleInput(collisionInfo);
 
   if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
@@ -181,7 +181,7 @@ void LaraObject::handleLaraStateOnLand()
 
   testInteractions(collisionInfo);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->postprocessFrame(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(-core::LaraWalkHeight / 2);
 
@@ -213,7 +213,7 @@ void LaraObject::handleLaraStateDiving()
   collisionInfo.validCeilingHeightMin = core::LaraDiveHeight;
   collisionInfo.validFloorHeight = {-core::LaraDiveHeight, core::HeightLimit};
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->handleInput(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->handleInput(collisionInfo);
 
   // "slowly" revert rotations to zero
   if(m_state.rotation.Z < -2_deg)
@@ -249,7 +249,7 @@ void LaraObject::handleLaraStateDiving()
 
   testInteractions(collisionInfo);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->postprocessFrame(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(0_len);
   updateLarasWeaponsStatus();
@@ -270,7 +270,7 @@ void LaraObject::handleLaraStateSwimming()
 
   getWorld().getCameraController().setRotationAroundLaraX(-22_deg);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->handleInput(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->handleInput(collisionInfo);
 
   // "slowly" revert rotations to zero
   if(m_state.rotation.Z < 0_deg)
@@ -304,7 +304,7 @@ void LaraObject::handleLaraStateSwimming()
 
   testInteractions(collisionInfo);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->postprocessFrame(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(core::DefaultCollisionRadius);
   updateLarasWeaponsStatus();
@@ -396,7 +396,7 @@ void LaraObject::update()
         surfaceLocation.position.Y = *waterSurfaceHeight;
         surfaceLocation.position.Z = m_state.location.position.Z;
 
-        auto particle = gsl::make_shared<SplashParticle>(surfaceLocation, getWorld(), false);
+        const auto particle = gsl_lite::make_shared<SplashParticle>(surfaceLocation, getWorld(), false);
         setParent(particle, surfaceLocation.room->node);
         getWorld().getObjectManager().registerParticle(particle);
       }
@@ -404,7 +404,7 @@ void LaraObject::update()
   }
   else if(m_underwaterState == UnderwaterState::Diving && !(m_cheatDive || m_state.location.room->isWaterRoom))
   {
-    auto waterSurfaceHeight = getWaterSurfaceHeight();
+    const auto waterSurfaceHeight = getWaterSurfaceHeight();
     m_state.fallspeed = 0_spd;
     m_state.rotation.X = 0_deg;
     m_state.rotation.Z = 0_deg;
@@ -454,8 +454,8 @@ void LaraObject::update()
     auto bubbleCount = util::rand15(2);
     while(bubbleCount-- > 0)
     {
-      auto particle
-        = gsl::make_shared<BubbleParticle>(Location{m_state.location.room, position}, getWorld(), false, true);
+      const auto particle
+        = gsl_lite::make_shared<BubbleParticle>(Location{m_state.location.room, position}, getWorld(), false, true);
       setParent(particle, nullptr);
       particle->scale = util::rand15(0.8f) + 0.2f;
       m_state.location.room->particles.registerParticle(particle);
@@ -529,7 +529,7 @@ void LaraObject::advanceFrame()
         case AnimCommandOpcode::EmptyHands:
           setHandStatus(HandStatus::None);
           break;
-          // NOLINTNEXTLINE(bugprone-branch-clone)
+        // NOLINTNEXTLINE(bugprone-branch-clone)
         case AnimCommandOpcode::PlaySound:
           cmd += 2;
           break;
@@ -543,7 +543,7 @@ void LaraObject::advanceFrame()
     }
 
     getSkeleton()->setAnimation(m_state.current_anim_state,
-                                gsl::not_null{getSkeleton()->getAnim()->nextAnimation},
+                                gsl_lite::not_null{getSkeleton()->getAnim()->nextAnimation},
                                 getSkeleton()->getAnim()->nextFrame);
   }
 
@@ -573,7 +573,7 @@ void LaraObject::advanceFrame()
       case AnimCommandOpcode::PlayEffect:
         if(getSkeleton()->getFrame().get() == cmd[0])
         {
-          BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
+          BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << static_cast<int>(cmd[1]);
           getWorld().runEffect(cmd[1], this);
         }
         cmd += 2;
@@ -608,7 +608,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   if(isDead())
     return;
 
-  std::set<gsl::not_null<const world::Room*>> rooms;
+  std::set<gsl_lite::not_null<const world::Room*>> rooms;
   rooms.insert(m_state.location.room);
   for(const world::Portal& p : m_state.location.room->portals)
     rooms.insert(p.adjoiningRoom);
@@ -620,11 +620,11 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
       if(!object->m_state.collidable || object->m_state.triggerState == TriggerState::Invisible)
         continue;
 
-      if(rooms.find(object->m_state.location.room) == rooms.end())
+      if(!rooms.contains(object->m_state.location.room))
         continue;
 
-      const auto d = m_state.location.position - object->m_state.location.position;
-      if(abs(d.X) >= 4_sectors || abs(d.Y) >= 4_sectors || abs(d.Z) >= 4_sectors)
+      if(const auto d = m_state.location.position - object->m_state.location.position;
+         abs(d.X) >= 4_sectors || abs(d.Y) >= 4_sectors || abs(d.Z) >= 4_sectors)
         continue;
 
       object->collide(collisionInfo);
@@ -632,7 +632,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   };
 
   auto& objectManager = getWorld().getObjectManager();
-  execCollisions(objectManager.getObjects() | boost::adaptors::map_values);
+  execCollisions(objectManager.getObjects() | std::views::values);
   execCollisions(objectManager.getDynamicObjects());
 
   auto& lara = objectManager.getLara();
@@ -654,7 +654,7 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
   core::TRVec targetPos;
   if(const auto box = m_state.tryGetCurrentBox();
      box == nullptr
-     || !m_underwaterRoute.calculateTarget(getWorld(), targetPos, m_state.location.position, gsl::not_null{box}))
+     || !m_underwaterRoute.calculateTarget(getWorld(), targetPos, m_state.location.position, gsl_lite::not_null{box}))
     return;
 
   targetPos -= m_state.location.position;
@@ -935,7 +935,7 @@ void LaraObject::updateShotgun()
   updateAnimShotgun();
 }
 
-void LaraObject::updateTwoWeapons(WeaponType weaponType)
+void LaraObject::updateTwoWeapons(const WeaponType weaponType)
 {
   const auto& weapon = Weapon::get(weaponType);
   if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
@@ -1043,7 +1043,7 @@ void LaraObject::initWeaponAnimData()
   }
 }
 
-void LaraObject::drawTwoWeapons(WeaponType weaponType)
+void LaraObject::drawTwoWeapons(const WeaponType weaponType)
 {
   auto nextFrame = leftArm.frame + 1_frame;
   if(nextFrame < DrawTwoWeaponsAnimStart || nextFrame > DrawTwoWeaponsAnimEnd)
@@ -1072,7 +1072,7 @@ void LaraObject::findTarget(const Weapon& weapon)
   weaponLocation.position.Y -= weapon.weaponHeight;
   aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
-  for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
+  for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | std::views::values)
   {
     if(currentEnemy->m_state.isDead() || currentEnemy.get() == getWorld().getObjectManager().getLaraPtr())
       continue;
@@ -1242,7 +1242,7 @@ void LaraObject::holsterShotgun()
   m_headRotation.Y = 0_deg;
 }
 
-void LaraObject::holsterTwoWeapons(WeaponType weaponType)
+void LaraObject::holsterTwoWeapons(const WeaponType weaponType)
 {
   leftArm.holsterTwoWeapons(*this, weaponType);
   rightArm.holsterTwoWeapons(*this, weaponType);
@@ -1361,7 +1361,7 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   }
   object.m_state.is_hit = true;
   object.m_state.health -= damage;
-  auto fx = createBloodSplat(
+  const auto fx = createBloodSplat(
     getWorld(), Location{object.m_state.location.room, hitPos}, object.m_state.speed, object.m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);
   if(object.m_state.isDead())
@@ -1400,7 +1400,6 @@ namespace
 {
 class MatrixStack
 {
-private:
   std::stack<glm::mat4> m_stack;
 
 public:
@@ -1464,16 +1463,16 @@ public:
 
   void transform(const std::initializer_list<size_t>& indices,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint8_t>& angleData,
+                 const gsl_lite::span<const uint8_t>& angleData,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
-    for(auto idx : indices)
+    for(const auto idx : indices)
       transform(idx, bones, angleData, skeleton);
   }
 
   void transform(const size_t idx,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint8_t>& angleData,
+                 const gsl_lite::span<const uint8_t>& angleData,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
     BOOST_ASSERT(idx > 0);
@@ -1491,7 +1490,6 @@ public:
 
 class DualMatrixStack
 {
-private:
   MatrixStack m_stack1;
   MatrixStack m_stack2;
   float m_bias;
@@ -1560,18 +1558,18 @@ public:
 
   void transform(const std::initializer_list<size_t>& indices,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint8_t>& angleData1,
-                 const gsl::span<const uint8_t>& angleData2,
+                 const gsl_lite::span<const uint8_t>& angleData1,
+                 const gsl_lite::span<const uint8_t>& angleData2,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
-    for(auto idx : indices)
+    for(const auto idx : indices)
       transform(idx, bones, angleData1, angleData2, skeleton);
   }
 
   void transform(const size_t idx,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint8_t>& angleData1,
-                 const gsl::span<const uint8_t>& angleData2,
+                 const gsl_lite::span<const uint8_t>& angleData1,
+                 const gsl_lite::span<const uint8_t>& angleData2,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
     BOOST_ASSERT(idx > 0);
@@ -1651,7 +1649,7 @@ void LaraObject::drawRoutine()
   matrixStack.rotate(m_headRotation);
   matrixStack.apply(getSkeleton(), BoneHead);
 
-  WeaponType activeWeaponType = WeaponType::None;
+  auto activeWeaponType = WeaponType::None;
   if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
      || m_handStatus == HandStatus::Holster)
   {
@@ -1659,7 +1657,7 @@ void LaraObject::drawRoutine()
   }
 
   matrixStack.pop();
-  gsl::span<const uint8_t> armAngleData;
+  gsl_lite::span<const uint8_t> armAngleData;
   switch(activeWeaponType)
   {
   case WeaponType::None:
@@ -1751,7 +1749,7 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
   matrixStack.rotate(m_headRotation);
   matrixStack.apply(getSkeleton(), BoneHead);
 
-  WeaponType activeWeaponType = WeaponType::None;
+  auto activeWeaponType = WeaponType::None;
   if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
      || m_handStatus == HandStatus::Holster)
   {
@@ -1759,7 +1757,7 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
   }
 
   matrixStack.pop();
-  gsl::span<const uint8_t> armAngleData;
+  gsl_lite::span<const uint8_t> armAngleData;
   switch(activeWeaponType)
   {
   case WeaponType::None:
@@ -1833,7 +1831,7 @@ void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
   }
 
   core::Shade shade{core::Shade::type{0}};
-  core::Length dy = 0_len;
+  auto dy = 0_len;
   switch(weaponType)
   {
   case WeaponType::None:
@@ -1885,8 +1883,8 @@ void LaraObject::burnIfAlive()
   if(isDead())
     return;
 
-  const auto sector = m_state.location.moved({}).updateRoom();
-  if(HeightInfo::fromFloor(sector,
+  if(const auto sector = m_state.location.moved({}).updateRoom();
+     HeightInfo::fromFloor(sector,
                            {m_state.location.position.X, 32000_len, m_state.location.position.Z},
                            getWorld().getObjectManager().getObjects())
        .y
@@ -1898,7 +1896,7 @@ void LaraObject::burnIfAlive()
 
   for(size_t i = 0; i < 10; ++i)
   {
-    auto particle = gsl::make_shared<FlameParticle>(m_state.location, getWorld(), true);
+    const auto particle = gsl_lite::make_shared<FlameParticle>(m_state.location, getWorld(), true);
     setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
   }
@@ -1963,10 +1961,10 @@ void LaraObject::deserialize(const serialization::Deserializer<world::World>& se
 }
 
 LaraObject::LaraObject(const std::string& name,
-                       const gsl::not_null<world::World*>& world,
-                       const gsl::not_null<const world::Room*>& room,
+                       const gsl_lite::not_null<world::World*>& world,
+                       const gsl_lite::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
-                       const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                       const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject(name, world, room, item, false, animatedModel, true)
     , flashLightsBuffer{
         std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("dynamic-lights", gl::api::BufferUsage::DynamicDraw, 2)}
@@ -2020,15 +2018,15 @@ void LaraObject::initMuzzleFlashes()
 
   world::RenderMeshDataCompositor compositor;
   compositor.append(*muzzleFlashModel->bones[0].mesh, gl::SRGBA8{0, 0, 0, 0});
-  auto mesh = compositor.toMesh(
+  const auto mesh = compositor.toMesh(
     *getWorld().getPresenter().getMaterialManager(),
     false,
     false,
-    [&engine = getWorld().getEngine()]()
+    [&engine = getWorld().getEngine()]
     {
       return engine.getEngineConfig()->animSmoothing;
     },
-    [&engine = getWorld().getEngine()]()
+    [&engine = getWorld().getEngine()]
     {
       const auto& settings = engine.getEngineConfig()->renderSettings;
       return !settings.lightingModeActive ? 0 : settings.lightingMode;
@@ -2065,7 +2063,7 @@ void LaraObject::updateExplosionStumbling()
 ghosting::GhostFrame LaraObject::getGhostFrame() const
 {
   ghosting::GhostFrame frame;
-  frame.roomId = gsl::narrow<uint16_t>(m_state.location.room->physicalId);
+  frame.roomId = gsl_lite::narrow<uint16_t>(m_state.location.room->physicalId);
   frame.modelMatrix = getSkeleton()->getLocalMatrix();
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
   {
@@ -2081,7 +2079,7 @@ ghosting::GhostFrame LaraObject::getGhostFrame() const
     }
 
     frame.bones.emplace_back(ghosting::GhostFrame::BoneData{
-      getSkeleton()->getPoseMatrix(i), gsl::narrow<uint16_t>(idx), getSkeleton()->isVisible(i)});
+      getSkeleton()->getPoseMatrix(i), gsl_lite::narrow<uint16_t>(idx), getSkeleton()->isVisible(i)});
   }
 
   return frame;
@@ -2212,9 +2210,9 @@ void LaraObject::updateCheats()
         return;
       }
 
-      for(const auto& [objectId, object] : getWorld().getObjectManager().getObjects())
+      for(const auto& object : getWorld().getObjectManager().getObjects() | std::views::values)
       {
-        if(auto ai = gslu::dynamic_pointer_cast<objects::AIAgent>(object); ai != nullptr && ai->m_state.health > 0_hp)
+        if(auto ai = gslu::dynamic_pointer_cast<AIAgent>(object); ai != nullptr && ai->m_state.health > 0_hp)
         {
           ai->m_state.health = std::max(1_hp, ai->m_state.health / 2);
         }
@@ -2259,7 +2257,7 @@ void LaraObject::updateCheats()
 
 void LaraObject::updateMuzzleFlashLightPosStrength()
 {
-  static constexpr const auto Strength = 2.0f * glm::vec4{1.0f, 0.94f, 0.58f, 0.0f};
+  static constexpr auto Strength = 2.0f * glm::vec4{1.0f, 0.94f, 0.58f, 0.0f};
 
   flashLightsBufferData.clear();
 

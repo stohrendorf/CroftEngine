@@ -21,7 +21,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -43,7 +43,7 @@ HBAOPass::HBAOPass(material::MaterialManager& materialManager,
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
     , m_aoBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_aoBuffer,
-        gsl::make_unique<gl::Sampler>("hbao-ao" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>("hbao-ao" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -54,19 +54,19 @@ HBAOPass::HBAOPass(material::MaterialManager& materialManager,
 {
   m_renderMesh->bind("u_normals",
                      [buffer = m_geometryPass->getNormalBuffer()](
-                       const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                       const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(buffer);
                      });
   m_renderMesh->bind("u_position",
                      [buffer = m_geometryPass->getPositionBuffer()](
-                       const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                       const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(buffer);
                      });
   m_renderMesh->getRenderState().merge(m_fb->getRenderState());
 
-  m_blur.setInput(gsl::not_null{m_aoBufferHandle});
+  m_blur.setInput(gsl_lite::not_null{m_aoBufferHandle});
 }
 
 void HBAOPass::updateCamera(const gslu::nn_shared<scene::Camera>& camera)

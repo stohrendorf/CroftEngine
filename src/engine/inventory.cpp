@@ -126,7 +126,7 @@ size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t 
 
 bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const GameplayRules& gameplayRules)
 {
-  auto tryUseWeapon = [this, &lara, &gameplayRules](TR1ItemId weapon, WeaponType weaponType) -> bool
+  auto tryUseWeapon = [this, &lara, &gameplayRules](const TR1ItemId weapon, const WeaponType weaponType) -> bool
   {
     if(count(weapon) == 0)
       return false;
@@ -147,7 +147,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const Game
       }
       else if(lara.getHandStatus() == objects::HandStatus::Combat)
       {
-        lara.setHandStatus(engine::objects::HandStatus::Holster);
+        lara.setHandStatus(objects::HandStatus::Holster);
         lara.updateLarasWeaponsStatus();
       }
     }
@@ -155,7 +155,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const Game
     return true;
   };
 
-  auto tryUseMediPack = [this, &lara, &gameplayRules](TR1ItemId mediPack, const core::Health& healing) -> bool
+  auto tryUseMediPack = [this, &lara, &gameplayRules](const TR1ItemId mediPack, const core::Health& healing) -> bool
   {
     if(count(mediPack) == 0)
       return false;
@@ -178,8 +178,8 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const Game
 
     if(lara.getWorld().getEngine().getEngineConfig()->mediPackPreservationEnabled)
     {
-      const auto healthToRecover = core::LaraHealth - lara.m_state.health;
-      if(healthToRecover < healing * lara.getWorld().getEngine().getEngineConfig()->mediPackPreservation / 100)
+      if(const auto healthToRecover = core::LaraHealth - lara.m_state.health;
+         healthToRecover < healing * lara.getWorld().getEngine().getEngineConfig()->mediPackPreservation / 100)
       {
         lara.playSoundEffect(TR1SoundEffect::LaraNo);
         return false;

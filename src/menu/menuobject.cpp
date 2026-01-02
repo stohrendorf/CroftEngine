@@ -28,7 +28,7 @@
 #include <gl/renderstate.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <memory>
@@ -136,7 +136,7 @@ void MenuObject::initModel(const engine::world::World& world,
   const auto& obj = world.getWorldGeometry().findAnimatedModelForType(type);
   gsl_Assert(obj != nullptr);
   node = std::make_shared<engine::SkeletalModelNode>(
-    "menu-object", gsl::not_null{&world}, gsl::not_null{obj.get()}, false);
+    "menu-object", gsl_lite::not_null{&world}, gsl_lite::not_null{obj.get()}, false);
   node->bind("u_lightAmbient",
              [](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
@@ -149,7 +149,7 @@ void MenuObject::initModel(const engine::world::World& world,
              {
                shaderStorageBlock.bind(*lights);
              });
-  core::AnimStateId animState{0_as};
+  auto animState{0_as};
   engine::SkeletalModelNode::buildMesh(node, animState);
   node->getRenderable()->getRenderState().setCullFace(true);
   node->getRenderable()->getRenderState().setFrontFace(gl::api::FrontFaceDirection::Cw);
@@ -174,8 +174,8 @@ void MenuObject::draw(const engine::world::World& world,
   else if(const auto& obj = world.getWorldGeometry().findAnimatedModelForType(type))
   {
     node->setLocalMatrix(nodeMatrix);
-    core::AnimStateId animState{0_as};
-    node->setAnimation(animState, gsl::not_null{&obj->animations[0]}, meshAnimFrame);
+    auto animState{0_as};
+    node->setAnimation(animState, gsl_lite::not_null{&obj->animations[0]}, meshAnimFrame);
 
     if(type == engine::TR1ItemId::Compass)
     {

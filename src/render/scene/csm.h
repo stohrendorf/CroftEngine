@@ -13,7 +13,7 @@
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 
@@ -38,6 +38,7 @@ struct CSMBuffer
   std::array<glm::mat4, NSplits> lightMVP{};
   glm::vec4 lightDir{};
 };
+
 static_assert(sizeof(CSMBuffer) % 16 == 0);
 
 class CSM final
@@ -76,7 +77,7 @@ public:
   void renderSquareBuffers();
   void renderBlurBuffers();
 
-  void setActiveSplit(size_t idx)
+  void setActiveSplit(const size_t idx)
   {
     gsl_Expects(idx < m_splits.size());
     m_activeSplit = idx;

@@ -32,7 +32,6 @@ struct MenuRingTransform;
 
 class ListDisplayMenuState : public SelectedMenuState
 {
-private:
   gslu::nn_shared<ui::widgets::ListBox> m_listBox;
   ui::widgets::GroupBox m_groupBox;
 

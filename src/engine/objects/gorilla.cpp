@@ -1,4 +1,3 @@
-
 #include "gorilla.h"
 
 #include "aiagent.h"
@@ -21,7 +20,7 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects
@@ -30,8 +29,8 @@ void Gorilla::update()
 {
   activateAi();
 
-  core::Angle headRot = 0_deg;
-  core::Angle turn = 0_deg;
+  auto headRot = 0_deg;
+  auto turn = 0_deg;
 
   if(alive())
   {
@@ -75,8 +74,7 @@ void Gorilla::update()
       }
       else
       {
-        const auto r = util::rand15(1024);
-        if(r < 160)
+        if(const auto r = util::rand15(1024); r < 160)
         {
           // jump and wave arms
           goal(10_as);
@@ -119,8 +117,7 @@ void Gorilla::update()
       else if(!isEscaping())
       {
         // random "rage" animation
-        const auto r = util::rand15();
-        if(r < 160)
+        if(const auto r = util::rand15(); r < 160)
           goal(1_as, 10_as);
         else if(r < 320)
           goal(1_as, 6_as);
@@ -162,7 +159,7 @@ void Gorilla::update()
   else if(m_state.current_anim_state != 5_as)
   {
     // die
-    getSkeleton()->setAnim(gsl::not_null{
+    getSkeleton()->setAnim(gsl_lite::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[7 + util::rand15(2)]});
     m_state.current_anim_state = 5_as;
   }
@@ -194,9 +191,8 @@ void Gorilla::update()
   // rotate for climbing
   const auto xSectorOld = sectorOf(old.X);
   const auto zSectorOld = sectorOf(old.Z);
-  const auto xSectorNew = sectorOf(m_state.location.position.X);
-  const auto zSectorNew = sectorOf(m_state.location.position.Z);
-  if(zSectorOld == zSectorNew)
+  if(const auto xSectorNew = sectorOf(m_state.location.position.X), zSectorNew = sectorOf(m_state.location.position.Z);
+     zSectorOld == zSectorNew)
   {
     if(xSectorOld == xSectorNew)
     {
@@ -229,7 +225,7 @@ void Gorilla::update()
 
   m_state.location.position.Y = old.Y;
   getSkeleton()->setAnim(
-    gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19]});
+    gsl_lite::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19]});
   m_state.current_anim_state = 11_as;
 }
 

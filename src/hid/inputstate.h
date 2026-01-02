@@ -32,7 +32,7 @@ struct InputState
     {
     }
 
-    DebouncedValue<T>& operator=(const T& state)
+    DebouncedValue& operator=(const T& state)
     {
       previous = std::exchange(current, state);
       return *this;

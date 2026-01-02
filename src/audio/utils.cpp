@@ -4,14 +4,14 @@
 #include <AL/alc.h>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <stdexcept>
 #include <string>
 
 namespace audio::detail
 {
-void checkALError(const gsl::czstring code, const gsl::czstring func, const int line)
+void checkALError(const gsl_lite::czstring code, const gsl_lite::czstring func, const int line)
 {
   gsl_Expects(code != nullptr);
   gsl_Expects(func != nullptr);
@@ -20,7 +20,7 @@ void checkALError(const gsl::czstring code, const gsl::czstring func, const int 
   if(err == AL_NO_ERROR)
     return;
 
-  gsl::czstring errStr = "<unknown>";
+  auto errStr = "<unknown>";
   switch(err)
   {
   case AL_INVALID_NAME:
@@ -48,7 +48,7 @@ void checkALError(const gsl::czstring code, const gsl::czstring func, const int 
   BOOST_THROW_EXCEPTION(std::runtime_error(std::string{"OpenAL error: "} + errStr));
 }
 
-void checkALCError(ALCdevice* device, const gsl::czstring code, const gsl::czstring func, const int line)
+void checkALCError(ALCdevice* device, const gsl_lite::czstring code, const gsl_lite::czstring func, const int line)
 {
   gsl_Expects(code != nullptr);
   gsl_Expects(func != nullptr);
@@ -57,7 +57,7 @@ void checkALCError(ALCdevice* device, const gsl::czstring code, const gsl::czstr
   if(err == ALC_NO_ERROR)
     return;
 
-  gsl::czstring errStr = "<unknown>";
+  auto errStr = "<unknown>";
   switch(err)
   {
   case ALC_INVALID_DEVICE:

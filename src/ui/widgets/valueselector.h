@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <functional>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string>
 #include <vector>
 
@@ -30,7 +30,7 @@ public:
 };
 
 template<typename T>
-class ValueSelector : public ValueSelectorBase
+class ValueSelector final : public ValueSelectorBase
 {
 public:
   using DisplayTextProvider = std::function<std::string(const T&)>;
@@ -39,7 +39,7 @@ public:
   explicit ValueSelector(DisplayTextProvider&& displayTextProvider,
                          SelectionChangeHandler&& selectionChangeHandler,
                          std::vector<T> values,
-                         Label::Alignment alignment = Label::Alignment::Left)
+                         const Label::Alignment alignment = Label::Alignment::Left)
       : m_label{{}, alignment}
       , m_values{std::move(values)}
       , m_displayTextProvider{std::move(displayTextProvider)}
@@ -50,6 +50,7 @@ public:
     if(!m_values.empty())
       m_label.setText(m_displayTextProvider(m_values[0]));
   }
+
   ~ValueSelector() override = default;
 
   [[nodiscard]] glm::ivec2 getPosition() const override
@@ -72,12 +73,12 @@ public:
     m_label.setSize(size);
   }
 
-  void update(bool hasFocus) override
+  void update(const bool hasFocus) override
   {
     m_label.update(hasFocus);
   }
 
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override
+  void draw(Ui& ui, const engine::Presenter& presenter) const override
   {
     m_label.draw(ui, presenter);
   }

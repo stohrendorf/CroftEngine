@@ -5,8 +5,9 @@
 #include <cstddef>
 #include <gl/api/gl.hpp>
 #include <gl/pixel.h>
-#include <glm/glm_fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <glm/fwd.hpp>
+#include <gsl-lite/gsl-lite.hpp>
+
 
 namespace serialization
 {
@@ -25,7 +26,7 @@ void serialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premulti
   for(glm::length_t i = 0; i < Channels; ++i)
   {
     const auto tmp = ser.newChild();
-    access<T, false>::dispatch(data.channels[i], tmp);
+    access::dispatch(data.channels[i], tmp);
   }
 }
 
@@ -44,7 +45,7 @@ void deserialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premul
   gsl_Expects(ser.node.num_children() == Channels);
   for(glm::length_t i = 0; i < Channels; ++i)
   {
-    access<T, true>::dispatch(data.channels[i], ser.withNode(ser.node[i]));
+    access::dispatch(data.channels[i], ser.withNode(ser.node[i]));
   }
 }
 } // namespace serialization

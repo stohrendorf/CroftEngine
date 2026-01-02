@@ -63,7 +63,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <iterator>
@@ -97,12 +97,11 @@ void prefillDepthBuffer(const engine::CameraController& cameraController, const 
     if(room.node->isVisible())
       renderRooms.emplace_back(&room);
   }
-  std::sort(renderRooms.begin(),
-            renderRooms.end(),
-            [](const engine::world::Room* a, const engine::world::Room* b)
-            {
-              return a->node->getRenderOrder() > b->node->getRenderOrder();
-            });
+  std::ranges::sort(renderRooms,
+                    [](const engine::world::Room* a, const engine::world::Room* b)
+                    {
+                      return a->node->getRenderOrder() > b->node->getRenderOrder();
+                    });
 
   for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
   {
@@ -137,13 +136,13 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   util::ensureFileExists(path);
 
-  auto mesh = render::scene::createScreenQuad(
+  const auto mesh = render::scene::createScreenQuad(
     m_materialManager->getFlat(false, true, true), render::scene::Translucency::Opaque, "video");
 
-  auto colorBuffer = gsl::make_shared<gl::Texture2D<gl::SRGB8>>(getRenderViewport(), "ui-color");
-  auto fb = gl::FrameBufferBuilder()
-              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
-              .build("video-fb");
+  const auto colorBuffer = gsl_lite::make_shared<gl::Texture2D<gl::SRGB8>>(getRenderViewport(), "ui-color");
+  const auto fb = gl::FrameBufferBuilder()
+                    .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
+                    .build("video-fb");
 
   video::play(path,
               m_soundEngine->getDevice(),
@@ -184,7 +183,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 void Presenter::renderWorld(const std::vector<world::Room>& rooms,
                             const CameraController& cameraController,
                             const std::unordered_set<const world::Portal*>& waterEntryPortals,
-                            const engine::world::World& world)
+                            const world::World& world)
 {
   m_renderPipeline->updateCamera(m_renderer->getCamera());
 
@@ -207,7 +206,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
           {
             render::scene::RenderContext context{
               render::material::RenderMode::CSMDepthOnly, vpMatrix, translucencySelector};
-            render::scene::Visitor visitor{gsl::not_null{&context}, false};
+            render::scene::Visitor visitor{gsl_lite::not_null{&context}, false};
             for(const auto& room : rooms)
             {
               if(!room.node->isVisible())
@@ -229,7 +228,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
 
   {
     m_renderPipeline->renderGeometryFrameBuffer(
-      [this, &world, &cameraController, &rooms]()
+      [this, &world, &cameraController, &rooms]
       {
         prefillDepthBuffer(cameraController, rooms);
         renderGeometry(world, rooms);
@@ -309,7 +308,7 @@ void drawBar(ui::Ui& ui,
 void Presenter::drawBars(ui::Ui& ui,
                          const std::array<gl::SRGBA8, 256>& palette,
                          const ObjectManager& objectManager,
-                         bool pulse)
+                         const bool pulse)
 {
   if(objectManager.getLara().isInWater())
   {
@@ -359,7 +358,7 @@ void Presenter::drawBars(ui::Ui& ui,
   uint8_t alpha = 255;
   if(m_healthBarTimeout < 0_frame)
   {
-    alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
+    alpha = gsl_lite::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
   }
 
   if(pulse && m_drawnHealth <= HealthPulseMaxHealth)
@@ -385,7 +384,7 @@ void Presenter::drawBars(ui::Ui& ui,
     alpha = glm::mix(alpha, PulseTargetAlpha, currentPulseEffectStrength);
   }
 
-  static const auto withAlpha = [](gl::SRGBA8 color, uint8_t alpha)
+  static const auto withAlpha = [](gl::SRGBA8 color, const uint8_t alpha)
   {
     color.channels.a = alpha;
     return color;
@@ -412,13 +411,12 @@ std::vector<std::filesystem::path> getIconPaths(const std::filesystem::path& bas
 {
   std::vector<std::filesystem::path> result;
   result.reserve(sizes.size());
-  std::transform(sizes.begin(),
-                 sizes.end(),
-                 std::back_inserter(result),
-                 [&base](const auto& size)
-                 {
-                   return util::ensureFileExists(base / ("logo_" + std::to_string(size) + ".png"));
-                 });
+  std::ranges::transform(sizes,
+                         std::back_inserter(result),
+                         [&base](const auto& size)
+                         {
+                           return util::ensureFileExists(base / ("logo_" + std::to_string(size) + ".png"));
+                         });
   return result;
 }
 } // namespace
@@ -430,11 +428,11 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath,
     : m_window{std::make_shared<gl::Window>(
         getIconPaths(engineDataPath, {24, 32, 64, 128, 256, 512}), resolution, borderlessFullscreen)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
-    , m_renderer{std::make_shared<render::scene::Renderer>(
-        gsl::make_shared<render::scene::Camera>(DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
-    , m_splashImageTexture{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
+    , m_renderer{std::make_shared<render::scene::Renderer>(gsl_lite::make_shared<render::scene::Camera>(
+        DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
+    , m_splashImageTexture{gsl_lite::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
-        gsl::make_unique<gl::Sampler>("splash" + gl::SamplerSuffix))}
+        gsl_lite::make_unique<gl::Sampler>("splash" + gl::SamplerSuffix))}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "SteinAntik-Bold.ttf"))}
     , m_ghostNameFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "Roboto-Regular.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window, engineDataPath / "gamecontrollerdb.txt")}
@@ -446,7 +444,7 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath,
 {
   gl::RenderState::reset();
 
-  m_materialManager->setCSM(gsl::not_null{m_csm});
+  m_materialManager->setCSM(gsl_lite::not_null{m_csm});
   scaleSplashImage();
   drawLoadingScreen(_("Booting"));
 }
@@ -464,17 +462,17 @@ void Presenter::scaleSplashImage()
 
   const auto scaledSourceSize = sourceSize * splashScale;
   const auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
-  auto mesh = render::scene::createScreenQuad(sourceOffset,
-                                              scaledSourceSize,
-                                              m_materialManager->getBackdrop(false),
-                                              render::scene::Translucency::Opaque,
-                                              "backdrop");
+  const auto mesh = render::scene::createScreenQuad(sourceOffset,
+                                                    scaledSourceSize,
+                                                    m_materialManager->getBackdrop(false),
+                                                    render::scene::Translucency::Opaque,
+                                                    "backdrop");
   if(m_splashImageTextureOverride != nullptr)
     m_splashImageMeshOverride = mesh;
   else
     m_splashImageMesh = mesh;
   mesh->bind("u_input",
-             [srcTexture = gsl::not_null{srcTexture}](
+             [srcTexture = gsl_lite::not_null{srcTexture}](
                const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
                uniform.set(srcTexture);
@@ -506,7 +504,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
   getSplashImageMeshOrOverride()->getRenderState().setViewport(getDisplayViewport());
 
   m_renderPipeline->withBackbuffer(
-    [this]()
+    [this]
     {
       {
         render::scene::RenderContext context{
@@ -592,14 +590,14 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
   setFullscreen(renderSettings.fullscreen);
   if(m_csm->getResolution() != renderSettings.getCSMResolution())
   {
-    m_csm = gsl::make_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager);
+    m_csm = gsl_lite::make_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager);
     m_materialManager->setCSM(m_csm);
   }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
   m_materialManager->setFiltering(renderSettings.bilinearFiltering,
                                   !renderSettings.anisotropyActive
                                     ? std::nullopt
-                                    : std::optional{gsl::narrow<float>(renderSettings.anisotropyLevel)});
+                                    : std::optional{gsl_lite::narrow<float>(renderSettings.anisotropyLevel)});
   m_soundEngine->setListenerGain(audioSettings.globalVolume);
   m_renderSettingsChanged = true;
 }
@@ -609,7 +607,7 @@ gl::CImgWrapper Presenter::takeScreenshot() const
   const auto vp = getDisplayViewport();
 
   std::vector<uint8_t> pixels;
-  pixels.resize(gsl::narrow<size_t>(vp.x) * gsl::narrow<size_t>(vp.y) * 4u);
+  pixels.resize(gsl_lite::narrow<size_t>(vp.x) * gsl_lite::narrow<size_t>(vp.y) * 4u);
   GL_ASSERT(
     gl::api::readPixel(0, 0, vp.x, vp.y, gl::api::PixelFormat::Rgba, gl::api::PixelType::UnsignedByte, pixels.data()));
 
@@ -632,10 +630,10 @@ void Presenter::renderScreenOverlay()
   m_screenOverlay->render(nullptr, context);
 }
 
-void Presenter::renderUi(ui::Ui& ui, float alpha)
+void Presenter::renderUi(ui::Ui& ui, const float alpha)
 {
   m_renderPipeline->renderUiFrameBuffer(
-    [this, &ui]()
+    [this, &ui]
     {
       m_renderer->getCamera()->setViewport(getUiViewport());
       ui.render();
@@ -674,7 +672,7 @@ void Presenter::setSplashImageTextureOverride(const std::filesystem::path& image
 {
   m_splashImageTextureOverride = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(imagePath)}.toTexture("splash-override"),
-    gsl::make_unique<gl::Sampler>("splash-override" + gl::SamplerSuffix));
+    gsl_lite::make_unique<gl::Sampler>("splash-override" + gl::SamplerSuffix));
   scaleSplashImage();
 }
 
@@ -684,7 +682,7 @@ void Presenter::clearSplashImageTextureOverride() noexcept
   m_splashImageMeshOverride.reset();
 }
 
-void Presenter::renderGeometry(const engine::world::World& world, const std::vector<world::Room>& rooms)
+void Presenter::renderGeometry(const world::World& world, const std::vector<world::Room>& rooms)
 {
   m_renderer->render();
   for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})

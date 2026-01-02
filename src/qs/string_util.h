@@ -23,7 +23,7 @@ struct unit_suffix_helper<U>
 };
 
 template<typename... Units>
-inline std::string suffix()
+std::string suffix()
 {
   return unit_suffix_helper<Units...>::suffix();
 }

@@ -26,8 +26,8 @@ struct CameraSink
     uint16_t box_index;
   };
 
-  void serialize(const serialization::Serializer<engine::world::World>& ser) const;
-  void deserialize(const serialization::Deserializer<engine::world::World>& ser);
+  void serialize(const serialization::Serializer<World>& ser) const;
+  void deserialize(const serialization::Deserializer<World>& ser);
 
   constexpr bool isActive() const noexcept
   {

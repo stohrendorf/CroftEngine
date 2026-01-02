@@ -5,7 +5,7 @@
 #include <array>
 #include <boost/throw_exception.hpp>
 #include <cstdio>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <stdexcept>
 
 extern "C"
@@ -45,7 +45,7 @@ void FilterGraph::init(const ffmpeg::Stream& stream)
            stream.stream->codecpar->sample_aspect_ratio.num,
            stream.stream->codecpar->sample_aspect_ratio.den);
   {
-    [[maybe_unused]] const auto check = gsl::ensure_z(filterGraphArgs.data(), filterGraphArgs.size());
+    gsl_Expects(std::ranges::find(filterGraphArgs.begin(), filterGraphArgs.end(), '\0') != filterGraphArgs.end());
   }
 
   if(avfilter_graph_create_filter(&input, avfilter_get_by_name("buffer"), "in", filterGraphArgs.data(), nullptr, graph)

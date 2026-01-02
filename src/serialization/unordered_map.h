@@ -3,8 +3,9 @@
 #include "access.h" // IWYU pragma: keep
 #include "serialization.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <unordered_map>
+
 
 namespace serialization
 {
@@ -30,7 +31,7 @@ void deserialize(std::unordered_map<T, U>& data, const Deserializer<TContext>& s
     gsl_Assert(element.is_map());
     gsl_Assert(element.num_children() == 2);
     auto elemSer = ser.withNode(element);
-    data.emplace(access<T, true>::dispatch(elemSer["key"]), access<U, true>::dispatch(elemSer["value"]));
+    data.emplace(access::dispatch<T>(elemSer["key"]), access::dispatch<U>(elemSer["value"]));
   }
 }
 } // namespace serialization

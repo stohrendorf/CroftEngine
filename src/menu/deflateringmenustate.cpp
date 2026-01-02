@@ -46,7 +46,7 @@ std::unique_ptr<MenuState>
 }
 
 DeflateRingMenuState::DeflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                           Direction direction,
+                                           const Direction direction,
                                            std::unique_ptr<MenuState> next)
     : MenuState{ringTransform}
     , m_next{std::move(next)}

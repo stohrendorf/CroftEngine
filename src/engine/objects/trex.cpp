@@ -23,7 +23,7 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects
@@ -39,7 +39,7 @@ void TRex::update()
 
   core::Angle turn;
 
-  core::Angle creatureHead = 0_deg;
+  auto creatureHead = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
@@ -109,7 +109,7 @@ void TRex::update()
         lara.m_state.rotation.X = 0_deg;
         lara.m_state.rotation.Y = m_state.rotation.Y;
         lara.m_state.rotation.Z = 0_deg;
-        lara.getSkeleton()->setAnim(gsl::not_null{
+        lara.getSkeleton()->setAnim(gsl_lite::not_null{
           &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]});
         lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
         lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);

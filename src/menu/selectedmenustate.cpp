@@ -103,7 +103,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
     case engine::TR1ItemId::Key3Sprite:
     case engine::TR1ItemId::Key4:
     case engine::TR1ItemId::Key4Sprite:
-      if(auto lara = world.getObjectManager().getLaraPtr())
+      if(const auto lara = world.getObjectManager().getLaraPtr())
         lara->playSoundEffect(engine::TR1SoundEffect::LaraNo);
       break;
     default:

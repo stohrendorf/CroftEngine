@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <istream>
 #include <memory>
@@ -31,7 +31,7 @@ namespace audio
 {
 namespace
 {
-std::string getAvError(int err)
+std::string getAvError(const int err)
 {
   std::vector<char> tmp(1024, 0);
   if(av_strerror(err, tmp.data(), tmp.size()) < 0)
@@ -41,7 +41,7 @@ std::string getAvError(int err)
 }
 } // namespace
 
-BasicFfmpegStreamSource::BasicFfmpegStreamSource(AVFormatContext* fmtContext, const gsl::czstring& streamName)
+BasicFfmpegStreamSource::BasicFfmpegStreamSource(AVFormatContext* fmtContext, const gsl_lite::czstring& streamName)
     : m_fmtContext{fmtContext}
 {
   if(const auto err = avformat_open_input(&m_fmtContext, streamName, nullptr, nullptr); err < 0)
@@ -71,13 +71,12 @@ BasicFfmpegStreamSource::~BasicFfmpegStreamSource()
   avformat_close_input(&m_fmtContext);
 }
 
-void BasicFfmpegStreamSource::fillQueues(bool looping)
+void BasicFfmpegStreamSource::fillQueues(const bool looping)
 {
   while(!m_decoder->filled())
   {
-    const auto err = av_read_frame(m_fmtContext, &m_packet);
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-    if(err == AVERROR_EOF && looping)
+    if(const auto err = av_read_frame(m_fmtContext, &m_packet); err == AVERROR_EOF && looping)
     {
       m_decoder->seek(std::chrono::milliseconds{0});
       continue;
@@ -92,7 +91,7 @@ void BasicFfmpegStreamSource::fillQueues(bool looping)
   }
 }
 
-size_t BasicFfmpegStreamSource::read(int16_t* buffer, size_t bufferSize, bool looping)
+size_t BasicFfmpegStreamSource::read(int16_t* buffer, const size_t bufferSize, const bool looping)
 {
   fillQueues(looping);
   size_t written = 0;
@@ -111,7 +110,7 @@ size_t BasicFfmpegStreamSource::read(int16_t* buffer, size_t bufferSize, bool lo
   return written;
 }
 
-audio::Clock::duration BasicFfmpegStreamSource::getDuration() const
+Clock::duration BasicFfmpegStreamSource::getDuration() const
 {
   return m_decoder->getDuration();
 }
@@ -142,11 +141,11 @@ FfmpegStreamSource::FfmpegStreamSource(const std::filesystem::path& filename)
 {
 }
 
-FfmpegMemoryStreamSource::FfmpegMemoryStreamSource(const gsl::span<const uint8_t>& data)
-    : detail::FfmpegMemoryStreamSourceFileData{data}
-    , BasicFfmpegStreamSource{[this]()
+FfmpegMemoryStreamSource::FfmpegMemoryStreamSource(const gsl_lite::span<const uint8_t>& data)
+    : FfmpegMemoryStreamSourceFileData{data}
+    , BasicFfmpegStreamSource{[this]
                               {
-                                auto ctx = avformat_alloc_context();
+                                const auto ctx = avformat_alloc_context();
                                 ctx->pb = avio_alloc_context(dataBuffer,
                                                              0,
                                                              0,
@@ -166,51 +165,52 @@ FfmpegMemoryStreamSource::~FfmpegMemoryStreamSource()
   avio_context_free(&getFmtContext()->pb);
 }
 
-int FfmpegMemoryStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize)
+int FfmpegMemoryStreamSource::ffmpegRead(void* opaque, uint8_t* buf, const int bufSize)
 {
   auto* h = static_cast<FfmpegMemoryStreamSource*>(opaque);
-  const auto n = std::min(h->data.size() - h->dataPosition, gsl::narrow<size_t>(bufSize));
+  const auto n = std::min(h->data.size() - h->dataPosition, gsl_lite::narrow<size_t>(bufSize));
   if(n == 0)
     return AVERROR_EOF; // NOLINT(hicpp-signed-bitwise)
 
   std::copy_n(&h->data[h->dataPosition], n, buf);
   h->dataPosition += n;
-  return gsl::narrow<int>(n);
+  return gsl_lite::narrow<int>(n);
 }
 
 // NOLINTNEXTLINE(*-easily-swappable-parameters)
-int64_t FfmpegMemoryStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
+int64_t FfmpegMemoryStreamSource::ffmpegSeek(void* opaque, const int64_t offset, const int whence)
 {
   auto* h = static_cast<FfmpegMemoryStreamSource*>(opaque);
   if((whence & AVSEEK_SIZE) != 0) // NOLINT(hicpp-signed-bitwise)
-    return gsl::narrow<int64_t>(h->data.size());
+    return gsl_lite::narrow<int64_t>(h->data.size());
 
   switch(whence)
   {
   case SEEK_SET:
-    h->dataPosition = gsl::narrow_cast<size_t>(std::clamp(offset, int64_t{0}, gsl::narrow<int64_t>(h->data.size())));
+    h->dataPosition
+      = gsl_lite::narrow_cast<size_t>(std::clamp(offset, int64_t{0}, gsl_lite::narrow<int64_t>(h->data.size())));
     break;
   case SEEK_CUR:
-    h->dataPosition = gsl::narrow_cast<size_t>(gsl::narrow_cast<size_t>(
-      std::clamp(gsl::narrow<int64_t>(h->dataPosition + offset), int64_t{0}, gsl::narrow<int64_t>(h->data.size()))));
+    h->dataPosition = gsl_lite::narrow_cast<size_t>(gsl_lite::narrow_cast<size_t>(std::clamp(
+      gsl_lite::narrow<int64_t>(h->dataPosition + offset), int64_t{0}, gsl_lite::narrow<int64_t>(h->data.size()))));
     break;
   case SEEK_END:
-    h->dataPosition = gsl::narrow_cast<size_t>(
-      std::clamp(gsl::narrow<int64_t>(h->data.size() - offset), int64_t{0}, gsl::narrow<int64_t>(h->data.size())));
+    h->dataPosition = gsl_lite::narrow_cast<size_t>(std::clamp(
+      gsl_lite::narrow<int64_t>(h->data.size() - offset), int64_t{0}, gsl_lite::narrow<int64_t>(h->data.size())));
     break;
   default:
     BOOST_THROW_EXCEPTION(std::domain_error("invalid whence value"));
   }
-  return gsl::narrow_cast<int64_t>(h->dataPosition);
+  return gsl_lite::narrow_cast<int64_t>(h->dataPosition);
 }
 
 FfmpegSubStreamStreamSource::FfmpegSubStreamStreamSource(std::unique_ptr<std::istream>&& istream,
-                                                         size_t start,
-                                                         size_t end)
-    : detail::FfmpegMemoryStreamSourceSubFileData{std::move(istream), start, end}
-    , BasicFfmpegStreamSource{[this]()
+                                                         const size_t start,
+                                                         const size_t end)
+    : FfmpegMemoryStreamSourceSubFileData{std::move(istream), start, end}
+    , BasicFfmpegStreamSource{[this]
                               {
-                                auto ctx = avformat_alloc_context();
+                                const auto ctx = avformat_alloc_context();
                                 ctx->pb = avio_alloc_context(dataBuffer,
                                                              0,
                                                              0,
@@ -230,41 +230,41 @@ FfmpegSubStreamStreamSource::~FfmpegSubStreamStreamSource()
   avio_context_free(&getFmtContext()->pb);
 }
 
-int FfmpegSubStreamStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize)
+int FfmpegSubStreamStreamSource::ffmpegRead(void* opaque, uint8_t* buf, const int bufSize)
 {
   auto* h = static_cast<FfmpegSubStreamStreamSource*>(opaque);
-  const auto n = std::min(h->dataEnd - h->dataStart - h->dataPosition, gsl::narrow<size_t>(bufSize));
-  h->istream->seekg(gsl::narrow<std::streamoff>(h->dataStart + h->dataPosition));
+  const auto n = std::min(h->dataEnd - h->dataStart - h->dataPosition, gsl_lite::narrow<size_t>(bufSize));
+  h->istream->seekg(gsl_lite::narrow<std::streamoff>(h->dataStart + h->dataPosition));
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  h->istream->read(reinterpret_cast<char*>(buf), gsl::narrow<std::streamsize>(n));
+  h->istream->read(reinterpret_cast<char*>(buf), gsl_lite::narrow<std::streamsize>(n));
   h->dataPosition += n;
-  return gsl::narrow<int>(n);
+  return gsl_lite::narrow<int>(n);
 }
 
 // NOLINTNEXTLINE(*-easily-swappable-parameters)
-int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
+int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, const int64_t offset, const int whence)
 {
   auto* h = static_cast<FfmpegSubStreamStreamSource*>(opaque);
   const auto size = h->dataEnd - h->dataStart;
   if((whence & AVSEEK_SIZE) != 0) // NOLINT(hicpp-signed-bitwise)
-    return gsl::narrow<int64_t>(size);
+    return gsl_lite::narrow<int64_t>(size);
 
   switch(whence)
   {
   case SEEK_SET:
-    h->dataPosition = gsl::narrow_cast<size_t>(std::clamp(offset, int64_t{0}, gsl::narrow<int64_t>(size)));
+    h->dataPosition = gsl_lite::narrow_cast<size_t>(std::clamp(offset, int64_t{0}, gsl_lite::narrow<int64_t>(size)));
     break;
   case SEEK_CUR:
-    h->dataPosition = gsl::narrow_cast<size_t>(gsl::narrow_cast<size_t>(
-      std::clamp(gsl::narrow<int64_t>(h->dataPosition + offset), int64_t{0}, gsl::narrow<int64_t>(size))));
+    h->dataPosition = gsl_lite::narrow_cast<size_t>(gsl_lite::narrow_cast<size_t>(
+      std::clamp(gsl_lite::narrow<int64_t>(h->dataPosition + offset), int64_t{0}, gsl_lite::narrow<int64_t>(size))));
     break;
   case SEEK_END:
-    h->dataPosition = gsl::narrow_cast<size_t>(
-      std::clamp(gsl::narrow<int64_t>(size - offset), int64_t{0}, gsl::narrow<int64_t>(size)));
+    h->dataPosition = gsl_lite::narrow_cast<size_t>(
+      std::clamp(gsl_lite::narrow<int64_t>(size - offset), int64_t{0}, gsl_lite::narrow<int64_t>(size)));
     break;
   default:
     BOOST_THROW_EXCEPTION(std::domain_error("invalid whence value"));
   }
-  return gsl::narrow_cast<int64_t>(h->dataPosition);
+  return gsl_lite::narrow_cast<int64_t>(h->dataPosition);
 }
 } // namespace audio

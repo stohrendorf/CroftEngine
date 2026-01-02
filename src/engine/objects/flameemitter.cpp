@@ -10,7 +10,7 @@
 #include "objectstate.h"
 #include "render/scene/node.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects
@@ -23,8 +23,8 @@ void FlameEmitter::update()
       return;
 
     m_flame = std::make_shared<FlameParticle>(m_state.location, getWorld());
-    setParent(gsl::not_null{m_flame}, m_state.location.room->node);
-    getWorld().getObjectManager().registerParticle(gsl::not_null{m_flame});
+    setParent(gsl_lite::not_null{m_flame}, m_state.location.room->node);
+    getWorld().getObjectManager().registerParticle(gsl_lite::not_null{m_flame});
   }
   else if(m_flame != nullptr)
   {

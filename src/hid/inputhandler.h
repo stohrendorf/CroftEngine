@@ -34,9 +34,9 @@ public:
     return m_inputState;
   }
 
-  [[nodiscard]] bool hasAction(Action action) const
+  [[nodiscard]] bool hasAction(const Action action) const
   {
-    if(auto tmp = m_inputState.actions.find(action); tmp != m_inputState.actions.end())
+    if(const auto tmp = m_inputState.actions.find(action); tmp != m_inputState.actions.end())
       return tmp->second;
 
     return false;
@@ -44,17 +44,16 @@ public:
 
   [[nodiscard]] bool hasAnyAction() const
   {
-    return std::any_of(m_inputState.actions.begin(),
-                       m_inputState.actions.end(),
-                       [](const std::pair<Action, InputState::Button>& action)
-                       {
-                         return action.second.current;
-                       });
+    return std::ranges::any_of(m_inputState.actions,
+                               [](const std::pair<Action, InputState::Button>& action)
+                               {
+                                 return action.second.current;
+                               });
   }
 
-  [[nodiscard]] bool hasDebouncedAction(Action action) const
+  [[nodiscard]] bool hasDebouncedAction(const Action action) const
   {
-    if(auto tmp = m_inputState.actions.find(action); tmp != m_inputState.actions.end())
+    if(const auto tmp = m_inputState.actions.find(action); tmp != m_inputState.actions.end())
       return tmp->second.justChangedTo(true);
     return false;
   }

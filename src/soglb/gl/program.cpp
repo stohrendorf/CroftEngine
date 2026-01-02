@@ -10,7 +10,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 #include <string>
 #include <utility>
@@ -73,7 +73,7 @@ void Uniform::set(const std::vector<glm::mat4>& values)
     *m_program,
     // NOLINTNEXTLINE(*-unchecked-optional-access)
     *getLocation(),
-    gsl::narrow<api::core::SizeType>(values.size()),
+    gsl_lite::narrow<api::core::SizeType>(values.size()),
     false,
     reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
     ));
@@ -124,7 +124,7 @@ void Uniform::set(const std::vector<glm::vec2>& values)
     *m_program,
     // NOLINTNEXTLINE(*-unchecked-optional-access)
     *getLocation(),
-    gsl::narrow<api::core::SizeType>(values.size()),
+    gsl_lite::narrow<api::core::SizeType>(values.size()),
     reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
     ));
 }
@@ -141,7 +141,7 @@ void Uniform::set(const std::vector<glm::vec3>& values)
     *m_program,
     // NOLINTNEXTLINE(*-unchecked-optional-access)
     *getLocation(),
-    gsl::narrow<api::core::SizeType>(values.size()),
+    gsl_lite::narrow<api::core::SizeType>(values.size()),
     reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
     ));
 }
@@ -158,7 +158,7 @@ void Uniform::set(const std::vector<glm::vec4>& values)
     *m_program,
     // NOLINTNEXTLINE(*-unchecked-optional-access)
     *getLocation(),
-    gsl::narrow<api::core::SizeType>(values.size()),
+    gsl_lite::narrow<api::core::SizeType>(values.size()),
     reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
     ));
 }
@@ -195,7 +195,7 @@ uint32_t Program::getActiveResourceCount(const api::ProgramInterface what) const
 {
   int32_t n = 0;
   GL_ASSERT(api::getProgramInterface(getHandle(), what, api::ProgramInterfacePName::ActiveResources, &n));
-  return gsl::narrow<uint32_t>(n);
+  return gsl_lite::narrow<uint32_t>(n);
 }
 
 std::vector<ProgramInput> Program::getInputs() const

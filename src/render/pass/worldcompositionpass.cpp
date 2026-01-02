@@ -24,7 +24,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -52,14 +52,14 @@ WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialMa
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
-        gsl::make_unique<gl::Sampler>("composition-color" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>("composition-color" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_bloomedBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-bloomed")}
     , m_bloomedBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_bloomedBuffer,
-        gsl::make_unique<gl::Sampler>("composition-bloomed" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>("composition-bloomed" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -75,35 +75,35 @@ WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialMa
 {
   m_noWaterMesh->bind("u_portalPosition",
                       [buffer = portalPass->getPositionBuffer()](
-                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                        const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);
                       });
   if(renderSettings.waterDenoise)
     m_noWaterMesh->bind("u_portalPerturb",
-                        [texture = portalPass->getBlurredTexture()](const render::scene::Node* /*node*/,
-                                                                    const render::scene::Mesh& /*mesh*/,
+                        [texture = portalPass->getBlurredTexture()](const scene::Node* /*node*/,
+                                                                    const scene::Mesh& /*mesh*/,
                                                                     gl::Uniform& uniform)
                         {
                           uniform.set(texture);
                         });
   else
     m_noWaterMesh->bind("u_portalPerturb",
-                        [texture = portalPass->getNoisyTexture()](const render::scene::Node* /*node*/,
-                                                                  const render::scene::Mesh& /*mesh*/,
+                        [texture = portalPass->getNoisyTexture()](const scene::Node* /*node*/,
+                                                                  const scene::Mesh& /*mesh*/,
                                                                   gl::Uniform& uniform)
                         {
                           uniform.set(texture);
                         });
   m_noWaterMesh->bind("u_geometryPosition",
                       [buffer = geometryPass->getPositionBuffer()](
-                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                        const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);
                       });
   m_noWaterMesh->bind("u_texture",
                       [buffer = geometryPass->getColorBuffer()](
-                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                        const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);
                       });
@@ -112,36 +112,36 @@ WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialMa
 
   m_inWaterMesh->bind("u_portalPosition",
                       [buffer = portalPass->getPositionBuffer()](
-                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                        const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);
                       });
 
   if(renderSettings.waterDenoise)
     m_inWaterMesh->bind("u_portalPerturb",
-                        [texture = portalPass->getBlurredTexture()](const render::scene::Node* /*node*/,
-                                                                    const render::scene::Mesh& /*mesh*/,
+                        [texture = portalPass->getBlurredTexture()](const scene::Node* /*node*/,
+                                                                    const scene::Mesh& /*mesh*/,
                                                                     gl::Uniform& uniform)
                         {
                           uniform.set(texture);
                         });
   else
     m_inWaterMesh->bind("u_portalPerturb",
-                        [texture = portalPass->getNoisyTexture()](const render::scene::Node* /*node*/,
-                                                                  const render::scene::Mesh& /*mesh*/,
+                        [texture = portalPass->getNoisyTexture()](const scene::Node* /*node*/,
+                                                                  const scene::Mesh& /*mesh*/,
                                                                   gl::Uniform& uniform)
                         {
                           uniform.set(texture);
                         });
   m_inWaterMesh->bind("u_geometryPosition",
                       [buffer = geometryPass->getPositionBuffer()](
-                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                        const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);
                       });
   m_inWaterMesh->bind("u_texture",
                       [buffer = geometryPass->getColorBuffer()](
-                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                        const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);
                       });
@@ -150,13 +150,13 @@ WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialMa
 
   m_bloomMesh->bind(
     "u_input",
-    [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       uniform.set(m_colorBufferHandle);
     });
   m_bloomMesh->bind(
     "u_bloom",
-    [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       uniform.set(m_bloomPass->getOutput());
     });
@@ -171,7 +171,7 @@ void WorldCompositionPass::updateCamera(const gslu::nn_shared<scene::Camera>& ca
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void WorldCompositionPass::render(bool inWater)
+void WorldCompositionPass::render(const bool inWater)
 {
   SOGLB_DEBUGGROUP("world-composition-pass");
 

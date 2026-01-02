@@ -21,7 +21,7 @@ class Mesh;
 class Node;
 class RenderContext;
 
-class ScreenOverlay : public Renderable
+class ScreenOverlay final : public Renderable
 {
 public:
   ScreenOverlay(const ScreenOverlay&) = delete;
@@ -35,7 +35,7 @@ public:
 
   ~ScreenOverlay() override;
 
-  void render(const Node* node, RenderContext& context) final;
+  void render(const Node* node, RenderContext& context) override;
   void render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount) override;
   [[nodiscard]] bool empty(Translucency translucencySelector) const override;
 
@@ -44,7 +44,7 @@ public:
     return m_image;
   }
 
-  void setAlphaMultiplier(float value)
+  void setAlphaMultiplier(const float value)
   {
     m_alphaMultiplier = value;
   }

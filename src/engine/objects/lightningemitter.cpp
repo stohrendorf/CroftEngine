@@ -42,7 +42,7 @@
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -56,7 +56,7 @@ namespace engine::objects
 namespace
 {
 std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::vec3>>>
-  createBolt(const gslu::nn_shared<render::material::Material>& material, float lineWidth)
+  createBolt(const gslu::nn_shared<render::material::Material>& material, const float lineWidth)
 {
   std::array<glm::vec3, LightningEmitter::ControlPoints> vertices{};
 
@@ -67,15 +67,15 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
   for(uint16_t i = 0; i < LightningEmitter::ControlPoints; ++i)
     indices.emplace_back(i);
 
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
+  auto indexBuffer = gsl_lite::make_shared<gl::ElementArrayBuffer<uint16_t>>(
     "bolt" + gl::IndexBufferSuffix, gl::api::BufferUsage::StreamDraw, indices);
 
-  auto vb = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(
+  auto vb = gsl_lite::make_shared<gl::VertexBuffer<glm::vec3>>(
     layout, "bolt" + gl::VboSuffix, gl::api::BufferUsage::StreamDraw, vertices);
 
-  auto opaqueVao = gsl::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
+  auto opaqueVao = gsl_lite::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt" + gl::VaoSuffix);
-  auto mesh = gsl::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(
+  auto mesh = gsl_lite::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(
     opaqueVao, nullptr, gl::api::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);
@@ -91,7 +91,7 @@ using Bolt = std::array<glm::vec3, LightningEmitter::ControlPoints>;
 
 Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
-  std::vector<glm::vec3> data{start, end};
+  std::vector data{start, end};
   static constexpr float RadiusRatio = 0.3f;
   auto radius = static_cast<float>(glm::distance(start, end) * RadiusRatio);
   for(size_t i = 0; i < LightningEmitter::SegmentSplits; ++i)
@@ -124,15 +124,15 @@ Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_
     radius /= 2;
   }
 
-  gsl_Assert(gsl::narrow<size_t>(vb->size()) == data.size());
+  gsl_Assert(gsl_lite::narrow<size_t>(vb->size()) == data.size());
 
   Bolt bolt;
   auto boltData
     = vb->map(gl::api::MapBufferAccessMask::MapWriteBit | gl::api::MapBufferAccessMask::MapFlushExplicitBit);
   gsl_Assert(boltData.size() == data.size());
   gsl_Assert(boltData.size() == bolt.size());
-  std::copy(data.begin(), data.end(), boltData.begin());
-  std::copy(data.begin(), data.end(), bolt.begin());
+  std::ranges::copy(data, boltData.begin());
+  std::ranges::copy(data, bolt.begin());
   boltData.flush();
 
   return bolt;
@@ -140,15 +140,15 @@ Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_
 } // namespace
 
 LightningEmitter::LightningEmitter(const std::string& name,
-                                   const gsl::not_null<world::World*>& world,
-                                   const gsl::not_null<const world::Room*>& room,
+                                   const gsl_lite::not_null<world::World*>& world,
+                                   const gsl_lite::not_null<const world::Room*>& room,
                                    const loader::file::Item& item,
-                                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                                   const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   if(!animatedModel->bones.empty())
   {
-    m_poles = gsl::narrow_cast<size_t>(animatedModel->bones.size() - 1u);
+    m_poles = gsl_lite::narrow_cast<size_t>(animatedModel->bones.size() - 1u);
   }
 
   init(*world);
@@ -192,8 +192,8 @@ void LightningEmitter::update()
   m_chargeTimeout = 20;
   m_laraHit = false;
 
-  const auto radius = m_poles == 0 ? 1_sectors : 5_sectors / 2;
-  if(getWorld().getObjectManager().getLara().isNearInexact(m_state.location.position, radius))
+  if(const auto radius = m_poles == 0 ? 1_sectors : 5_sectors / 2;
+     getWorld().getObjectManager().getLara().isNearInexact(m_state.location.position, radius))
   {
     // target at lara
     m_mainBoltEnd = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
@@ -275,7 +275,7 @@ void LightningEmitter::init(world::World& world)
   m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
   m_mainBoltNode->setRenderable(m_mainBoltMesh);
   m_mainBoltNode->setVisible(false);
-  addChild(gsl::not_null{getSkeleton()}, gsl::not_null{m_mainBoltNode});
+  addChild(gsl_lite::not_null{getSkeleton()}, gsl_lite::not_null{m_mainBoltNode});
 
   for(auto& childBolt : m_childBolts)
   {
@@ -284,7 +284,7 @@ void LightningEmitter::init(world::World& world)
     childBolt.node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     childBolt.node->setRenderable(childBolt.mesh);
     childBolt.node->setVisible(false);
-    addChild(gsl::not_null{getSkeleton()}, gsl::not_null{childBolt.node});
+    addChild(gsl_lite::not_null{getSkeleton()}, gsl_lite::not_null{childBolt.node});
   }
 }
 

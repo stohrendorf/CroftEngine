@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <emmintrin.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <smmintrin.h>
 #include <tmmintrin.h>
 #include <xmmintrin.h>
@@ -26,17 +26,17 @@ struct IVec final
     static_assert(sizeof(T) == sizeof(__m128i));
   }
 
-  explicit IVec(__m128i x)
+  explicit IVec(const __m128i x)
       : data{x}
   {
   }
 
-  explicit IVec(int32_t x)
+  explicit IVec(const int32_t x)
       : data{_mm_set1_epi32(x)}
   {
   }
 
-  explicit IVec(int32_t x, int32_t y, int32_t z, int32_t w)
+  explicit IVec(const int32_t x, const int32_t y, const int32_t z, const int32_t w)
       : data{_mm_setr_epi32(x, y, z, w)}
   {
   }
@@ -75,7 +75,7 @@ struct IVec final
     return IVec{_mm_mul_epi32(data, rhs.data)};
   }
 
-  [[nodiscard]] IVec operator>>(int n) const
+  [[nodiscard]] IVec operator>>(const int n) const
   {
     return IVec{_mm_srli_epi32(data, n)};
   }
@@ -131,18 +131,24 @@ struct IVec final
 
 struct IVec16 final
 {
-  explicit IVec16(__m128i x) noexcept
+  explicit IVec16(const __m128i x) noexcept
       : data{x}
   {
   }
 
-  explicit IVec16(int16_t x = 0) noexcept
+  explicit IVec16(const int16_t x = 0) noexcept
       : data{_mm_set1_epi16(x)}
   {
   }
 
-  explicit IVec16(
-    int16_t x0, int16_t x1, int16_t x2, int16_t x3, int16_t x4, int16_t x5, int16_t x6, int16_t x7) noexcept
+  explicit IVec16(const int16_t x0,
+                  const int16_t x1,
+                  const int16_t x2,
+                  const int16_t x3,
+                  const int16_t x4,
+                  const int16_t x5,
+                  const int16_t x6,
+                  const int16_t x7) noexcept
       : data{_mm_setr_epi16(x0, x1, x2, x3, x4, x5, x6, x7)}
   {
   }
@@ -192,17 +198,17 @@ struct IVec16 final
     return IVec16{_mm_and_si128(data, rhs.data)};
   }
 
-  [[nodiscard]] IVec16 operator>>(int n) const
+  [[nodiscard]] IVec16 operator>>(const int n) const
   {
     return IVec16{_mm_srli_epi16(data, n)};
   }
 
-  [[nodiscard]] IVec16 sra(int n) const
+  [[nodiscard]] IVec16 sra(const int n) const
   {
     return IVec16{_mm_srai_epi16(data, n)};
   }
 
-  [[nodiscard]] IVec16 operator<<(int n) const
+  [[nodiscard]] IVec16 operator<<(const int n) const
   {
     return IVec16{_mm_slli_epi16(data, n)};
   }
@@ -289,7 +295,7 @@ struct IVec16 final
 
 struct IVec8 final
 {
-  explicit IVec8(__m128i x)
+  explicit IVec8(const __m128i x)
       : data{x}
   {
   }
@@ -299,13 +305,13 @@ struct IVec8 final
   {
   }
 
-  explicit IVec8(int8_t x)
+  explicit IVec8(const int8_t x)
       : data{_mm_set1_epi8(x)}
   {
   }
 
   explicit IVec8(uint8_t x)
-      : data{_mm_set1_epi8(gsl::narrow_cast<int8_t>(x))}
+      : data{_mm_set1_epi8(gsl_lite::narrow_cast<int8_t>(x))}
   {
   }
 
@@ -322,7 +328,7 @@ struct IVec8 final
     return IVec8{_mm_cmpeq_epi8(data, rhs.data)};
   }
 
-  [[nodiscard]] auto operator&(int rhs) const
+  [[nodiscard]] auto operator&(const int rhs) const
   {
     return IVec8{_mm_and_si128(data, _mm_set1_epi32(rhs))};
   }
@@ -413,12 +419,12 @@ IVec8 IVec16::toIVec8U(const IVec16& high) const
 
 IVec IVec16::lowToIVec32() const
 {
-  return lowToIVec32(IVec16{int16_t(0)});
+  return lowToIVec32(IVec16{static_cast<int16_t>(0)});
 }
 
 IVec IVec16::highToIVec32() const
 {
-  return highToIVec32(IVec16{int16_t(0)});
+  return highToIVec32(IVec16{static_cast<int16_t>(0)});
 }
 
 inline void transpose(IVec8& a, IVec8& b, IVec8& c, IVec8& d)

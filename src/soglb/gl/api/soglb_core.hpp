@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <type_traits>
 
 struct __GLsync; // NOLINT(bugprone-reserved-identifier)
@@ -56,7 +56,7 @@ class Bitfield final
   EnumType m_value{};
 
   // cppcheck-suppress noExplicitConstructor
-  constexpr Bitfield(EnumType value) // NOLINT(google-explicit-constructor)
+  constexpr Bitfield(const EnumType value) // NOLINT(google-explicit-constructor)
       : m_value{value}
   {
   }
@@ -68,7 +68,7 @@ public:
   {
   }
 
-  constexpr Bitfield(const Bitfield<T>& rhs) noexcept
+  constexpr Bitfield(const Bitfield& rhs) noexcept
       : m_value{rhs.m_value}
   {
   }
@@ -85,40 +85,40 @@ public:
     return (m_value & static_cast<EnumType>(value)) != 0;
   }
 
-  constexpr Bitfield<T>& operator=(const Bitfield<T>& rhs) noexcept
+  constexpr Bitfield& operator=(const Bitfield& rhs) noexcept
   {
     m_value = rhs.m_value;
     return *this;
   }
 
-  constexpr Bitfield<T> operator|(const Bitfield<T>& rhs) const noexcept
+  constexpr Bitfield operator|(const Bitfield& rhs) const noexcept
   {
-    return Bitfield<T>{m_value | rhs.value()};
+    return Bitfield{m_value | rhs.value()};
   }
 
-  constexpr Bitfield<T>& operator|=(const Bitfield<T>& rhs) noexcept
+  constexpr Bitfield& operator|=(const Bitfield& rhs) noexcept
   {
     m_value |= rhs.m_value;
     return *this;
   }
 
-  constexpr Bitfield<T> operator|(T rhs) const noexcept
+  constexpr Bitfield operator|(T rhs) const noexcept
   {
-    return Bitfield<T>{m_value | static_cast<EnumType>(rhs)};
+    return Bitfield{m_value | static_cast<EnumType>(rhs)};
   }
 
-  constexpr Bitfield<T>& operator|=(T rhs) noexcept
+  constexpr Bitfield& operator|=(T rhs) noexcept
   {
     m_value |= static_cast<EnumType>(rhs);
     return *this;
   }
 
-  constexpr Bitfield<T> operator&(const Bitfield<T>& rhs) const noexcept
+  constexpr Bitfield operator&(const Bitfield& rhs) const noexcept
   {
-    return Bitfield<T>{m_value & rhs.value()};
+    return Bitfield{m_value & rhs.value()};
   }
 
-  constexpr Bitfield<T>& operator&=(const Bitfield<T>& rhs) noexcept
+  constexpr Bitfield& operator&=(const Bitfield& rhs) noexcept
   {
     m_value &= rhs.m_value;
     return *this;
@@ -134,10 +134,9 @@ using DebugProc = void(SOGLB_API*)(DebugSource source,
                                    DebugType type,
                                    uint32_t id,
                                    DebugSeverity severity,
-                                   core::SizeType length,
-                                   gsl::czstring message,
+                                   SizeType length,
+                                   gsl_lite::czstring message,
                                    const void* userParam);
-
 } // namespace core
 
 namespace detail

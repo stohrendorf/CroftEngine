@@ -4,22 +4,22 @@
 #include "engine/world/world.h"
 #include "serialization.h"
 
+#include <concepts>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace serialization
 {
-template<typename T>
+template<std::derived_from<engine::objects::Object> T>
 struct ObjectReference final
 {
-  ObjectReference(const ObjectReference<T>&) = delete;
-  ObjectReference(ObjectReference<T>&&) = delete;
+  ObjectReference(const ObjectReference&) = delete;
+  ObjectReference(ObjectReference&&) = delete;
   ~ObjectReference() = default;
-  void operator=(ObjectReference<T>&&) = delete;
-  void operator=(const ObjectReference<T>&) = delete;
+  void operator=(ObjectReference&&) = delete;
+  void operator=(const ObjectReference&) = delete;
 
-  static_assert(std::is_base_of_v<engine::objects::Object, T>);
   std::reference_wrapper<std::shared_ptr<T>> ptr;
 
   explicit ObjectReference(const std::reference_wrapper<const std::shared_ptr<T>>& ptr)
@@ -37,23 +37,22 @@ struct ObjectReference final
     if(ptr.get() == nullptr)
     {
       ser.setNull();
+      return;
     }
-    else
-    {
-      ser.tag("objectref");
-      for(const auto& [objId, obj] : ser.context->getObjectManager().getObjects())
-      {
-        if(obj.get() == ptr.get())
-        {
-          engine::ObjectId tmp = objId;
-          ser(S_NV("id", tmp));
-          return;
-        }
-      }
 
-      // this may happen if the object was killed, thus rendering this reference invalid
-      ser.setNull();
+    ser.tag("objectref");
+    for(const auto& [objId, obj] : ser.context->getObjectManager().getObjects())
+    {
+      if(obj.get() == ptr.get())
+      {
+        engine::ObjectId tmp = objId;
+        ser(S_NV("id", tmp));
+        return;
+      }
     }
+
+    // this may happen if the object was killed, thus rendering this reference invalid
+    ser.setNull();
   }
 
   void deserialize(const Deserializer<engine::world::World>& ser)
@@ -61,19 +60,18 @@ struct ObjectReference final
     if(ser.isNull())
     {
       ptr.get() = nullptr;
+      return;
     }
-    else
+
+    ser << [ptr = ptr](const Deserializer<engine::world::World>& ser)
     {
-      ser << [ptr = ptr](const Deserializer<engine::world::World>& ser)
-      {
-        ser.tag("objectref");
-        engine::ObjectId id = 0;
-        ser(S_NV("id", id));
-        auto tmp = ser.context->getObjectManager().getObjects().at(id).get();
-        gsl_Assert(tmp != nullptr);
-        ptr.get() = std::dynamic_pointer_cast<T>(tmp);
-      };
-    }
+      ser.tag("objectref");
+      engine::ObjectId id = 0;
+      ser(S_NV("id", id));
+      auto tmp = ser.context->getObjectManager().getObjects().at(id).get();
+      gsl_Assert(tmp != nullptr);
+      ptr.get() = std::dynamic_pointer_cast<T>(tmp);
+    };
   }
 };
 } // namespace serialization

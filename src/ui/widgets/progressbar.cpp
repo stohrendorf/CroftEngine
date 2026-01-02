@@ -4,20 +4,20 @@
 #include "ui/ui.h"
 
 #include <algorithm>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace ui::widgets
 {
 ProgressBar::~ProgressBar() = default;
 
-void ProgressBar::draw(ui::Ui& ui, const engine::Presenter& /*presenter*/) const
+void ProgressBar::draw(Ui& ui, const engine::Presenter& /*presenter*/) const
 {
-  static constexpr int InnerOffset = ui::OutlineBorderWidth + 1;
+  static constexpr int InnerOffset = OutlineBorderWidth + 1;
 
-  auto innerSize
-    = gsl::narrow_cast<int>(gsl::narrow_cast<float>(getSize().x - 2 * InnerOffset) * std::clamp(m_value, 0.0f, 1.0f));
-  ui.drawOutlineBox(m_position - glm::ivec2{0, ui::FontHeight - 1}, getSize());
-  ui.drawBox(m_position + glm::ivec2{InnerOffset, InnerOffset - ui::FontHeight + 1},
+  const auto innerSize = gsl_lite::narrow_cast<int>(gsl_lite::narrow_cast<float>(getSize().x - 2 * InnerOffset)
+                                              * std::clamp(m_value, 0.0f, 1.0f));
+  ui.drawOutlineBox(m_position - glm::ivec2{0, FontHeight - 1}, getSize());
+  ui.drawBox(m_position + glm::ivec2{InnerOffset, InnerOffset - FontHeight + 1},
              glm::ivec2{innerSize + 1, getSize().y - 2 * InnerOffset + 1},
              15);
 }

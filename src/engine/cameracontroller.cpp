@@ -42,7 +42,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <unordered_set>
 #include <utility>
@@ -63,6 +63,7 @@ void freeLookClamp(core::Length& goalX,
 {
   const auto dx = goalX - startX;
   const auto dy = goalY - startY;
+  // ReSharper disable once CppRedundantParentheses
   if((minX < maxX) != (startX < minX))
   {
     goalY = startY + dy * (minX - startX) / dx;
@@ -134,8 +135,7 @@ void clampToCorners(const core::Area& targetHorizontalDistanceSq,
     return;
   }
 
-  const auto dxySqMaxXMinY = util::square(targetX - maxX) + dySqMinY;
-  if(targetHorizontalDistanceSq >= dxySqMaxXMinY)
+  if(const auto dxySqMaxXMinY = util::square(targetX - maxX) + dySqMinY; targetHorizontalDistanceSq >= dxySqMaxXMinY)
   {
     x = maxX;
     y = minY;
@@ -166,9 +166,9 @@ Location clampBox(const Location& start,
                   const ObjectManager& objectManager)
 {
   auto result = raycastLineOfSight(start, goal, objectManager).second;
-  const auto startSector = gsl::not_null{start.room->getSectorByAbsolutePosition(start.position)};
+  const auto startSector = gsl_lite::not_null{start.room->getSectorByAbsolutePosition(start.position)};
   auto box = startSector->box;
-  if(const auto goalSector = gsl::not_null{result.room->getSectorByAbsolutePosition(result.position)};
+  if(const auto goalSector = gsl_lite::not_null{result.room->getSectorByAbsolutePosition(result.position)};
      const auto goalBox = goalSector->box)
   {
     if(box == nullptr || !box->xInterval.contains(result.position.X) || !box->zInterval.contains(result.position.Z))
@@ -284,9 +284,9 @@ Location clampBox(const Location& start,
 }
 } // namespace
 
-CameraController::CameraController(const gsl::not_null<world::World*>& world,
+CameraController::CameraController(const gsl_lite::not_null<world::World*>& world,
                                    gslu::nn_shared<render::scene::Camera> camera)
-    : Listener{gsl::not_null{world->getPresenter().getSoundEngine().get()}}
+    : Listener{gsl_lite::not_null{world->getPresenter().getSoundEngine().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
     , m_location{world->getObjectManager().getLara().m_state.location}
@@ -344,7 +344,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
   if(camParams.oneshot)
     m_world->getCameraSinks()[camId].setActive(true);
 
-  m_smoothness = 1_frame + gsl::narrow_cast<core::Frame::type>(camParams.smoothness) * 4_frame;
+  m_smoothness = 1_frame + gsl_lite::narrow_cast<core::Frame::type>(camParams.smoothness) * 4_frame;
   if(fromHeavy)
     m_mode = CameraMode::HeavyFixedPosition;
   else
@@ -363,7 +363,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
     NoChange
   };
 
-  Type type = Type::NoChange;
+  auto type = Type::NoChange;
   while(true)
   {
     const floordata::Command command{*cmdSequence++};
@@ -411,7 +411,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
     m_lookAtObject = nullptr;
 }
 
-std::unordered_set<const world::Portal*> CameraController::tracePortals()
+std::unordered_set<const world::Portal*> CameraController::tracePortals() const
 {
   for(const auto& room : m_world->getRooms())
   {
@@ -430,9 +430,9 @@ std::unordered_set<const world::Portal*> CameraController::update()
   {
     m_cinematicFrame
       = std::min(m_cinematicFrame + 1_frame,
-                 core::Frame{gsl::narrow_cast<core::Frame::type>(m_world->getCinematicFrames().size() - 1)});
+                 core::Frame{gsl_lite::narrow_cast<core::Frame::type>(m_world->getCinematicFrames().size() - 1)});
 
-    updateCinematic(m_world->getCinematicFrames()[gsl::narrow_cast<size_t>(m_cinematicFrame.get())], true);
+    updateCinematic(m_world->getCinematicFrames()[gsl_lite::narrow_cast<size_t>(m_cinematicFrame.get())], true);
     return tracePortals();
   }
 
@@ -444,7 +444,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
   // if we have a fixed position, we also have an object we're looking at
   const auto focusedObject
-    = gsl::not_null{isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara()};
+    = gsl_lite::not_null{isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara()};
   auto focusBBox = focusedObject->getBoundingBox();
   auto focusY = focusedObject->m_state.location.position.Y;
   if(isCompletelyFixed)
@@ -533,8 +533,8 @@ std::unordered_set<const world::Portal*> CameraController::update()
     }
 
     m_lookAt.room = focusedObject->m_state.location.room;
-    const auto sector = m_lookAt.updateRoom();
-    if(HeightInfo::fromFloor(sector, m_lookAt.position, m_world->getObjectManager().getObjects()).y
+    if(const auto sector = m_lookAt.updateRoom();
+       HeightInfo::fromFloor(sector, m_lookAt.position, m_world->getObjectManager().getObjects()).y
        < m_lookAt.position.Y)
       HeightInfo::skipSteepSlants = false;
 
@@ -592,8 +592,8 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   }
 
   {
-    const auto narrowed = sector->box->zInterval.narrowed(margin);
-    if(goal.position.Z < narrowed.min
+    if(const auto narrowed = sector->box->zInterval.narrowed(margin);
+       goal.position.Z < narrowed.min
        && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
     {
       goal.position.Z = narrowed.min;
@@ -606,8 +606,8 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   }
 
   {
-    const auto narrowed = sector->box->xInterval.narrowed(margin);
-    if(goal.position.X < narrowed.min
+    if(const auto narrowed = sector->box->xInterval.narrowed(margin);
+       goal.position.X < narrowed.min
        && isVerticallyOutsideRoom(goal.moved(-margin, 0_len, 0_len), m_world->getObjectManager()))
     {
       goal.position.X = narrowed.min;
@@ -693,7 +693,7 @@ void CameraController::chaseObject(const objects::Object& object)
     m_rotationAroundLara.X = -85_deg;
 
   const auto dist = util::cos(m_distance, m_rotationAroundLara.X);
-  auto goal = clampBox(
+  const auto goal = clampBox(
     m_lookAt,
     m_lookAt.position
       - util::pitch(
@@ -822,14 +822,14 @@ std::unordered_set<const world::Portal*> CameraController::updateCinematic(const
   return result;
 }
 
-CameraController::CameraController(const gsl::not_null<world::World*>& world,
+CameraController::CameraController(const gsl_lite::not_null<world::World*>& world,
                                    gslu::nn_shared<render::scene::Camera> camera,
                                    bool /*noLaraTag*/)
-    : Listener{gsl::not_null{world->getPresenter().getSoundEngine().get()}}
+    : Listener{gsl_lite::not_null{world->getPresenter().getSoundEngine().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
-    , m_location{gsl::not_null{world->getRooms().data()}}
-    , m_lookAt{gsl::not_null{world->getRooms().data()}}
+    , m_location{gsl_lite::not_null{world->getRooms().data()}}
+    , m_lookAt{gsl_lite::not_null{world->getRooms().data()}}
 {
 }
 

@@ -10,7 +10,7 @@
 #include "resetitemtransformmenustate.h"
 #include "setitemtypemenustate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 
@@ -25,8 +25,7 @@ ClosePassportMenuState::ClosePassportMenuState(const std::shared_ptr<MenuRingTra
   gsl_Expects(passport.type == engine::TR1ItemId::PassportOpening);
 
   const auto localFrame = passport.goalFrame - passport.openFrame;
-  auto page = localFrame / PassportMenuState::FramesPerPage;
-  if(page == PassportMenuState::ExitGamePage)
+  if(const auto page = localFrame / PassportMenuState::FramesPerPage; page == PassportMenuState::ExitGamePage)
   {
     passport.goalFrame = passport.lastMeshAnimFrame - 1_frame;
     passport.animDirection = 1_frame;

@@ -7,7 +7,7 @@
 #include <functional>
 #include <gl/glassert.h>
 #include <gl/resource.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string_view>
 
 namespace gl
@@ -23,10 +23,10 @@ class MappedBuffer final
   friend class Buffer<T, Target>;
 
 public:
-  MappedBuffer(const MappedBuffer<T, Target>&) = delete;
-  MappedBuffer(MappedBuffer<T, Target>&&) = delete;
-  void operator=(const MappedBuffer<T, Target>&) = delete;
-  void operator==(MappedBuffer<T, Target>&&) = delete;
+  MappedBuffer(const MappedBuffer&) = delete;
+  MappedBuffer(MappedBuffer&&) = delete;
+  void operator=(const MappedBuffer&) = delete;
+  void operator==(MappedBuffer&&) = delete;
 
   ~MappedBuffer()
   {
@@ -79,7 +79,7 @@ private:
   }
 
   std::reference_wrapper<Buffer<T, Target>> m_buffer;
-  gsl::span<T> m_span;
+  gsl_lite::span<T> m_span;
 };
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -87,21 +87,21 @@ template<typename T, api::BufferTarget _Target>
 class Buffer : public Resource<api::ObjectIdentifier::Buffer>
 {
 public:
-  Buffer(const Buffer<T, _Target>&) = delete;
-  Buffer(Buffer<T, _Target>&&) = delete;
-  void operator=(const Buffer<T, _Target>&) = delete;
-  void operator==(Buffer<T, _Target>&&) = delete;
+  Buffer(const Buffer&) = delete;
+  Buffer(Buffer&&) = delete;
+  void operator=(const Buffer&) = delete;
+  void operator==(Buffer&&) = delete;
 
   static constexpr api::BufferTarget Target = _Target;
 
-  explicit Buffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
+  explicit Buffer(const std::string_view& label, const api::BufferUsage usage, const gsl_lite::span<const T>& data)
       : Resource{api::createBuffers, api::deleteBuffers, label}
       , m_size{data.size()}
   {
     GL_ASSERT(api::namedBufferData(getHandle(), data.size_bytes(), data.data(), usage));
   }
 
-  explicit Buffer(const std::string_view& label, api::BufferUsage usage, size_t size)
+  explicit Buffer(const std::string_view& label, const api::BufferUsage usage, const size_t size)
       : Resource{api::createBuffers, api::deleteBuffers, label}
       , m_size{size}
   {
@@ -109,7 +109,7 @@ public:
   }
 
   explicit Buffer(const std::string_view& label, api::BufferUsage usage, const T& data)
-      : Buffer{label, usage, gsl::span{&data, 1}}
+      : Buffer{label, usage, gsl_lite::span{&data, 1}}
   {
   }
 
@@ -124,16 +124,16 @@ public:
     return MappedBuffer{std::ref(*this), static_cast<T*>(data), m_size};
   }
 
-  void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)
+  void setSubData(const gsl_lite::span<const T>& data, const api::core::SizeType start)
   {
     BOOST_ASSERT(start + data.size() <= m_size);
     GL_ASSERT(api::namedBufferSubData(
-      getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), data.size_bytes(), data.data()));
+      getHandle(), gsl_lite::narrow<std::intptr_t>(sizeof(T) * start), data.size_bytes(), data.data()));
   }
 
   void setSubData(const T& data, const api::core::SizeType start)
   {
-    setSubData(gsl::span{&data, 1}, start);
+    setSubData(gsl_lite::span{&data, 1}, start);
   }
 
   [[nodiscard]] auto size() const noexcept
@@ -166,7 +166,9 @@ public:
   using Buffer<T, api::BufferTarget::ElementArrayBuffer>::size;
   using Buffer<T, api::BufferTarget::ElementArrayBuffer>::empty;
 
-  explicit ElementArrayBuffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
+  explicit ElementArrayBuffer(const std::string_view& label,
+                              api::BufferUsage usage,
+                              const gsl_lite::span<const T>& data)
       : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label, usage, data}
   {
   }
@@ -176,21 +178,21 @@ public:
   {
   }
 
-  void drawElements(api::PrimitiveType primitiveType) const
+  void drawElements(const api::PrimitiveType primitiveType) const
   {
     if(!empty())
     {
       GL_ASSERT(
-        api::drawElements(primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr));
+        api::drawElements(primitiveType, gsl_lite::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr));
     }
   }
 
-  void drawElements(api::PrimitiveType primitiveType, api::core::SizeType instanceCount) const
+  void drawElements(const api::PrimitiveType primitiveType, const api::core::SizeType instanceCount) const
   {
     if(!empty())
     {
       GL_ASSERT(api::drawElementsInstanced(
-        primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr, instanceCount));
+        primitiveType, gsl_lite::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr, instanceCount));
     }
   }
 };

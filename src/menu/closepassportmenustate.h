@@ -20,9 +20,8 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
 
-class ClosePassportMenuState : public MenuState
+class ClosePassportMenuState final : public MenuState
 {
-private:
   std::unique_ptr<MenuState> m_next;
 
 public:

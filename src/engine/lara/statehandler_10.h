@@ -8,14 +8,14 @@
 #include "hid/actions.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_10 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_10(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_10(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::Hang}
   {
   }
@@ -24,8 +24,8 @@ public:
   {
     getWorld().getCameraController().setRotationAroundLara(-60_deg, 0_deg);
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
-    const auto& inputState = getWorld().getPresenter().getInputHandler().getInputState();
-    if(inputState.xMovement == hid::AxisMovement::Left || inputState.stepMovement == hid::AxisMovement::Left)
+    if(const auto& inputState = getWorld().getPresenter().getInputHandler().getInputState();
+       inputState.xMovement == hid::AxisMovement::Left || inputState.stepMovement == hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::ShimmyLeft);
     }
@@ -52,8 +52,8 @@ public:
     const auto frontHeight = collisionInfo.front.floor.dy;
     const auto frontSpace = frontHeight - collisionInfo.front.ceiling.dy;
     const auto frontLeftSpace = collisionInfo.frontLeft.floor.dy - collisionInfo.frontLeft.ceiling.dy;
-    const auto frontRightSpace = collisionInfo.frontRight.floor.dy - collisionInfo.frontRight.ceiling.dy;
-    if(frontHeight <= -850_len || frontHeight >= -650_len || frontSpace < 0_len || frontLeftSpace < 0_len
+    if(const auto frontRightSpace = collisionInfo.frontRight.floor.dy - collisionInfo.frontRight.ceiling.dy;
+       frontHeight <= -850_len || frontHeight >= -650_len || frontSpace < 0_len || frontLeftSpace < 0_len
        || frontRightSpace < 0_len || collisionInfo.hasStaticMeshCollision)
     {
       return;

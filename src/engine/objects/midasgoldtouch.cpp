@@ -24,7 +24,7 @@
 #include "objectstate.h"
 #include "qs/qs.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects
@@ -40,7 +40,7 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
      && m_state.location.position.Z + 1_sectors / 2
           > lara.m_state.location.position.Z) // cppcheck-suppress knownConditionTrueFalse
   {
-    lara.getSkeleton()->setAnim(gsl::not_null{
+    lara.getSkeleton()->setAnim(gsl_lite::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]});
     lara.setCurrentAnimState(loader::file::LaraStateId::MidasDeath);
     lara.setGoalAnimState(loader::file::LaraStateId::MidasDeath);
@@ -73,8 +73,8 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
 
   gsl_Expects(getWorld().getPlayer().getInventory().tryTake(TR1ItemId::LeadBar));
   getWorld().getPlayer().getInventory().put(TR1ItemId::Puzzle1Sprite, &getWorld());
-  lara.getSkeleton()->setAnim(
-    gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
+  lara.getSkeleton()->setAnim(gsl_lite::not_null{
+    &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
   lara.setCurrentAnimState(loader::file::LaraStateId::UseMidas);
   lara.setGoalAnimState(loader::file::LaraStateId::UseMidas);
   lara.setHandStatus(HandStatus::Grabbing);

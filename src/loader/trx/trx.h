@@ -63,7 +63,7 @@ public:
     return m_xy1.y - m_xy0.y;
   }
 
-  [[nodiscard]] bool contains(int x, int y) const
+  [[nodiscard]] bool contains(const int x, const int y) const
   {
     return x >= m_xy0.x && x < m_xy1.x && y >= m_xy0.y && y < m_xy1.y;
   }

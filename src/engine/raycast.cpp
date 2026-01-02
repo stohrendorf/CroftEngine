@@ -12,7 +12,7 @@
 
 #include <boost/assert.hpp>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <tuple>
 #include <utility>
 
@@ -25,8 +25,8 @@ bool clampY(const core::TRVec& start, Location& goal, const ObjectManager& objec
   const auto sector = goal.updateRoom();
   const auto delta = goal.position - start;
 
-  const auto goalFloor = HeightInfo::fromFloor(sector, goal.position, objectManager.getObjects()).y;
-  if(goalFloor < goal.position.Y && goalFloor > start.Y)
+  if(const auto goalFloor = HeightInfo::fromFloor(sector, goal.position, objectManager.getObjects()).y;
+     goalFloor < goal.position.Y && goalFloor > start.Y)
   {
     goal.position.Y = goalFloor;
     const auto dy = goalFloor - start.Y;
@@ -36,8 +36,8 @@ bool clampY(const core::TRVec& start, Location& goal, const ObjectManager& objec
     return false;
   }
 
-  const auto goalCeiling = HeightInfo::fromCeiling(sector, goal.position, objectManager.getObjects()).y;
-  if(goalCeiling > goal.position.Y && goalCeiling < start.Y)
+  if(const auto goalCeiling = HeightInfo::fromCeiling(sector, goal.position, objectManager.getObjects()).y;
+     goalCeiling > goal.position.Y && goalCeiling < start.Y)
   {
     goal.position.Y = goalCeiling;
     const auto dy = goalCeiling - start.Y;
@@ -60,8 +60,8 @@ enum class CollisionType : uint8_t
 std::pair<CollisionType, Location> clampSteps(const Location& start,
                                               const core::TRVec& goal,
                                               const ObjectManager& objectManager,
-                                              core::Length(core::TRVec::*stepAxis),
-                                              core::Length(core::TRVec::*secondaryAxis))
+                                              core::Length(core::TRVec::* stepAxis),
+                                              core::Length(core::TRVec::* secondaryAxis))
 {
   const auto delta = goal - start.position;
   if(delta.*stepAxis == 0_len)
@@ -121,15 +121,14 @@ std::pair<CollisionType, Location> clampSteps(const Location& start,
     result.position += sectorStep;
   }
 }
-
 } // namespace
 
 std::pair<bool, Location>
   raycastLineOfSight(const Location& start, const core::TRVec& goal, const ObjectManager& objectManager)
 {
   auto collide = [&start, &goal, &objectManager](
-                   core::Length(core::TRVec::*firstStepAxis),
-                   core::Length(core::TRVec::*secondStepAxis)) -> std::tuple<CollisionType, CollisionType, Location>
+                   core::Length(core::TRVec::* firstStepAxis),
+                   core::Length(core::TRVec::* secondStepAxis)) -> std::tuple<CollisionType, CollisionType, Location>
   {
     const auto [firstType, firstPos] = clampSteps(start, goal, objectManager, firstStepAxis, secondStepAxis);
     auto [secondType, secondPos] = clampSteps(start, firstPos.position, objectManager, secondStepAxis, firstStepAxis);
@@ -140,8 +139,8 @@ std::pair<bool, Location>
   auto [firstCollision, secondCollision, result] = abs(goal.Z - start.position.Z) <= abs(goal.X - start.position.X)
                                                      ? collide(&core::TRVec::Z, &core::TRVec::X)
                                                      : collide(&core::TRVec::X, &core::TRVec::Z);
-  const auto invariantCheck = gsl::finally(
-    [&result = result]()
+  const auto invariantCheck = gsl_lite::finally(
+    [&result]
     {
       gsl_Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr);
     });

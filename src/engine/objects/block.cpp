@@ -30,7 +30,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -160,8 +160,8 @@ void Block::update()
 
   auto location = m_state.location;
   auto sector = location.updateRoom();
-  const auto height = HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y;
-  if(height > location.position.Y)
+  if(const auto height = HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y;
+     height > location.position.Y)
   {
     m_state.falling = true;
   }
@@ -235,8 +235,7 @@ bool Block::canPushBlock(const core::Length& height, const core::Axis axis) cons
     return false;
   }
 
-  const auto targetSector = location.updateRoom();
-  if(targetSector->floorHeight != location.position.Y)
+  if(const auto targetSector = location.updateRoom(); targetSector->floorHeight != location.position.Y)
   {
     return false;
   }
@@ -288,8 +287,7 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
 
   auto topPos = location;
   topPos.position.Y -= height;
-  const auto topSector = topPos.updateRoom();
-  if(topPos.position.Y < topSector->ceilingHeight)
+  if(const auto topSector = topPos.updateRoom(); topPos.position.Y < topSector->ceilingHeight)
   {
     return false;
   }
@@ -365,10 +363,10 @@ void Block::deserialize(const serialization::Deserializer<world::World>& ser)
 }
 
 Block::Block(const std::string& name,
-             const gsl::not_null<world::World*>& world,
-             const gsl::not_null<const world::Room*>& room,
+             const gsl_lite::not_null<world::World*>& world,
+             const gsl_lite::not_null<const world::Room*>& room,
              const loader::file::Item& item,
-             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   if(m_state.triggerState != TriggerState::Invisible)

@@ -27,7 +27,7 @@
 #include <chrono>
 #include <functional>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <initializer_list>
 #include <map>
 #include <memory>
@@ -71,10 +71,10 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
 {
   return [controllerLayoutName, &world](const engine::InputMappingConfig& gameMappingConfig,
                                         const engine::InputMappingConfig& menuMappingConfig,
-                                        hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+                                        const hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
-    auto gameKeys = getKeys(gameMappingConfig, engine::NamedAction{action});
-    auto menuKeys = getKeys(menuMappingConfig, engine::NamedAction{action});
+    const auto gameKeys = getKeys(gameMappingConfig, engine::NamedAction{action});
+    const auto menuKeys = getKeys(menuMappingConfig, engine::NamedAction{action});
 
     auto keys = gameKeys;
     keys.insert(keys.end(), menuKeys.cbegin(), menuKeys.cend());
@@ -130,14 +130,18 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
       case hid::GlfwAxis::LeftX:
         [[fallthrough]];
       case hid::GlfwAxis::RightX:
-        axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Left"),
-                               /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Right"));
+        axisName = makeDirName(
+          /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Left"),
+          /* translators: TR charcmap encoding */
+          pgettext("GamepadAxis", "Right"));
         break;
       case hid::GlfwAxis::LeftY:
         [[fallthrough]];
       case hid::GlfwAxis::RightY:
-        axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Up"),
-                               /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Down"));
+        axisName = makeDirName(
+          /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Up"),
+          /* translators: TR charcmap encoding */
+          pgettext("GamepadAxis", "Down"));
         break;
       case hid::GlfwAxis::LeftTrigger:
         [[fallthrough]];
@@ -147,7 +151,7 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
 
       auto grid = std::make_shared<ui::widgets::GridBox>(glm::ivec2{0, 0});
       grid->setExtents(2, 1);
-      auto s = std::make_shared<ui::widgets::Sprite>(it->second);
+      const auto s = std::make_shared<ui::widgets::Sprite>(it->second);
       s->fitToContent();
       grid->set(0, 0, s);
       grid->set(1, 0, std::make_shared<ui::widgets::Label>(axisName));
@@ -179,7 +183,8 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                  /* translators: TR charmap encoding */ _("No"),
                                  /* translators: TR charmap encoding */ _("Return")})}
     , m_error{std::make_shared<ui::widgets::SelectionBox>(
-        ui::breakLines(/* translators: TR charmap encoding */ _("Ensure your menu mapping is fully configured."), 500),
+        ui::breakLines(
+          /* translators: TR charmap encoding */ _("Ensure your menu mapping is fully configured."), 500),
         std::vector<std::string>{/* translators: TR charmap encoding */ _("OK"),
                                  /* translators: TR charmap encoding */ _("Discard changes")})}
 {
@@ -345,8 +350,8 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
   {
     auto& editing = m_editing.at(m_editingIndex);
     auto& inputMappings = m_controls->isMenuControlsSelected() ? editing.menuMappings : editing.gameMappings;
-    auto inputs = getKeys(inputMappings, engine::NamedAction{m_controls->getCurrentAction()});
-    for(auto input : inputs)
+    for(const auto inputs = getKeys(inputMappings, engine::NamedAction{m_controls->getCurrentAction()});
+        auto input : inputs)
       inputMappings.erase(input);
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
@@ -417,8 +422,8 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
   {
     // it's fine to assign the same input to the same action in different profiles;
     // otherwise, remove the mapped input from all profiles before assigning it to the new action
-    auto mappingGroup = m_controls->isMenuControlsSelected() ? &engine::NamedInputMappingConfig::menuMappings
-                                                             : &engine::NamedInputMappingConfig::gameMappings;
+    const auto mappingGroup = m_controls->isMenuControlsSelected() ? &engine::NamedInputMappingConfig::menuMappings
+                                                                   : &engine::NamedInputMappingConfig::gameMappings;
 
     for(auto& mapping : m_editing)
     {
@@ -426,8 +431,8 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
     }
 
     auto& mapping = m_editing.at(m_editingIndex);
-    auto boundInputs = getKeys((mapping.*mappingGroup), engine::NamedAction{m_controls->getCurrentAction()});
-    for(auto boundInput : boundInputs)
+    for(const auto boundInputs = getKeys((mapping.*mappingGroup), engine::NamedAction{m_controls->getCurrentAction()});
+        auto boundInput : boundInputs)
       (mapping.*mappingGroup).erase(boundInput);
     (mapping.*mappingGroup)[newInput] = m_controls->getCurrentAction();
     m_mode = Mode::Display;

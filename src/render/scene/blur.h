@@ -12,7 +12,7 @@
 #include <gl/framebuffer.h>
 #include <gl/soglb_fwd.h>
 #include <gl/texturehandle.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -28,10 +28,10 @@ public:
   explicit SingleBlur(std::string name,
                       material::MaterialManager& materialManager,
                       // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-                      uint8_t dir,
-                      uint8_t extent,
+                      const uint8_t dir,
+                      const uint8_t extent,
                       bool gauss,
-                      int downscale)
+                      const int downscale)
       : m_name{std::move(name)}
       , m_material{gauss ? materialManager.getFastGaussBlur(extent, dir, PixelT::Channels)
                          : materialManager.getFastBoxBlur(extent, dir, PixelT::Channels)}
@@ -45,8 +45,8 @@ public:
   void setInput(const gslu::nn_shared<TextureHandle>& src)
   {
     m_blurredTexture = std::make_shared<TextureHandle>(
-      gsl::make_shared<gl::Texture2D<PixelT>>(src->getTexture()->size() / m_downscale, m_name + "/blurred"),
-      gsl::make_unique<gl::Sampler>(m_name + "/blurred" + gl::SamplerSuffix)
+      gsl_lite::make_shared<gl::Texture2D<PixelT>>(src->getTexture()->size() / m_downscale, m_name + "/blurred"),
+      gsl_lite::make_unique<gl::Sampler>(m_name + "/blurred" + gl::SamplerSuffix)
         | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
         | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
         | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
@@ -76,7 +76,7 @@ public:
 
   [[nodiscard]] gslu::nn_shared<TextureHandle> getBlurredTexture() const
   {
-    return gsl::not_null{m_blurredTexture};
+    return gsl_lite::not_null{m_blurredTexture};
   }
 
 private:
@@ -114,7 +114,7 @@ public:
       : SeparableBlur{name, materialManager, extent, extent, gauss, downscale}
   {
     if(src != nullptr)
-      setInput(gsl::not_null{src});
+      setInput(gsl_lite::not_null{src});
   }
 
   void setInput(const gslu::nn_shared<TextureHandle>& src)

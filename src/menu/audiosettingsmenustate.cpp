@@ -24,7 +24,7 @@
 #include <boost/throw_exception.hpp>
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <stdexcept>
@@ -81,14 +81,12 @@ std::unique_ptr<MenuState>
 
   if(inputHandler.hasDebouncedAction(hid::Action::MenuUp))
   {
-    auto [ignored, y] = m_grid->getSelected(); // lgtm [cpp/unused-local-variable]
-    if(y > 0)
+    if(auto [ignored, y] = m_grid->getSelected(); y > 0)
       m_grid->setSelected({0, y - 1});
   }
   if(inputHandler.hasDebouncedAction(hid::Action::MenuDown))
   {
-    auto [ignored, y] = m_grid->getSelected(); // lgtm [cpp/unused-local-variable]
-    if(y < std::get<1>(m_grid->getExtents()) - 1)
+    if(auto [ignored, y] = m_grid->getSelected(); y < std::get<1>(m_grid->getExtents()) - 1)
       m_grid->setSelected({0, y + 1});
   }
 

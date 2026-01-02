@@ -4,7 +4,8 @@
 #include "serialization.h"
 
 #include <deque>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
+
 
 namespace serialization
 {
@@ -16,7 +17,7 @@ void serialize(const std::deque<T>& data, const Serializer<TContext>& ser)
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access<T, false>::dispatch(element, tmp);
+    access::dispatch(element, tmp);
   }
 }
 
@@ -31,7 +32,7 @@ void deserialize(std::deque<T>& data, const Deserializer<TContext>& ser)
                  std::back_inserter(data),
                  [&ser](const ryml::ConstNodeRef& element)
                  {
-                   return T{access<T, true>::dispatch(ser.withNode(element))};
+                   return access::dispatch<T>(ser.withNode(element));
                  });
 }
 } // namespace serialization

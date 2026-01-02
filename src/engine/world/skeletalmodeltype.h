@@ -10,7 +10,7 @@
 #include <boost/assert.hpp>
 #include <cstdint>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
 #include <utility>
@@ -20,8 +20,8 @@ namespace engine::world
 {
 struct SkeletalModelType final
 {
-  core::TypeId type{uint16_t(0)};
-  core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gslu::nn_shared<render::scene::Mesh>> meshBaseIndex;
+  core::TypeId type{static_cast<uint16_t>(0)};
+  core::ContainerIndex<uint16_t, gsl_lite::not_null<const Mesh*>, gslu::nn_shared<render::scene::Mesh>> meshBaseIndex;
 
   struct Bone final
   {

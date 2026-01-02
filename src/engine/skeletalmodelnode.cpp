@@ -37,7 +37,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -49,9 +49,9 @@
 namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
-                                     gsl::not_null<const world::World*> world,
-                                     gsl::not_null<const world::SkeletalModelType*> model,
-                                     bool shadowCaster)
+                                     gsl_lite::not_null<const world::World*> world,
+                                     gsl_lite::not_null<const world::SkeletalModelType*> model,
+                                     const bool shadowCaster)
     : Node{id}
     , m_world{std::move(world)}
     , m_model{std::move(model)}
@@ -63,14 +63,14 @@ core::Speed SkeletalModelNode::calculateFloorSpeed() const
 {
   const auto scaled = m_anim->speed + m_anim->acceleration * getLocalFrame();
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  return scaled / gsl::narrow_cast<core::Speed::type>(1 << 16);
+  return scaled / gsl_lite::narrow_cast<core::Speed::type>(1 << 16);
 }
 
 core::Acceleration SkeletalModelNode::getAcceleration() const noexcept
 {
   const auto scaled = m_anim->acceleration;
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  return scaled / gsl::narrow_cast<core::Acceleration::type>(1 << 16);
+  return scaled / gsl_lite::narrow_cast<core::Acceleration::type>(1 << 16);
 }
 
 InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
@@ -178,16 +178,15 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
     if(tr.stateId != goal)
       continue;
 
-    const auto it = std::find_if(tr.transitionCases.cbegin(),
-                                 tr.transitionCases.cend(),
-                                 [this](const world::TransitionCase& trc)
-                                 {
-                                   return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
-                                 });
+    const auto it = std::ranges::find_if(tr.transitionCases,
+                                         [this](const world::TransitionCase& trc)
+                                         {
+                                           return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
+                                         });
 
     if(it != tr.transitionCases.cend())
     {
-      setAnimation(animState, gsl::not_null{it->targetAnimation}, it->targetFrame);
+      setAnimation(animState, gsl_lite::not_null{it->targetAnimation}, it->targetFrame);
       return true;
     }
   }
@@ -196,7 +195,7 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
 }
 
 void SkeletalModelNode::setAnimation(core::AnimStateId& animState,
-                                     const gsl::not_null<const world::Animation*>& animation,
+                                     const gsl_lite::not_null<const world::Animation*>& animation,
                                      core::Frame frame)
 {
   BOOST_ASSERT(m_model->bones.empty() || animation->frames->numValues == m_model->bones.size());
@@ -277,7 +276,7 @@ void deserialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::
   bool shadowCaster;
   ser(S_NV("model", model), S_NV("shadowCaster", shadowCaster));
   data = std::make_shared<SkeletalModelNode>(
-    create(serialization::TypeId<std::string>{}, ser["id"]), ser.context, gsl::not_null{model}, shadowCaster);
+    create(serialization::TypeId<std::string>{}, ser["id"]), ser.context, gsl_lite::not_null{model}, shadowCaster);
   data->deserialize(ser);
 }
 
@@ -287,7 +286,7 @@ void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skel
     return;
 
   skeleton->setAnimation(
-    animState, gsl::not_null{&skeleton->m_model->animations[0]}, skeleton->m_model->animations->firstFrame);
+    animState, gsl_lite::not_null{&skeleton->m_model->animations[0]}, skeleton->m_model->animations->firstFrame);
   for(const auto& bone : skeleton->m_model->bones)
   {
     skeleton->m_meshParts.emplace_back(bone.mesh.get());
@@ -301,12 +300,11 @@ void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skel
 void SkeletalModelNode::rebuildMesh()
 {
   if(!m_forceMeshRebuild
-     && !std::any_of(m_meshParts.begin(),
-                     m_meshParts.end(),
-                     [](const auto& part)
-                     {
-                       return part.meshChanged();
-                     }))
+     && !std::ranges::any_of(m_meshParts,
+                             [](const auto& part)
+                             {
+                               return part.meshChanged();
+                             }))
   {
     return;
   }
@@ -333,11 +331,11 @@ void SkeletalModelNode::rebuildMesh()
       *m_world->getPresenter().getMaterialManager(),
       true,
       m_shadowCaster,
-      [&engine = m_world->getEngine()]()
+      [&engine = m_world->getEngine()]
       {
         return engine.getEngineConfig()->animSmoothing;
       },
-      [&engine = m_world->getEngine()]()
+      [&engine = m_world->getEngine()]
       {
         const auto& settings = engine.getEngineConfig()->renderSettings;
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
@@ -367,7 +365,7 @@ bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
   return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
 }
 
-void SkeletalModelNode::setAnim(const gsl::not_null<const world::Animation*>& anim,
+void SkeletalModelNode::setAnim(const gsl_lite::not_null<const world::Animation*>& anim,
                                 const std::optional<core::Frame>& frame)
 {
   m_anim = anim;
@@ -379,7 +377,8 @@ core::Frame SkeletalModelNode::getLocalFrame() const noexcept
   return m_frame - m_anim->firstFrame;
 }
 
-void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>& anim, const core::Frame& localFrame)
+void SkeletalModelNode::replaceAnim(const gsl_lite::not_null<const world::Animation*>& anim,
+                                    const core::Frame& localFrame)
 {
   setAnim(anim, anim->firstFrame + localFrame);
 }
@@ -400,13 +399,12 @@ const gl::ShaderStorageBuffer<glm::mat4>&
   }
 
   std::vector<glm::mat4> matrices;
-  std::transform(m_meshParts.begin(),
-                 m_meshParts.end(),
-                 std::back_inserter(matrices),
-                 [smooth](const auto& part)
-                 {
-                   return smooth() ? *part.poseMatrixSmooth : part.poseMatrix;
-                 });
+  std::ranges::transform(m_meshParts,
+                         std::back_inserter(matrices),
+                         [smooth](const auto& part)
+                         {
+                           return smooth() ? *part.poseMatrixSmooth : part.poseMatrix;
+                         });
 
   if(m_meshMatricesBuffer == nullptr || m_meshMatricesBuffer->size() != matrices.size())
   {

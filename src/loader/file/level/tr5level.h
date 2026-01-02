@@ -9,7 +9,7 @@
 
 namespace loader::file::level
 {
-class TR5Level : public Level
+class TR5Level final : public Level
 {
 public:
   TR5Level(const Game gameVersion, io::SDLReader&& reader, std::filesystem::path filename)

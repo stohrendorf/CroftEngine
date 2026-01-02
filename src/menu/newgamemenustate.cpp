@@ -6,7 +6,6 @@
 #include "engine/engine.h"
 #include "engine/world/world.h"
 #include "gameplayrulesmenustate.h"
-#include "gsl/gsl-lite.hpp"
 #include "listdisplaymenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
@@ -15,6 +14,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <cstddef>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -28,7 +28,7 @@ NewGameMenuState::NewGameMenuState(const std::shared_ptr<MenuRingTransform>& rin
 {
   auto appendLabel = [this](const std::string& title)
   {
-    append(gsl::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center));
+    append(gsl_lite::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center));
   };
 
   appendLabel(/* translators: TR charmap encoding */ _("New Game"));
@@ -36,7 +36,8 @@ NewGameMenuState::NewGameMenuState(const std::shared_ptr<MenuRingTransform>& rin
   appendLabel(/* translators: TR charmap encoding */ _("Gameplay Rules"));
 }
 
-std::unique_ptr<MenuState> NewGameMenuState::onSelected(size_t idx, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState>
+  NewGameMenuState::onSelected(const size_t idx, engine::world::World& world, MenuDisplay& display)
 {
   switch(idx)
   {

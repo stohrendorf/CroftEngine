@@ -18,7 +18,7 @@
 #endif
 #include <cstddef>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <tuple>
 #include <utility>
@@ -36,12 +36,12 @@ class Ui;
 
 namespace ui::widgets
 {
-class GridBox : public Widget
+class GridBox final : public Widget
 {
 public:
-  explicit GridBox(const glm::ivec2& separation = glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth});
+  explicit GridBox(const glm::ivec2& separation = glm::ivec2{OutlineBorderWidth, OutlineBorderWidth});
   ~GridBox() override;
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   void set(size_t x, size_t y, const std::shared_ptr<Widget>& widget);
 
@@ -111,9 +111,9 @@ public:
   void update(bool hasFocus) override;
   void fitToContent() override;
 
-  void setExtents(size_t x, size_t y)
+  void setExtents(const size_t x, const size_t y)
   {
-    m_widgets.resize(boost::extents[gsl::narrow<WidgetArray::index>(x)][gsl::narrow<WidgetArray::index>(y)]);
+    m_widgets.resize(boost::extents[gsl_lite::narrow<WidgetArray::index>(x)][gsl_lite::narrow<WidgetArray::index>(y)]);
     m_alignRight.resize(x, false);
     m_columnSizes.resize(x, 0);
     m_rowSizes.resize(y, 0);
@@ -128,13 +128,13 @@ public:
     };
   }
 
-  void setRowSize(size_t row, int height)
+  void setRowSize(const size_t row, const int height)
   {
     m_rowSizes.at(row) = height;
     recalculateTotalSize();
   }
 
-  void setColumnSize(size_t column, int width)
+  void setColumnSize(const size_t column, const int width)
   {
     m_columnSizes.at(column) = width;
     recalculateTotalSize();
@@ -145,11 +145,11 @@ public:
     return m_columnSizes;
   }
 
-  [[nodiscard]] const auto& getWidget(size_t x, size_t y) const
+  [[nodiscard]] const auto& getWidget(const size_t x, const size_t y) const
   {
     auto [sx, sy] = getExtents();
     gsl_Assert(x < sx && y < sy);
-    return m_widgets[gsl::narrow<WidgetArray::index>(x)][gsl::narrow<WidgetArray::index>(y)];
+    return m_widgets[gsl_lite::narrow<WidgetArray::index>(x)][gsl_lite::narrow<WidgetArray::index>(y)];
   }
 
   [[nodiscard]] const auto& getSelectedWidget() const
@@ -158,7 +158,7 @@ public:
     return getWidget(x, y);
   }
 
-  void setAlignRight(size_t column, bool right)
+  void setAlignRight(const size_t column, const bool right)
   {
     m_alignRight.at(column) = right;
   }

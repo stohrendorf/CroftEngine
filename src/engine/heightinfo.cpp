@@ -12,7 +12,7 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -21,7 +21,7 @@ namespace engine
 {
 bool HeightInfo::skipSteepSlants = false;
 
-HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
+HeightInfo HeightInfo::fromFloor(gsl_lite::not_null<const world::Sector*> roomSector,
                                  const core::TRVec& pos,
                                  const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects)
 {
@@ -29,7 +29,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
 
   while(roomSector->roomBelow != nullptr)
   {
-    roomSector = gsl::not_null{roomSector->roomBelow->getSectorByAbsolutePosition(pos)};
+    roomSector = gsl_lite::not_null{roomSector->roomBelow->getSectorByAbsolutePosition(pos)};
   }
 
   hi.y = roomSector->floorHeight;
@@ -40,7 +40,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
   }
 
   // process additional slant and object height patches
-  const floordata::FloorDataValue* fd = gsl::not_null{roomSector->floorData}.get();
+  const floordata::FloorDataValue* fd = gsl_lite::not_null{roomSector->floorData}.get();
   while(true)
   {
     const floordata::FloorDataChunk chunkHeader{*fd++};
@@ -48,12 +48,11 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
     {
     case floordata::FloorDataChunkType::FloorSlant:
     {
-      const core::Length::type xSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 0, 8));
-      const core::Length::type zSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 8, 8));
+      const core::Length::type xSlant = gsl_lite::narrow_cast<int8_t>(util::bits(fd->get(), 0, 8));
+      const core::Length::type zSlant = gsl_lite::narrow_cast<int8_t>(util::bits(fd->get(), 8, 8));
       ++fd;
       const core::Length::type absX = std::abs(xSlant);
-      const core::Length::type absZ = std::abs(zSlant);
-      if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
+      if(const core::Length::type absZ = std::abs(zSlant); !skipSteepSlants || (absX <= 2 && absZ <= 2))
       {
         if(absX <= 2 && absZ <= 2)
           hi.slantClass = SlantClass::Max512;
@@ -89,7 +88,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
       }
     }
     break;
-      // NOLINTNEXTLINE(bugprone-branch-clone)
+    // NOLINTNEXTLINE(bugprone-branch-clone)
     case floordata::FloorDataChunkType::CeilingSlant:
       ++fd;
       break;
@@ -133,7 +132,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
   return hi;
 }
 
-HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSector,
+HeightInfo HeightInfo::fromCeiling(gsl_lite::not_null<const world::Sector*> roomSector,
                                    const core::TRVec& pos,
                                    const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects)
 {
@@ -141,14 +140,14 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
 
   while(roomSector->roomAbove != nullptr)
   {
-    roomSector = gsl::not_null{roomSector->roomAbove->getSectorByAbsolutePosition(pos)};
+    roomSector = gsl_lite::not_null{roomSector->roomAbove->getSectorByAbsolutePosition(pos)};
   }
 
   hi.y = roomSector->ceilingHeight;
 
   if(roomSector->floorData != nullptr)
   {
-    const floordata::FloorDataValue* fd = gsl::not_null{roomSector->floorData}.get();
+    const floordata::FloorDataValue* fd = gsl_lite::not_null{roomSector->floorData}.get();
     floordata::FloorDataChunk chunkHeader{*fd};
     ++fd;
 
@@ -162,11 +161,10 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
 
     if(chunkHeader.type == floordata::FloorDataChunkType::CeilingSlant)
     {
-      const core::Length::type xSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 0, 8));
+      const core::Length::type xSlant = gsl_lite::narrow_cast<int8_t>(util::bits(fd->get(), 0, 8));
       const core::Length::type absX = std::abs(xSlant);
-      const core::Length::type zSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 8, 8));
-      const core::Length::type absZ = std::abs(zSlant);
-      if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
+      const core::Length::type zSlant = gsl_lite::narrow_cast<int8_t>(util::bits(fd->get(), 8, 8));
+      if(const core::Length::type absZ = std::abs(zSlant); !skipSteepSlants || (absX <= 2 && absZ <= 2))
       {
         const auto localX = toSectorLocal(pos.X);
         const auto localZ = toSectorLocal(pos.Z);
@@ -200,7 +198,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
 
   while(roomSector->roomBelow != nullptr)
   {
-    roomSector = gsl::not_null{roomSector->roomBelow->getSectorByAbsolutePosition(pos)};
+    roomSector = gsl_lite::not_null{roomSector->roomBelow->getSectorByAbsolutePosition(pos)};
   }
 
   if(roomSector->floorData == nullptr)

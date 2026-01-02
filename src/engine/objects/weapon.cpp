@@ -11,7 +11,7 @@
 
 namespace engine::objects
 {
-const Weapon& Weapon::get(WeaponType weaponType)
+const Weapon& Weapon::get(const WeaponType weaponType)
 {
   static const std::unordered_map<WeaponType, Weapon> weapons{{WeaponType::None, Weapon{}},
                                                               {WeaponType::Pistols,
@@ -66,7 +66,7 @@ const Weapon& Weapon::get(WeaponType weaponType)
                                                                       9_frame,
                                                                       3_frame,
                                                                       TR1SoundEffect::LaraShootShotgun}}};
-  auto it = weapons.find(weaponType);
+  const auto it = weapons.find(weaponType);
   if(it == weapons.end())
     BOOST_THROW_EXCEPTION(std::domain_error("invalid weapon type"));
   return it->second; // cppcheck-suppress derefInvalidIteratorRedundantCheck

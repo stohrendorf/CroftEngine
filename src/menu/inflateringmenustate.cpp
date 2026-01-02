@@ -53,7 +53,8 @@ void InflateRingMenuState::handleObject(ui::Ui& /*ui*/,
   }
 }
 
-InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, bool fromBackpack)
+InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                           const bool fromBackpack)
     : MenuState{ringTransform}
     , m_targetPosZ{fromBackpack ? MenuRingTransform::CameraBackpackZPos : 0_len}
 {

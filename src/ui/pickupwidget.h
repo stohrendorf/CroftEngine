@@ -26,7 +26,7 @@ public:
     return m_duration <= 0_frame;
   }
 
-  void draw(ui::Ui& ui, int x, int y, const TRFont& font, float scale) const
+  void draw(Ui& ui, int x, int y, const TRFont& font, const float scale) const
   {
     ui.draw(m_sprite, {x, y}, scale);
     if(m_count <= 1)
@@ -57,7 +57,7 @@ public:
     return m_sprite;
   }
 
-  void setCount(size_t val)
+  void setCount(const size_t val)
   {
     m_count = val;
   }

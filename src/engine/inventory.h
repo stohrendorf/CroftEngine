@@ -39,7 +39,7 @@ struct Ammo
   uint32_t misses = 0;
   uint32_t missesTotal = 0;
 
-  void addClips(size_t n) noexcept
+  void addClips(const size_t n) noexcept
   {
     shots += shotsPerClip * n;
   }
@@ -60,7 +60,6 @@ struct Ammo
 
 class Inventory
 {
-private:
   std::map<TR1ItemId, size_t> m_inventory;
 
   Ammo m_pistolsAmmo{1, 1, TR1ItemId::Pistols, '\0'};
@@ -89,12 +88,11 @@ public:
 
   [[nodiscard]] bool any() const
   {
-    return std::find_if(m_inventory.begin(),
-                        m_inventory.end(),
-                        [](const auto& kv)
-                        {
-                          return kv.second != 0;
-                        })
+    return std::ranges::find_if(m_inventory,
+                                [](const auto& kv)
+                                {
+                                  return kv.second != 0;
+                                })
            != m_inventory.end();
   }
 
@@ -103,14 +101,14 @@ public:
     m_inventory.clear();
   }
 
-  void drop(TR1ItemId id) noexcept
+  void drop(const TR1ItemId id) noexcept
   {
     m_inventory.erase(id);
   }
 
   bool tryUse(objects::LaraObject& lara, TR1ItemId id, const GameplayRules& gameplayRules);
 
-  [[nodiscard]] Ammo& getAmmo(WeaponType weaponType)
+  [[nodiscard]] Ammo& getAmmo(const WeaponType weaponType)
   {
     m_pistolsAmmo.shots = 1000;
 
@@ -129,7 +127,7 @@ public:
     }
   }
 
-  [[nodiscard]] const Ammo& getAmmo(WeaponType weaponType) const
+  [[nodiscard]] const Ammo& getAmmo(const WeaponType weaponType) const
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<Inventory*>(this)->getAmmo(weaponType);

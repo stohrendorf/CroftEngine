@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <iterator>
 #include <memory>
@@ -50,7 +50,7 @@ void Level::readMeshData(io::SDLReader& reader)
   m_meshes.clear();
   for(const auto offset : uniqueOffsets)
   {
-    reader.seek(basePos + std::streamoff(offset));
+    reader.seek(basePos + static_cast<std::streamoff>(offset));
 
     if(gameToEngine(m_gameVersion) >= Engine::TR4)
       m_meshes.emplace_back(Mesh::readTr4(reader));
@@ -60,15 +60,14 @@ void Level::readMeshData(io::SDLReader& reader)
   gsl_Ensures(m_meshes.size() == uniqueOffsets.size());
 
   m_meshIndices.clear();
-  std::transform(offsets.begin(),
-                 offsets.end(),
-                 std::back_inserter(m_meshIndices),
-                 [&uniqueOffsets](uint32_t offset)
-                 {
-                   auto it = uniqueOffsets.find(offset);
-                   gsl_Assert(it != uniqueOffsets.end());
-                   return gsl::narrow<uint32_t>(std::distance(uniqueOffsets.begin(), it));
-                 });
+  std::ranges::transform(offsets,
+                         std::back_inserter(m_meshIndices),
+                         [&uniqueOffsets](const uint32_t offset)
+                         {
+                           const auto it = uniqueOffsets.find(offset);
+                           gsl_Assert(it != uniqueOffsets.end());
+                           return gsl_lite::narrow<uint32_t>(std::distance(uniqueOffsets.begin(), it));
+                         });
 
   reader.seek(endPos);
 }
@@ -149,7 +148,7 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
   std::array<uint8_t, 4> check{};
   reader.readBytes(check.data(), check.size());
 
-  Game ret = Game::Unknown;
+  auto ret = Game::Unknown;
   if(ext == ".PHD")
   {
     if(check[0] == 0x20 && check[1] == 0x00 && check[2] == 0x00 && check[3] == 0x00)
@@ -211,22 +210,20 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
   return ret;
 }
 
-void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
+void Level::convertTexture(const ByteTexture& tex, Palette& pal, DWordTexture& dst)
 {
   for(int y = 0; y < 256; y++)
   {
     for(int x = 0; x < 256; x++)
     {
-      const auto col = tex.pixels[y][x];
-
-      if(col > 0)
+      if(const auto col = tex.pixels[y][x]; col > 0)
         dst.pixels[y][x] = {pal.colors[col].r, pal.colors[col].g, pal.colors[col].b, 255};
       else
         dst.pixels[y][x] = {0, 0, 0, 0};
     }
   }
 
-  dst.md5 = util::md5(&tex.pixels[0][0], gsl::narrow_cast<size_t>(256u * 256u));
+  dst.md5 = util::md5(&tex.pixels[0][0], gsl_lite::narrow_cast<size_t>(256u * 256u));
 }
 
 void Level::convertTexture(const WordTexture& tex, DWordTexture& dst)
@@ -235,9 +232,7 @@ void Level::convertTexture(const WordTexture& tex, DWordTexture& dst)
   {
     for(int x = 0; x < 256; x++)
     {
-      const auto col = tex.pixels[y][x];
-
-      if((col & 0x8000u) != 0)
+      if(const auto col = tex.pixels[y][x]; (col & 0x8000u) != 0)
       {
         const auto r = static_cast<uint8_t>((col & 0x00007c00u) >> 7u);
         const auto g = static_cast<uint8_t>((col & 0x000003e0u) >> 2u);

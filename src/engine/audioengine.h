@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -46,13 +46,13 @@ enum class TR1TrackId;
 
 class AudioEngine
 {
-  gsl::not_null<world::World*> m_world;
+  gsl_lite::not_null<world::World*> m_world;
   std::filesystem::path m_rootPath;
   gslu::nn_shared<audio::SoundEngine> m_soundEngine;
 
   std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties;
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects;
-  std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
+  std::map<TR1TrackId, floordata::ActivationState> m_cdTrackActivationStates;
   core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
   std::optional<TR1TrackId> m_currentTrack;
@@ -61,7 +61,7 @@ class AudioEngine
   audio::VoiceGroup m_sfx{0.8f};
 
 public:
-  explicit AudioEngine(gsl::not_null<world::World*> world,
+  explicit AudioEngine(gsl_lite::not_null<world::World*> world,
                        std::filesystem::path rootPath,
                        std::shared_ptr<audio::SoundEngine> soundEngine);
 
@@ -91,14 +91,14 @@ public:
 
   void setUnderwater(bool underwater);
 
-  void addWav(const gsl::not_null<const uint8_t*>& buffer);
+  void addWav(const gsl_lite::not_null<const uint8_t*>& buffer);
 
-  void setMusicGain(float gain)
+  void setMusicGain(const float gain)
   {
     m_music.setGain(gain);
   }
 
-  void setSfxGain(float gain)
+  void setSfxGain(const float gain)
   {
     m_sfx.setGain(gain);
   }

@@ -75,7 +75,7 @@ DetailedLevelStats::DetailedLevelStats(const engine::world::World& world)
 
   const auto& inv = player.getInventory();
 
-  auto addAmmoStats = [this, &inv](const char* weaponName, engine::WeaponType weaponType, size_t& y0)
+  auto addAmmoStats = [this, &inv](const char* weaponName, const engine::WeaponType weaponType, size_t& y0)
   {
     const auto& ammo = inv.getAmmo(weaponType);
     if(inv.count(ammo.weaponType) == 0 && ammo.shots == 0 && ammo.hits == 0 && ammo.hitsTotal == 0 && ammo.misses == 0
@@ -122,7 +122,7 @@ DetailedLevelStats::DetailedLevelStats(const engine::world::World& world)
 
 DetailedLevelStats::~DetailedLevelStats() = default;
 
-void DetailedLevelStats::draw(Ui& ui, const engine::Presenter& presenter, bool compass) const
+void DetailedLevelStats::draw(Ui& ui, const engine::Presenter& presenter, const bool compass) const
 {
   m_grid->fitToContent();
   m_container->fitToContent();

@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -65,7 +65,7 @@ struct SavegameInfo
   std::filesystem::file_time_type saveTime;
 };
 
-inline std::string makeSavegameFilename(size_t n)
+inline std::string makeSavegameFilename(const size_t n)
 {
   return "save_" + std::to_string(n) + ".yaml";
 }
@@ -157,7 +157,7 @@ public:
     m_worlds.emplace(world);
   }
 
-  void unregisterWorld(const gsl::not_null<world::World*>& world)
+  void unregisterWorld(const gsl_lite::not_null<world::World*>& world)
   {
     m_worlds.erase(world);
   }
@@ -213,7 +213,7 @@ private:
   script::ScriptEngine m_scriptEngine;
   gslu::nn_shared<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
-  std::set<gsl::not_null<world::World*>> m_worlds;
+  std::set<gsl_lite::not_null<world::World*>> m_worlds;
   std::chrono::steady_clock::time_point m_saveReminderSince;
   GameplayRules m_gameplayRules{};
 

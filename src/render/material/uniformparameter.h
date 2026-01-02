@@ -79,7 +79,7 @@ private:
   std::function<UniformValueSetter> m_valueSetter;
 };
 
-class UniformBlockParameter : public MaterialParameter
+class UniformBlockParameter final : public MaterialParameter
 {
 public:
   explicit UniformBlockParameter(std::string name)

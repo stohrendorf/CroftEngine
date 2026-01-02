@@ -22,7 +22,7 @@
 
 #include <functional>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -40,20 +40,20 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
     , m_rules{rules}
 
 {
-  auto listBox = gsl::make_shared<ui::widgets::CheckListBox>();
-  m_listBox = listBox;                                   // cppcheck-suppress useInitializationList
-  m_container = gsl::make_unique<ui::widgets::GroupBox>( // cppcheck-suppress useInitializationList
+  auto listBox = gsl_lite::make_shared<ui::widgets::CheckListBox>();
+  m_listBox = listBox;                                        // cppcheck-suppress useInitializationList
+  m_container = gsl_lite::make_unique<ui::widgets::GroupBox>( // cppcheck-suppress useInitializationList
     /* translators: TR charmap encoding */ _("Rules"),
     listBox);
 
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("No Loads"),
-    [this]()
+    [this]
     {
       return m_rules.noLoads;
     },
-    [this]()
+    [this]
     {
       m_rules.noLoads = !m_rules.noLoads;
     });
@@ -63,11 +63,11 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("No Meds"),
-    [this]()
+    [this]
     {
       return m_rules.noMeds;
     },
-    [this]()
+    [this]
     {
       m_rules.noMeds = !m_rules.noMeds;
     });
@@ -77,11 +77,11 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("Pistols Only"),
-    [this]()
+    [this]
     {
       return m_rules.pistolsOnly;
     },
-    [this]()
+    [this]
     {
       m_rules.pistolsOnly = !m_rules.pistolsOnly;
     });
@@ -91,11 +91,11 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("No Cheats"),
-    [this]()
+    [this]
     {
       return m_rules.noCheats;
     },
-    [this]()
+    [this]
     {
       m_rules.noCheats = !m_rules.noCheats;
     });
@@ -105,11 +105,11 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
   listBox->addSetting(
     /* translators: TR charmap encoding */
     _("No Hits"),
-    [this]()
+    [this]
     {
       return m_rules.noHits;
     },
-    [this]()
+    [this]
     {
       m_rules.noHits = !m_rules.noHits;
     });

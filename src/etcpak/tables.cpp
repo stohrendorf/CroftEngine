@@ -4,29 +4,29 @@
 
 #include <array>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace
 {
 const std::array<int16_t, 16>& getAlphaRange()
 {
   static const std::array<int16_t, 16> alphaRange{{
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[0][7] - getAlpha()[0][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[1][7] - getAlpha()[1][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[2][7] - getAlpha()[2][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[3][7] - getAlpha()[3][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[4][7] - getAlpha()[4][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[5][7] - getAlpha()[5][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[6][7] - getAlpha()[6][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[7][7] - getAlpha()[7][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[8][7] - getAlpha()[8][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[9][7] - getAlpha()[9][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[10][7] - getAlpha()[10][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[11][7] - getAlpha()[11][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[12][7] - getAlpha()[12][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[13][7] - getAlpha()[13][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[14][7] - getAlpha()[14][3])),
-    gsl::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[15][7] - getAlpha()[15][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[0][7] - getAlpha()[0][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[1][7] - getAlpha()[1][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[2][7] - getAlpha()[2][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[3][7] - getAlpha()[3][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[4][7] - getAlpha()[4][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[5][7] - getAlpha()[5][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[6][7] - getAlpha()[6][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[7][7] - getAlpha()[7][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[8][7] - getAlpha()[8][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[9][7] - getAlpha()[9][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[10][7] - getAlpha()[10][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[11][7] - getAlpha()[11][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[12][7] - getAlpha()[12][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[13][7] - getAlpha()[13][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[14][7] - getAlpha()[14][3])),
+    gsl_lite::narrow_cast<int16_t>(0x100FF / (1 + getAlpha()[15][7] - getAlpha()[15][3])),
   }};
   return alphaRange;
 }
@@ -34,7 +34,7 @@ const std::array<int16_t, 16>& getAlphaRange()
 
 const std::array<std::array<int32_t, 4>, 8>& getTable()
 {
-  static const std::array<std::array<int32_t, 4>, 8> table{{
+  static constexpr std::array<std::array<int32_t, 4>, 8> table{{
     {2, 8, -2, -8},
     {5, 17, -5, -17},
     {9, 29, -9, -29},
@@ -49,7 +49,7 @@ const std::array<std::array<int32_t, 4>, 8>& getTable()
 
 const std::array<std::array<uint32_t, 16>, 4>& getId()
 {
-  static const std::array<std::array<uint32_t, 16>, 4> id{{
+  static constexpr std::array<std::array<uint32_t, 16>, 4> id{{
     {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
     {3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2},
     {5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4},
@@ -60,7 +60,7 @@ const std::array<std::array<uint32_t, 16>, 4>& getId()
 
 const std::array<uint32_t, 64>& getFlags()
 {
-  static const std::array<uint32_t, 64> flags{
+  static constexpr std::array<uint32_t, 64> flags{
     {0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x8080E002,
      0x80800402, 0x80800402, 0x8080E002, 0x8080E002, 0x80800402, 0x8080E002, 0x8080E002, 0x8080E002,
      0x80000402, 0x80000402, 0x80000402, 0x80000402, 0x80000402, 0x80000402, 0x80000402, 0x8000E002,
@@ -74,7 +74,7 @@ const std::array<uint32_t, 64>& getFlags()
 
 const std::array<std::array<int16_t, 8>, 16>& getAlpha()
 {
-  static const std::array<std::array<int16_t, 8>, 16> alpha{{
+  static constexpr std::array<std::array<int16_t, 8>, 16> alpha{{
     {-3, -6, -9, -15, 2, 5, 8, 14},
     {-3, -7, -10, -13, 2, 6, 9, 12},
     {-2, -5, -8, -13, 1, 4, 7, 12},
@@ -241,13 +241,13 @@ const std::array<IVec16, 16>& getAlpha_SIMD()
 
 const IVec16& getAlphaRange_SIMD()
 {
-  static const IVec16 alphaRange_SIMD = IVec16{getAlphaRange()[0],
-                                               getAlphaRange()[1],
-                                               getAlphaRange()[4],
-                                               getAlphaRange()[5],
-                                               getAlphaRange()[8],
-                                               getAlphaRange()[14],
-                                               0,
-                                               0};
+  static const auto alphaRange_SIMD = IVec16{getAlphaRange()[0],
+                                             getAlphaRange()[1],
+                                             getAlphaRange()[4],
+                                             getAlphaRange()[5],
+                                             getAlphaRange()[8],
+                                             getAlphaRange()[14],
+                                             0,
+                                             0};
   return alphaRange_SIMD;
 }

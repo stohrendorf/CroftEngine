@@ -17,26 +17,25 @@
 
 namespace ui::widgets
 {
-SelectionBox::SelectionBox(const std::string& message, const std::vector<std::string>& options, size_t initialSelection)
+SelectionBox::SelectionBox(const std::string& message, const std::vector<std::string>& options,
+                           const size_t initialSelection)
     : m_container{std::make_shared<GridBox>()}
     , m_selected{initialSelection}
 {
   std::vector<std::string> lines;
   boost::split(lines, message, boost::is_any_of("\n"));
-  std::transform(lines.begin(),
-                 lines.end(),
-                 std::back_inserter(m_messageLines),
-                 [](const std::string& line)
-                 {
-                   return std::make_shared<Label>(line, Label::Alignment::Center);
-                 });
-  std::transform(options.begin(),
-                 options.end(),
-                 std::back_inserter(m_options),
-                 [](const std::string& label)
-                 {
-                   return std::make_shared<Label>(label, Label::Alignment::Center);
-                 });
+  std::ranges::transform(lines,
+                         std::back_inserter(m_messageLines),
+                         [](const std::string& line)
+                         {
+                           return std::make_shared<Label>(line, Label::Alignment::Center);
+                         });
+  std::ranges::transform(options,
+                         std::back_inserter(m_options),
+                         [](const std::string& label)
+                         {
+                           return std::make_shared<Label>(label, Label::Alignment::Center);
+                         });
 
   m_container->setExtents(1, m_messageLines.size() + m_options.size());
   for(size_t i = 0; i < m_messageLines.size(); ++i)
@@ -47,24 +46,22 @@ SelectionBox::SelectionBox(const std::string& message, const std::vector<std::st
 
 SelectionBox::SelectionBox(const std::vector<std::string>& message,
                            const std::vector<std::string>& options,
-                           size_t initialSelection)
+                           const size_t initialSelection)
     : m_container{std::make_shared<GridBox>()}
     , m_selected{initialSelection}
 {
-  std::transform(message.begin(),
-                 message.end(),
-                 std::back_inserter(m_messageLines),
-                 [](const std::string& line)
-                 {
-                   return std::make_shared<Label>(line, Label::Alignment::Center);
-                 });
-  std::transform(options.begin(),
-                 options.end(),
-                 std::back_inserter(m_options),
-                 [](const std::string& label)
-                 {
-                   return std::make_shared<Label>(label, Label::Alignment::Center);
-                 });
+  std::ranges::transform(message,
+                         std::back_inserter(m_messageLines),
+                         [](const std::string& line)
+                         {
+                           return std::make_shared<Label>(line, Label::Alignment::Center);
+                         });
+  std::ranges::transform(options,
+                         std::back_inserter(m_options),
+                         [](const std::string& label)
+                         {
+                           return std::make_shared<Label>(label, Label::Alignment::Center);
+                         });
 
   m_container->setExtents(1, m_messageLines.size() + m_options.size());
   for(size_t i = 0; i < m_messageLines.size(); ++i)
@@ -75,16 +72,16 @@ SelectionBox::SelectionBox(const std::vector<std::string>& message,
 
 SelectionBox::~SelectionBox() = default;
 
-void SelectionBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void SelectionBox::draw(Ui& ui, const engine::Presenter& presenter) const
 {
-  const auto bgPos = m_position - glm::ivec2{ui::FontHeight, 2 * ui::FontHeight};
-  const auto bgSize = m_size + glm::ivec2{2 * ui::FontHeight, 2 * ui::FontHeight};
+  const auto bgPos = m_position - glm::ivec2{FontHeight, 2 * FontHeight};
+  const auto bgSize = m_size + glm::ivec2{2 * FontHeight, 2 * FontHeight};
   ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, DefaultBackgroundAlpha});
   ui.drawOutlineBox(bgPos, bgSize, 255);
   m_container->draw(ui, presenter);
 }
 
-void SelectionBox::update(bool hasFocus)
+void SelectionBox::update(const bool hasFocus)
 {
   for(size_t i = 0; i < m_options.size(); ++i)
     m_options[i]->update(hasFocus && m_selected == i);

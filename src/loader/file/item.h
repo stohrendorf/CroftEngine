@@ -16,12 +16,12 @@ class SDLReader;
 
 struct Item
 {
-  core::TypeId type{
-    uint16_t(0)}; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
-  core::RoomId16 room{uint16_t(0)}; //!< Owning room
-  core::TRVec position;             //!< world coords
-  core::Angle rotation;             //!< ((0xc000 >> 14) * 90) degrees around Y axis
-  core::Shade shade;                //!< (constant lighting; -1 means use mesh lighting)
+  core::TypeId type{static_cast<uint16_t>(
+    0)}; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
+  core::RoomId16 room{static_cast<uint16_t>(0)}; //!< Owning room
+  core::TRVec position;                          //!< world coords
+  core::Angle rotation;                          //!< ((0xc000 >> 14) * 90) degrees around Y axis
+  core::Shade shade;                             //!< (constant lighting; -1 means use mesh lighting)
   int16_t intensity2 = 0; //!< Like Intensity1, and almost always with the same value. [absent from TR1 data files]
   int16_t ocb = 0;        //!< Object code bit - used for altering entity behaviour. Only in TR4-5.
 

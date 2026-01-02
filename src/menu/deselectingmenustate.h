@@ -20,7 +20,7 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
 
-class DeselectingMenuState : public MenuState
+class DeselectingMenuState final : public MenuState
 {
 public:
   explicit DeselectingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform);

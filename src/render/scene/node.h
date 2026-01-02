@@ -10,7 +10,7 @@
 #include <gl/renderstate.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <stdexcept>
@@ -57,7 +57,7 @@ public:
     return m_parent;
   }
 
-  void setVisible(bool visible)
+  void setVisible(const bool visible)
   {
     m_visible = visible;
   }
@@ -135,12 +135,11 @@ public:
 
   [[nodiscard]] std::shared_ptr<Node> findChild(const Node* node) const
   {
-    const auto it = std::find_if(m_children.begin(),
-                                 m_children.end(),
-                                 [node](const gslu::nn_shared<Node>& ptr)
-                                 {
-                                   return ptr.get().get() == node;
-                                 });
+    const auto it = std::ranges::find_if(m_children,
+                                         [node](const gslu::nn_shared<Node>& ptr)
+                                         {
+                                           return ptr.get().get() == node;
+                                         });
 
     if(it == m_children.end())
       return nullptr;
@@ -166,8 +165,7 @@ public:
 
   void clear()
   {
-    auto tmp = m_children;
-    for(const auto& node : tmp)
+    for(const auto tmp = m_children; const auto& node : tmp)
       setParent(node, nullptr);
   }
 
@@ -198,7 +196,7 @@ public:
     return m_renderOrder;
   }
 
-  void setRenderOrder(int order)
+  void setRenderOrder(const int order)
   {
     m_renderOrder = order;
   }
@@ -233,7 +231,8 @@ private:
   friend void setParent(Node* node, const std::shared_ptr<Node>& newParent);
 };
 
-inline void setParent(gslu::nn_shared<Node> node, // NOLINT(performance-unnecessary-value-param)
+inline void setParent(gslu::nn_shared<Node> node,
+                      // NOLINT(performance-unnecessary-value-param)
                       const std::shared_ptr<Node>& newParent)
 {
   // first remove from hierarchy
@@ -242,7 +241,7 @@ inline void setParent(gslu::nn_shared<Node> node, // NOLINT(performance-unnecess
     if(currentParent == newParent)
       return;
 
-    const auto it = std::find(currentParent->m_children.begin(), currentParent->m_children.end(), node);
+    const auto it = std::ranges::find(currentParent->m_children, node);
     BOOST_ASSERT(it != currentParent->m_children.end());
     node->m_parent.reset();
     currentParent->m_children.erase(it);
@@ -265,7 +264,7 @@ inline void setParent(Node* node, const std::shared_ptr<Node>& newParent)
       return;
 
     const auto sharedNode = currentParent->findChild(node);
-    setParent(gsl::not_null{sharedNode}, newParent);
+    setParent(gsl_lite::not_null{sharedNode}, newParent);
     return;
   }
 

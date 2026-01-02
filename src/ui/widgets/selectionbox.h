@@ -23,7 +23,7 @@ namespace ui::widgets
 class GridBox;
 class Label;
 
-class SelectionBox : public Widget
+class SelectionBox final : public Widget
 {
 public:
   explicit SelectionBox(const std::string& message,
@@ -34,7 +34,7 @@ public:
                         size_t initialSelection = 0);
   ~SelectionBox() override;
   void update(bool hasFocus) override;
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   void setPosition(const glm::ivec2& position) override;
 

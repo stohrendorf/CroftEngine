@@ -10,7 +10,7 @@
 #include "serialization/serialization_fwd.h"
 
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -45,17 +45,17 @@ namespace engine::objects
 class ModelObject : public Object
 {
 public:
-  ModelObject(const gsl::not_null<world::World*>& world, const Location& location)
+  ModelObject(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : Object{world, location}
   {
   }
 
   ModelObject(const std::string& name,
-              const gsl::not_null<world::World*>& world,
-              const gsl::not_null<const world::Room*>& room,
+              const gsl_lite::not_null<world::World*>& world,
+              const gsl_lite::not_null<const world::Room*>& room,
               const loader::file::Item& item,
               bool hasUpdateFunction,
-              const gsl::not_null<const world::SkeletalModelType*>& model,
+              const gsl_lite::not_null<const world::SkeletalModelType*>& model,
               bool shadowCaster);
 
   ModelObject(const ModelObject&) = delete;
@@ -132,16 +132,16 @@ protected:
 };
 
 #define MODELOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION, SHADOW_CASTER)             \
-  CLASS(const gsl::not_null<world::World*>& world, const Location& location)                    \
+  CLASS(const gsl_lite::not_null<world::World*>& world, const Location& location)               \
       : ModelObject{world, location}                                                            \
   {                                                                                             \
   }                                                                                             \
                                                                                                 \
   CLASS(const std::string& name,                                                                \
-        const gsl::not_null<world::World*>& world,                                              \
-        const gsl::not_null<const world::Room*>& room,                                          \
+        const gsl_lite::not_null<world::World*>& world,                                         \
+        const gsl_lite::not_null<const world::Room*>& room,                                     \
         const loader::file::Item& item,                                                         \
-        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)                    \
+        const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)               \
       : ModelObject{name, world, room, item, HAS_UPDATE_FUNCTION, animatedModel, SHADOW_CASTER} \
   {                                                                                             \
   }
@@ -149,17 +149,17 @@ protected:
 class NullRenderModelObject : public ModelObject
 {
 public:
-  NullRenderModelObject(const gsl::not_null<world::World*>& world, const Location& location)
+  NullRenderModelObject(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }
 
   NullRenderModelObject(const std::string& name,
-                        const gsl::not_null<world::World*>& world,
-                        const gsl::not_null<const world::Room*>& room,
+                        const gsl_lite::not_null<world::World*>& world,
+                        const gsl_lite::not_null<const world::Room*>& room,
                         const loader::file::Item& item,
                         bool hasUpdateFunction,
-                        const gsl::not_null<const world::SkeletalModelType*>& model);
+                        const gsl_lite::not_null<const world::SkeletalModelType*>& model);
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;

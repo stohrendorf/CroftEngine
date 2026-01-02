@@ -35,7 +35,7 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects
@@ -61,7 +61,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
        && lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
     {
       lara.alignForInteraction({0_len, 640_len, -310_len}, m_state);
-      lara.getSkeleton()->setAnim(gsl::not_null{
+      lara.getSkeleton()->setAnim(gsl_lite::not_null{
         &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
       lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
       lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
@@ -127,11 +127,12 @@ void ScionPiece3::update()
   {
     const auto pos = m_state.location.position
                      + core::TRVec{util::rand15s(512_len), util::rand15s(64_len) - 500_len, util::rand15s(512_len)};
-    const auto particle = gsl::make_shared<ExplosionParticle>(
+    const auto particle = gsl_lite::make_shared<ExplosionParticle>(
       Location{m_state.location.room, pos}, getWorld(), 0_spd, core::TRRotation{});
     setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
-    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion, gsl::not_null{particle.get().get()});
+    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion,
+                                                gsl_lite::not_null{particle.get().get()});
 
     getWorld().getCameraController().setBounce(-200_len);
   }
@@ -157,11 +158,11 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
      || lara.getCurrentAnimState() != loader::file::LaraStateId::Stop || !limits.canInteract(m_state, lara.m_state))
     return;
 
-  static const core::GenericVec<core::Speed> alignSpeed{0_spd, 280_spd, -407_spd};
+  static constexpr core::GenericVec alignSpeed{0_spd, 280_spd, -407_spd};
 
   lara.alignTransform(alignSpeed, *this);
-  lara.getSkeleton()->setAnim(
-    gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
+  lara.getSkeleton()->setAnim(gsl_lite::not_null{
+    &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
   lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
   lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
   lara.setHandStatus(HandStatus::Grabbing);

@@ -14,7 +14,7 @@
 #include <deque>
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -79,7 +79,7 @@ protected:
 public:
   explicit Particle(const std::string& id,
                     const core::TypeId& objectNumber,
-                    const gsl::not_null<const world::Room*>& room,
+                    const gsl_lite::not_null<const world::Room*>& room,
                     world::World& world,
                     render::material::SpriteMaterialMode mode,
                     bool withoutParent = false,

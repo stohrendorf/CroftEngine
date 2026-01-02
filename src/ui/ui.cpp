@@ -26,7 +26,7 @@
 #include <glm/common.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <iterator>
 #include <memory>
@@ -96,19 +96,19 @@ void createQuad(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const g
   vertices.emplace_back(Ui::UiVertex{{b.x, a.y}, {1, 0, -1}, glColor, glColor, glColor, glColor});
 }
 
-void createHLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int length, const gl::SRGBA8& color)
+void createHLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const int length, const gl::SRGBA8& color)
 {
   createQuad(vertices, a, glm::vec2{length, 1}, color);
 }
 
-void createVLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int length, const gl::SRGBA8& color)
+void createVLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const int length, const gl::SRGBA8& color)
 {
   createQuad(vertices, a, glm::vec2{1, length}, color);
 }
 } // namespace
 
-gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer(gl::api::BufferUsage usage,
-                                                                                 const gsl::span<Ui::UiVertex>& data)
+gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>>
+  Ui::UiVertex::createVertexBuffer(gl::api::BufferUsage usage, const gsl_lite::span<UiVertex>& data)
 {
   static const gl::VertexLayout<UiVertex> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, &UiVertex::pos},
@@ -119,13 +119,13 @@ gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &UiVertex::bottomRight},
     {VERTEX_ATTRIBUTE_COLOR_NAME, &UiVertex::color},
   };
-  return gsl::make_shared<gl::VertexBuffer<UiVertex>>(layout, "ui" + gl::VboSuffix, usage, data);
+  return gsl_lite::make_shared<gl::VertexBuffer<UiVertex>>(layout, "ui" + gl::VboSuffix, usage, data);
 }
 
 gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> Ui::UiVertex::createIndexBuffer(gl::api::BufferUsage usage,
-                                                                                  const gsl::span<uint16_t>& data)
+                                                                                  const gsl_lite::span<uint16_t>& data)
 {
-  return gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui" + gl::IndexBufferSuffix, usage, data);
+  return gsl_lite::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui" + gl::IndexBufferSuffix, usage, data);
 }
 
 Ui::Ui(std::shared_ptr<render::material::Material> material,
@@ -137,17 +137,17 @@ Ui::Ui(std::shared_ptr<render::material::Material> material,
 {
 }
 
-void Ui::drawHLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color)
+void Ui::drawHLine(const glm::ivec2& xy, const int length, const gl::SRGBA8& color)
 {
   createHLine(m_vertices, xy, length + glm::sign(length), color);
 }
 
-void Ui::drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color)
+void Ui::drawVLine(const glm::ivec2& xy, const int length, const gl::SRGBA8& color)
 {
   createVLine(m_vertices, xy, length + glm::sign(length), color);
 }
 
-void Ui::drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size, uint8_t alpha)
+void Ui::drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size, const uint8_t alpha)
 {
   auto color1 = m_palette[15];
   color1.channels[3] = alpha;
@@ -186,25 +186,24 @@ void Ui::render()
   gsl_Expects(m_vertices.size() % 4 == 0);
 
   std::vector<uint16_t> indices;
-  static const std::array<uint16_t, 6> localIndices{0, 1, 2, 0, 2, 3};
+  static constexpr std::array<uint16_t, 6> localIndices{0, 1, 2, 0, 2, 3};
   indices.reserve(m_vertices.size() / 4 * localIndices.size());
   for(size_t i = 0; i < m_vertices.size(); i += 4)
   {
-    std::transform(localIndices.begin(),
-                   localIndices.end(),
-                   std::back_inserter(indices),
-                   [&i](auto localIndex)
-                   {
-                     return gsl::narrow_cast<uint16_t>(i + localIndex);
-                   });
+    std::ranges::transform(localIndices,
+                           std::back_inserter(indices),
+                           [&i](auto localIndex)
+                           {
+                             return gsl_lite::narrow_cast<uint16_t>(i + localIndex);
+                           });
   }
 
   const auto indexBuffer = UiVertex::createIndexBuffer(gl::api::BufferUsage::StaticDraw, indices);
   const auto vbo = UiVertex::createVertexBuffer(gl::api::BufferUsage::StaticDraw, m_vertices);
 
-  const auto vaoNonOpaque = gsl::make_shared<gl::VertexArray<uint16_t, UiVertex>>(
+  const auto vaoNonOpaque = gsl_lite::make_shared<gl::VertexArray<uint16_t, UiVertex>>(
     indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui" + gl::VaoSuffix);
-  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(
+  const auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(
     nullptr, vaoNonOpaque, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, m_material);
   auto& meshRenderState = mesh->getRenderState();
@@ -226,7 +225,7 @@ void Ui::render()
   reset();
 }
 
-void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy, float scale, float alpha)
+void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy, const float scale, const float alpha)
 {
   const auto a = glm::ivec2{glm::vec2{sprite.render0} * scale} + xy;
   const auto b = glm::ivec2{glm::vec2{sprite.render1} * scale} + xy;

@@ -3,6 +3,7 @@
 #include "exception.h"
 #include "serialization_fwd.h"
 
+
 namespace serialization
 {
 template<typename T, typename Converter>
@@ -12,7 +13,7 @@ struct NamedEnum
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   NamedEnum(T value = T{}) // cppcheck-suppress noExplicitConstructor
-      : value{value}
+    : value{value}
   {
   }
 
@@ -37,9 +38,9 @@ struct NamedEnum
   }
 
   template<typename TContext>
-  static NamedEnum<T, Converter> create(const Deserializer<TContext>& ser)
+  static NamedEnum create(const Deserializer<TContext>& ser)
   {
-    NamedEnum<T, Converter> result{};
+    NamedEnum result{};
     result.deserialize(ser);
     return result;
   }
@@ -57,7 +58,7 @@ struct NamedEnum
     return value;
   }
 
-  NamedEnum<T, Converter>& operator=(T e)
+  NamedEnum& operator=(T e)
   {
     value = e;
     return *this;

@@ -14,7 +14,7 @@
 #include <filesystem>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -110,7 +110,7 @@ std::string escape(const std::string& unescaped)
       result += ui::SzLig;
       break;
     default:
-      result += gsl::narrow_cast<char>(c);
+      result += gsl_lite::narrow_cast<char>(c);
       break;
     }
   }
@@ -179,18 +179,18 @@ int16_t rand15s()
 int16_t rand15()
 {
   // NOLINTNEXTLINE(cert-msc50-cpp, concurrency-mt-unsafe)
-  return gsl::narrow_cast<int16_t>(std::rand() % Rand15Max);
+  return gsl_lite::narrow_cast<int16_t>(std::rand() % Rand15Max);
 }
 
 std::string toTimeStr(const core::Seconds& t)
 {
-  static constexpr std::chrono::seconds Minute = std::chrono::seconds{60};
+  static constexpr auto Minute = std::chrono::seconds{60};
   static constexpr std::chrono::seconds Hour = 60 * Minute;
   if(t.get() >= Hour.count())
   {
     return /* translators: TR charmap encoding */ _("%1%:%2$02d:%3$02d",
                                                     t.get() / Hour.count(),
-                                                    (t.get() / Minute.count())
+                                                    t.get() / Minute.count()
                                                       % std::chrono::duration_cast<std::chrono::minutes>(Hour).count(),
                                                     t.get() % Minute.count());
   }

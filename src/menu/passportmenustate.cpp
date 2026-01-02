@@ -108,7 +108,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showSaveGamePage(en
   return std::nullopt;
 }
 
-void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDisplay& display, bool returnToTitle)
+void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDisplay& display, const bool returnToTitle)
 {
   if(m_passportText == nullptr)
   {
@@ -165,7 +165,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
   const bool hasSavedGames = world.hasSavedGames();
 
   const auto localFrame = passport.goalFrame - passport.openFrame;
-  hid::AxisMovement forcePageTurn = hid::AxisMovement::Null;
+  auto forcePageTurn = hid::AxisMovement::Null;
   if(localFrame % FramesPerPage == 0_frame)
   {
     switch(localFrame / FramesPerPage)
@@ -243,8 +243,8 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
 }
 
 PassportMenuState::PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                     bool allowExit,
-                                     SaveGamePageMode saveGamePageMode)
+                                     const bool allowExit,
+                                     const SaveGamePageMode saveGamePageMode)
     : MenuState{ringTransform}
     , m_allowExit{allowExit}
     , m_saveGamePageMode{saveGamePageMode}

@@ -33,9 +33,9 @@ namespace jetbrains::teamcity
 {
 namespace
 {
-const char* ASSERT_CTX = "Assertion has occurred in a following context:";
-const char* FAILURE_CTX = "Failure has occurred in a following context:";
-const boost::unit_test::test_unit_type UNIT_TEST_CASE = boost::unit_test::TUT_CASE;
+const auto ASSERT_CTX = "Assertion has occurred in a following context:";
+const auto FAILURE_CTX = "Failure has occurred in a following context:";
+constexpr boost::unit_test::test_unit_type UNIT_TEST_CASE = boost::unit_test::TUT_CASE;
 
 // Formatter implementation
 std::string toString(const boost::unit_test::const_string& bStr)
@@ -74,18 +74,15 @@ std::string toString(const boost::execution_exception& excpt)
   std::stringstream ss(std::ios_base::out);
   ss << excpt.where().m_file_name;
 
-  const size_t line = excpt.where().m_line_num;
-  if(line != 0)
+  if(const size_t line = excpt.where().m_line_num; line != 0)
     ss << ':' << line;
 
-  const boost::unit_test::const_string& fn = excpt.where().m_function;
-  if(!fn.empty())
+  if(const boost::unit_test::const_string& fn = excpt.where().m_function; !fn.empty())
     ss << '[' << fn << ']';
 
   ss << ": " << excpt.what();
 
-  const std::string& code = toString(excpt.code());
-  if(!code.empty())
+  if(const std::string& code = toString(excpt.code()); !code.empty())
     ss << " (" << code << ')';
 
   return ss.str();
@@ -93,7 +90,7 @@ std::string toString(const boost::execution_exception& excpt)
 } // anonymous namespace
 
 /// Custom formatter for TeamCity messages
-class TeamcityBoostLogFormatter : public boost::unit_test::unit_test_log_formatter
+class TeamcityBoostLogFormatter final : public boost::unit_test::unit_test_log_formatter
 {
   TeamcityMessages m_messages{};
   std::string m_currentDetails{};
@@ -101,8 +98,8 @@ class TeamcityBoostLogFormatter : public boost::unit_test::unit_test_log_formatt
   std::string m_currentContextDetails{};
 
 public:
-  using boost::unit_test::unit_test_log_formatter::log_entry_value;
-  using boost::unit_test::unit_test_log_formatter::test_unit_skipped;
+  using unit_test_log_formatter::log_entry_value;
+  using unit_test_log_formatter::test_unit_skipped;
 
   explicit TeamcityBoostLogFormatter(std::string flowId);
   TeamcityBoostLogFormatter();
@@ -131,6 +128,7 @@ public:
   void entry_context_start(std::ostream&, boost::unit_test::log_level) override;
   void log_entry_context(std::ostream&, boost::unit_test::log_level, boost::unit_test::const_string) override;
   void entry_context_finish(std::ostream&, boost::unit_test::log_level) override;
+
   [[nodiscard]] std::string get_default_stream_description() const override
   {
     return "TeamCity (via service messages)";
@@ -157,8 +155,8 @@ TeamcityBoostLogFormatter::TeamcityBoostLogFormatter()
 {
 }
 
-TeamcityBoostLogFormatter::TeamcityBoostLogFormatter(std::string id)
-    : m_flowId(std::move(id))
+TeamcityBoostLogFormatter::TeamcityBoostLogFormatter(std::string flowId)
+    : m_flowId(std::move(flowId))
 {
 }
 
@@ -238,7 +236,7 @@ void TeamcityBoostLogFormatter::log_entry_start(std::ostream& /*out*/
 
 void TeamcityBoostLogFormatter::log_entry_value(std::ostream& /*out*/
                                                 ,
-                                                boost::unit_test::const_string value)
+                                                const boost::unit_test::const_string value)
 {
   m_currentDetails += toString(value);
 }
@@ -272,23 +270,23 @@ void TeamcityBoostLogFormatter::log_exception_finish(std::ostream& /*out*/)
 void TeamcityBoostLogFormatter::test_unit_skipped(std::ostream& /*out*/
                                                   ,
                                                   const boost::unit_test::test_unit& tu,
-                                                  boost::unit_test::const_string reason)
+                                                  const boost::unit_test::const_string reason)
 {
   m_messages.testIgnored(tu.p_name, toString(reason), m_flowId);
 }
 
 void TeamcityBoostLogFormatter::entry_context_start(std::ostream& /*out*/
                                                     ,
-                                                    boost::unit_test::log_level l)
+                                                    const boost::unit_test::log_level l)
 {
-  const char* initial_msg = (l == boost::unit_test::log_successful_tests ? ASSERT_CTX : FAILURE_CTX);
+  const char* initial_msg = l == boost::unit_test::log_successful_tests ? ASSERT_CTX : FAILURE_CTX;
   m_currentContextDetails = initial_msg;
 }
 
 void TeamcityBoostLogFormatter::log_entry_context(std::ostream& /*out*/
                                                   ,
                                                   boost::unit_test::log_level,
-                                                  boost::unit_test::const_string ctx)
+                                                  const boost::unit_test::const_string ctx)
 {
   m_currentContextDetails += '\n' + toString(ctx);
 }
@@ -296,5 +294,4 @@ void TeamcityBoostLogFormatter::log_entry_context(std::ostream& /*out*/
 void TeamcityBoostLogFormatter::entry_context_finish(std::ostream& /*out*/, boost::unit_test::log_level)
 {
 }
-
 } // namespace jetbrains::teamcity

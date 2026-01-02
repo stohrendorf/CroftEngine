@@ -9,7 +9,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <vector>
@@ -41,10 +41,10 @@ public:
     glm::vec4 bottomRight{0};
     glm::vec4 color{1, 1, 1, 1};
 
-    static gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> createVertexBuffer(gl::api::BufferUsage usage,
-                                                                              const gsl::span<Ui::UiVertex>& data);
+    static gslu::nn_shared<gl::VertexBuffer<UiVertex>> createVertexBuffer(gl::api::BufferUsage usage,
+                                                                          const gsl_lite::span<UiVertex>& data);
     static gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> createIndexBuffer(gl::api::BufferUsage usage,
-                                                                               const gsl::span<uint16_t>& data);
+                                                                               const gsl_lite::span<uint16_t>& data);
   };
 
   explicit Ui(std::shared_ptr<render::material::Material> material,
@@ -54,6 +54,7 @@ public:
   void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size, uint8_t alpha = 255);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color);
+
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const size_t color)
   {
     drawBox(xy, size, m_palette.at(color));

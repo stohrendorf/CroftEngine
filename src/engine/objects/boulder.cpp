@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <bitset>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -99,7 +99,7 @@ void Boulder::update()
     setCurrentRoom(m_location.room);
     getSkeleton()->setAnimation(
       m_state.current_anim_state,
-      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type)->animations[0]},
+      gsl_lite::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type)->animations[0]},
       0_frame);
     m_state.goal_anim_state = m_state.current_anim_state;
     m_state.required_anim_state = Stopped;
@@ -174,7 +174,7 @@ void Boulder::collide(CollisionInfo& collisionInfo)
   const auto z = lara.m_state.location.position.Z - m_state.location.position.Z;
   const auto xyz = std::max(1_sectors / 2, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
-  auto fx = createBloodSplat(
+  const auto fx = createBloodSplat(
     getWorld(),
     Location{m_state.location.room,
              core::TRVec{x * 1_sectors / 2 / xyz + m_state.location.position.X,
@@ -186,10 +186,10 @@ void Boulder::collide(CollisionInfo& collisionInfo)
 }
 
 Boulder::Boulder(const std::string& name,
-                 const gsl::not_null<world::World*>& world,
-                 const gsl::not_null<const world::Room*>& room,
+                 const gsl_lite::not_null<world::World*>& world,
+                 const gsl_lite::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
-                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                 const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
     , m_location{room, item.position}
 {

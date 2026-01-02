@@ -23,9 +23,8 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
 
-class DeflateRingMenuState : public MenuState
+class DeflateRingMenuState final : public MenuState
 {
-private:
   static constexpr core::Frame Duration = 32_frame / 2;
   core::Frame m_duration{Duration};
   std::unique_ptr<MenuState> m_next;

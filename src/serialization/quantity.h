@@ -3,6 +3,7 @@
 #include "qs/quantity.h"
 #include "serialization_fwd.h"
 
+
 namespace serialization
 {
 template<typename U, typename T, typename TContext>

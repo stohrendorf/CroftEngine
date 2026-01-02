@@ -1,6 +1,6 @@
 #include "avframeptr.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <utility>
 
 extern "C"

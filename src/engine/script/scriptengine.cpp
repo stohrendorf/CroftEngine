@@ -9,7 +9,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <pybind11/embed.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
 
@@ -58,6 +58,6 @@ ScriptEngine::ScriptEngine(const std::filesystem::path& rootPath)
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 const Gameflow& ScriptEngine::getGameflow() const
 {
-  return *gsl::not_null{pybind11::globals()["gameflow"].cast<Gameflow*>()};
+  return *gsl_lite::not_null{pybind11::globals()["gameflow"].cast<Gameflow*>()};
 }
 } // namespace engine::script

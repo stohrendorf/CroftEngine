@@ -7,10 +7,11 @@
 #include <clocale>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ryml.hpp>
 #include <string>
 #include <type_traits>
+
 
 namespace serialization
 {
@@ -22,27 +23,30 @@ private:
   std::string m_buffer;
   ryml::Tree m_tree;
 
+
   struct CustomErrorCallbacks
   {
   public:
     explicit CustomErrorCallbacks()
-        : m_callbacks{ryml::get_callbacks()}
+      : m_callbacks{ryml::get_callbacks()}
     {
       ryml::set_callbacks(
-        ryml::Callbacks{nullptr,
-                        [](size_t length, void* /*hint*/, void* /*user_data*/) -> gsl::owner<void*>
-                        {
-                          return new char[length];
-                        },
-                        [](gsl::owner<void*> mem, size_t /*length*/, void* /*user_data*/)
-                        {
-                          delete[] static_cast<char*>(mem);
-                        },
-                        [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/)
-                        {
-                          const std::string msgStr{msg, msg_len};
-                          SERIALIZER_EXCEPTION(msgStr);
-                        }});
+        ryml::Callbacks{
+          nullptr,
+          [](size_t length, void* /*hint*/, void* /*user_data*/) -> gsl_lite::owner<void*>
+          {
+            return new char[length];
+          },
+          [](gsl_lite::owner<void*> mem, size_t /*length*/, void* /*user_data*/)
+          {
+            delete[] static_cast<char*>(mem);
+          },
+          [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/)
+          {
+            const std::string msgStr{msg, msg_len};
+            SERIALIZER_EXCEPTION(msgStr);
+          }
+        });
     }
 
     ~CustomErrorCallbacks()
@@ -56,7 +60,7 @@ private:
 
 public:
   explicit YAMLDocument(const std::filesystem::path& filename)
-      : m_filename{filename}
+    : m_filename{filename}
   {
     BOOST_LOG_TRIVIAL(info) << "Opening " << filename << ", Loading=" << Loading;
     if constexpr(Loading)
@@ -79,81 +83,72 @@ public:
     }
   }
 
-  template<bool Lazy = Loading>
-  explicit YAMLDocument(std::string data, std::enable_if_t<Lazy, bool> = true)
-      : m_buffer{std::move(data)}
+  explicit YAMLDocument(std::string data) requires(Loading)
+    : m_buffer{std::move(data)}
   {
-    static_assert(Lazy);
-
+    CustomErrorCallbacks callbacks{};
     m_tree = ryml::parse_in_arena(c4::to_csubstr(m_buffer));
   }
 
-  template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto deserialize(const std::string& key, TContext& context) -> std::enable_if_t<DelayLoading, T>
+  template<typename T, typename TContext>
+  T deserialize(const std::string& key, TContext& context) requires(Loading)
   {
-    const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+    const std::string oldLocale = gsl_lite::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
 
     Deserializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
-    auto result = access<T, true>::dispatch(ser);
+    auto result = access::dispatch<T>(ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());
     return result;
   }
 
-  template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto deserialize(const std::string& key,
-                   const gsl::not_null<TContext*>& context,
-                   T& data) -> std::enable_if_t<DelayLoading, void>
+  template<typename T, typename TContext>
+  void deserialize(const std::string& key, const gsl_lite::not_null<TContext*>& context, T& data) requires(Loading)
   {
-    const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+    const std::string oldLocale = gsl_lite::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
 
     Deserializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, nullptr};
-    access<T, true>::dispatch(data, ser);
+    access::dispatch(data, ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());
   }
 
-  template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto serialize(const std::string& key,
-                 const gsl::not_null<TContext*>& context,
-                 T& data) -> std::enable_if_t<!DelayLoading, void>
+  template<typename T, typename TContext>
+  void serialize(const std::string& key, const gsl_lite::not_null<TContext*>& context, T& data) requires(!Loading)
   {
-    const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+    const std::string oldLocale = gsl_lite::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
 
     Serializer<TContext> ser{m_tree.rootref()[m_tree.copy_to_arena(c4::to_csubstr(key))], context, nullptr};
-    access<T, false>::dispatch(data, ser);
+    access::dispatch(data, ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());
   }
 
-  template<bool DelayLoading = Loading>
-  auto write() const -> std::enable_if_t<!DelayLoading, void>
+  void write() const requires(!Loading)
   {
     std::ofstream file{m_filename, std::ios::out | std::ios::trunc};
     gsl_Assert(file.is_open());
     file << m_tree.rootref();
   }
 
-  template<bool DelayLoading = Loading>
-  auto operator[](const std::string& key) -> std::enable_if_t<DelayLoading, ryml::NodeRef>
+  ryml::NodeRef operator[](const std::string& key) requires(Loading)
   {
     return m_tree.rootref()[c4::to_csubstr(key)];
   }
 
-  template<bool DelayLoading = Loading>
-  auto getRoot() -> std::enable_if_t<DelayLoading, ryml::NodeRef>
+  ryml::NodeRef getRoot() requires(Loading)
   {
     return m_tree.rootref();
   }

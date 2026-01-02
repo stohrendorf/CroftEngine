@@ -12,7 +12,7 @@
 #include <gl/debuggroup.h>
 #include <gl/vertexbuffer.h>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -28,22 +28,20 @@ void ParticleCollection::eraseParticle(const std::shared_ptr<Particle>& particle
   if(particle == nullptr)
     return;
 
-  const auto it = std::find_if(m_particles.begin(),
-                               m_particles.end(),
-                               [particle](const auto& p)
-                               {
-                                 return particle == p.get();
-                               });
+  const auto it = std::ranges::find_if(m_particles,
+                                       [particle](const auto& p)
+                                       {
+                                         return particle == p.get();
+                                       });
   if(it != m_particles.end())
     m_particles.erase(it);
 
-  setParent(gsl::not_null{particle}, nullptr);
+  setParent(gsl_lite::not_null{particle}, nullptr);
 }
 
 void ParticleCollection::update(world::World& world)
 {
-  auto currentParticles = std::move(m_particles);
-  for(const auto& particle : currentParticles)
+  for(const auto currentParticles = std::move(m_particles); const auto& particle : currentParticles)
   {
     if(particle->update(world))
     {
@@ -77,13 +75,13 @@ void InstancedParticleCollection::render(const std::string& roomName,
     if(buffer == nullptr)
       continue;
     particle->applyTransform();
-    if(const auto it = buffersData.find(gsl::not_null{buffer}); it != buffersData.end())
+    if(const auto it = buffersData.find(gsl_lite::not_null{buffer}); it != buffersData.end())
     {
       std::get<0>(it->second).emplace_back(particle->getTransform().modelMatrix);
     }
     else
     {
-      buffersData.emplace(gsl::not_null{buffer},
+      buffersData.emplace(gsl_lite::not_null{buffer},
                           std::tuple{std::vector{particle->getTransform().modelMatrix}, particle});
     }
   }
@@ -96,14 +94,14 @@ void InstancedParticleCollection::render(const std::string& roomName,
 
     m_lighting.bind(*particle, world);
     buffer->setSubData(data, 0);
-    auto mesh = std::get<0>(particle->getCurrentMesh());
-    mesh->render(particle.get().get(), context, gsl::narrow<gl::api::core::SizeType>(data.size()));
+    const auto mesh = std::get<0>(particle->getCurrentMesh());
+    mesh->render(particle.get().get(), context, gsl_lite::narrow<gl::api::core::SizeType>(data.size()));
   }
 }
 
 void InstancedParticleCollection::setAmbient(const world::Room& room)
 {
   m_lighting.ambient = toBrightness(room.ambientShade);
-  m_lighting.update(core::Shade{core::Shade::type(-1)}, room);
+  m_lighting.update(core::Shade{static_cast<core::Shade::type>(-1)}, room);
 }
 } // namespace engine

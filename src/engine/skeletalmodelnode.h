@@ -13,7 +13,7 @@
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -47,8 +47,8 @@ namespace engine
 {
 struct InterpolationInfo
 {
-  gsl::not_null<const loader::file::AnimFrame*> firstFrame;
-  gsl::not_null<const loader::file::AnimFrame*> secondFrame;
+  gsl_lite::not_null<const loader::file::AnimFrame*> firstFrame;
+  gsl_lite::not_null<const loader::file::AnimFrame*> secondFrame;
   float bias;
 
   [[nodiscard]] const auto& getNearestFrame() const noexcept
@@ -64,18 +64,18 @@ struct InterpolationInfo
   }
 };
 
-class SkeletalModelNode : public render::scene::Node
+class SkeletalModelNode final : public render::scene::Node
 {
 public:
   explicit SkeletalModelNode(const std::string& id,
-                             gsl::not_null<const world::World*> world,
-                             gsl::not_null<const world::SkeletalModelType*> model,
+                             gsl_lite::not_null<const world::World*> world,
+                             gsl_lite::not_null<const world::SkeletalModelType*> model,
                              bool shadowCaster);
 
   void updatePose();
 
   void setAnimation(core::AnimStateId& animState,
-                    const gsl::not_null<const world::Animation*>& animation,
+                    const gsl_lite::not_null<const world::Animation*>& animation,
                     core::Frame frame);
 
   [[nodiscard]] core::Speed calculateFloorSpeed() const;
@@ -122,8 +122,8 @@ public:
   };
 
   /**
-   * Bone collision spheres in world space.
-   */
+* Bone collision spheres in world space.
+*/
   [[nodiscard]] std::vector<Sphere> getBoneCollisionSpheres();
 
   void serialize(const serialization::Serializer<world::World>& ser) const;
@@ -135,22 +135,22 @@ public:
 
   [[nodiscard]] bool canBeCulled(const glm::mat4& viewProjection) const override;
 
-  void setMesh(size_t idx, const std::shared_ptr<world::RenderMeshData>& mesh)
+  void setMesh(const size_t idx, const std::shared_ptr<world::RenderMeshData>& mesh)
   {
     m_meshParts.at(idx).mesh = mesh;
   }
 
-  [[nodiscard]] const auto& getMesh(size_t idx) const
+  [[nodiscard]] const auto& getMesh(const size_t idx) const
   {
     return m_meshParts.at(idx).mesh;
   }
 
-  [[nodiscard]] const auto& getCurrentMesh(size_t idx) const
+  [[nodiscard]] const auto& getCurrentMesh(const size_t idx) const
   {
     return m_meshParts.at(idx).currentMesh;
   }
 
-  [[nodiscard]] glm::vec3 getMeshPartTranslationWorld(size_t idx) const
+  [[nodiscard]] glm::vec3 getMeshPartTranslationWorld(const size_t idx) const
   {
     auto m = getModelMatrix() * m_meshParts.at(idx).poseMatrix;
     return glm::vec3{m[3]};
@@ -161,27 +161,27 @@ public:
     return m_meshParts.size();
   }
 
-  void setPoseMatrix(size_t idx, const glm::mat4& m)
+  void setPoseMatrix(const size_t idx, const glm::mat4& m)
   {
     m_meshParts.at(idx).poseMatrix = m;
   }
 
-  [[nodiscard]] const auto& getPoseMatrix(size_t idx) const
+  [[nodiscard]] const auto& getPoseMatrix(const size_t idx) const
   {
     return m_meshParts.at(idx).poseMatrix;
   }
 
-  void setReflective(size_t idx, const gl::SRGBA8& reflective)
+  void setReflective(const size_t idx, const gl::SRGBA8& reflective)
   {
     m_meshParts.at(idx).reflective = reflective;
   }
 
-  void setVisible(size_t idx, bool visible)
+  void setVisible(const size_t idx, const bool visible)
   {
     m_meshParts.at(idx).visible = visible;
   }
 
-  bool isVisible(size_t idx) const
+  bool isVisible(const size_t idx) const
   {
     return m_meshParts.at(idx).visible;
   }
@@ -196,10 +196,10 @@ public:
     rebuildMesh();
   }
 
-  void setAnim(const gsl::not_null<const world::Animation*>& anim,
+  void setAnim(const gsl_lite::not_null<const world::Animation*>& anim,
                const std::optional<core::Frame>& frame = std::nullopt);
 
-  void replaceAnim(const gsl::not_null<const world::Animation*>& anim, const core::Frame& localFrame);
+  void replaceAnim(const gsl_lite::not_null<const world::Animation*>& anim, const core::Frame& localFrame);
 
   [[nodiscard]] const auto& getFrame() const noexcept
   {
@@ -252,8 +252,8 @@ private:
     [[nodiscard]] static MeshPart create(const serialization::Deserializer<world::World>& ser);
   };
 
-  gsl::not_null<const world::World*> m_world;
-  gsl::not_null<const world::SkeletalModelType*> m_model;
+  gsl_lite::not_null<const world::World*> m_world;
+  gsl_lite::not_null<const world::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts;
   mutable std::unique_ptr<gl::ShaderStorageBuffer<glm::mat4>> m_meshMatricesBuffer;
   bool m_forceMeshRebuild = false;
@@ -268,5 +268,4 @@ private:
 
 void serialize(const std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser);
 void deserialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Deserializer<world::World>& ser);
-
 } // namespace engine

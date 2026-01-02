@@ -2,7 +2,7 @@
 
 #include "soundengine.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <unordered_set>
 #include <utility>
 
@@ -17,7 +17,7 @@ Listener::~Listener()
   m_engine->m_listeners.erase(this);
 }
 
-Listener::Listener(const gsl::not_null<SoundEngine*>& engine)
+Listener::Listener(const gsl_lite::not_null<SoundEngine*>& engine)
     : m_engine{engine}
 {
   m_engine->m_listeners.emplace(this);

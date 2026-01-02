@@ -11,7 +11,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <map>
 #include <set>
@@ -31,7 +31,8 @@ struct AnimatedUV
   glm::vec4 quadUv34{};
 
   explicit AnimatedUV() = default;
-  explicit AnimatedUV(glm::int32 index, const glm::vec2& uv, const glm::vec4& quadUv12, const glm::vec4& quadUv34)
+
+  explicit AnimatedUV(const glm::int32 index, const glm::vec2& uv, const glm::vec4& quadUv12, const glm::vec4& quadUv34)
       : uv{uv, index}
       , quadUv12{quadUv12}
       , quadUv34{quadUv34}
@@ -46,7 +47,7 @@ public:
 
   void registerVertex(const core::TextureTileId& tileId, const int sourceIndex, const size_t bufferIndex)
   {
-    auto it = m_sequenceByTileId.find(tileId);
+    const auto it = m_sequenceByTileId.find(tileId);
     if(it == m_sequenceByTileId.end())
       return;
 
@@ -109,12 +110,12 @@ private:
     void rotate()
     {
       BOOST_ASSERT(!tileIds.empty());
-      std::rotate(tileIds.begin(), std::next(tileIds.begin()), tileIds.end());
+      std::ranges::rotate(tileIds, std::next(tileIds.begin()));
     }
 
     void registerVertex(VertexReference vertex, const core::TextureTileId& tileId)
     {
-      const auto it = std::find(tileIds.begin(), tileIds.end(), tileId);
+      const auto it = std::ranges::find(tileIds, tileId);
       gsl_Assert(it != tileIds.end());
       vertex.queueOffset = std::distance(tileIds.begin(), it);
       affectedVertices.insert(vertex);

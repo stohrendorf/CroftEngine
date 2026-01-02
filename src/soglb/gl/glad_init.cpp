@@ -8,7 +8,7 @@
 #include <boost/throw_exception.hpp>
 #include <cstdint>
 #include <cstdlib>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <stdexcept>
 #include <string_view>
 
@@ -17,7 +17,7 @@ using namespace gl;
 namespace
 {
 #ifdef SOGLB_DEBUGGING
-gsl::czstring glDebugSourceToString(const api::DebugSource src)
+gsl_lite::czstring glDebugSourceToString(const api::DebugSource src)
 {
   switch(src)
   {
@@ -39,7 +39,7 @@ gsl::czstring glDebugSourceToString(const api::DebugSource src)
   return "<unknown>";
 }
 
-gsl::czstring glDebugTypeToString(const api::DebugType type)
+gsl_lite::czstring glDebugTypeToString(const api::DebugType type)
 {
   switch(type)
   {
@@ -67,7 +67,7 @@ gsl::czstring glDebugTypeToString(const api::DebugType type)
   return "<unknown>";
 }
 
-gsl::czstring glDebugSeverityToString(const api::DebugSeverity severity)
+gsl_lite::czstring glDebugSeverityToString(const api::DebugSeverity severity)
 {
   switch(severity)
   {
@@ -90,7 +90,7 @@ void SOGLB_API debugCallback(const api::DebugSource source,
                              const uint32_t id,
                              const api::DebugSeverity severity,
                              const api::core::SizeType /*length*/,
-                             const gsl::czstring message,
+                             const gsl_lite::czstring message,
                              const void* /*userParam*/)
 {
   if(source == api::DebugSource::DebugSourceApplication
@@ -108,7 +108,7 @@ void SOGLB_API debugCallback(const api::DebugSource source,
                            << message;
 }
 
-const char* amdDebugSeverityToString(GLenum severity)
+const char* amdDebugSeverityToString(const GLenum severity)
 {
   switch(severity)
   {
@@ -123,7 +123,7 @@ const char* amdDebugSeverityToString(GLenum severity)
   }
 }
 
-const char* amdDebugCategoryToString(GLenum category)
+const char* amdDebugCategoryToString(const GLenum category)
 {
   switch(category)
   {
@@ -148,8 +148,10 @@ const char* amdDebugCategoryToString(GLenum category)
   }
 }
 
-void SOGLB_API amdDebugCallback(
-  GLuint id, GLenum category, GLenum severity, GLsizei length, const GLchar* message, GLvoid* /*userParam*/)
+void SOGLB_API amdDebugCallback(const GLuint id,
+                                const GLenum category,
+                                const GLenum severity,
+                                const GLsizei length, const GLchar* message, GLvoid* /*userParam*/)
 {
   if(category == GL_DEBUG_CATEGORY_APPLICATION_AMD)
     return;

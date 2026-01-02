@@ -62,7 +62,7 @@ public:
   void prevColumn();
 
   void updateBindings(const engine::NamedInputMappingConfig& mappingConfig,
-                      const std::function<std::shared_ptr<ui::widgets::Widget>(
+                      const std::function<std::shared_ptr<Widget>(
                         const engine::InputMappingConfig&, const engine::InputMappingConfig&, hid::Action)>& factory);
 
   [[nodiscard]] hid::Action getCurrentAction() const;

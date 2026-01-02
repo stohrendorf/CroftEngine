@@ -13,7 +13,7 @@
 #include <ft2build.h>
 #include <gl/pixel.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <optional>
 #include <stdexcept>
@@ -31,7 +31,7 @@ namespace
 {
 FT_Library freeTypeLib = nullptr;
 
-gsl::czstring getFreeTypeErrorMessage(const FT_Error err)
+gsl_lite::czstring getFreeTypeErrorMessage(const FT_Error err)
 {
 #undef __FTERRORS_H__
 #define FT_ERRORDEF(e, v, s) \
@@ -43,6 +43,7 @@ gsl::czstring getFreeTypeErrorMessage(const FT_Error err)
 #define FT_ERROR_END_LIST }
 
 #include FT_ERRORS_H
+
   return "(Unknown error)";
 }
 
@@ -51,8 +52,7 @@ FT_Library loadFreeTypeLib()
   if(freeTypeLib != nullptr)
     return freeTypeLib;
 
-  const auto error = FT_Init_FreeType(&freeTypeLib);
-  if(error != FT_Err_Ok)
+  if(const auto error = FT_Init_FreeType(&freeTypeLib); error != FT_Err_Ok)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to load freetype library: " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load freetype library"));
@@ -61,7 +61,7 @@ FT_Library loadFreeTypeLib()
   gsl_Ensures(freeTypeLib != nullptr);
 
   atexit(
-    []()
+    []
     {
       FT_Done_FreeType(freeTypeLib);
       freeTypeLib = nullptr;
@@ -72,14 +72,15 @@ FT_Library loadFreeTypeLib()
 } // namespace
 
 FT_Error ftcFaceRequester(const FTC_FaceID /*face_id*/,
-                          const FT_Library library,  // NOLINT(misc-misplaced-const)
-                          const FT_Pointer req_data, // NOLINT(misc-misplaced-const)
+                          const FT_Library library,
+                          // NOLINT(misc-misplaced-const)
+                          const FT_Pointer req_data,
+                          // NOLINT(misc-misplaced-const)
                           FT_Face* aface)
 {
   const auto* path = static_cast<std::filesystem::path*>(req_data);
 
-  const auto error = FT_New_Face(library, path->string().c_str(), 0, aface);
-  if(error != FT_Err_Ok)
+  if(const auto error = FT_New_Face(library, path->string().c_str(), 0, aface); error != FT_Err_Ok)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to load font " << *path << ": " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load font"));
@@ -91,14 +92,14 @@ Font::Font(std::filesystem::path ttf)
     : m_filename{std::move(ttf)}
 {
   BOOST_LOG_TRIVIAL(debug) << "Loading font " << m_filename;
-  auto error
-    = FTC_Manager_New(loadFreeTypeLib(),
-                      0,
-                      0,
-                      0,
-                      &ftcFaceRequester,
-                      const_cast<std::filesystem::path*>(&m_filename), // NOLINT(cppcoreguidelines-pro-type-const-cast)
-                      &m_cache);
+  auto error = FTC_Manager_New(loadFreeTypeLib(),
+                               0,
+                               0,
+                               0,
+                               &ftcFaceRequester,
+                               const_cast<std::filesystem::path*>(&m_filename),
+                               // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                               &m_cache);
   if(error != FT_Err_Ok)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
@@ -125,7 +126,7 @@ Font::Font(std::filesystem::path ttf)
   const auto face = getFace();
   const auto h = face->ascender - face->descender;
   gsl_Assert(h != 0);
-  m_lineHeight = gsl::narrow_cast<float>(face->height) / gsl::narrow_cast<float>(h);
+  m_lineHeight = gsl_lite::narrow_cast<float>(face->height) / gsl_lite::narrow_cast<float>(h);
 }
 
 Font::~Font()
@@ -134,13 +135,16 @@ Font::~Font()
   m_cache = nullptr;
 }
 
-void Font::drawText(
-  Image<PremultipliedSRGBA8>& img, const gsl::czstring text, glm::ivec2 xy, const PremultipliedSRGBA8& color, int size)
+void Font::drawText(Image<PremultipliedSRGBA8>& img,
+                    const gsl_lite::czstring text,
+                    glm::ivec2 xy,
+                    const PremultipliedSRGBA8& color,
+                    int size)
 {
   gsl_Expects(text != nullptr);
   gsl_Expects(size > 0);
 
-  size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
+  size = gsl_lite::narrow_cast<int>(gsl_lite::narrow_cast<float>(size) * m_lineHeight);
 
   const int baseAlpha = color.channels[3];
   auto currentColor = color;
@@ -159,14 +163,13 @@ void Font::drawText(
     const auto glyphIndex = getGlyphIndex(chr);
     if(glyphIndex == 0)
     {
-      BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << chr << "'";
+      BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << static_cast<int32_t>(chr) << "'";
       continue;
     }
 
     FTC_SBit sbit = nullptr;
     FTC_Node node = nullptr;
-    const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
-    if(error != FT_Err_Ok)
+    if(const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node); error != FT_Err_Ok)
     {
       BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
       FTC_Node_Unref(node, m_cache);
@@ -179,7 +182,7 @@ void Font::drawText(
       {
         for(int dx = 0; dx < sbit->width; dx++, i++)
         {
-          currentColor.channels[3] = gsl::narrow_cast<uint8_t>(sbit->buffer[i] * baseAlpha / 255);
+          currentColor.channels[3] = gsl_lite::narrow_cast<uint8_t>(sbit->buffer[i] * baseAlpha / 255);
           img.set(xy + glm::ivec2{dx + sbit->left, dy - sbit->top}, currentColor, true);
         }
       }
@@ -208,12 +211,12 @@ void Font::drawText(Image<PremultipliedSRGBA8>& img,
   drawText(img, text.c_str(), xy, premultiply(SRGBA8{red, green, blue, alpha}), size);
 }
 
-void Font::drawText(Image<ScalarByte>& img, const gsl::czstring text, glm::ivec2 xy, int size)
+void Font::drawText(Image<ScalarByte>& img, const gsl_lite::czstring text, glm::ivec2 xy, int size)
 {
-  Expects(text != nullptr);
-  Expects(size > 0);
+  gsl_Expects(text != nullptr);
+  gsl_Expects(size > 0);
 
-  size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
+  size = gsl_lite::narrow_cast<int>(gsl_lite::narrow_cast<float>(size) * m_lineHeight);
 
   FTC_ImageTypeRec imgType;
   imgType.face_id = this;
@@ -235,8 +238,7 @@ void Font::drawText(Image<ScalarByte>& img, const gsl::czstring text, glm::ivec2
 
     FTC_SBit sbit = nullptr;
     FTC_Node node = nullptr;
-    const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
-    if(error != FT_Err_Ok)
+    if(const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node); error != FT_Err_Ok)
     {
       BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
       FTC_Node_Unref(node, m_cache);
@@ -250,7 +252,7 @@ void Font::drawText(Image<ScalarByte>& img, const gsl::czstring text, glm::ivec2
         for(int dx = 0; dx < sbit->width; dx++, i++)
         {
           img.set(xy + glm::ivec2{dx + sbit->left, dy - sbit->top},
-                  ScalarByte{gsl::narrow_cast<uint8_t>(sbit->buffer[i])});
+                  ScalarByte{gsl_lite::narrow_cast<uint8_t>(sbit->buffer[i])});
         }
       }
     }
@@ -271,12 +273,12 @@ void Font::drawText(Image<ScalarByte>& img, const std::string& text, const glm::
   drawText(img, text.c_str(), xy, size);
 }
 
-std::pair<glm::ivec2, glm::ivec2> Font::measure(const gsl::czstring text, int size)
+std::pair<glm::ivec2, glm::ivec2> Font::measure(const gsl_lite::czstring text, int size)
 {
-  Expects(text != nullptr);
-  Expects(size > 0);
+  gsl_Expects(text != nullptr);
+  gsl_Expects(size > 0);
 
-  size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
+  size = gsl_lite::narrow_cast<int>(gsl_lite::narrow_cast<float>(size) * m_lineHeight);
 
   FTC_ImageTypeRec imgType;
   imgType.face_id = this;
@@ -303,8 +305,7 @@ std::pair<glm::ivec2, glm::ivec2> Font::measure(const gsl::czstring text, int si
 
     FTC_SBit sbit = nullptr;
     FTC_Node node = nullptr;
-    const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
-    if(error != FT_Err_Ok)
+    if(const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node); error != FT_Err_Ok)
     {
       BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
       FTC_Node_Unref(node, m_cache);
@@ -338,7 +339,8 @@ FT_Face Font::getFace() const
 {
   FT_Face face = nullptr;
   if(FTC_Manager_LookupFace(m_cache,
-                            const_cast<Font*>(this), // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                            const_cast<Font*>(this),
+                            // NOLINT(cppcoreguidelines-pro-type-const-cast)
                             &face)
      != FT_Err_Ok)
   {
@@ -354,13 +356,14 @@ int Font::getGlyphKernAdvance(const FT_UInt left, const FT_UInt right) const
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to retrieve kerning information"));
   }
-  return gsl::narrow<int>(std::lround(gsl::narrow<float>(k.x) / 64.0f * m_lineHeight));
+  return gsl_lite::narrow<int>(std::lround(gsl_lite::narrow<float>(k.x) / 64.0f * m_lineHeight));
 }
 
 FT_UInt Font::getGlyphIndex(const char32_t chr) const
 {
   return FTC_CMapCache_Lookup(m_cmapCache,
-                              const_cast<Font*>(this), // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                              const_cast<Font*>(this),
+                              // NOLINT(cppcoreguidelines-pro-type-const-cast)
                               -1,
                               chr);
 }

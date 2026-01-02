@@ -27,7 +27,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <gl/pixel.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -62,25 +62,25 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     object.getSkeleton()->rebuildMesh();
     world::RenderMeshDataCompositor compositor;
     compositor.append(*modelType->bones[i].mesh, gl::SRGBA8{0, 0, 0, 0});
-    auto particle = gsl::make_shared<MeshShrapnelParticle>(
+    auto particle = gsl_lite::make_shared<MeshShrapnelParticle>(
       Location{object.m_state.location.room, core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),
       compositor.toMesh(
         *object.getWorld().getPresenter().getMaterialManager(),
         false,
         true,
-        [&settings = object.getWorld().getEngine().getEngineConfig()]()
+        [&settings = object.getWorld().getEngine().getEngineConfig()]
         {
           return settings->animSmoothing;
         },
-        [&settings = object.getWorld().getEngine().getEngineConfig()->renderSettings]()
+        [&settings = object.getWorld().getEngine().getEngineConfig()->renderSettings]
         {
           return !settings.lightingModeActive ? 0 : settings.lightingMode;
         },
         "shatter-part:" + std::to_string(i)),
       isTorsoBoss,
       damageRadius);
-    particle->negSpriteFrameId = gsl::narrow<int16_t>((modelType->meshBaseIndex + i).index);
+    particle->negSpriteFrameId = gsl_lite::narrow<int16_t>((modelType->meshBaseIndex + i).index);
     setParent(particle, object.m_state.location.room->node);
     object.getWorld().getObjectManager().registerParticle(std::move(particle));
 

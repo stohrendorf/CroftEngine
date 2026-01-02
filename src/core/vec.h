@@ -8,7 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iosfwd>
 #include <tuple>
 
@@ -26,9 +26,9 @@ void deserialize(TRVec& v, const serialization::Deserializer<engine::world::Worl
 
 [[nodiscard]] inline Length distanceTo(const TRVec& lhs, const TRVec& rhs) noexcept
 {
-  const auto dx = gsl::narrow_cast<float>((lhs.X - rhs.X).get());
-  const auto dy = gsl::narrow_cast<float>((lhs.Y - rhs.Y).get());
-  const auto dz = gsl::narrow_cast<float>((lhs.Z - rhs.Z).get());
+  const auto dx = gsl_lite::narrow_cast<float>((lhs.X - rhs.X).get());
+  const auto dy = gsl_lite::narrow_cast<float>((lhs.Y - rhs.Y).get());
+  const auto dz = gsl_lite::narrow_cast<float>((lhs.Z - rhs.Z).get());
   return Length{static_cast<Length::type>(std::sqrt(dx * dx + dy * dy + dz * dz))};
 }
 

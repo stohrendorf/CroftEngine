@@ -14,7 +14,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -69,7 +69,7 @@ struct ObjectInfo
   }
 };
 
-struct PyObjectInfo : public ObjectInfo
+struct PyObjectInfo : ObjectInfo
 {
   void customize(const std::shared_ptr<objects::Object>& object) override
   {
@@ -80,7 +80,10 @@ struct PyObjectInfo : public ObjectInfo
 
 struct TrackInfo
 {
-  TrackInfo(const std::vector<std::string>& paths, size_t slot, bool looping, uint32_t fadeDurationSeconds)
+  TrackInfo(const std::vector<std::string>& paths,
+            const size_t slot,
+            const bool looping,
+            const uint32_t fadeDurationSeconds)
       : slot{slot}
       , looping{looping}
       , fadeDurationSeconds{fadeDurationSeconds}
@@ -105,14 +108,14 @@ class LevelSequenceItem
 {
 public:
   virtual ~LevelSequenceItem() = default;
-  virtual std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  virtual std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                           const std::shared_ptr<Player>& player,
-                                                          const std::shared_ptr<Player>& levelStartPlayer)
-    = 0;
-  virtual std::pair<RunResult, std::optional<size_t>> runFromSave(const gsl::not_null<Engine*>& /*engine*/,
+                                                          const std::shared_ptr<Player>& levelStartPlayer) = 0;
+  virtual std::pair<RunResult, std::optional<size_t>> runFromSave(const gsl_lite::not_null<Engine*>& /*engine*/,
                                                                   const std::optional<size_t>& /*slot*/,
                                                                   const std::shared_ptr<Player>& /*player*/,
-                                                                  const std::shared_ptr<Player>& /*levelStartPlayer*/);
+                                                                  const std::shared_ptr<Player>&
+                                                                  /*levelStartPlayer*/);
 
   [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;
   [[nodiscard]] virtual std::vector<std::filesystem::path>
@@ -121,7 +124,6 @@ public:
 
 class Level : public LevelSequenceItem
 {
-private:
   std::string m_name;
   bool m_useAlternativeLara;
   std::unordered_map<std::string, std::string> m_titles;
@@ -135,7 +137,7 @@ private:
   loader::file::level::Game m_game;
 
 protected:
-  [[nodiscard]] std::unique_ptr<world::World> loadWorld(const gsl::not_null<Engine*>& engine,
+  [[nodiscard]] std::unique_ptr<world::World> loadWorld(const gsl_lite::not_null<Engine*>& engine,
                                                         const std::shared_ptr<Player>& player,
                                                         const std::shared_ptr<Player>& levelStartPlayer,
                                                         bool fromSave);
@@ -145,16 +147,16 @@ public:
   static constexpr auto DefaultWaterColor = std::tuple{0.0f, 0.462f, 0.494f};
 
   explicit Level(std::string name,
-                 bool useAlternativeLara,
+                 const bool useAlternativeLara,
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
-                 std::optional<TR1TrackId> ambient,
-                 bool allowSave,
-                 WeaponType defaultWeapon,
+                 const std::optional<TR1TrackId> ambient,
+                 const bool allowSave,
+                 const WeaponType defaultWeapon,
                  std::tuple<float, float, float> waterColor,
-                 float waterDensity,
+                 const float waterDensity,
                  std::optional<std::string> alternativeSplashscreen,
-                 loader::file::level::Game game)
+                 const loader::file::level::Game game)
       : m_name{std::move(name)}
       , m_useAlternativeLara{useAlternativeLara}
       , m_titles{std::move(titles)}
@@ -169,10 +171,10 @@ public:
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
-  std::pair<RunResult, std::optional<size_t>> runFromSave(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> runFromSave(const gsl_lite::not_null<Engine*>& engine,
                                                           const std::optional<size_t>& slot,
                                                           const std::shared_ptr<Player>& player,
                                                           const std::shared_ptr<Player>& levelStartPlayer) override;
@@ -183,6 +185,7 @@ public:
     getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const override;
 
   [[nodiscard]] std::filesystem::path getFilepath() const;
+
   [[nodiscard]] const auto& getTitles() const noexcept
   {
     return m_titles;
@@ -191,7 +194,6 @@ public:
 
 class ModifyInventory : public LevelSequenceItem
 {
-private:
   std::unordered_map<TR1ItemId, size_t> m_addInventory;
   std::unordered_set<TR1ItemId> m_dropInventory;
 
@@ -205,7 +207,7 @@ public:
 
   void apply(const std::shared_ptr<Player>& player);
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 
@@ -231,7 +233,7 @@ public:
             std::optional<TR1TrackId> ambient,
             loader::file::level::Game game);
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 
@@ -243,21 +245,20 @@ public:
 
 class Video : public LevelSequenceItem
 {
-private:
   std::vector<std::filesystem::path> m_paths;
   bool m_optional;
 
 public:
-  explicit Video(const std::vector<std::string>& paths, bool optional)
+  explicit Video(const std::vector<std::string>& paths, const bool optional)
       : m_optional{optional}
   {
     if(paths.empty())
       BOOST_THROW_EXCEPTION(std::invalid_argument("paths is empty"));
 
-    std::copy(paths.begin(), paths.end(), std::back_inserter(m_paths));
+    std::ranges::copy(paths, std::back_inserter(m_paths));
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 
@@ -272,7 +273,6 @@ public:
 
 class Cutscene : public LevelSequenceItem
 {
-private:
   std::string m_name;
   TR1TrackId m_track;
   bool m_flipRooms;
@@ -284,13 +284,13 @@ private:
 
 public:
   explicit Cutscene(std::string name,
-                    TR1TrackId track,
-                    bool flipRooms,
-                    bool weaponSwap,
-                    float cameraRot,
+                    const TR1TrackId track,
+                    const bool flipRooms,
+                    const bool weaponSwap,
+                    const float cameraRot,
                     int cameraPosX,
                     int cameraPosZ,
-                    loader::file::level::Game game) noexcept
+                    const loader::file::level::Game game) noexcept
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
@@ -303,11 +303,11 @@ public:
   }
 
   explicit Cutscene(std::string name,
-                    TR1TrackId track,
-                    bool flipRooms,
-                    bool weaponSwap,
-                    float cameraRot,
-                    loader::file::level::Game game) noexcept
+                    const TR1TrackId track,
+                    const bool flipRooms,
+                    const bool weaponSwap,
+                    const float cameraRot,
+                    const loader::file::level::Game game) noexcept
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
@@ -319,7 +319,7 @@ public:
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 
@@ -334,7 +334,6 @@ public:
 
 class SplashScreen : public LevelSequenceItem
 {
-private:
   std::filesystem::path m_path;
   int m_durationSeconds;
   int m_fadeInDurationSeconds;
@@ -345,7 +344,7 @@ public:
 
   ~SplashScreen() override;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 
@@ -360,12 +359,11 @@ public:
 
 class PlayAudioSlot : public LevelSequenceItem
 {
-private:
   size_t m_slot;
   TR1TrackId m_track;
 
 public:
-  explicit PlayAudioSlot(size_t slot, TR1TrackId track) noexcept
+  explicit PlayAudioSlot(const size_t slot, const TR1TrackId track) noexcept
       : m_slot{slot}
       , m_track{track}
   {
@@ -373,7 +371,7 @@ public:
 
   ~PlayAudioSlot() override = default;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 
@@ -391,18 +389,17 @@ public:
 
 class StopAudioSlot : public LevelSequenceItem
 {
-private:
   size_t m_slot;
 
 public:
-  explicit StopAudioSlot(size_t slot) noexcept
+  explicit StopAudioSlot(const size_t slot) noexcept
       : m_slot{slot}
   {
   }
 
   ~StopAudioSlot() override = default;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 
@@ -425,7 +422,7 @@ public:
 
   ~ResetSoundEngine() override = default;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
+  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;
 

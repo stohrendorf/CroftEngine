@@ -15,7 +15,7 @@
 #include <gl/buffer.h>
 #include <gl/vertexbuffer.h>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
 #include <memory>
@@ -75,7 +75,7 @@ class RoomGeometry;
 
 struct Portal
 {
-  gsl::not_null<Room*> adjoiningRoom;
+  gsl_lite::not_null<Room*> adjoiningRoom;
   glm::vec3 normal;
   std::array<glm::vec3, 4> vertices;
   std::shared_ptr<render::scene::Mesh> mesh;
@@ -95,7 +95,7 @@ struct RoomStaticMesh
   core::TRVec position;
   core::Angle rotation;
   core::Shade shade;
-  gsl::not_null<const StaticMesh*> staticMesh;
+  gsl_lite::not_null<const StaticMesh*> staticMesh;
 };
 
 struct Room
@@ -121,7 +121,7 @@ struct Room
   glm::vec3 verticesBBoxMin{std::numeric_limits<float>::max()};
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust{};
-  mutable engine::InstancedParticleCollection particles{};
+  mutable InstancedParticleCollection particles{};
   std::shared_ptr<RoomGeometry> roomGeometry{};
 
   void createSceneNode(const loader::file::Room& srcRoom,
@@ -149,7 +149,7 @@ struct Room
 
   [[nodiscard]] const Sector* getSectorByIndex(int dx, int dz) const;
 
-  [[nodiscard]] gsl::not_null<const Sector*> getBoundarySectorByIndex(int dx, int dz) const
+  [[nodiscard]] gsl_lite::not_null<const Sector*> getBoundarySectorByIndex(int dx, int dz) const
   {
     if(dz <= 0)
     {
@@ -165,7 +165,7 @@ struct Room
     {
       dx = std::clamp(dx, 0, sectorCountX - 1);
     }
-    return gsl::not_null{getSectorByIndex(dx, dz)};
+    return gsl_lite::not_null{getSectorByIndex(dx, dz)};
   }
 
   void resetScenery();
@@ -173,11 +173,11 @@ struct Room
   void serialize(const serialization::Serializer<World>& ser) const;
   void deserialize(const serialization::Deserializer<World>& ser);
 
-  std::vector<engine::ShaderLight> bufferLights{};
-  std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{};
+  std::vector<ShaderLight> bufferLights{};
+  std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>> lightsBuffer{};
 
   void collectShaderLights(size_t depth);
-  void regenerateDust(engine::Presenter& presenter,
+  void regenerateDust(Presenter& presenter,
                       const gslu::nn_shared<render::material::Material>& dustMaterial,
                       bool isDustEnabled,
                       uint8_t dustDensityDivisor);
@@ -197,7 +197,7 @@ private:
               render::TextureAnimator& textureAnimator);
 };
 
-extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
+extern void patchHeightsForBlock(const objects::Object& object, const core::Length& height);
 
 [[nodiscard]] extern std::optional<core::Length> getWaterSurfaceHeight(const Location& location);
 } // namespace engine::world

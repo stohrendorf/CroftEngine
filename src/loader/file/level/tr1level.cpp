@@ -31,9 +31,8 @@ void TR1Level::loadFileData()
   m_reader.seek(0);
 
   // Version
-  const uint32_t file_version = m_reader.readU32();
 
-  if(file_version != 0x00000020)
+  if(const uint32_t file_version = m_reader.readU32(); file_version != 0x00000020)
     BOOST_THROW_EXCEPTION(std::runtime_error("TR1 Level: Wrong level version"));
 
   BOOST_LOG_TRIVIAL(debug) << "Reading textures";
@@ -77,7 +76,7 @@ void TR1Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SkeletalModelType::readTr1(m_reader);
-      if(m_animatedModels.find(m->type) != m_animatedModels.end())
+      if(m_animatedModels.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_animatedModels[m->type] = std::move(m);
@@ -99,7 +98,7 @@ void TR1Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SpriteSequence::readTr1(m_reader);
-      if(m_spriteSequences.find(m->type) != m_spriteSequences.end())
+      if(m_spriteSequences.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_spriteSequences[m->type] = std::move(m);

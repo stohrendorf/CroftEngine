@@ -16,7 +16,7 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 #include <utility>
@@ -38,9 +38,9 @@ void Wolf::update()
   static constexpr auto Dying = 11_as;
   static constexpr auto Biting = 12_as;
 
-  core::Angle pitch = 0_deg;
-  core::Angle roll = 0_deg;
-  core::Angle turn = 0_deg;
+  auto pitch = 0_deg;
+  auto roll = 0_deg;
+  auto turn = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
@@ -178,7 +178,7 @@ void Wolf::update()
     const auto r = util::rand15(3);
     getSkeleton()->setAnimation(
       m_state.current_anim_state,
-      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type)->animations[20 + r]},
+      gsl_lite::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type)->animations[20 + r]},
       0_frame);
     BOOST_ASSERT(m_state.current_anim_state == Dying);
   }
@@ -189,13 +189,13 @@ void Wolf::update()
 }
 
 Wolf::Wolf(const std::string& name,
-           const gsl::not_null<world::World*>& world,
-           const gsl::not_null<const world::Room*>& room,
+           const gsl_lite::not_null<world::World*>& world,
+           const gsl_lite::not_null<const world::Room*>& room,
            const loader::file::Item& item,
-           const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+           const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : AIAgent{name, world, room, item, animatedModel}
 {
-  getSkeleton()->setAnim(gsl::not_null{getSkeleton()->getAnim()}, 96_frame);
+  getSkeleton()->setAnim(gsl_lite::not_null{getSkeleton()->getAnim()}, 96_frame);
   getSkeleton()->updatePose();
 }
 } // namespace engine::objects

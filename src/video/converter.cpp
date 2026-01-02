@@ -12,7 +12,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -30,7 +30,7 @@ namespace video
 {
 constexpr auto OutputPixFmt = AV_PIX_FMT_RGB24;
 
-Converter::Converter(const glm::ivec2& size, AVPixelFormat srcFormat)
+Converter::Converter(const glm::ivec2& size, const AVPixelFormat srcFormat)
     : size{size}
     , context{sws_getContext(size.x,
                              size.y,
@@ -43,8 +43,8 @@ Converter::Converter(const glm::ivec2& size, AVPixelFormat srcFormat)
                              nullptr,
                              nullptr)}
     , textureHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
-        gsl::make_shared<gl::Texture2D<gl::SRGB8>>(glm::ivec2{size.x, size.y}, "video"),
-        gsl::make_unique<gl::Sampler>("video" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear))}
+        gsl_lite::make_shared<gl::Texture2D<gl::SRGB8>>(glm::ivec2{size.x, size.y}, "video"),
+        gsl_lite::make_unique<gl::Sampler>("video" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear))}
 {
   if(context == nullptr)
   {
@@ -69,7 +69,7 @@ void Converter::update(const ffmpeg::AVFramePtr& videoFrame)
   }
 
   gsl_Assert(sws_scale(context,
-                       static_cast<const uint8_t* const*>(videoFrame.frame->data),
+                       videoFrame.frame->data,
                        videoFrame.frame->linesize,
                        0,
                        videoFrame.frame->height,
@@ -78,7 +78,7 @@ void Converter::update(const ffmpeg::AVFramePtr& videoFrame)
              == size.y);
 
   std::vector<gl::SRGB8> dstData;
-  dstData.resize(gsl::narrow_cast<size_t>(size.x * size.y), {0, 0, 0});
+  dstData.resize(gsl_lite::narrow_cast<size_t>(size.x * size.y), {0, 0, 0});
 
   // TODO this should get fixed
   gsl_Assert(dstVideoLinesize[0] == size.x * 3);

@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <gl/pixel.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -88,7 +88,8 @@ void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDis
     return;
 
   ui::widgets::Label pageLabel{pgettext("PagedList",
-                                        /* translators: TR charmap encoding */ "Page %1% of %2%",
+                                        /* translators: TR charmap encoding */
+                                        "Page %1% of %2%",
                                         m_listBox->getCurrentPage() + 1,
                                         m_listBox->getTotalPages()),
                                ui::widgets::Label::Alignment::Center};
@@ -106,7 +107,7 @@ void ListDisplayMenuState::clear()
   m_listBox->clear();
 }
 
-void ListDisplayMenuState::setSelected(size_t idx)
+void ListDisplayMenuState::setSelected(const size_t idx)
 {
   m_listBox->setSelected(idx);
 }

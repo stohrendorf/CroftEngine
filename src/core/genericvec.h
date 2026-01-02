@@ -3,7 +3,7 @@
 #include "qs/quantity.h"
 
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace core
 {
@@ -18,13 +18,13 @@ struct UnderlyingType
 template<typename T, typename U>
 struct UnderlyingType<qs::quantity<T, U>>
 {
-  using type = typename qs::quantity<T, U>::type;
+  using type = qs::quantity<T, U>::type;
 };
 
 template<typename T, typename U>
 constexpr auto underlyingCast(const U& v)
 {
-  return gsl::narrow_cast<typename UnderlyingType<T>::type>(v);
+  return gsl_lite::narrow_cast<typename UnderlyingType<T>::type>(v);
 }
 } // namespace detail
 
@@ -50,8 +50,8 @@ struct GenericVec
   }
 
   constexpr GenericVec() noexcept = default;
-  constexpr GenericVec(const GenericVec<T>&) noexcept = default;
-  constexpr GenericVec(GenericVec<T>&&) noexcept = default;
+  constexpr GenericVec(const GenericVec&) noexcept = default;
+  constexpr GenericVec(GenericVec&&) noexcept = default;
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   constexpr GenericVec(const T& x, const T& y, const T& z) noexcept
@@ -61,16 +61,16 @@ struct GenericVec
   {
   }
 
-  constexpr GenericVec<T>& operator=(const GenericVec<T>&) noexcept = default;
+  constexpr GenericVec& operator=(const GenericVec&) noexcept = default;
 
-  constexpr GenericVec<T>& operator=(GenericVec<T>&&) noexcept = default;
+  constexpr GenericVec& operator=(GenericVec&&) noexcept = default;
 
-  [[nodiscard]] constexpr GenericVec<T> operator-(const GenericVec<T>& rhs) const noexcept(noexcept(X - rhs.X))
+  [[nodiscard]] constexpr GenericVec operator-(const GenericVec& rhs) const noexcept(noexcept(X - rhs.X))
   {
     return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
   }
 
-  GenericVec<T>& operator-=(const GenericVec<T>& rhs) noexcept(noexcept(X -= rhs.X))
+  GenericVec& operator-=(const GenericVec& rhs) noexcept(noexcept(X -= rhs.X))
   {
     X -= rhs.X;
     Y -= rhs.Y;
@@ -84,18 +84,18 @@ struct GenericVec
     return GenericVec<decltype(X / n)>{X / n, Y / n, Z / n};
   }
 
-  template<typename U, typename V>
+  template<typename U, typename>
   [[nodiscard]] constexpr auto operator*(const U& n) const noexcept(noexcept(X * n))
   {
     return GenericVec<decltype(X * n)>{X * n, Y * n, Z * n};
   }
 
-  [[nodiscard]] constexpr GenericVec<T> operator+(const GenericVec<T>& rhs) const noexcept(noexcept(X + rhs.X))
+  [[nodiscard]] constexpr GenericVec operator+(const GenericVec& rhs) const noexcept(noexcept(X + rhs.X))
   {
     return {X + rhs.X, Y + rhs.Y, Z + rhs.Z};
   }
 
-  GenericVec<T>& operator+=(const GenericVec<T>& rhs) noexcept(noexcept(X += rhs.X))
+  GenericVec& operator+=(const GenericVec& rhs) noexcept(noexcept(X += rhs.X))
   {
     X += rhs.X;
     Y += rhs.Y;
@@ -105,7 +105,9 @@ struct GenericVec
 
   [[nodiscard]] glm::vec3 toRenderSystem() const noexcept
   {
-    return {gsl::narrow_cast<float>(X.get()), -gsl::narrow_cast<float>(Y.get()), -gsl::narrow_cast<float>(Z.get())};
+    return {gsl_lite::narrow_cast<float>(X.get()),
+            -gsl_lite::narrow_cast<float>(Y.get()),
+            -gsl_lite::narrow_cast<float>(Z.get())};
   }
 };
 

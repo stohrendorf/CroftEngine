@@ -34,9 +34,8 @@ struct MenuDisplay;
 struct MenuRingTransform;
 class MenuState;
 
-class SettingsMenuState : public SelectedMenuState
+class SettingsMenuState final : public SelectedMenuState
 {
-private:
   std::vector<std::shared_ptr<ui::widgets::CheckListBox>> m_listBoxes;
   std::vector<std::vector<std::shared_ptr<ui::widgets::TextBox>>> m_descriptions;
   std::unique_ptr<MenuState> m_previous;

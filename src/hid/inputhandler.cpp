@@ -20,13 +20,14 @@
 #include <fstream>
 #include <gl/glfw.h>
 #include <gl/window.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <ios>
 #include <iterator>
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -53,7 +54,7 @@ std::optional<AxisDir> recentPressedAxis;
 
 constexpr float AxisDeadZone = 0.4f;
 
-void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
+void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, const int action, int /*mods*/)
 {
   if(key < 0)
     return;
@@ -87,7 +88,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   }
 }
 
-void joystickCallback(int jid, int event)
+void joystickCallback(int jid, const int event)
 {
   switch(event)
   {
@@ -137,7 +138,7 @@ void uninstallKeyHandler(GLFWwindow* window)
   glfwSetKeyCallback(window, nullptr);
 }
 
-bool isKeyPressed(GlfwKey key)
+bool isKeyPressed(const GlfwKey key)
 {
   const std::lock_guard lock{glfwStateMutex};
   return pressedKeys.count(key) > 0;
@@ -162,7 +163,7 @@ InputHandler::InputHandler(gslu::nn_shared<gl::Window> window, const std::filesy
     if(glfwJoystickPresent(jid) != GLFW_TRUE)
       continue;
 
-    const gsl::czstring name = glfwGetGamepadName(jid);
+    const gsl_lite::czstring name = glfwGetGamepadName(jid);
     if(name == nullptr || glfwJoystickIsGamepad(jid) != GLFW_TRUE)
     {
       BOOST_LOG_TRIVIAL(info) << "Connected joystick #" << jid << " " << glfwGetJoystickName(jid)
@@ -187,8 +188,7 @@ void InputHandler::update()
   const std::lock_guard lock{glfwStateMutex};
   if(!m_window->hasFocus())
   {
-    for(auto& [action, button] : m_inputState.actions)
-      button = false;
+    std::ranges::fill(m_inputState.actions | std::views::values, false);
     m_inputState.setXAxisMovement(false, false);
     m_inputState.setMenuXAxisMovement(false, false);
     m_inputState.setZAxisMovement(false, false);
@@ -199,7 +199,7 @@ void InputHandler::update()
 
   std::vector<GLFWgamepadstate> gamepadStates;
   gamepadStates.reserve(connectedGamepads.size());
-  for(auto jid : connectedGamepads)
+  for(const auto jid : connectedGamepads)
   {
     if(glfwJoystickPresent(jid) != GLFW_TRUE)
       continue;
@@ -210,7 +210,7 @@ void InputHandler::update()
   }
 
   const auto prevPressedButtons = std::exchange(pressedButtons, {});
-  for(const auto& [button, _] : EnumUtil<GlfwGamepadButton>::all())
+  for(const auto& button : EnumUtil<GlfwGamepadButton>::all() | std::views::keys)
   {
     for(const auto& state : gamepadStates)
     {
@@ -225,7 +225,7 @@ void InputHandler::update()
   }
 
   const auto prevPressedAxes = std::exchange(pressedAxes, {});
-  for(const auto& [axis, _] : EnumUtil<GlfwAxis>::all())
+  for(const auto& axis : EnumUtil<GlfwAxis>::all() | std::views::keys)
   {
     for(const auto& state : gamepadStates)
     {
@@ -321,7 +321,7 @@ void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-bool InputHandler::hasKey(GlfwKey key) const
+bool InputHandler::hasKey(const GlfwKey key) const
 {
   return isKeyPressed(key);
 }

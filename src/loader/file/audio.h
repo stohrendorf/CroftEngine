@@ -27,7 +27,7 @@ struct SoundSource final
   static constexpr uint16_t PlayIfRoomsNotSwapped = 0x80;
 
   core::TRVec position;
-  core::SoundEffectId sound_effect_id{uint16_t(0)};
+  core::SoundEffectId sound_effect_id{static_cast<uint16_t>(0)};
   uint16_t flags{};
 
   static std::unique_ptr<SoundSource> read(io::SDLReader& reader);

@@ -23,7 +23,7 @@ void RotateLeftRightMenuState::handleObject(ui::Ui& /*ui*/,
 }
 
 RotateLeftRightMenuState::RotateLeftRightMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                                   bool left,
+                                                   const bool left,
                                                    const MenuRing& ring,
                                                    std::unique_ptr<MenuState>&& prev)
     : MenuState{ringTransform}

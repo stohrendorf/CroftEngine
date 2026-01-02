@@ -19,7 +19,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -41,7 +41,7 @@ UIPass::UIPass(material::MaterialManager& materialManager,
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(renderViewport, "ui-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
-        gsl::make_unique<gl::Sampler>("ui-color" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>("ui-color" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
@@ -50,9 +50,9 @@ UIPass::UIPass(material::MaterialManager& materialManager,
              .build("ui-fb")}
 {
   m_mesh->bind("u_input",
-               [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
-                 uniform.set(gsl::not_null{m_colorBufferHandle});
+                 uniform.set(gsl_lite::not_null{m_colorBufferHandle});
                });
 
   m_mesh->getRenderState().merge(m_fb->getRenderState());
@@ -73,7 +73,7 @@ void UIPass::render(const std::function<void()>& doRender)
 void UIPass::render(float alpha)
 {
   m_mesh->bind("u_alphaMultiplier",
-               [alpha](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [alpha](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(alpha);
                });

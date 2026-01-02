@@ -27,7 +27,7 @@
 #include "render/scene/node.h"
 
 #include <boost/throw_exception.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -51,8 +51,8 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
                                         core::TRRotation{-10_deg, -30_deg, -10_deg},
                                         core::TRRotation{10_deg, 30_deg, 10_deg}};
 
-  auto& lara = getWorld().getObjectManager().getLara();
-  if(lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
+  if(auto& lara = getWorld().getObjectManager().getLara();
+     lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
     if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
        || lara.getHandStatus() != HandStatus::None || lara.m_state.falling
@@ -114,12 +114,14 @@ void PuzzleHole::initMesh()
   gsl_Assert(model != nullptr);
 
   const auto parent = m_skeleton->getParent().lock();
-  setParent(gsl::not_null{m_skeleton}, nullptr);
-  m_skeleton = std::make_shared<SkeletalModelNode>(
-    toString(m_state.type.get_as<TR1ItemId>()), gsl::not_null{&getWorld()}, gsl::not_null{model.get()}, false);
+  setParent(gsl_lite::not_null{m_skeleton}, nullptr);
+  m_skeleton = std::make_shared<SkeletalModelNode>(toString(m_state.type.get_as<TR1ItemId>()),
+                                                   gsl_lite::not_null{&getWorld()},
+                                                   gsl_lite::not_null{model.get()},
+                                                   false);
   m_skeleton->setAnimation(
-    m_state.current_anim_state, gsl::not_null{&model->animations[0]}, model->animations->firstFrame);
-  setParent(gsl::not_null{m_skeleton}, parent);
+    m_state.current_anim_state, gsl_lite::not_null{&model->animations[0]}, model->animations->firstFrame);
+  setParent(gsl_lite::not_null{m_skeleton}, parent);
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton, getWorld());
 
@@ -162,16 +164,16 @@ void PuzzleHole::swapPuzzleState()
 }
 
 PuzzleHole::PuzzleHole(const std::string& name,
-                       const gsl::not_null<world::World*>& world,
-                       const gsl::not_null<const world::Room*>& room,
+                       const gsl_lite::not_null<world::World*>& world,
+                       const gsl_lite::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
-                       const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                       const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, false, animatedModel, false}
 {
   initMesh();
 }
 
-PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world, const Location& location)
+PuzzleHole::PuzzleHole(const gsl_lite::not_null<world::World*>& world, const Location& location)
     : ModelObject{world, location}
 {
 }

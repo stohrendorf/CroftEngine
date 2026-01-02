@@ -26,7 +26,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -81,7 +81,6 @@ class LaraObject final : public ModelObject
   using LaraStateId = loader::file::LaraStateId;
   using AnimationId = loader::file::AnimationId;
 
-private:
   //! @brief Additional rotation per TR Engine Frame
   core::RotationSpeed m_yRotationSpeed{0_deg / 1_frame};
   core::Speed m_fallSpeedOverride = 0_spd;
@@ -100,19 +99,19 @@ private:
 #endif
 
 public:
-  LaraObject(const gsl::not_null<world::World*>& world, const Location& location)
+  LaraObject(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
-      , flashLightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+      , flashLightsBuffer{std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>(
           "dynamic-lights", gl::api::BufferUsage::DynamicDraw, 2)}
   {
     initMuzzleFlashes();
   }
 
   LaraObject(const std::string& name,
-             const gsl::not_null<world::World*>& world,
-             const gsl::not_null<const world::Room*>& room,
+             const gsl_lite::not_null<world::World*>& world,
+             const gsl_lite::not_null<const world::Room*>& room,
              const loader::file::Item& item,
-             const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
+             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 
   LaraObject(const LaraObject&) = delete;
   LaraObject(LaraObject&&) = delete;

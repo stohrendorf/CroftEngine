@@ -86,18 +86,18 @@ public:
   std::vector<uint16_t> m_animatedTextures;
 
   /*
-     * 0 Normal
-     * 3 Catsuit
-     * 4 Divesuit
-     * 6 Invisible
-     */
+       * 0 Normal
+       * 3 Catsuit
+       * 4 Divesuit
+       * 6 Invisible
+       */
   uint16_t m_laraType = 0;
 
   /*
-     * 0 No weather
-     * 1 Rain
-     * 2 Snow (in title.trc these are red triangles falling from the sky).
-     */
+       * 0 No weather
+       * 1 Rain
+       * 2 Snow (in title.trc these are red triangles falling from the sky).
+       */
   uint16_t m_weatherType = 0;
 
   static std::unique_ptr<Level> createLoader(const std::filesystem::path& filename, Game gameVersion);
@@ -116,7 +116,7 @@ protected:
 
   void readMeshData(io::SDLReader& reader);
 
-  static void convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst);
+  static void convertTexture(const ByteTexture& tex, Palette& pal, DWordTexture& dst);
 
   static void convertTexture(const WordTexture& tex, DWordTexture& dst);
 

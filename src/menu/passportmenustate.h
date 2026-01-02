@@ -28,7 +28,6 @@ enum class SaveGamePageMode : uint8_t;
 
 class PassportMenuState : public MenuState
 {
-private:
   bool m_allowExit;
   SaveGamePageMode m_saveGamePageMode;
   std::unique_ptr<ui::Text> m_passportText;
@@ -43,7 +42,7 @@ public:
   static constexpr int LoadGamePage = 0;
   static constexpr int SaveGamePage = 1;
   static constexpr int ExitGamePage = 2;
-  static constexpr core::Frame FramesPerPage = 5_frame;
+  static constexpr auto FramesPerPage = 5_frame;
 
   explicit PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                              bool allowExit,

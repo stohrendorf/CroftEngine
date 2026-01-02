@@ -18,7 +18,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -71,10 +71,10 @@ struct InteractionLimits
 
 class Object
 {
-  gsl::not_null<world::World*> m_world;
+  gsl_lite::not_null<world::World*> m_world;
 
 protected:
-  Object(const gsl::not_null<world::World*>& world, const Location& location);
+  Object(const gsl_lite::not_null<world::World*>& world, const Location& location);
 
 public:
   ObjectState m_state;
@@ -91,8 +91,8 @@ public:
     Interact = 7
   };
 
-  Object(const gsl::not_null<world::World*>& world,
-         const gsl::not_null<const world::Room*>& room,
+  Object(const gsl_lite::not_null<world::World*>& world,
+         const gsl_lite::not_null<const world::Room*>& room,
          const loader::file::Item& item,
          bool hasUpdateFunction);
 
@@ -106,7 +106,7 @@ public:
 
   virtual std::shared_ptr<render::scene::Node> getNode() const = 0;
 
-  void setCurrentRoom(const gsl::not_null<const world::Room*>& newRoom);
+  void setCurrentRoom(const gsl_lite::not_null<const world::Room*>& newRoom);
 
   void applyTransform();
 

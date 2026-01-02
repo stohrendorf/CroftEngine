@@ -5,7 +5,7 @@
 
 #include <gl/buffer.h>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
 #include <memory>
@@ -44,15 +44,16 @@ struct ShaderLight
   static gslu::nn_shared<gl::ShaderStorageBuffer<ShaderLight>> getEmptyBuffer()
   {
     static std::weak_ptr<gl::ShaderStorageBuffer<ShaderLight>> instance;
-    if(auto tmp = instance.lock())
-      return gsl::not_null{tmp};
+    if(const auto tmp = instance.lock())
+      return gsl_lite::not_null{tmp};
 
-    auto tmp = gsl::make_shared<gl::ShaderStorageBuffer<ShaderLight>>(
-      "empty-lights-buffer", gl::api::BufferUsage::StaticDraw, gsl::span<ShaderLight>{});
+    auto tmp = gsl_lite::make_shared<gl::ShaderStorageBuffer<ShaderLight>>(
+      "empty-lights-buffer", gl::api::BufferUsage::StaticDraw, gsl_lite::span<ShaderLight>{});
     instance = tmp.get();
     return tmp;
   }
 };
+
 static_assert(sizeof(ShaderLight) == 48, "Invalid Light struct size");
 
 struct Lighting

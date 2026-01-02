@@ -15,7 +15,7 @@
 #include <gl/window.h>
 #include <glm/trigonometric.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -74,10 +74,10 @@ struct AudioSettings;
 class Presenter final
 {
 public:
-  static const constexpr float DefaultNearPlane = 20.0f;
-  static const constexpr float DefaultFarPlane = 20480.0f;
-  static const constexpr float DefaultFov = glm::radians(60.0f);
-  static const constexpr core::Frame DefaultHealthBarTimeout = core::FrameRate * 1_sec * 4 / 3;
+  static constexpr float DefaultNearPlane = 20.0f;
+  static constexpr float DefaultFarPlane = 20480.0f;
+  static constexpr float DefaultFov = glm::radians(60.0f);
+  static constexpr core::Frame DefaultHealthBarTimeout = core::FrameRate * 1_sec * 4 / 3;
 
   explicit Presenter(const std::filesystem::path& engineDataPath,
                      const glm::ivec2& resolution,
@@ -90,7 +90,7 @@ public:
   void renderWorld(const std::vector<world::Room>& rooms,
                    const CameraController& cameraController,
                    const std::unordered_set<const world::Portal*>& waterEntryPortals,
-                   const engine::world::World& world);
+                   const world::World& world);
 
   [[nodiscard]] const auto& getSoundEngine() const noexcept
   {
@@ -157,7 +157,7 @@ public:
 
   void debounceInput();
 
-  void setFullscreen(bool value)
+  void setFullscreen(const bool value)
   {
     m_window->setFullscreen(value);
   }
@@ -229,6 +229,6 @@ private:
     return m_splashImageMesh;
   }
 
-  void renderGeometry(const engine::world::World& world, const std::vector<world::Room>& rooms);
+  void renderGeometry(const world::World& world, const std::vector<world::Room>& rooms);
 };
 } // namespace engine

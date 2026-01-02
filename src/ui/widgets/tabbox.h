@@ -21,13 +21,13 @@ class Text;
 
 namespace ui::widgets
 {
-class Tab : public ui::widgets::Widget
+class Tab : public Widget
 {
 public:
   explicit Tab(const std::string& title);
   ~Tab() override;
 
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
   [[nodiscard]] glm::ivec2 getSize() const override
   {
     return m_size;
@@ -60,7 +60,7 @@ public:
   explicit TabBox();
   ~TabBox() override;
 
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
   [[nodiscard]] glm::ivec2 getSize() const override
   {
     return m_size;

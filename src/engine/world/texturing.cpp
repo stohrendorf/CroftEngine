@@ -35,7 +35,7 @@
 #include <glm/common.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <limits>
 #include <map>
@@ -72,8 +72,7 @@ void remap(AtlasTile& srcTile, const core::AtlasId& newAtlasId, const glm::vec2&
   srcTile.textureKey.atlasIdAndFlag |= newAtlasId.get();
 
   const auto [tileUvMin, tileUvMax] = srcTile.getMinMaxUv();
-  const auto tileUvSize = tileUvMax - tileUvMin;
-  if(tileUvSize.x == 0 || tileUvSize.y == 0)
+  if(const auto tileUvSize = tileUvMax - tileUvMin; tileUvSize.x == 0 || tileUvSize.y == 0)
     return;
 
   for(auto& uvComponent : srcTile.uvCoordinates)
@@ -106,7 +105,7 @@ struct Tile
   // texture page, position, and size (in pixels)
   std::optional<std::tuple<size_t, glm::ivec2, glm::ivec2>> remapped;
 
-  explicit Tile(const glm::ivec2& position, const glm::ivec2& size, bool opaque)
+  explicit Tile(const glm::ivec2& position, const glm::ivec2& size, const bool opaque)
       : position{size.x >= 0 ? position.x : position.x + size.x, size.y >= 0 ? position.y : position.y + size.y}
       , size{glm::abs(size)}
       , opaque{opaque}
@@ -361,7 +360,7 @@ void layoutAtlases(const loader::file::level::Level& level,
     bool remapped = false;
     for(auto& srcTile : atlasTiles)
     {
-      if(doneTiles.count(&srcTile) != 0)
+      if(doneTiles.contains(&srcTile))
         continue;
 
       if((srcTile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask) != atlasId)
@@ -398,7 +397,7 @@ void layoutAtlases(const loader::file::level::Level& level,
 
     for(auto& sprite : sprites)
     {
-      if(doneSprites.count(&sprite) != 0)
+      if(doneSprites.contains(&sprite))
         continue;
 
       if(sprite.atlasId.get() != atlasId)
@@ -452,7 +451,7 @@ void materializeAtlases(const loader::file::level::Level& level,
                         std::unordered_set<Sprite*>& doneSprites,
                         const std::function<void(const std::string&)>& drawLoadingScreen)
 {
-  const auto atlasUvScale = 256.0f / gsl::narrow_cast<float>(atlases.getSize());
+  const auto atlasUvScale = 256.0f / gsl_lite::narrow_cast<float>(atlases.getSize());
 
   struct SourceTile final
   {
@@ -486,12 +485,11 @@ void materializeAtlases(const loader::file::level::Level& level,
   for(auto& tile : atlasTiles)
     tilesOrderedBySize.emplace_back(&tile);
 
-  std::sort(tilesOrderedBySize.begin(),
-            tilesOrderedBySize.end(),
-            [](AtlasTile* a, AtlasTile* b)
-            {
-              return a->getArea() > b->getArea();
-            });
+  std::ranges::sort(tilesOrderedBySize,
+                    [](AtlasTile* a, AtlasTile* b)
+                    {
+                      return a->getArea() > b->getArea();
+                    });
 
   for(size_t tileId = 0; tileId < tilesOrderedBySize.size(); ++tileId)
   {
@@ -534,7 +532,7 @@ void materializeAtlases(const loader::file::level::Level& level,
     }
 
     const auto srcUvDims = tile->getMinMaxUv();
-    const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+    const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl_lite::narrow_cast<float>(atlases.getSize());
     remap(*tile,
           replacementPos.first,
           replacementUvPos,
@@ -546,16 +544,15 @@ void materializeAtlases(const loader::file::level::Level& level,
   for(auto& sprite : sprites)
     spritesOrderedBySize.emplace_back(&sprite);
 
-  std::sort(spritesOrderedBySize.begin(),
-            spritesOrderedBySize.end(),
-            [](Sprite* a, Sprite* b)
-            {
-              const auto aSize = a->uv1 - a->uv0;
-              const auto aArea = glm::abs(aSize.x * aSize.y);
-              const auto bSize = b->uv1 - b->uv0;
-              const auto bArea = glm::abs(bSize.x * bSize.y);
-              return aArea > bArea;
-            });
+  std::ranges::sort(spritesOrderedBySize,
+                    [](Sprite* a, Sprite* b)
+                    {
+                      const auto aSize = a->uv1 - a->uv0;
+                      const auto aArea = glm::abs(aSize.x * aSize.y);
+                      const auto bSize = b->uv1 - b->uv0;
+                      const auto bArea = glm::abs(bSize.x * bSize.y);
+                      return aArea > bArea;
+                    });
 
   for(auto* sprite : spritesOrderedBySize)
   {
@@ -593,7 +590,7 @@ void materializeAtlases(const loader::file::level::Level& level,
     {
       replacementPos = it->second;
     }
-    const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+    const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl_lite::narrow_cast<float>(atlases.getSize());
     const std::pair minMaxUv{sprite->uv0, sprite->uv1};
     remap(*sprite,
           replacementPos.first,
@@ -620,10 +617,11 @@ public:
   explicit DataProvider(gl::CImgWrapper& img)
       : m_bmp{std::make_shared<Bitmap>(
           glm::ivec2{img.width(), img.height()},
-          gsl::span{reinterpret_cast<const uint32_t*>(img.pixels().data()), img.pixels().size()})}
+          gsl_lite::span{reinterpret_cast<const uint32_t*>(img.pixels().data()), img.pixels().size()})}
       , m_current{m_bmp[0]}
   {
   }
+
   ~DataProvider() = default;
 
   [[nodiscard]] uint32_t numberOfParts() const noexcept
@@ -636,7 +634,7 @@ public:
     assert(!m_done);
 
     const auto [ptr, lines, done] = m_current->nextBlock(m_linesPerPart);
-    DataPart ret{ptr, std::max<uint32_t>(4, m_current->size().x), lines, m_offset};
+    const DataPart ret{ptr, std::max<uint32_t>(4, m_current->size().x), lines, m_offset};
 
     m_offset += m_current->size().x / 4 * lines;
 
@@ -676,7 +674,7 @@ void compressEtc2(gl::CImgWrapper& wrapper, const std::filesystem::path& output)
   for(uint32_t i = 0; i < num; i++)
   {
     futures.emplace_back(std::async(std::launch::async,
-                                    [part = dp.nextPart(), &bd]()
+                                    [part = dp.nextPart(), &bd]
                                     {
                                       bd.processRgba(
                                         part.src, part.width / 4 * part.lines, part.offset, part.width, true);
@@ -716,14 +714,14 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
     if(atlases.isOnlyLayout() && std::filesystem::is_regular_file(textureSizesPath))
     {
       serialization::YAMLDocument<true> doc{textureSizesPath};
-      doc.deserialize("sizes", gsl::not_null{&level}, textureSizes);
+      doc.deserialize("sizes", gsl_lite::not_null{&level}, textureSizes);
     }
     layoutAtlases(
       level, *glidos, atlases, atlasTiles, sprites, doneTiles, doneSprites, textureSizes, drawLoadingScreen);
     if(!atlases.isOnlyLayout())
     {
       serialization::YAMLDocument<false> doc{textureSizesPath};
-      doc.serialize("sizes", gsl::not_null{&level}, textureSizes);
+      doc.serialize("sizes", gsl_lite::not_null{&level}, textureSizes);
       doc.write();
     }
   }
@@ -732,7 +730,7 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
 
   const int textureLevels = static_cast<int>(std::log2(atlases.getSize())) + 1;
   auto allTextures = std::make_unique<gl::Texture2DArray<gl::PremultipliedSRGBA8>>(
-    glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(atlases.numAtlases())},
+    glm::ivec3{atlases.getSize(), atlases.getSize(), gsl_lite::narrow<int>(atlases.numAtlases())},
     "all-textures",
     textureLevels);
 
@@ -743,7 +741,7 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
     for(size_t i = 0; i < atlases.numAtlases(); ++i)
     {
       loaders.emplace_back(std::async(std::launch::async,
-                                      [i, &cacheDir, &atlases]()
+                                      [i, &cacheDir, &atlases]
                                       {
                                         const auto cacheFile = cacheDir / (std::to_string(i) + ".pvr");
                                         BOOST_LOG_TRIVIAL(info) << "Loading cache texture " << cacheFile;
@@ -766,9 +764,10 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
       images.emplace_back(std::make_shared<gl::CImgWrapper>(
         reinterpret_cast<uint8_t*>(bmp->data()), bmp->size().x, bmp->size().y, false));
 
-      allTextures->assign(gsl::span{reinterpret_cast<gl::PremultipliedSRGBA8*>(bmp->data()),
-                                    gsl::narrow_cast<size_t>(bmp->size().x) * gsl::narrow_cast<size_t>(bmp->size().y)},
-                          gsl::narrow_cast<int>(i));
+      allTextures->assign(
+        gsl_lite::span{reinterpret_cast<gl::PremultipliedSRGBA8*>(bmp->data()),
+                       gsl_lite::narrow_cast<size_t>(bmp->size().x) * gsl_lite::narrow_cast<size_t>(bmp->size().y)},
+        gsl_lite::narrow_cast<int>(i));
     }
   }
   else
@@ -783,7 +782,7 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
       BOOST_LOG_TRIVIAL(info) << "Saving cache texture " << cacheFile;
       compressEtc2(*images[i], cacheFile);
 
-      allTextures->assign(images[i]->asPremultipliedPixels(), gsl::narrow_cast<int>(i));
+      allTextures->assign(images[i]->asPremultipliedPixels(), gsl_lite::narrow_cast<int>(i));
     }
   }
 

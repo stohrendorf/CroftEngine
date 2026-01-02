@@ -33,6 +33,7 @@ struct CameraMatrices
   float farPlane = 1;
   float _pad = 0;
 };
+
 static_assert(sizeof(CameraMatrices) % 16 == 0);
 
 class Camera final
@@ -41,7 +42,7 @@ class Camera final
 
 public:
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  Camera(float fieldOfView, const glm::vec2& viewport, float nearPlane, float farPlane)
+  Camera(const float fieldOfView, const glm::vec2& viewport, const float nearPlane, const float farPlane)
       : m_fieldOfView{fieldOfView}
       , m_matricesBuffer{"camera-matrices-ubo", gl::api::BufferUsage::DynamicDraw, m_matrices}
   {
@@ -61,7 +62,7 @@ public:
 
   ~Camera() = default;
 
-  void setFieldOfView(float fieldOfView) noexcept
+  void setFieldOfView(const float fieldOfView) noexcept
   {
     m_fieldOfView = fieldOfView;
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
@@ -74,6 +75,7 @@ public:
     return m_matrices.aspectRatio;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void setViewport(const glm::vec2& viewport)
   {
     if(glm::vec2{m_matrices.viewport} == viewport)
@@ -101,6 +103,7 @@ public:
     return m_matrices.view;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void setViewMatrix(const glm::mat4& m) noexcept
   {
     m_matrices.view = m;

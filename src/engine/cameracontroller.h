@@ -12,7 +12,7 @@
 
 #include <cstdint>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <unordered_set>
@@ -62,10 +62,9 @@ enum class CameraModifier : uint8_t
 
 class CameraController final : public audio::Listener
 {
-private:
   gslu::nn_shared<render::scene::Camera> m_camera;
 
-  gsl::not_null<world::World*> m_world;
+  gsl_lite::not_null<world::World*> m_world;
 
   //! @brief Global camera position.
   Location m_location;
@@ -78,8 +77,8 @@ private:
   bool m_isCompletelyFixed = false;
 
   /**
-     * @brief If <0, bounce randomly around +/- @c m_bounce/2, increasing value by 5 each frame; if >0, do a single Y bounce downwards by @c m_bounce.
-     */
+* @brief If <0, bounce randomly around +/- @c m_bounce/2, increasing value by 5 each frame; if >0, do a single Y bounce downwards by @c m_bounce.
+*/
   core::Length m_bounce = 0_len;
 
   //! @brief Goal distance between the pivot point and the camera.
@@ -101,13 +100,14 @@ private:
   core::Frame m_camOverrideTimeout{-1_frame};
 
 public:
-  explicit CameraController(const gsl::not_null<world::World*>& world, gslu::nn_shared<render::scene::Camera> camera);
+  explicit CameraController(const gsl_lite::not_null<world::World*>& world,
+                            gslu::nn_shared<render::scene::Camera> camera);
 
-  explicit CameraController(const gsl::not_null<world::World*>& world,
+  explicit CameraController(const gsl_lite::not_null<world::World*>& world,
                             gslu::nn_shared<render::scene::Camera> camera,
                             bool noLaraTag);
 
-  const gsl::not_null<world::World*>& getWorld() const noexcept
+  const gsl_lite::not_null<world::World*>& getWorld() const noexcept
   {
     return m_world;
   }
@@ -216,7 +216,7 @@ public:
   core::TRRotation m_cinematicRot;
 
 private:
-  std::unordered_set<const world::Portal*> tracePortals();
+  std::unordered_set<const world::Portal*> tracePortals() const;
 
   void handleFixedCamera();
 

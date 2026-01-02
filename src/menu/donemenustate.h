@@ -25,7 +25,7 @@ struct MenuRingTransform;
 class DoneMenuState : public MenuState
 {
 public:
-  explicit DoneMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, MenuResult result)
+  explicit DoneMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, const MenuResult result)
       : MenuState{ringTransform}
       , m_result{result}
   {

@@ -6,14 +6,14 @@
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_5 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_5(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_5(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::RunBack}
   {
   }
@@ -22,8 +22,8 @@ public:
   {
     setGoalAnimState(LaraStateId::Stop);
 
-    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
-    switch(inputHandler.getInputState().xMovement)
+    switch(const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+           inputHandler.getInputState().xMovement)
     {
     case hid::AxisMovement::Right:
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::RunBackTurnSpeed);

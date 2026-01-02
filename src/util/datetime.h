@@ -6,18 +6,16 @@
 #include <chrono>
 #include <ctime>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iomanip>
 #include <sstream>
 #include <string>
 
 namespace util
 {
-[[nodiscard]] inline ::tm toLocalTime(std::time_t time)
+[[nodiscard]] inline tm toLocalTime(std::time_t time)
 {
-  struct tm localTimeData
-  {
-  };
+  struct tm localTimeData{};
 #ifdef WIN32
   gsl_Assert(localtime_s(&localTimeData, &time) == 0);
   return localTimeData;
@@ -27,7 +25,7 @@ namespace util
 #endif
 }
 
-[[nodiscard]] inline std::string toHumanReadableTimestamp(std::time_t time)
+[[nodiscard]] inline std::string toHumanReadableTimestamp(const std::time_t time)
 {
   const auto localTime = toLocalTime(time);
   return (boost::format("%04d-%02d-%02d %02d-%02d-%02d") % (localTime.tm_year + 1900) % (localTime.tm_mon + 1)
@@ -46,7 +44,7 @@ namespace util
   const auto timePoint
     = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
       saveTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()));
-  const auto localTime = util::toLocalTime(timePoint);
+  const auto localTime = toLocalTime(timePoint);
   std::stringstream timeStr;
   try
   {
@@ -57,7 +55,8 @@ namespace util
     timeStr.imbue(std::locale{});
   }
   timeStr << std::put_time(&localTime,
-                           /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
+                           /* translators: TR charmap encoding */
+                           pgettext("SavegameTime", "%d %B %Y %X"));
   return timeStr.str();
 }
 } // namespace util

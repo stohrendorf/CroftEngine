@@ -17,7 +17,7 @@
 
 namespace audio
 {
-SourceHandle::SourceHandle(bool positional)
+SourceHandle::SourceHandle(const bool positional)
     : Handle{alGenSources, alIsSource, alDeleteSources}
 {
   if(positional)
@@ -136,12 +136,11 @@ std::shared_ptr<BufferHandle> StreamingSourceHandle::unqueueBuffer()
   ALuint unqueued;
   AL_ASSERT(alSourceUnqueueBuffers(*this, 1, &unqueued));
 
-  auto it = std::find_if(m_queuedBuffers.begin(),
-                         m_queuedBuffers.end(),
-                         [unqueued](const std::shared_ptr<BufferHandle>& buffer)
-                         {
-                           return *buffer == unqueued;
-                         });
+  const auto it = std::ranges::find_if(m_queuedBuffers,
+                                       [unqueued](const std::shared_ptr<BufferHandle>& buffer)
+                                       {
+                                         return *buffer == unqueued;
+                                       });
 
   if(it == m_queuedBuffers.end())
     BOOST_THROW_EXCEPTION(std::runtime_error("Unqueued buffer not in queue"));

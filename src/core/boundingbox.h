@@ -8,20 +8,20 @@ namespace core
 {
 struct BoundingBox
 {
-  core::Interval<core::Length> x{0_len, 0_len};
-  core::Interval<core::Length> y{0_len, 0_len};
-  core::Interval<core::Length> z{0_len, 0_len};
+  Interval<Length> x{0_len, 0_len};
+  Interval<Length> y{0_len, 0_len};
+  Interval<Length> z{0_len, 0_len};
 
   explicit BoundingBox() = default;
 
-  explicit BoundingBox(const core::Length& minX,
+  explicit BoundingBox(const Length& minX,
                        // NOLINTNEXTLINE(*-easily-swappable-parameters)
-                       const core::Length& maxX,
-                       const core::Length& minY,
+                       const Length& maxX,
+                       const Length& minY,
                        // NOLINTNEXTLINE(*-easily-swappable-parameters)
-                       const core::Length& maxY,
-                       const core::Length& minZ,
-                       const core::Length& maxZ) noexcept
+                       const Length& maxY,
+                       const Length& minZ,
+                       const Length& maxZ) noexcept
       : x{minX, maxX}
       , y{minY, maxY}
       , z{minZ, maxZ}
@@ -54,7 +54,7 @@ struct BoundingBox
     return x.contains(v.X) && y.contains(v.Y) && z.contains(v.Z);
   }
 
-  [[nodiscard]] bool intersectsExclusive(const core::BoundingBox& b) const noexcept
+  [[nodiscard]] bool intersectsExclusive(const BoundingBox& b) const noexcept
   {
     return x.intersectsExclusive(b.x) && y.intersectsExclusive(b.y) && z.intersectsExclusive(b.z);
   }

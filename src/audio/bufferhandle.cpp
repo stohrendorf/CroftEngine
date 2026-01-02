@@ -6,7 +6,7 @@
 #include <AL/al.h>
 #include <cstdint>
 #include <cstring>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <memory>
 #include <vector>
@@ -23,7 +23,7 @@ void BufferHandle::fill(const int16_t* samples, const size_t frameCount, const i
   AL_ASSERT(alBufferData(*this,
                          channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
                          samples,
-                         gsl::narrow<ALsizei>(frameCount * sizeof(samples[0]) * channels),
+                         gsl_lite::narrow<ALsizei>(frameCount * sizeof(samples[0]) * channels),
                          sampleRate));
 }
 
@@ -36,8 +36,8 @@ void BufferHandle::fillFromWav(const uint8_t* data)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   uint32_t dataSize = 0;
   std::memcpy(&dataSize, data + 4, sizeof(uint32_t));
-  auto tmp = std::make_unique<FfmpegMemoryStreamSource>(
-    gsl::span{data, gsl::narrow_cast<gsl::span<uint8_t>::index_type>(dataSize) + 8});
+  const auto tmp = std::make_unique<FfmpegMemoryStreamSource>(
+    gsl_lite::span{data, gsl_lite::narrow_cast<gsl_lite::span<uint8_t>::index_type>(dataSize) + 8});
 
   static constexpr size_t ChunkSize = 8192;
   std::vector<int16_t> pcm;
@@ -45,12 +45,11 @@ void BufferHandle::fillFromWav(const uint8_t* data)
   {
     const auto offset = pcm.size();
     pcm.resize(pcm.size() + tmp->getChannels() * ChunkSize);
-    const auto read = tmp->read(&pcm[offset], ChunkSize, false);
-    if(read != ChunkSize)
+    if(const auto read = tmp->read(&pcm[offset], ChunkSize, false); read != ChunkSize)
     {
-      pcm.erase(
-        std::next(pcm.begin(), gsl::narrow<std::vector<int16_t>::difference_type>(offset + tmp->getChannels() * read)),
-        pcm.end());
+      pcm.erase(std::next(pcm.begin(),
+                          gsl_lite::narrow<std::vector<int16_t>::difference_type>(offset + tmp->getChannels() * read)),
+                pcm.end());
       break;
     }
   }

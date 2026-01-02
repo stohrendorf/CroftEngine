@@ -23,7 +23,7 @@
 #include <boost/assert.hpp>
 #include <cstdint>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <utility>
 
 namespace engine::ai
@@ -65,12 +65,13 @@ struct MovementCalculator
   core::Interval<core::Length> xRange{0_len, 0_len};
   core::Interval<core::Length> zRange{0_len, 0_len};
 
-  bool calculate(const gsl::not_null<const world::Box*>& startBox,
-                 bool isFlying,
-                 const world::Box* goalBox,
-                 const core::TRVec& goalPos,
-                 const std::function<const world::Box*(const gsl::not_null<const world::Box*>& box)>& getNextPathBox,
-                 const std::function<bool(const world::Box& box)>& canVisit)
+  bool
+    calculate(const gsl_lite::not_null<const world::Box*>& startBox,
+              const bool isFlying,
+              const world::Box* goalBox,
+              const core::TRVec& goalPos,
+              const std::function<const world::Box*(const gsl_lite::not_null<const world::Box*>& box)>& getNextPathBox,
+              const std::function<bool(const world::Box& box)>& canVisit)
   {
     auto box = startBox;
     BOOST_ASSERT(startBox->xInterval.contains(startPos.X));
@@ -113,7 +114,7 @@ struct MovementCalculator
       if(nextBox == nullptr || !canVisit(*nextBox))
         break;
 
-      box = gsl::not_null{nextBox};
+      box = gsl_lite::not_null{nextBox};
     }
 
     calculateFinalIncompleteMove(*box, isFlying);
@@ -293,8 +294,8 @@ struct MovementCalculator
   }
 
   /**
-   * Calculate the final movement if we can go straight to the target.
-   */
+* Calculate the final movement if we can go straight to the target.
+*/
   void calculateFinalMove(const world::Box& box, const core::TRVec& target)
   {
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -323,10 +324,10 @@ struct MovementCalculator
   }
 
   /**
-   * Calculate the final movement if we cannot directly reach the target. Depending on the current state, will
-   * randomise the #moveTarget.
-   */
-  void calculateFinalIncompleteMove(const world::Box& box, bool isFlying)
+* Calculate the final movement if we cannot directly reach the target. Depending on the current state, will
+* randomise the #moveTarget.
+*/
+  void calculateFinalIncompleteMove(const world::Box& box, const bool isFlying)
   {
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
     if(moveDirs & (CanMoveZNeg | CanMoveZPos))
@@ -363,7 +364,7 @@ struct MovementCalculator
 bool PathFinder::calculateTarget(const world::World& world,
                                  core::TRVec& moveTarget,
                                  const core::TRVec& startPos,
-                                 const gsl::not_null<const world::Box*>& startBox)
+                                 const gsl_lite::not_null<const world::Box*>& startBox)
 {
   gsl_Expects(m_targetBox != nullptr);
   gsl_Expects(m_targetBox->xInterval.contains(m_target.X));
@@ -373,7 +374,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   expandNodes(world);
 
   MovementCalculator calc{startPos};
-  auto result = calc.calculate(
+  const auto result = calc.calculate(
     startBox,
     isFlying(),
     m_targetBox,
@@ -430,7 +431,7 @@ void PathFinder::expandNodes(const world::World& world)
       if(reachable)
       {
         // success! connect both boxes
-        BOOST_ASSERT_MSG(m_edges.find(predecessorBox) == m_edges.end(), "cycle in pathfinder graph detected");
+        BOOST_ASSERT_MSG(!m_edges.contains(predecessorBox), "cycle in pathfinder graph detected");
         m_edges.emplace(predecessorBox, currentBox);
         m_distances[predecessorBox] = m_distances[currentBox] + 1;
       }
@@ -440,21 +441,21 @@ void PathFinder::expandNodes(const world::World& world)
   }
 }
 
-void PathFinder::setReachable(const gsl::not_null<const world::Box*>& box, bool reachable)
+void PathFinder::setReachable(const gsl_lite::not_null<const world::Box*>& box, const bool reachable)
 {
   m_reachable[box] |= reachable;
-  if(reachable && std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
+  if(reachable && std::ranges::find(m_expansions, box) == m_expansions.end())
     m_expansions.emplace_back(box);
 }
 
-void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentBox,
-                                const gsl::not_null<const world::Box*>& predecessorBox)
+void PathFinder::updateDistance(const gsl_lite::not_null<const world::Box*>& currentBox,
+                                const gsl_lite::not_null<const world::Box*>& predecessorBox)
 {
-  BOOST_ASSERT(m_distances.find(predecessorBox) != m_distances.end());
-  BOOST_ASSERT(m_distances.find(currentBox) != m_distances.end());
+  BOOST_ASSERT(m_distances.contains(predecessorBox));
+  BOOST_ASSERT(m_distances.contains(currentBox));
 
   auto& currentPredecessorDistance = m_distances[predecessorBox];
-  auto newPredecessorDistance = m_distances[currentBox] + 1;
+  const auto newPredecessorDistance = m_distances[currentBox] + 1;
   if(currentPredecessorDistance <= newPredecessorDistance)
     return;
 
@@ -464,8 +465,8 @@ void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentB
   m_expansions.emplace_back(predecessorBox);
 }
 
-bool PathFinder::updateEdge(const gsl::not_null<const world::Box*>& currentBox,
-                            const gsl::not_null<const world::Box*>& predecessorBox)
+bool PathFinder::updateEdge(const gsl_lite::not_null<const world::Box*>& currentBox,
+                            const gsl_lite::not_null<const world::Box*>& predecessorBox)
 {
   if(!m_reachable.at(currentBox))
   {
@@ -517,7 +518,7 @@ void PathFinder::deserialize(const serialization::Deserializer<world::World>& se
 }
 
 void PathFinder::init(const world::World& world,
-                      const gsl::not_null<const world::Box*>& box,
+                      const gsl_lite::not_null<const world::Box*>& box,
                       const script::ObjectInfo& objectInfo)
 {
   m_cannotVisitBlockable = objectInfo.cannot_visit_blockable;
@@ -536,16 +537,22 @@ bool PathFinder::canVisit(const world::Box& box) const noexcept
   return canVisit(box, false, false);
 }
 
-bool PathFinder::canVisit(const world::Box& box, bool ignoreBlocked, bool ignoreBlockable) const noexcept
+bool PathFinder::canVisit(const world::Box& box, const bool ignoreBlocked, const bool ignoreBlockable) const noexcept
 {
-  if(m_cannotVisitBlocked && box.blocked)
+  if(m_cannotVisitBlocked
+     && box
+
+          .blocked)
     return ignoreBlocked;
-  if(m_cannotVisitBlockable && box.blockable)
+  if(m_cannotVisitBlockable
+     && box
+
+          .blockable)
     return ignoreBlockable;
   return true;
 }
 
-void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
+void PathFinder::setRandomSearchTarget(const gsl_lite::not_null<const world::Box*>& box)
 {
   const auto xSize = box->xInterval.size() - 2 * MovementCalculator::Margin;
   m_target.X = util::rand15(xSize) + box->xInterval.min + MovementCalculator::Margin;
@@ -561,7 +568,7 @@ void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& b
   }
 }
 
-void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
+void PathFinder::setTargetBox(const gsl_lite::not_null<const world::Box*>& box)
 {
   if(box == m_targetBox)
     return;
@@ -578,13 +585,13 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
   m_edges.clear();
 }
 
-const gsl::not_null<const world::Box*>& PathFinder::getRandomBox() const
+const gsl_lite::not_null<const world::Box*>& PathFinder::getRandomBox() const
 {
   gsl_Expects(!m_boxes.empty());
   return m_boxes[util::rand15(m_boxes.size())];
 }
 
-void PathFinder::resetBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box)
+void PathFinder::resetBoxes(const world::World& world, const gsl_lite::not_null<const world::Box*>& box)
 {
   const auto zoneRef1 = world::Box::getZoneRef(false, isFlying(), m_step);
   const auto zoneRef2 = world::Box::getZoneRef(true, isFlying(), m_step);
@@ -615,13 +622,13 @@ void PathFinder::setLimits(const world::World& world,
   // NOLINTNEXTLINE(hicpp-signed-bitwise, bitwise-instead-of-logical)
   if((std::exchange(m_step, step) != step) | (std::exchange(m_drop, drop) != drop) | (std::exchange(m_fly, fly) != fly))
   {
-    resetBoxes(world, gsl::not_null{box});
+    resetBoxes(world, gsl_lite::not_null{box});
   }
   if(m_targetBox != box)
   {
-    setTargetBox(gsl::not_null{box});
-    BOOST_ASSERT(std::count(m_boxes.begin(), m_boxes.end(), box) != 0);
-    setRandomSearchTarget(gsl::not_null{box});
+    setTargetBox(gsl_lite::not_null{box});
+    BOOST_ASSERT(std::ranges::count(m_boxes, box) != 0);
+    setRandomSearchTarget(gsl_lite::not_null{box});
   }
 }
 } // namespace engine::ai

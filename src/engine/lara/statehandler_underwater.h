@@ -6,14 +6,14 @@
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_Underwater : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_Underwater(const gsl::not_null<objects::LaraObject*>& lara, const LaraStateId id)
+  explicit StateHandler_Underwater(const gsl_lite::not_null<objects::LaraObject*>& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }

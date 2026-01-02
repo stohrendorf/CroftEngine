@@ -6,7 +6,7 @@
 #include "texture.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <type_traits>
 
@@ -17,13 +17,13 @@ template<typename TTexture>
 class TextureHandle final
 {
 public:
-  TextureHandle(const TextureHandle<TTexture>&) = delete;
-  TextureHandle(TextureHandle<TTexture>&&) = delete;
-  void operator=(const TextureHandle<TTexture>&) = delete;
-  void operator=(TextureHandle<TTexture>&&) = delete;
+  TextureHandle(const TextureHandle&) = delete;
+  TextureHandle(TextureHandle&&) = delete;
+  void operator=(const TextureHandle&) = delete;
+  void operator=(TextureHandle&&) = delete;
 
   using Texture = TTexture;
-  static_assert(std::is_base_of_v<::gl::Texture, Texture>);
+  static_assert(std::is_base_of_v<gl::Texture, Texture>);
 
   explicit TextureHandle(gslu::nn_shared<Texture> texture, gslu::nn_unique<Sampler>&& sampler)
       : m_texture{std::move(texture)}
@@ -45,7 +45,7 @@ public:
   {
     if(--m_texture->m_textureHandleReferences[m_handle] == 0)
     {
-// #define NVIDIA_NSIGHT_HACK
+      // #define NVIDIA_NSIGHT_HACK
 #ifdef NVIDIA_NSIGHT_HACK
       api::makeTextureHandleNonResident(m_handle);
       api::getError();

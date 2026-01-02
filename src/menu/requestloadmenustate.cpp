@@ -22,5 +22,4 @@ std::unique_ptr<MenuState>
   display.result = MenuResult::RequestLoad;
   return nullptr;
 }
-
 } // namespace menu

@@ -9,13 +9,13 @@
 #include "objectstate.h"
 #include "render/scene/node.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::objects
 {
 void LavaParticleEmitter::update()
 {
-  auto particle = gsl::make_shared<LavaParticle>(m_state.location, getWorld());
+  const auto particle = gsl_lite::make_shared<LavaParticle>(m_state.location, getWorld());
   setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
 

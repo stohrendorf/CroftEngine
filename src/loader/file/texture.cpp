@@ -39,9 +39,9 @@ std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)
 std::unique_ptr<ByteTexture> ByteTexture::read(io::SDLReader& reader)
 {
   auto textile = std::make_unique<ByteTexture>();
-  reader.readBytes(
-    reinterpret_cast<uint8_t*>(&textile->pixels[0][0]), //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-    sizeof(textile->pixels));
+  reader.readBytes(reinterpret_cast<uint8_t*>(&textile->pixels[0][0]),
+                   //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                   sizeof(textile->pixels));
   return textile;
 }
 
@@ -51,12 +51,11 @@ std::unique_ptr<WordTexture> WordTexture::read(io::SDLReader& reader)
 
   for(auto& row : texture->pixels)
   {
-    std::generate(row.begin(),
-                  row.end(),
-                  [&reader]()
-                  {
-                    return reader.readU16();
-                  });
+    std::ranges::generate(row,
+                          [&reader]
+                          {
+                            return reader.readU16();
+                          });
   }
 
   return texture;
@@ -81,12 +80,11 @@ std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
   if((tile->textureKey.atlasIdAndFlag & (1u << 15u)) != 0)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
 
-  std::generate(tile->uvCoordinates.begin(),
-                tile->uvCoordinates.end(),
-                [&reader]()
-                {
-                  return UVCoordinates::read(reader);
-                });
+  std::ranges::generate(tile->uvCoordinates,
+                        [&reader]
+                        {
+                          return UVCoordinates::read(reader);
+                        });
   return tile;
 }
 
@@ -99,12 +97,11 @@ std::unique_ptr<TextureTile> TextureTile::readTr4(io::SDLReader& reader)
     BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
 
   tile->textureKey.flags = reader.readU16();
-  std::generate(tile->uvCoordinates.begin(),
-                tile->uvCoordinates.end(),
-                [&reader]()
-                {
-                  return UVCoordinates::read(reader);
-                });
+  std::ranges::generate(tile->uvCoordinates,
+                        [&reader]
+                        {
+                          return UVCoordinates::read(reader);
+                        });
   tile->unknown1 = reader.readU32();
   tile->unknown2 = reader.readU32();
   tile->x_size = reader.readU32();
