@@ -68,7 +68,7 @@ struct ObjectReference final
       ser.tag("objectref");
       engine::ObjectId id = 0;
       ser(S_NV("id", id));
-      auto tmp = ser.context->getObjectManager().getObjects().at(id).get();
+      const auto tmp = ser.context->getObjectManager().getObjects().at(id).get();
       gsl_Assert(tmp != nullptr);
       ptr.get() = std::dynamic_pointer_cast<T>(tmp);
     };

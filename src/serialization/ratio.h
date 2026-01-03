@@ -6,7 +6,6 @@
 #include <gsl-lite/gsl-lite.hpp>
 #include <ratio>
 
-
 namespace serialization
 {
 template<typename TContext, std::intmax_t N, std::intmax_t D>

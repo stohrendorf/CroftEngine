@@ -3,7 +3,6 @@
 #include "exception.h"
 #include "serialization_fwd.h"
 
-
 namespace serialization
 {
 template<typename T, typename Converter>
@@ -13,7 +12,7 @@ struct NamedEnum
 
   // NOLINTNEXTLINE(google-explicit-constructor)
   NamedEnum(T value = T{}) // cppcheck-suppress noExplicitConstructor
-    : value{value}
+      : value{value}
   {
   }
 

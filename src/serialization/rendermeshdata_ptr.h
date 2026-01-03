@@ -8,7 +8,6 @@
 #include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
-
 namespace serialization
 {
 // cppcheck-suppress constParameter
@@ -50,9 +49,8 @@ inline void deserialize(std::shared_ptr<engine::world::RenderMeshData>& data,
   data = ser.context->getWorldGeometry().getRenderMesh(tmp);
 }
 
-inline std::shared_ptr<engine::world::RenderMeshData> create(
-  const TypeId<std::shared_ptr<engine::world::RenderMeshData>>&,
-  const Deserializer<engine::world::World>& ser)
+inline std::shared_ptr<engine::world::RenderMeshData>
+  create(const TypeId<std::shared_ptr<engine::world::RenderMeshData>>&, const Deserializer<engine::world::World>& ser)
 {
   std::shared_ptr<engine::world::RenderMeshData> tmp;
   deserialize(tmp, ser);

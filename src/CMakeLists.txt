@@ -735,6 +735,7 @@ add_subdirectory( archive )
 add_subdirectory( launcher )
 add_subdirectory( dosbox-cdrom )
 add_subdirectory( network )
+add_subdirectory( serialization )
 
 if( WIN32 )
     set( WIN32_SPECIFIC_LIBS dbghelp )

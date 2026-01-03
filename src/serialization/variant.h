@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <variant>
 
-
 namespace serialization
 {
 namespace detail
@@ -31,7 +30,7 @@ void trySerialize(const std::variant<Ts...>& data, const BaseSerializer<Loading,
       else
         trySerialize<I + 1u>(data, ser);
     }
-    catch(Exception&)
+    catch(const std::exception&)
     {
       trySerialize<I + 1u>(data, ser);
     }
@@ -54,7 +53,7 @@ std::variant<Ts...> tryCreate(const TypeId<std::variant<Ts...>>& tid, const Dese
       using Alternative = std::variant_alternative_t<I, std::variant<Ts...>>;
       return access::dispatch<Alternative>(ser);
     }
-    catch(Exception&)
+    catch(const std::exception&)
     {
       return tryCreate<I + 1u>(tid, ser);
     }
@@ -72,5 +71,11 @@ template<typename TContext, typename... Ts>
 std::variant<Ts...> create(const TypeId<std::variant<Ts...>>& tid, const Deserializer<TContext>& ser)
 {
   return detail::tryCreate<0>(tid, ser);
+}
+
+template<typename... Ts, typename TContext>
+void deserialize(std::variant<Ts...>& data, const Deserializer<TContext>& ser)
+{
+  data = create(TypeId<std::variant<Ts...>>{}, ser);
 }
 } // namespace serialization

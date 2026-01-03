@@ -12,41 +12,35 @@
 #include <string>
 #include <type_traits>
 
-
 namespace serialization
 {
 template<bool Loading>
 class YAMLDocument
 {
-private:
   std::filesystem::path m_filename;
   std::string m_buffer;
   ryml::Tree m_tree;
 
-
   struct CustomErrorCallbacks
   {
-  public:
     explicit CustomErrorCallbacks()
-      : m_callbacks{ryml::get_callbacks()}
+        : m_callbacks{ryml::get_callbacks()}
     {
       ryml::set_callbacks(
-        ryml::Callbacks{
-          nullptr,
-          [](size_t length, void* /*hint*/, void* /*user_data*/) -> gsl_lite::owner<void*>
-          {
-            return new char[length];
-          },
-          [](gsl_lite::owner<void*> mem, size_t /*length*/, void* /*user_data*/)
-          {
-            delete[] static_cast<char*>(mem);
-          },
-          [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/)
-          {
-            const std::string msgStr{msg, msg_len};
-            SERIALIZER_EXCEPTION(msgStr);
-          }
-        });
+        ryml::Callbacks{nullptr,
+                        [](const size_t length, void* /*hint*/, void* /*user_data*/) -> gsl_lite::owner<void*>
+                        {
+                          return new char[length];
+                        },
+                        [](const gsl_lite::owner<void*> mem, size_t /*length*/, void* /*user_data*/)
+                        {
+                          delete[] static_cast<char*>(mem);
+                        },
+                        [](const char* msg, const size_t msg_len, ryml::Location /*location*/, void* /*user_data*/)
+                        {
+                          const std::string msgStr{msg, msg_len};
+                          SERIALIZER_EXCEPTION(msgStr);
+                        }});
     }
 
     ~CustomErrorCallbacks()
@@ -60,8 +54,9 @@ private:
 
 public:
   explicit YAMLDocument(const std::filesystem::path& filename)
-    : m_filename{filename}
+      : m_filename{filename}
   {
+    CustomErrorCallbacks callbacks{};
     BOOST_LOG_TRIVIAL(info) << "Opening " << filename << ", Loading=" << Loading;
     if constexpr(Loading)
     {
@@ -84,7 +79,7 @@ public:
   }
 
   explicit YAMLDocument(std::string data) requires(Loading)
-    : m_buffer{std::move(data)}
+      : m_buffer{std::move(data)}
   {
     CustomErrorCallbacks callbacks{};
     m_tree = ryml::parse_in_arena(c4::to_csubstr(m_buffer));

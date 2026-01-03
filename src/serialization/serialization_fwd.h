@@ -2,7 +2,6 @@
 
 #include <functional>
 
-
 namespace serialization
 {
 template<typename T>

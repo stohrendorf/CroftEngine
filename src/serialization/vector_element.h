@@ -6,7 +6,6 @@
 #include <gsl-lite/gsl-lite.hpp>
 #include <vector>
 
-
 namespace serialization
 {
 template<typename T>
@@ -20,30 +19,28 @@ struct VectorElement final
   std::reference_wrapper<const std::vector<T>> vec;
   std::reference_wrapper<const T*> element;
 
-  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
-                         const std::reference_wrapper<T*>& element)
-    : vec{std::move(vec)}
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, const std::reference_wrapper<T*>& element)
+      : vec{std::move(vec)}
       , element{const_cast<const T*&>(element.get())}
   {
   }
 
-  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
-                         std::reference_wrapper<const T*>&& element)
-    : vec{std::move(vec)}
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, std::reference_wrapper<const T*>&& element)
+      : vec{std::move(vec)}
       , element{std::move(element)}
   {
   }
 
   explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
                          const std::reference_wrapper<T* const>& element)
-    : vec{std::move(vec)}
+      : vec{std::move(vec)}
       , element{const_cast<const T*&>(element.get())}
   {
   }
 
   explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
                          const std::reference_wrapper<const T* const>& element)
-    : vec{std::move(vec)}
+      : vec{std::move(vec)}
       , element{const_cast<const T*&>(element.get())}
   {
   }
@@ -77,7 +74,6 @@ struct VectorElement final
   }
 };
 
-
 template<typename T>
 struct DeserializingNotNullVectorElement final
 {
@@ -91,14 +87,14 @@ struct DeserializingNotNullVectorElement final
 
   explicit DeserializingNotNullVectorElement(std::reference_wrapper<std::vector<T>>&& vec,
                                              std::reference_wrapper<gsl_lite::not_null<T*>>&& element)
-    : vec{std::move(vec)}
+      : vec{std::move(vec)}
       , element{std::move(element)}
   {
   }
 
   explicit DeserializingNotNullVectorElement(std::reference_wrapper<std::vector<T>>&& vec,
                                              std::reference_wrapper<gsl_lite::not_null<const T*>>&& element)
-    : vec{std::move(vec)}
+      : vec{std::move(vec)}
       , element{std::move(element)}
   {
   }
@@ -114,7 +110,6 @@ struct DeserializingNotNullVectorElement final
   }
 };
 
-
 template<typename T>
 struct SerializingNotNullVectorElement final
 {
@@ -128,7 +123,7 @@ struct SerializingNotNullVectorElement final
 
   explicit SerializingNotNullVectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
                                            std::reference_wrapper<const gsl_lite::not_null<const T*>>&& element)
-    : vec{std::move(vec)}
+      : vec{std::move(vec)}
       , element{std::move(element)}
   {
   }

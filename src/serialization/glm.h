@@ -3,8 +3,8 @@
 #include "serialization_fwd.h"
 
 #include <glm/glm.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ryml.hpp>
-
 
 namespace serialization
 {

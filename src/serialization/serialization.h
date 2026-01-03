@@ -8,6 +8,7 @@
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <c4/substr.hpp>
+#include <concepts>
 #include <cstdint>
 #include <functional>
 #include <gsl-lite/gsl-lite.hpp>
@@ -29,13 +30,11 @@ struct std::iterator_traits<c4::yml::NodeRef::iterator>
   using iterator_category = std::forward_iterator_tag;
 };
 
-
 template<>
 struct std::iterator_traits<c4::yml::ConstNodeRef::iterator>
 {
   using iterator_category = std::forward_iterator_tag;
 };
-
 
 namespace serialization
 {
@@ -56,7 +55,6 @@ struct TypeId
   using type = T;
 };
 
-
 template<bool>
 class YAMLDocument;
 
@@ -65,6 +63,11 @@ struct Default;
 template<typename T>
 struct OptionalValue;
 
+template<typename T>
+concept Arithmetic = std::is_arithmetic_v<T>;
+
+template<typename T>
+concept Enum = std::is_enum_v<T>;
 
 template<bool Loading, typename TContext>
 class BaseSerializer final
@@ -82,7 +85,7 @@ private:
   explicit BaseSerializer(const Node& node,
                           const gsl_lite::not_null<TContext*>& context,
                           const std::shared_ptr<LazyQueue>& lazyQueue)
-    : m_lazyQueue{lazyQueue == nullptr ? std::make_shared<LazyQueue>() : lazyQueue}
+      : m_lazyQueue{lazyQueue == nullptr ? std::make_shared<LazyQueue>() : lazyQueue}
       , node{node}
       , context{context}
   {
@@ -135,8 +138,7 @@ private:
     return result;
   }
 #endif
-  std::optional<BaseSerializer> createMapMemberSerializer(const std::string_view& name,
-                                                          bool required) const
+  std::optional<BaseSerializer> createMapMemberSerializer(const std::string_view& name, const bool required) const
   {
     ensureIsMap();
     auto childNode = node.find_child(c4::csubstr(name.data(), name.size()));
@@ -153,9 +155,7 @@ private:
       if(!exists)
       {
         if(required)
-          SERIALIZER_EXCEPTION(
-          std::string{"Node "} + std::string{name.begin(),
-          name.end()} + " not defined");
+          SERIALIZER_EXCEPTION(std::string{"Node "} + std::string{name.begin(), name.end()} + " not defined");
         else
           return std::nullopt;
       }
@@ -163,9 +163,7 @@ private:
     else
     {
       if(exists)
-        SERIALIZER_EXCEPTION(
-        std::string{"Node "} + std::string{name.begin(),
-        name.end()} + " already defined");
+        SERIALIZER_EXCEPTION(std::string{"Node "} + std::string{name.begin(), name.end()} + " already defined");
 
       childNode = node.append_child();
       childNode.set_key(node.tree()->copy_to_arena(c4::csubstr(name.data(), name.size())));
@@ -183,23 +181,20 @@ private:
     }
     catch(Exception&)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).
-                    name()
-                    << "\"";
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
+                               << "\"";
       throw;
     }
     catch(std::exception& ex)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).
-                    name()
-                    << "\"";
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
+                               << "\"";
       SERIALIZER_EXCEPTION(ex.what());
     }
     catch(...)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).
-                    name()
-                    << "\"";
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
+                               << "\"";
       SERIALIZER_EXCEPTION("Unexpected exception");
     }
   }
@@ -238,11 +233,7 @@ public:
   template<typename T>
   void lazy(T* instance, void (T::*member)(const BaseSerializer&)) const
   {
-    lazy(LazyCallback<Loading, TContext>
-      {
-        instance, member
-      }
-      );
+    lazy(LazyCallback<Loading, TContext>{instance, member});
   }
 
   template<typename T>
@@ -327,7 +318,7 @@ public:
 #endif
 
     auto ser = createMapMemberSerializer(name, false);
-    if(!ser.has_value())
+    if(!ser.has_value() || ser->isNull())
     {
       return *this;
     }
@@ -335,7 +326,7 @@ public:
     return *this;
   }
 
-  BaseSerializer operator[](gsl_lite::czstring name) const
+  BaseSerializer operator[](const gsl_lite::czstring name) const
   {
     return (*this)[std::string{name}];
   }
@@ -343,10 +334,10 @@ public:
   BaseSerializer operator[](const std::string& name) const
   {
     ensureIsMap();
-    auto existing = node[c4::to_csubstr(name)];
+    auto existing = node.find_child(c4::to_csubstr(name));
     if constexpr(!Loading)
     {
-      if(existing.is_seed() || !existing.readable() || existing.type() == ryml::NOTYPE)
+      if(!existing.readable() || existing.type() == ryml::NOTYPE)
       {
         auto ser = newChild();
         ser.node.set_key(node.tree()->copy_to_arena(c4::to_csubstr(name)));
@@ -369,7 +360,7 @@ public:
   }
 
   template<bool LazyLoading = Loading>
-  [[nodiscard]] auto newChild() const -> std::enable_if_t<!LazyLoading, Serializer<TContext>>
+  requires(!LazyLoading) [[nodiscard]] Serializer<TContext> newChild() const
   {
     return withNode(node.append_child());
   }
@@ -380,8 +371,7 @@ public:
 
     const auto normalizedTag
       = std::string{"!<"}
-        + boost::algorithm::replace_all_copy(boost::algorithm::replace_all_copy(tag, ">", "&gt;"), " ", "%20")
-        + ">";
+        + boost::algorithm::replace_all_copy(boost::algorithm::replace_all_copy(tag, ">", "&gt;"), " ", "%20") + ">";
     if constexpr(Loading)
     {
       if(!node.has_val())
@@ -398,19 +388,37 @@ public:
   }
 
   template<bool LazyLoading = Loading>
-  auto setNull() const -> std::enable_if_t<!LazyLoading, void>
+  requires(!LazyLoading) void setNull() const
   {
     node.set_val("~");
     m_tag = "!!null";
   }
 
   template<bool LazyLoading = Loading>
-  auto isNull() const -> std::enable_if_t<LazyLoading, bool>
+  requires(LazyLoading) bool isNull() const
   {
-    return node.has_val_tag() && util::toString(node.val_tag()) == "!!null";
+    if(!node.readable())
+      return false;
+
+    if(node.type() == ryml::NOTYPE)
+      return false;
+
+    if(node.has_val_tag() && util::toString(node.val_tag()) == "!!null")
+      return true;
+
+    if(node.is_container())
+      return false;
+
+    if(!node.has_val())
+      return true;
+
+    if(node.is_val_quoted())
+      return false;
+
+    const std::string val = util::toString(node.val());
+    return val.empty() || val == "~" || val == "null" || val == "Null" || val == "NULL";
   }
 };
-
 
 namespace detail
 {
@@ -452,12 +460,19 @@ void serialize(const T& data, const Serializer<TContext>& ser)
 template<typename T, typename TContext>
 void deserialize(T& data, const Deserializer<TContext>& ser)
 {
+  if constexpr(std::is_same_v<std::decay_t<T>, std::string>)
+  {
+    if(ser.isNull())
+    {
+      data.clear();
+      return;
+    }
+  }
   ser.node >> data;
 }
 
 template<typename T, typename TContext>
-std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(const TypeId<T>&,
-                                                                      const Deserializer<TContext>& ser)
+requires std::is_default_constructible_v<T> T createTrivial(const TypeId<T>&, const Deserializer<TContext>& ser)
 {
   T tmp{};
   access::dispatch(tmp, ser);
@@ -477,27 +492,27 @@ void deserialize(std::string& data, const Deserializer<TContext>& ser)
   detail::deserialize(data, ser);
 }
 
-template<typename T, typename TContext>
-std::enable_if_t<std::is_arithmetic_v<T>, void> serialize(const T& data, const Serializer<TContext>& ser)
+template<Arithmetic T, typename TContext>
+void serialize(const T& data, const Serializer<TContext>& ser)
 {
   detail::serialize(data, ser);
 }
 
-template<typename T, typename TContext>
-std::enable_if_t<std::is_arithmetic_v<T>, void> deserialize(T& data, const Deserializer<TContext>& ser)
+template<Arithmetic T, typename TContext>
+void deserialize(T& data, const Deserializer<TContext>& ser)
 {
   detail::deserialize(data, ser);
 }
 
-template<typename T, typename TContext>
-std::enable_if_t<std::is_enum_v<T>, void> serialize(const T& data, const Serializer<TContext>& ser)
+template<Enum T, typename TContext>
+void serialize(const T& data, const Serializer<TContext>& ser)
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   detail::serialize(*reinterpret_cast<const std::underlying_type_t<T>*>(&data), ser);
 }
 
-template<typename T, typename TContext>
-std::enable_if_t<std::is_enum_v<T>, void> deserialize(T& data, const Deserializer<TContext>& ser)
+template<Enum T, typename TContext>
+void deserialize(T& data, const Deserializer<TContext>& ser)
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   detail::deserialize(*reinterpret_cast<std::underlying_type_t<const T>*>(&data), ser);
@@ -515,14 +530,14 @@ void deserialize(bool& data, const Deserializer<TContext>& ser)
   detail::deserialize(data, ser);
 }
 
-template<typename T, typename TContext>
-std::enable_if_t<std::is_arithmetic_v<T>, T> create(const TypeId<T>& tid, const Deserializer<TContext>& ser)
+template<Arithmetic T, typename TContext>
+T create(const TypeId<T>& tid, const Deserializer<TContext>& ser)
 {
   return detail::createTrivial(tid, ser);
 }
 
-template<typename T, typename TContext>
-std::enable_if_t<std::is_enum_v<T>, T> create(const TypeId<T>&, const Deserializer<TContext>& ser)
+template<Enum T, typename TContext>
+T create(const TypeId<T>&, const Deserializer<TContext>& ser)
 {
   return static_cast<T>(detail::createTrivial(TypeId<std::underlying_type_t<T>>{}, ser));
 }

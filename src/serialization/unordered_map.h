@@ -6,7 +6,6 @@
 #include <gsl-lite/gsl-lite.hpp>
 #include <unordered_map>
 
-
 namespace serialization
 {
 template<typename T, typename U, typename TContext>

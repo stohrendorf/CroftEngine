@@ -8,7 +8,6 @@
 
 #include <limits>
 
-
 namespace serialization
 {
 inline core::TypeId::type ptrSave(const engine::world::SkeletalModelType* const& model,
@@ -22,7 +21,7 @@ inline core::TypeId::type ptrSave(const engine::world::SkeletalModelType* const&
 }
 
 inline const engine::world::SkeletalModelType* ptrLoad(const TypeId<const engine::world::SkeletalModelType*>&,
-                                                       core::TypeId::type idx,
+                                                       const core::TypeId::type idx,
                                                        const Deserializer<engine::world::World>& ser)
 {
   ser.tag("skeletalmodel");

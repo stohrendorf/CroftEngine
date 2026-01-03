@@ -7,7 +7,6 @@
 #include <gsl-lite/gsl-lite.hpp>
 #include <vector>
 
-
 namespace serialization
 {
 template<typename T, typename TContext>
@@ -38,14 +37,13 @@ void deserialize(std::vector<T>& data, const Deserializer<TContext>& ser)
                  });
 }
 
-
 template<typename T>
 struct DeserializingFrozenVector
 {
   std::reference_wrapper<std::vector<T>> vec;
 
   explicit DeserializingFrozenVector(std::reference_wrapper<std::vector<T>>&& vec)
-    : vec{std::move(vec)}
+      : vec{std::move(vec)}
   {
   }
 
@@ -61,14 +59,13 @@ struct DeserializingFrozenVector
   }
 };
 
-
 template<typename T>
 struct SerializingFrozenVector
 {
   std::reference_wrapper<const std::vector<T>> vec;
 
   explicit SerializingFrozenVector(std::reference_wrapper<const std::vector<T>>&& vec)
-    : vec{std::move(vec)}
+      : vec{std::move(vec)}
   {
   }
 

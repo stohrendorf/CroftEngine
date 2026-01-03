@@ -2,7 +2,6 @@
 
 #include <functional>
 
-
 namespace serialization
 {
 template<typename T>
@@ -17,12 +16,11 @@ struct Default
   T defaultValue;
 
   explicit Default(std::reference_wrapper<T>&& value, const T& defaultValue)
-    : value{std::move(value)}
+      : value{std::move(value)}
       , defaultValue{defaultValue}
   {
   }
 };
-
 
 #define S_NVD(name, obj, default) \
   name, serialization::Default    \

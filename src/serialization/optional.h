@@ -5,7 +5,6 @@
 
 #include <optional>
 
-
 namespace serialization
 {
 template<typename T, typename TContext>

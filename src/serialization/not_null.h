@@ -9,8 +9,7 @@
 namespace serialization
 {
 template<typename T, typename TContext>
-auto create(const TypeId<gsl_lite::not_null<T>>&,
-            const Deserializer<TContext>& ser)
+auto create(const TypeId<gsl_lite::not_null<T>>&, const Deserializer<TContext>& ser)
   -> std::remove_reference_t<decltype(access::dispatch<T>(ser), std::declval<gsl_lite::not_null<T>>())>
 {
   return gsl_lite::not_null<T>{access::dispatch<T>(ser)};

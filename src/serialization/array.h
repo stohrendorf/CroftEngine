@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <gsl-lite/gsl-lite.hpp>
 
-
 namespace serialization
 {
 template<typename T, size_t N, typename TContext>

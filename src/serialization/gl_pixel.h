@@ -8,7 +8,6 @@
 #include <glm/fwd.hpp>
 #include <gsl-lite/gsl-lite.hpp>
 
-
 namespace serialization
 {
 template<typename T,
