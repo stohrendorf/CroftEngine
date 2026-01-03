@@ -10,7 +10,6 @@
 #include <limits>
 #include <type_traits>
 
-
 namespace gl
 {
 template<typename T,
@@ -46,24 +45,24 @@ struct alignas(Alignment) Pixel
   Vec channels;
 
   explicit constexpr Pixel() noexcept
-    : Pixel{Type{}}
+      : Pixel{Type{}}
   {
   }
 
   explicit constexpr Pixel(Type scalar) noexcept
-    : channels{scalar}
+      : channels{scalar}
   {
   }
 
   template<typename... U>
   constexpr Pixel(Type value0, Type value1, U... tail) noexcept
-    : channels{value0, value1, static_cast<Type>(tail)...}
+      : channels{value0, value1, static_cast<Type>(tail)...}
   {
     static_assert(sizeof...(U) + 2 == _Channels, "Invalid constructor call");
   }
 
   explicit constexpr Pixel(Vec channels) noexcept
-    : channels{std::move(channels)}
+      : channels{std::move(channels)}
   {
   }
 
@@ -91,7 +90,6 @@ struct alignas(Alignment) Pixel
     return tmp;
   }
 };
-
 
 template<typename T,
          typename U,
@@ -133,12 +131,18 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          bool _Premultiplied,
          size_t Alignment>
-Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment> mixAlpha(
-  const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
-  const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs)
+Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>
+  mixAlpha(const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
+           const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs)
 {
   return imix(lhs, rhs, rhs.channels[3]);
 }
+
+template<typename T>
+using RGBA = Pixel<T, 4, api::PixelFormat::Rgba, RgbaSizedInternalFormat<T>, false, 4>;
+using RGBA8 = RGBA<uint8_t>;
+using RGBA16F = RGBA<api::core::Half>;
+using RGBA32F = RGBA<float>;
 
 template<typename T>
 using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, false, 4>;
@@ -170,7 +174,6 @@ using Scalar = Pixel<T, 1, api::PixelFormat::Red, RSizedInternalFormat<T>, false
 using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
 using Scalar16F = Scalar<api::core::Half>;
-
 
 namespace detail
 {
@@ -206,7 +209,6 @@ constexpr glm::vec4 premultiply(const glm::vec4& color)
   };
 }
 
-
 template<typename T>
 struct ScalarDepth final
 {
@@ -220,18 +222,17 @@ struct ScalarDepth final
   static constexpr auto InternalFormat = DepthInternalFormat<T>;
 
   explicit ScalarDepth()
-    : ScalarDepth{0}
+      : ScalarDepth{0}
   {
   }
 
   explicit constexpr ScalarDepth(Type value) noexcept
-    : value{value}
+      : value{value}
   {
   }
 
   Type value;
 };
-
 
 using ScalarDepth32F = ScalarDepth<float>;
 using ScalarDepth16F = ScalarDepth<api::core::Half>;

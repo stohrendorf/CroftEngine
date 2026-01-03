@@ -8,24 +8,27 @@ float absDistortionPower = abs(distortionPower);
 
 vec2 fisheye(in vec2 polar, in float stationary_radius)
 {
-    return normalize(polar) * tan(length(polar) * absDistortionPower) * stationary_radius / tan(stationary_radius * absDistortionPower);
+    float l = length(polar);
+    return polar * (tan(l * absDistortionPower) / (l * tan(stationary_radius * absDistortionPower))) * stationary_radius;
 }
 
 // same as fisheye, except that atan is used instead of tan
 vec2 anti_fisheye(in vec2 polar, in float stationary_radius)
 {
-    return normalize(polar) * atan(length(polar) * absDistortionPower) * stationary_radius / atan(stationary_radius * absDistortionPower);
+    float l = length(polar);
+    return polar * (atan(l * absDistortionPower) / (l * atan(stationary_radius * absDistortionPower))) * stationary_radius;
 }
 
 vec2 do_lens_distortion(in vec2 uv)
 {
     float stationary_radius = max(0.5, 0.5 / camera.aspectRatio);
+    vec2 polar = uv - vec2(0.5, 0.5);
 
     if (distortionPower > 0.0) {
-        return vec2(0.5, 0.5) + fisheye(uv - vec2(0.5, 0.5), stationary_radius);
+        return vec2(0.5, 0.5) + fisheye(polar, stationary_radius);
     }
     else if (distortionPower < 0.0) {
-        return vec2(0.5, 0.5) + anti_fisheye(uv - vec2(0.5, 0.5), stationary_radius);
+        return vec2(0.5, 0.5) + anti_fisheye(polar, stationary_radius);
     }
     else {
         return uv;

@@ -14,41 +14,35 @@ const float DofBlurRange = 3;
 
 vec2 dof_texel = 1.0 / vec2(textureSize(u_texture, 0));
 
-vec3 do_dof(in vec2 uv)
+vec3 do_dof(in vec2 uv, in float geomDepth)
 {
-    float depth = -texture(u_geometryPosition, uv).z * InvFarPlane;
+    float depth = geomDepth * InvFarPlane;
     float blur_amount = clamp((abs(depth-dof_focal_depth) - dof_start) / dof_dist, -DofBlurRange, DofBlurRange);
 
     const float NAmount = 0.001;//dither amount
     vec2 noise = noise2(uv) * NAmount * blur_amount;
 
-    const int Samples = 3;//samples on the first ring
-    const float BokehBias = 0.5;//bokeh edge bias
     vec2 blur_radius = dof_texel * blur_amount + noise;
 
     vec3 col = texture(u_texture, uv).rgb;
     float weight_sum = 1.0;
 
-    const int Rings = 3;
-    const float BokehDelta = 1.0 / Rings;
-    float bokehFactor = 0;
-    for (int i = 1; i <= Rings; ++i)
+    const vec2 samples[12] = vec2[](
+    vec2(1.000000, 0.000000), vec2(-0.500000, 0.866025), vec2(-0.500000, -0.866025),
+    vec2(2.000000, 0.000000), vec2(0.000000, 2.000000), vec2(-2.000000, 0.000000), vec2(0.000000, -2.000000),
+    vec2(3.000000, 0.000000), vec2(0.927051, 2.853170), vec2(-2.427051, 1.763356), vec2(-2.427051, -1.763356), vec2(0.927051, -2.853170)
+    );
+    const float sampleWeights[12] = float[](
+    0.500000, 0.500000, 0.500000,
+    0.666667, 0.666667, 0.666667, 0.666667,
+    0.833333, 0.833333, 0.833333, 0.833333, 0.833333
+    );
+
+    for (int i = 0; i < 12; ++i)
     {
-        int ringsamples = int(sqrt(i) * Samples);
-        float angleDelta = PI * 2.0 / float(ringsamples);
-
-        float angle = 0;
-        for (int j = 0; j < ringsamples; ++j)
-        {
-            vec2 dxy = vec2(cos(angle), sin(angle)) * float(i);
-            float weight = mix(1.0, bokehFactor, BokehBias);
-            vec2 sampleUv = dxy*blur_radius + uv;
-            col = texture(u_texture, sampleUv).rgb * weight + col;
-            weight_sum += weight;
-            angle += angleDelta;
-        }
-
-        bokehFactor += BokehDelta;
+        col += texture(u_texture, samples[i] * blur_radius + uv).rgb * sampleWeights[i];
+        weight_sum += sampleWeights[i];
     }
+
     return col / weight_sum;
 }

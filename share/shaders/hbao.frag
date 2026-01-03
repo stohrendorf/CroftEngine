@@ -42,21 +42,23 @@ void main()
         tangents[i] = stepSizes[i] * angleAxis(baseTangent, normal, i*DirRotation);
     }
 
+    vec4 P_fragPos = camera.projection * vec4(fragPos, 1.0);
     float occlusion = 0.0;
     for (int i = 0; i < Dirs; ++i)
     {
         vec3 tangent = tangents[i];
-        vec3 d = fragPos;
+        vec4 P_tangent = camera.projection * vec4(tangent, 0.0);
+        vec4 offset = P_fragPos;
         for (int j = 0; j < Steps; ++j)
         {
-            d += tangent;
-            vec4 offset = camera.projection * vec4(d, 1.0);
-            vec3 k = texture(u_position, (offset.xy / offset.w) * vec2(0.5) + vec2(0.5)).xyz;
+            offset += P_tangent;
+            vec3 k = texture(u_position, (offset.xy / offset.w) * 0.5 + 0.5).xyz;
             vec3 vk = k - fragPos;
-            float lvk = 1.0 / length(vk);
-            float w = min(Radius * lvk, 1);
-            occlusion += w * max(dot(vk, normal) * lvk - Bias, 0);
+            float lvk = inversesqrt(dot(vk, vk));
+            float w = min(Radius * lvk, 1.0);
+            occlusion += w * max(dot(vk, normal) * lvk - Bias, 0.0);
         }
     }
-    out_ao = pow(1 - occlusion / (Steps*Dirs), 1.5);
+    float s = 1.0 - occlusion / float(Steps * Dirs);
+    out_ao = s * sqrt(s);
 }

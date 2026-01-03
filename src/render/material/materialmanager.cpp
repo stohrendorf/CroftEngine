@@ -182,18 +182,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(const bool inWater,
         uniform.set(lightingMode());
       });
 
-  if(auto uniform = m->tryGetUniform("u_noise"))
-    uniform->set(gsl_lite::not_null{m_noiseTexture});
-
-  if(auto uniform = m->tryGetUniform("u_time"))
-  {
-    uniform->bind(
-      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      {
-        const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-        uniform.set(gsl_lite::narrow_cast<float>(now.time_since_epoch().count()));
-      });
-  }
+  bindNoiseAndTime(*m);
 
   return m;
 }
@@ -222,14 +211,9 @@ gslu::nn_shared<Material> MaterialManager::getWaterSurface()
   m_waterSurface->getRenderState().setBlend(1, false);
 
   m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m_waterSurface->getUniform("u_time")->bind(
-    [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-      uniform.set(gsl_lite::narrow_cast<float>(now.time_since_epoch().count()));
-    });
+  bindNoiseAndTime(*m_waterSurface);
 
-  m_waterSurface->getUniform("u_noise")->set(gsl_lite::not_null{m_noiseTexture});
+  bindNoiseAndTime(*m_waterSurface);
 
   return gsl_lite::not_null{m_waterSurface};
 }
@@ -251,21 +235,21 @@ MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu:
     , m_renderer{std::move(renderer)}
 {
   static constexpr size_t NoiseTextureSize = 128;
-  std::vector<gl::RGB8> noiseData;
+  std::vector<gl::RGBA8> noiseData;
   noiseData.resize(NoiseTextureSize * NoiseTextureSize);
   std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)
   std::uniform_int_distribution<uint16_t> randomInts(0, 255);
   for(auto& i : noiseData)
   {
-    const auto value = randomInts(generator);
-    i = gl::RGB8{gsl_lite::narrow_cast<uint8_t>(value),
-                 gsl_lite::narrow_cast<uint8_t>(value),
-                 gsl_lite::narrow_cast<uint8_t>(value)};
+    i = gl::RGBA8{gsl_lite::narrow_cast<uint8_t>(randomInts(generator)),
+                  gsl_lite::narrow_cast<uint8_t>(randomInts(generator)),
+                  gsl_lite::narrow_cast<uint8_t>(randomInts(generator)),
+                  gsl_lite::narrow_cast<uint8_t>(randomInts(generator))};
   }
 
-  auto noiseTexture = gsl_lite::make_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
+  auto noiseTexture = gsl_lite::make_shared<gl::Texture2D<gl::RGBA8>>(glm::ivec2{NoiseTextureSize}, "noise");
   noiseTexture->assign(noiseData);
-  m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(
+  m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGBA8>>>(
     noiseTexture,
     gsl_lite::make_unique<gl::Sampler>("noise" + gl::SamplerSuffix)
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
@@ -280,18 +264,7 @@ gslu::nn_shared<Material> MaterialManager::getWorldComposition(bool inWater, boo
     return it->second;
   auto m = gsl_lite::make_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof));
 
-  if(auto uniform = m->tryGetUniform("u_time"))
-  {
-    uniform->bind(
-      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      {
-        const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-        uniform.set(gsl_lite::narrow_cast<float>(now.time_since_epoch().count()));
-      });
-  }
-
-  if(auto uniform = m->tryGetUniform("u_noise"))
-    uniform->set(gsl_lite::not_null{m_noiseTexture});
+  bindNoiseAndTime(*m);
 
   configureForScreenSpaceEffect(*m, false);
 
@@ -418,7 +391,7 @@ gslu::nn_shared<Material> MaterialManager::getFilmGrain()
     return gsl_lite::not_null{m_filmGrain};
 
   auto m = gsl_lite::make_shared<Material>(m_shaderCache->getFilmGrain());
-  m->getUniform("u_noise")->set(gsl_lite::not_null{m_noiseTexture});
+  bindNoiseAndTime(*m);
   configureForScreenSpaceEffect(*m, false);
   m_filmGrain = m;
   return m;
@@ -485,7 +458,7 @@ gslu::nn_shared<Material> MaterialManager::getHBAO()
     return gsl_lite::not_null{m_hbao};
 
   auto m = gsl_lite::make_shared<Material>(m_shaderCache->getHBAO());
-  m->getUniform("u_noise")->set(gsl_lite::not_null{m_noiseTexture});
+  bindNoiseAndTime(*m);
   configureForScreenSpaceEffect(*m, false);
   m_hbao = m;
   return m;
@@ -599,13 +572,7 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   m->getRenderState().setDepthWrite(false);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();
-  m->getUniform("u_noise")->set(gsl_lite::not_null{m_noiseTexture});
-  m->getUniform("u_time")->bind(
-    [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-      uniform.set(gsl_lite::narrow_cast<float>(now.time_since_epoch().count()));
-    });
+  bindNoiseAndTime(*m);
   m_dustParticle = m;
   return m;
 }
@@ -657,5 +624,23 @@ void MaterialManager::createSampler(
 
   m_geometryTexturesHandle = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
     geometryTextures, std::move(sampler));
+}
+
+void MaterialManager::bindNoiseAndTime(const Material& m) const
+{
+  if(const auto uniform = m.tryGetUniform("u_noise"))
+    uniform->set(gsl_lite::not_null{m_noiseTexture});
+
+  if(const auto uniform = m.tryGetUniform("u_time"); uniform != nullptr)
+  {
+    uniform->bind(
+      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        const auto now = renderer->getGameTime();
+        const auto duration
+          = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(now.time_since_epoch());
+        uniform.set(duration.count());
+      });
+  }
 }
 } // namespace render::material

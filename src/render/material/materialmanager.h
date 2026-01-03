@@ -91,7 +91,7 @@ public:
 
 private:
   gslu::nn_shared<ShaderCache> m_shaderCache;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGBA8>>> m_noiseTexture;
 
   std::map<uint8_t, gslu::nn_shared<Material>> m_fxaa;
   std::shared_ptr<Material> m_crtV0{nullptr};
@@ -134,5 +134,6 @@ private:
   void createSampler(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures,
                      bool bilinear,
                      const std::optional<float>& anisotropyLevel);
+  void bindNoiseAndTime(const Material& m) const;
 };
 } // namespace render::material

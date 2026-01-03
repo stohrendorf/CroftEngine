@@ -37,7 +37,7 @@ vec4 barycentric(in vec4 wwww)
     for (i=0; i<4; ++i) {
         s1 = s[i];
         s2 = s[(i+1)%4];
-        A[i] = cross(vec3(s1, 0), vec3(s2, 0)).z;
+        A[i] = s1.x * s2.y - s1.y * s2.x;
         D[i] = dot(s1, s2);
     }
     vec4 t = (r.xyzw * r.yzwx - D) / A;

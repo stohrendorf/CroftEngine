@@ -77,10 +77,11 @@ float shadow_map_multiplier()
     vec3 p;
     float result = 1.0;
 
-    for (splitIdx = CSMSplits-1; splitIdx>=0; --splitIdx) {
+    for (splitIdx = 0; splitIdx < CSMSplits; ++splitIdx) {
         p = gpi.vertexPosLight[splitIdx];
         if (all(greaterThanEqual(p.xy, vec2(0))) && all(lessThanEqual(p.xy, vec2(1)))) {
             result = calc_vsm_value(splitIdx, p);
+            break;
         }
     }
     return result;
@@ -89,11 +90,11 @@ float shadow_map_multiplier()
 float calc_light_strength(in vec3 pos, in float fadeDistance)
 {
     vec3 d = gpi.vertexPosWorld - pos;
-    float ld = length(d);
-    float r = ld / fadeDistance;
-    float result = 1.0 / (r*r + 1.0);
+    float distSq = dot(d, d);
+    float fadeDistSq = fadeDistance * fadeDistance;
+    float result = fadeDistSq / (distSq + fadeDistSq);
     #if SPRITEMODE == 0
-    return result * clamp(-dot(d/ld, gpi.vertexNormalWorld), 0.0, 1.0);
+    return result * clamp(-dot(d, gpi.vertexNormalWorld) * inversesqrt(distSq), 0.0, 1.0);
     #else
     return result;
     #endif
