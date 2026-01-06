@@ -123,6 +123,11 @@ public:
 
   void merge(const RenderState& other);
 
+  void setProgramPointSize(const bool enabled)
+  {
+    m_programPointSizeEnabled = enabled;
+  }
+
   void setPolygonOffsetFill(bool enabled)
   {
     m_polygonOffsetFillEnabled = enabled;
@@ -158,6 +163,7 @@ private:
   std::optional<bool> m_scissorTest;
   std::optional<std::tuple<glm::vec2, glm::vec2>> m_scissorRegion;
   std::optional<bool> m_polygonOffsetFillEnabled;
+  std::optional<bool> m_programPointSizeEnabled;
   std::optional<std::tuple<float, float>> m_polygonOffset;
 };
 } // namespace gl

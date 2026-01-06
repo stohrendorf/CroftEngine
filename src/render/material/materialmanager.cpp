@@ -569,6 +569,7 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   m->getRenderState().setBlend(0, true);
   m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
   m->getRenderState().setDepthTest(true);
+  m->getRenderState().setDepthFunction(gl::api::DepthFunction::Lequal);
   m->getRenderState().setDepthWrite(false);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();

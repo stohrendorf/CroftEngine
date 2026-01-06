@@ -230,7 +230,7 @@ public:
 
   [[nodiscard]] auto getDustParticle()
   {
-    return get("dust.vert", "dust.frag", "dust.geom");
+    return get("dust.vert", "dust.frag");
   }
 
   [[nodiscard]] auto getGhost()

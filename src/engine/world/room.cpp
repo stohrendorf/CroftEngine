@@ -68,6 +68,7 @@
 #include <limits>
 #include <memory>
 #include <optional>
+#include <random>
 #include <set>
 #include <string>
 #include <tuple>
@@ -588,6 +589,9 @@ void Room::regenerateDust(Presenter& presenter,
     indices.reserve(vertices.capacity());
     BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
 
+    std::mt19937 gen(std::random_device{}());
+    std::uniform_real_distribution<float> dis(-resolution / 2, resolution / 2);
+
     // NOLINTNEXTLINE(cert-flp30-c)
     for(float x = verticesBBoxMin.x + resolution / 2; x <= verticesBBoxMax.x - resolution / 2; x += resolution)
     {
@@ -598,7 +602,7 @@ void Room::regenerateDust(Presenter& presenter,
         for(float z = verticesBBoxMin.z + resolution / 2; z <= verticesBBoxMax.z - resolution / 2; z += resolution)
         {
           indices.emplace_back(gsl_lite::narrow_cast<uint32_t>(vertices.size()));
-          vertices.emplace_back(x, y, z);
+          vertices.emplace_back(x + dis(gen), y + dis(gen), z + dis(gen));
         }
       }
     }
@@ -618,6 +622,7 @@ void Room::regenerateDust(Presenter& presenter,
       label + "-particles" + gl::VaoSuffix);
     dustMesh
       = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(nullptr, vao, gl::api::PrimitiveType::Points);
+    dustMesh->getRenderState().setProgramPointSize(true);
     dustMesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, dustMaterial);
 
     dustMesh->bind("u_baseColor",

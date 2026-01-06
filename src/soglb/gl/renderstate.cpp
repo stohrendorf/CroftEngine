@@ -176,6 +176,15 @@ void RenderState::apply() const
                            gsl_lite::narrow_cast<api::core::SizeType>(screenSize.x),
                            gsl_lite::narrow_cast<api::core::SizeType>(screenSize.y)));
   }
+  if(RS_CHANGED(m_programPointSizeEnabled))
+  {
+    gsl_Assert(m_programPointSizeEnabled.has_value());
+    if(m_programPointSizeEnabled.value())
+      GL_ASSERT(api::enable(api::EnableCap::ProgramPointSize));
+    else
+      GL_ASSERT(api::disable(api::EnableCap::ProgramPointSize));
+    getCurrentState().m_programPointSizeEnabled = m_programPointSizeEnabled;
+  }
   if(RS_CHANGED(m_polygonOffsetFillEnabled) || RS_CHANGED(m_polygonOffset))
   {
     gsl_Assert(m_polygonOffsetFillEnabled.has_value());
@@ -220,6 +229,7 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_lineSmooth);
   MERGE_OPT(m_scissorTest);
   MERGE_OPT(m_scissorRegion);
+  MERGE_OPT(m_programPointSizeEnabled);
   MERGE_OPT(m_polygonOffsetFillEnabled);
   MERGE_OPT(m_polygonOffset);
 #undef MERGE_OPT
@@ -260,6 +270,7 @@ RenderState RenderState::getDefaults()
     defaults.setLineSmooth(true);
     defaults.setScissorTest(false);
     defaults.setScissorRegion({0, 0}, {0, 0});
+    defaults.setProgramPointSize(false);
     defaults.setPolygonOffsetFill(false);
     defaults.setPolygonOffset(0, 0);
   }
