@@ -115,6 +115,8 @@ public:
       : SlopedBridge{name, world, room, item, animatedModel, 4}
   {
   }
+
+  void updateLogic() override;
 };
 
 class BridgeSlope2 final : public SlopedBridge
@@ -133,5 +135,7 @@ public:
       : SlopedBridge{name, world, room, item, animatedModel, 2}
   {
   }
+
+  void updateLogic() override;
 };
 } // namespace engine::objects

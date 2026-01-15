@@ -31,7 +31,7 @@ class FallingCeiling final : public ModelObject
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(FallingCeiling, true, false)
 
-  void update() override;
+  void updateLogic() override;
 
   void collide(CollisionInfo& collisionInfo) override;
 };

@@ -85,7 +85,7 @@ Door::Door(const std::string& name,
   getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
 }
 
-void Door::update()
+void Door::updateLogic()
 {
   static constexpr auto Closed = 0_as;
   static constexpr auto Opened = 1_as;
@@ -124,7 +124,7 @@ void Door::update()
   }
 
   const auto oldLocation = m_state.location;
-  ModelObject::update();
+  advanceFrame();
   m_state.location = oldLocation;
   setCurrentRoom(m_state.location.room);
 }

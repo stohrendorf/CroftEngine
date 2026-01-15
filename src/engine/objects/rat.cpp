@@ -26,7 +26,7 @@
 
 namespace engine::objects
 {
-void Rat::update()
+void Rat::updateLogic()
 {
   activateAi();
 
@@ -92,7 +92,7 @@ void Rat::update()
           m_state.location.position.Y = *waterHeight;
         }
       }
-      applyTransform();
+      applyLogicTransform();
     }
     else
     {
@@ -104,7 +104,7 @@ void Rat::update()
       }
       rotateCreatureHead(0_deg);
       getSkeleton()->patchBone(2, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-      ModelObject::update();
+      advanceFrame();
       if(m_state.triggerState == TriggerState::Deactivated)
       {
         m_state.collidable = false;
@@ -119,7 +119,7 @@ void Rat::update()
         goal(5_as);
         m_state.current_anim_state = m_state.goal_anim_state;
         m_state.location.position.Y = m_state.floor;
-        applyTransform();
+        applyLogicTransform();
 
         loadObjectInfo(true);
       }
@@ -197,7 +197,7 @@ void Rat::update()
       goal(getSkeleton()->getAnim()->state_id);
       m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
       m_state.location.position.Y = *waterHeight;
-      applyTransform();
+      applyLogicTransform();
 
       loadObjectInfo(true);
     }

@@ -62,7 +62,7 @@ void Particle::initRenderables(world::World& world, const render::material::Spri
       world::RenderMeshDataCompositor compositor;
       compositor.append(*bone.mesh, gl::SRGBA8{0, 0, 0, 0});
       m_meshes.emplace_back(compositor.toMesh(
-                              *world.getPresenter().getMaterialManager(),
+                              world.getEngine().getPresenter().getRenderSystem().getMaterialManager(),
                               false,
                               false,
                               [&world]() -> bool
@@ -123,7 +123,7 @@ Particle::Particle(const std::string& id,
                    const bool withoutParent,
                    const std::shared_ptr<render::scene::Mesh>& renderable)
     : Node{id}
-    , Emitter{gsl_lite::not_null{world.getPresenter().getSoundEngine().get()}}
+    , Emitter{gsl_lite::not_null{world.getEngine().getPresenter().getSoundEngine().get().get()}}
     , location{room}
     , object_number{objectNumber}
     , m_withoutParent{withoutParent}
@@ -148,7 +148,7 @@ Particle::Particle(const std::string& id,
                    const bool withoutParent,
                    const std::shared_ptr<render::scene::Mesh>& renderable)
     : Node{id}
-    , Emitter{gsl_lite::not_null{world.getPresenter().getSoundEngine().get()}}
+    , Emitter{gsl_lite::not_null{world.getEngine().getPresenter().getSoundEngine().get().get()}}
     , location{std::move(location)}
     , object_number{objectNumber}
     , m_withoutParent{withoutParent}
@@ -165,16 +165,37 @@ Particle::Particle(const std::string& id,
   }
 }
 
-void Particle::applyTransform()
+void Particle::applyLogicTransform()
 {
   location.updateRoom();
+
+  predictedPosition = location.position;
+  predictedAngle = angle;
+
+  if(speed != 0_spd)
+  {
+    predictedPosition += util::pitch(speed * 1_frame, angle.Y);
+  }
+  if(fall_speed != 0_spd)
+  {
+    predictedPosition.Y += fall_speed * 1_frame;
+  }
+
+  interpolateTransform(0);
+}
+
+void Particle::interpolateTransform(const float interTickFactor)
+{
   m_lighting.update(m_shade.value_or(core::Shade{core::Shade::type{-1}}), *location.room);
 
-  auto l = location.position.toRenderSystem();
+  const auto pos = core::lerp(location.position, predictedPosition, interTickFactor);
+  const auto rot = core::lerp(angle, predictedAngle, interTickFactor);
+
+  auto l = pos.toRenderSystem();
   if(!m_withoutParent)
     l -= location.room->position.toRenderSystem();
 
-  auto transform = glm::scale(angle.toMatrix(), glm::vec3{scale});
+  auto transform = glm::scale(rot.toMatrix(), glm::vec3{scale});
   transform[3] = glm::vec4{l, 1.0f};
   setLocalMatrix(transform);
 }
@@ -210,13 +231,13 @@ BloodSplatterParticle::BloodSplatterParticle(const Location& location,
   angle.Y = angle_;
 }
 
-bool BloodSplatterParticle::update(world::World& world)
+bool BloodSplatterParticle::updateLogic(world::World& world)
 {
   location.position += util::pitch(speed * 1_frame, angle.Y);
   ++timePerSpriteFrame;
   if(timePerSpriteFrame != 4)
   {
-    applyTransform();
+    applyLogicTransform();
     return true;
   }
 
@@ -226,11 +247,11 @@ bool BloodSplatterParticle::update(world::World& world)
      >= world.getWorldGeometry().findSpriteSequenceForType(object_number)->sprites.size())
     return false;
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
-bool SplashParticle::update(world::World& world)
+bool SplashParticle::updateLogic(world::World& world)
 {
   nextFrame();
 
@@ -242,7 +263,7 @@ bool SplashParticle::update(world::World& world)
 
   location.position += util::pitch(speed * 1_frame, angle.Y);
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
@@ -282,7 +303,7 @@ BubbleParticle::BubbleParticle(const Location& location,
     nextFrame();
 }
 
-bool BubbleParticle::update(world::World& world)
+bool BubbleParticle::updateLogic(world::World& world)
 {
   angle.X += 13_deg;
   angle.Y += 9_deg;
@@ -299,7 +320,7 @@ bool BubbleParticle::update(world::World& world)
     return false;
   }
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
@@ -320,7 +341,7 @@ FlameParticle::FlameParticle(const Location& location, world::World& world, cons
   }
 }
 
-bool FlameParticle::update(world::World& world)
+bool FlameParticle::updateLogic(world::World& world)
 {
   nextFrame();
   const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(object_number);
@@ -338,7 +359,7 @@ bool FlameParticle::update(world::World& world)
     if(timePerSpriteFrame != 0)
     {
       --timePerSpriteFrame;
-      applyTransform();
+      applyLogicTransform();
       return true;
     }
 
@@ -396,11 +417,11 @@ bool FlameParticle::update(world::World& world)
     }
   }
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
-bool MeshShrapnelParticle::update(world::World& world)
+bool MeshShrapnelParticle::updateLogic(world::World& world)
 {
   angle.X += 5_deg;
   angle.Z += 10_deg;
@@ -442,7 +463,7 @@ bool MeshShrapnelParticle::update(world::World& world)
 
   if(!withoutParent())
     setParent(this, location.room->node);
-  applyTransform();
+  applyLogicTransform();
 
   if(!explode)
     return true;
@@ -495,7 +516,7 @@ void MutantAmmoParticle::aimLaraChest(world::World& world)
   angle.Y = util::rand15s(256_au) + angleFromAtan(d.X, d.Z);
 }
 
-bool MutantBulletParticle::update(world::World& world)
+bool MutantBulletParticle::updateLogic(world::World& world)
 {
   location.position += util::yawPitch(speed * 1_frame, angle);
   const auto sector = location.updateRoom();
@@ -529,11 +550,11 @@ bool MutantBulletParticle::update(world::World& world)
     return false;
   }
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
-bool MutantGrenadeParticle::update(world::World& world)
+bool MutantGrenadeParticle::updateLogic(world::World& world)
 {
   location.position += util::yawPitch(speed * 1_frame, angle);
   const auto sector = location.updateRoom();
@@ -580,7 +601,7 @@ bool MutantGrenadeParticle::update(world::World& world)
     return false;
   }
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
@@ -593,7 +614,7 @@ LavaParticle::LavaParticle(const Location& location, world::World& world)
   negSpriteFrameId = util::rand15(int16_t{-4});
 }
 
-bool LavaParticle::update(world::World& world)
+bool LavaParticle::updateLogic(world::World& world)
 {
   fall_speed += core::Gravity * 1_frame;
   location.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
@@ -614,7 +635,7 @@ bool LavaParticle::update(world::World& world)
     return false;
   }
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
@@ -623,9 +644,9 @@ SparkleParticle::SparkleParticle(const Location& location, world::World& world)
 {
 }
 
-bool SparkleParticle::update(world::World&)
+bool SparkleParticle::updateLogic(world::World&)
 {
-  applyTransform();
+  applyLogicTransform();
 
   ++timePerSpriteFrame;
   if(timePerSpriteFrame != 1)
@@ -645,14 +666,14 @@ MuzzleFlashParticle::MuzzleFlashParticle(const Location& location, world::World&
   setShade(core::Shade{core::Shade::type{4096}});
 }
 
-bool MuzzleFlashParticle::update(world::World&)
+bool MuzzleFlashParticle::updateLogic(world::World&)
 {
   --timePerSpriteFrame;
   if(timePerSpriteFrame == 0)
     return false;
 
   angle.Z = util::rand15s(+180_deg);
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
@@ -666,7 +687,7 @@ ExplosionParticle::ExplosionParticle(const Location& location,
   this->angle = angle;
 }
 
-bool ExplosionParticle::update(world::World&)
+bool ExplosionParticle::updateLogic(world::World&)
 {
   ++timePerSpriteFrame;
   if(timePerSpriteFrame == 2)
@@ -679,7 +700,7 @@ bool ExplosionParticle::update(world::World&)
     }
   }
 
-  applyTransform();
+  applyLogicTransform();
   return true;
 }
 
@@ -689,9 +710,9 @@ SmokeParticle::SmokeParticle(const Location& location, world::World& world, cons
   angle = rotation;
 }
 
-bool SmokeParticle::update(world::World&)
+bool SmokeParticle::updateLogic(world::World&)
 {
-  applyTransform();
+  applyLogicTransform();
 
   ++timePerSpriteFrame;
   if(timePerSpriteFrame < 3)
@@ -712,9 +733,9 @@ RicochetParticle::RicochetParticle(const Location& location, world::World& world
     nextFrame();
 }
 
-bool RicochetParticle::update(world::World&)
+bool RicochetParticle::updateLogic(world::World&)
 {
-  applyTransform();
+  applyLogicTransform();
 
   --timePerSpriteFrame;
   return timePerSpriteFrame != 0;

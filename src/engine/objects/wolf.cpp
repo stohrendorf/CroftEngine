@@ -23,7 +23,7 @@
 
 namespace engine::objects
 {
-void Wolf::update()
+void Wolf::updateLogic()
 {
   activateAi();
 
@@ -196,6 +196,6 @@ Wolf::Wolf(const std::string& name,
     : AIAgent{name, world, room, item, animatedModel}
 {
   getSkeleton()->setAnim(gsl_lite::not_null{getSkeleton()->getAnim()}, 96_frame);
-  getSkeleton()->updatePose();
+  getSkeleton()->calculatePoseMatrices(true);
 }
 } // namespace engine::objects

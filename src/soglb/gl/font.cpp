@@ -72,10 +72,10 @@ FT_Library loadFreeTypeLib()
 } // namespace
 
 FT_Error ftcFaceRequester(const FTC_FaceID /*face_id*/,
+                          // NOLINTNEXTLINE(misc-misplaced-const)
                           const FT_Library library,
-                          // NOLINT(misc-misplaced-const)
+                          // NOLINTNEXTLINE(misc-misplaced-const)
                           const FT_Pointer req_data,
-                          // NOLINT(misc-misplaced-const)
                           FT_Face* aface)
 {
   const auto* path = static_cast<std::filesystem::path*>(req_data);
@@ -92,14 +92,7 @@ Font::Font(std::filesystem::path ttf)
     : m_filename{std::move(ttf)}
 {
   BOOST_LOG_TRIVIAL(debug) << "Loading font " << m_filename;
-  auto error = FTC_Manager_New(loadFreeTypeLib(),
-                               0,
-                               0,
-                               0,
-                               &ftcFaceRequester,
-                               const_cast<std::filesystem::path*>(&m_filename),
-                               // NOLINT(cppcoreguidelines-pro-type-const-cast)
-                               &m_cache);
+  auto error = FTC_Manager_New(loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, &m_filename, &m_cache);
   if(error != FT_Err_Ok)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
@@ -153,7 +146,8 @@ void Font::drawText(Image<PremultipliedSRGBA8>& img,
   imgType.face_id = this;
   imgType.width = size;
   imgType.height = size;
-  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER;
 
   std::optional<char32_t> prevChar = std::nullopt;
   std::vector<char32_t> utf32;
@@ -222,7 +216,8 @@ void Font::drawText(Image<ScalarByte>& img, const gsl_lite::czstring text, glm::
   imgType.face_id = this;
   imgType.width = size;
   imgType.height = size;
-  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER;
 
   std::optional<char32_t> prevChar = std::nullopt;
   std::vector<char32_t> utf32;
@@ -284,7 +279,8 @@ std::pair<glm::ivec2, glm::ivec2> Font::measure(const gsl_lite::czstring text, i
   imgType.face_id = this;
   imgType.width = size;
   imgType.height = size;
-  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER;
 
   glm::ivec2 bottomLeft{0, 0};
   glm::ivec2 topRight{0, 0};
@@ -339,8 +335,8 @@ FT_Face Font::getFace() const
 {
   FT_Face face = nullptr;
   if(FTC_Manager_LookupFace(m_cache,
+                            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
                             const_cast<Font*>(this),
-                            // NOLINT(cppcoreguidelines-pro-type-const-cast)
                             &face)
      != FT_Err_Ok)
   {
@@ -362,8 +358,8 @@ int Font::getGlyphKernAdvance(const FT_UInt left, const FT_UInt right) const
 FT_UInt Font::getGlyphIndex(const char32_t chr) const
 {
   return FTC_CMapCache_Lookup(m_cmapCache,
+                              // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
                               const_cast<Font*>(this),
-                              // NOLINT(cppcoreguidelines-pro-type-const-cast)
                               -1,
                               chr);
 }

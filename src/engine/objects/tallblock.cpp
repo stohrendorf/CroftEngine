@@ -21,14 +21,14 @@
 
 namespace engine::objects
 {
-void TallBlock::update()
+void TallBlock::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {
     if(m_state.current_anim_state == 0_as)
     {
       world::patchHeightsForBlock(*this, 2_sectors);
-      getSkeleton()->resetInterpolation();
+      getSkeleton()->resetSmoothing();
       m_state.goal_anim_state = 1_as;
     }
   }
@@ -37,12 +37,12 @@ void TallBlock::update()
     if(m_state.current_anim_state == 1_as)
     {
       world::patchHeightsForBlock(*this, 2_sectors);
-      getSkeleton()->resetInterpolation();
+      getSkeleton()->resetSmoothing();
       m_state.goal_anim_state = 0_as;
     }
   }
 
-  ModelObject::update();
+  advanceFrame();
   m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 
@@ -53,7 +53,7 @@ void TallBlock::update()
 
   m_state.triggerState = TriggerState::Active;
   world::patchHeightsForBlock(*this, -2_sectors);
-  getSkeleton()->resetInterpolation();
+  getSkeleton()->resetSmoothing();
   auto pos = m_state.location.position;
   pos.X = snappedSector(pos.X) + 1_sectors / 2;
   pos.Z = snappedSector(pos.Z) + 1_sectors / 2;
@@ -72,7 +72,7 @@ void TallBlock::deserialize(const serialization::Deserializer<world::World>& ser
   world::patchHeightsForBlock(*this, 2_sectors);
   ModelObject::deserialize(ser);
   world::patchHeightsForBlock(*this, -2_sectors);
-  getSkeleton()->resetInterpolation();
+  getSkeleton()->resetSmoothing();
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
@@ -85,6 +85,6 @@ TallBlock::TallBlock(const std::string& name,
 {
   world::patchHeightsForBlock(*this, -2_sectors);
   getSkeleton()->getRenderState().setScissorTest(false);
-  getSkeleton()->resetInterpolation();
+  getSkeleton()->resetSmoothing();
 }
 } // namespace engine::objects

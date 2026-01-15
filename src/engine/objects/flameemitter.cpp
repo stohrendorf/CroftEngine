@@ -15,7 +15,7 @@
 
 namespace engine::objects
 {
-void FlameEmitter::update()
+void FlameEmitter::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {

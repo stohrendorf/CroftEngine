@@ -25,7 +25,7 @@ void TRRotationXY::deserialize(const serialization::Deserializer<engine::world::
 
 glm::mat4 TRRotationXY::toMatrix() const
 {
-  return glm::yawPitchRoll(-toRad(Y), toRad(X), 0.0f);
+  return glm::yawPitchRoll(-toRad(Y).get<>(), toRad(X).get<>(), 0.0f);
 }
 
 void TRRotation::serialize(const serialization::Serializer<engine::world::World>& ser) const
@@ -40,7 +40,7 @@ void TRRotation::deserialize(const serialization::Deserializer<engine::world::Wo
 
 glm::mat4 TRRotation::toMatrix() const
 {
-  return glm::yawPitchRoll(-toRad(Y), toRad(X), -toRad(Z));
+  return glm::yawPitchRoll(-toRad(Y).get<>(), toRad(X).get<>(), -toRad(Z).get<>());
 }
 
 TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz)
@@ -49,7 +49,7 @@ TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& d
   const auto dxz = sqrt(dx * dx + dz * dz);
   auto x = angleFromAtan(dy, dxz);
   // ReSharper disable once CppRedundantParentheses
-  if((dy < 0_len) == (toRad(x) < 0))
+  if((dy < 0_len) == (toRad(x) < 0_rad))
     x = -x;
 
   return TRRotationXY{x, y};

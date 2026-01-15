@@ -125,7 +125,7 @@ public:
     return m_objectCounter;
   }
 
-  void update(world::World& world, bool godMode);
+  void updateLogic(world::World& world, bool godMode);
 
   void replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world);
 
@@ -135,5 +135,7 @@ public:
   void activate(const objects::Object* object);
 
   void deactivate(const objects::Object* object);
+
+  void interpolateTransforms(float interTickFactor);
 };
 } // namespace engine

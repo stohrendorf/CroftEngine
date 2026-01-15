@@ -31,7 +31,7 @@
 
 namespace engine
 {
-enum class RunResult : uint8_t;
+enum class LevelLoopResult : uint8_t;
 enum class WeaponType : uint8_t;
 class Engine;
 class Player;
@@ -108,14 +108,14 @@ class LevelSequenceItem
 {
 public:
   virtual ~LevelSequenceItem() = default;
-  virtual std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                          const std::shared_ptr<Player>& player,
-                                                          const std::shared_ptr<Player>& levelStartPlayer) = 0;
-  virtual std::pair<RunResult, std::optional<size_t>> runFromSave(const gsl_lite::not_null<Engine*>& /*engine*/,
-                                                                  const std::optional<size_t>& /*slot*/,
-                                                                  const std::shared_ptr<Player>& /*player*/,
-                                                                  const std::shared_ptr<Player>&
-                                                                  /*levelStartPlayer*/);
+  virtual std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                                const std::shared_ptr<Player>& player,
+                                                                const std::shared_ptr<Player>& levelStartPlayer) = 0;
+  virtual std::pair<LevelLoopResult, std::optional<size_t>> runFromSave(const gsl_lite::not_null<Engine*>& /*engine*/,
+                                                                        const std::optional<size_t>& /*slot*/,
+                                                                        const std::shared_ptr<Player>& /*player*/,
+                                                                        const std::shared_ptr<Player>&
+                                                                        /*levelStartPlayer*/);
 
   [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;
   [[nodiscard]] virtual std::vector<std::filesystem::path>
@@ -171,13 +171,14 @@ public:
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
-  std::pair<RunResult, std::optional<size_t>> runFromSave(const gsl_lite::not_null<Engine*>& engine,
-                                                          const std::optional<size_t>& slot,
-                                                          const std::shared_ptr<Player>& player,
-                                                          const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>>
+    runFromSave(const gsl_lite::not_null<Engine*>& engine,
+                const std::optional<size_t>& slot,
+                const std::shared_ptr<Player>& player,
+                const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& path) const override;
 
@@ -207,9 +208,9 @@ public:
 
   void apply(const std::shared_ptr<Player>& player);
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -233,9 +234,9 @@ public:
             std::optional<TR1TrackId> ambient,
             loader::file::level::Game game);
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -258,9 +259,9 @@ public:
     std::ranges::copy(paths, std::back_inserter(m_paths));
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -295,7 +296,7 @@ public:
       , m_track{track}
       , m_flipRooms{flipRooms}
       , m_weaponSwap{weaponSwap}
-      , m_cameraRot{core::angleFromDegrees(cameraRot)}
+      , m_cameraRot{core::toAngle(core::Degrees{cameraRot})}
       , m_cameraPosX{cameraPosX}
       , m_cameraPosZ{cameraPosZ}
       , m_game{game}
@@ -312,16 +313,16 @@ public:
       , m_track{track}
       , m_flipRooms{flipRooms}
       , m_weaponSwap{weaponSwap}
-      , m_cameraRot{core::angleFromDegrees(cameraRot)}
+      , m_cameraRot{core::toAngle(core::Degrees{cameraRot})}
       , m_cameraPosX{std::nullopt}
       , m_cameraPosZ{std::nullopt}
       , m_game{game}
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -344,9 +345,9 @@ public:
 
   ~SplashScreen() override;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -371,9 +372,9 @@ public:
 
   ~PlayAudioSlot() override = default;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -399,9 +400,9 @@ public:
 
   ~StopAudioSlot() override = default;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -422,9 +423,9 @@ public:
 
   ~ResetSoundEngine() override = default;
 
-  std::pair<RunResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
-                                                  const std::shared_ptr<Player>& player,
-                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+  std::pair<LevelLoopResult, std::optional<size_t>> run(const gsl_lite::not_null<Engine*>& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {

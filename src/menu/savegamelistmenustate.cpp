@@ -109,9 +109,9 @@ public:
     m_container->setSize(size);
   }
 
-  void update(const bool hasFocus) override
+  void tick(const bool hasFocus) override
   {
-    m_container->update(hasFocus);
+    m_container->tick(hasFocus);
   }
 
   void fitToContent() override
@@ -220,9 +220,9 @@ public:
     m_label.setSize(size);
   }
 
-  void update(const bool hasFocus) override
+  void tick(const bool hasFocus) override
   {
-    m_label.update(hasFocus);
+    m_label.tick(hasFocus);
   }
 
   void fitToContent() override
@@ -327,20 +327,39 @@ std::unique_ptr<MenuState> SavegameListMenuState::onAborted()
   return std::move(m_previous);
 }
 
-std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SavegameListMenuState::tick(engine::world::World& world, MenuDisplay& display)
 {
   if(m_overwriteConfirmation == nullptr && m_cleanupWidget == nullptr)
   {
-    return onDefaultFrame(ui, world, display);
+    return onDefaultTick(world, display);
   }
-
-  if(m_overwriteConfirmation != nullptr)
+  else if(m_overwriteConfirmation != nullptr)
   {
-    return onConfirmOverwriteFrame(ui, world, display);
+    return onConfirmOverwriteTick(world, display);
   }
   else if(m_cleanupWidget != nullptr)
   {
-    return onCleanupFrame(ui, world, display);
+    return onCleanupTick(world, display);
+  }
+  else
+  {
+    BOOST_THROW_EXCEPTION(std::runtime_error("invalid savegame list menu state"));
+  }
+}
+
+void SavegameListMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  if(m_overwriteConfirmation == nullptr && m_cleanupWidget == nullptr)
+  {
+    onDefaultDraw(ui, world, display);
+  }
+  else if(m_overwriteConfirmation != nullptr)
+  {
+    onConfirmOverwriteDraw(ui, world, display);
+  }
+  else if(m_cleanupWidget != nullptr)
+  {
+    onCleanupDraw(ui, world, display);
   }
   else
   {
@@ -390,10 +409,9 @@ void SavegameListMenuState::sortEntries()
     append(entry);
 }
 
-std::unique_ptr<MenuState>
-  SavegameListMenuState::onDefaultFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SavegameListMenuState::onDefaultTick(engine::world::World& world, MenuDisplay& display)
 {
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
   {
     switch(m_ordering)
     {
@@ -409,7 +427,7 @@ std::unique_ptr<MenuState>
     }
     sortEntries();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
   {
     switch(m_ordering)
     {
@@ -425,12 +443,11 @@ std::unique_ptr<MenuState>
     }
     sortEntries();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::SecondaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::SecondaryInteraction))
   {
     const auto slot = m_entries.at(getListBox()->getSelected())->getSlot();
     if(!slot.has_value())
     {
-      draw(ui, world, display);
       // don't allow management using the quicksave slot
       return nullptr;
     }
@@ -441,30 +458,29 @@ std::unique_ptr<MenuState>
       saveTime = util::toSavegameTime(it->second.saveTime, world.getEngine().getLocale());
     }
     m_cleanupWidget = std::make_shared<CleanupWidget>(saveTime);
-    draw(ui, world, display);
     return nullptr;
   }
 
-  return ListDisplayMenuState::onFrame(ui, world, display);
+  return ListDisplayMenuState::tick(world, display);
 }
 
-std::unique_ptr<MenuState>
-  SavegameListMenuState::onConfirmOverwriteFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+void SavegameListMenuState::onDefaultDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  draw(ui, world, display);
-  m_overwriteConfirmation->fitToContent();
-  m_overwriteConfirmation->setPosition({(ui.getSize().x - m_overwriteConfirmation->getSize().x) / 2,
-                                        ui.getSize().y - m_overwriteConfirmation->getSize().y - 90});
+  ListDisplayMenuState::constructUi(ui, world, display);
+}
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
-     || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+std::unique_ptr<MenuState> SavegameListMenuState::onConfirmOverwriteTick(engine::world::World& world,
+                                                                         MenuDisplay& display)
+{
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
+     || world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
   {
     m_overwriteConfirmation->toggleConfirmed();
   }
-  else if(world.getPresenter().getInputHandler().hasAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasAction(hid::Action::PrimaryInteraction))
   {
     const auto justConfirmed
-      = world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction);
+      = world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction);
     if(justConfirmed && !m_overwriteConfirmation->isConfirmed())
     {
       m_overwriteConfirmation.reset();
@@ -492,37 +508,34 @@ std::unique_ptr<MenuState>
     m_confirmOverwritePressedSince = std::chrono::steady_clock::now();
   }
 
-  m_overwriteConfirmation->update(true);
-  m_overwriteConfirmation->draw(ui, world.getPresenter());
+  m_overwriteConfirmation->tick(true);
   return nullptr;
 }
 
-std::unique_ptr<MenuState>
-  SavegameListMenuState::onCleanupFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+void SavegameListMenuState::onConfirmOverwriteDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  draw(ui, world, display);
-  m_cleanupWidget->fitToContent();
-  m_cleanupWidget->setPosition(
-    {(ui.getSize().x - m_cleanupWidget->getSize().x) / 2, ui.getSize().y - m_cleanupWidget->getSize().y - 90});
-  m_cleanupWidget->draw(ui, world.getPresenter());
+  constructUi(ui, world, display);
+  m_overwriteConfirmation->fitToContent();
+  m_overwriteConfirmation->setPosition({(ui.getSize().x - m_overwriteConfirmation->getSize().x) / 2,
+                                        ui.getSize().y - m_overwriteConfirmation->getSize().y - 90});
+  m_overwriteConfirmation->draw(ui, world.getEngine().getPresenter());
+}
 
+std::unique_ptr<MenuState> SavegameListMenuState::onCleanupTick(engine::world::World& world, MenuDisplay& /*display*/)
+{
   if(m_cleanupConfirmation != nullptr)
   {
-    m_cleanupConfirmation->fitToContent();
-    m_cleanupConfirmation->setPosition({(ui.getSize().x - m_cleanupConfirmation->getSize().x) / 2,
-                                        ui.getSize().y - m_cleanupConfirmation->getSize().y - 90});
-    m_cleanupConfirmation->update(true);
-    m_cleanupConfirmation->draw(ui, world.getPresenter());
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+    m_cleanupConfirmation->tick(true);
+    if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
     {
       m_cleanupConfirmation.reset();
     }
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
-            || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+    else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
+            || world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
     {
       m_cleanupConfirmation->toggleConfirmed();
     }
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+    else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
     {
       if(!m_cleanupConfirmation->isConfirmed())
       {
@@ -538,28 +551,47 @@ std::unique_ptr<MenuState>
     return nullptr;
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     m_cleanupWidget.reset();
     return nullptr;
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuUp))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuUp))
   {
     m_cleanupWidget->prevEntry();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))
   {
     m_cleanupWidget->nextEntry();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     initCleanupConfirmation();
     return nullptr;
   }
 
-  m_cleanupWidget->update(true);
-  m_cleanupWidget->draw(ui, world.getPresenter());
+  m_cleanupWidget->tick(true);
   return nullptr;
+}
+
+void SavegameListMenuState::onCleanupDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  constructUi(ui, world, display);
+  m_cleanupWidget->fitToContent();
+  m_cleanupWidget->setPosition(
+    {(ui.getSize().x - m_cleanupWidget->getSize().x) / 2, ui.getSize().y - m_cleanupWidget->getSize().y - 90});
+  m_cleanupWidget->draw(ui, world.getEngine().getPresenter());
+
+  if(m_cleanupConfirmation != nullptr)
+  {
+    m_cleanupConfirmation->fitToContent();
+    m_cleanupConfirmation->setPosition({(ui.getSize().x - m_cleanupConfirmation->getSize().x) / 2,
+                                        ui.getSize().y - m_cleanupConfirmation->getSize().y - 90});
+    m_cleanupConfirmation->tick(true);
+    m_cleanupConfirmation->draw(ui, world.getEngine().getPresenter());
+  }
+
+  m_cleanupWidget->draw(ui, world.getEngine().getPresenter());
 }
 
 void SavegameListMenuState::selectMostRecentSlot()

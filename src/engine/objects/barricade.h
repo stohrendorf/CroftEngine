@@ -31,7 +31,7 @@ class Barricade final : public ModelObject
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(Barricade, true, false)
 
-  void update() override;
+  void updateLogic() override;
 
   void collide(CollisionInfo& collisionInfo) override;
 };

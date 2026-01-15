@@ -53,7 +53,7 @@
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
 #include "render/scene/node.h"
-#include "render/scene/renderer.h"
+#include "render/scene/scenegraph.h"
 #include "room.h"
 #include "sector.h"
 #include "serialization/array.h"
@@ -318,7 +318,7 @@ void World::dinoStompEffect(objects::Object& object)
     return;
 
   const auto x = (100_len).cast<float>() * (1 - glm::length2(d) / util::square(MaxD));
-  m_cameraController->setBounce(x.cast<core::Length>());
+  m_cameraController->setShake(x.cast<core::Length>());
 }
 
 void World::laraNormalEffect()
@@ -328,7 +328,7 @@ void World::laraNormalEffect()
   m_objectManager.getLara().getSkeleton()->setAnim(
     gsl_lite::not_null{&m_worldGeometry->getAnimation(loader::file::AnimationId::STAY_SOLID)});
   m_cameraController->setMode(CameraMode::Chase);
-  getPresenter().getRenderer().getCamera()->setFieldOfView(Presenter::DefaultFov);
+  m_engine->getPresenter().getRenderSystem().getCamera()->setFieldOfView(core::DefaultFov);
 }
 
 void World::laraBubblesEffect(objects::Object& object)
@@ -367,7 +367,7 @@ void World::earthquakeEffect()
   {
   case 0:
     m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion, nullptr);
-    m_cameraController->setBounce(-250_len);
+    m_cameraController->setShake(-250_len);
     break;
   case 3:
     m_audioEngine->playSoundEffect(TR1SoundEffect::Boulder, nullptr);
@@ -476,7 +476,7 @@ void World::sandEffect()
 void World::explosionEffect()
 {
   m_audioEngine->playSoundEffect(TR1SoundEffect::LowPitchedSettling, nullptr);
-  m_cameraController->setBounce(-75_len);
+  m_cameraController->setShake(-75_len);
   m_activeEffect.reset();
 }
 
@@ -529,12 +529,12 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
     if(const auto block = std::dynamic_pointer_cast<objects::Block>(object.get()); block != nullptr)
     {
       patchHeightsForBlock(*block, 1_sectors);
-      block->getSkeleton()->resetInterpolation();
+      block->getSkeleton()->resetSmoothing();
     }
     else if(const auto tallBlock = std::dynamic_pointer_cast<objects::TallBlock>(object.get()); tallBlock != nullptr)
     {
       patchHeightsForBlock(*tallBlock, 2_sectors);
-      tallBlock->getSkeleton()->resetInterpolation();
+      tallBlock->getSkeleton()->resetSmoothing();
     }
   }
 
@@ -571,12 +571,12 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
     if(const auto block = std::dynamic_pointer_cast<objects::Block>(object.get()); block != nullptr)
     {
       patchHeightsForBlock(*block, -1_sectors);
-      block->getSkeleton()->resetInterpolation();
+      block->getSkeleton()->resetSmoothing();
     }
     else if(const auto tallBlock = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
       patchHeightsForBlock(*tallBlock, -2_sectors);
-      tallBlock->getSkeleton()->resetInterpolation();
+      tallBlock->getSkeleton()->resetSmoothing();
     }
   }
 
@@ -635,9 +635,9 @@ const std::vector<CinematicFrame>& World::getCinematicFrames() const noexcept
   return m_cinematicFrames;
 }
 
-void World::update(const bool godMode)
+void World::updateLogicWorldState(const bool godMode)
 {
-  m_objectManager.update(*this, godMode);
+  m_objectManager.updateLogic(*this, godMode);
   if(const auto lara = m_objectManager.getLaraPtr();
      getEngine().getEngineConfig()->lowHealthMonochrome && lara != nullptr)
   {
@@ -652,7 +652,7 @@ void World::update(const bool godMode)
   {
     m_currentDeathStrength = 0;
   }
-  getPresenter().getMaterialManager()->setDeathStrength(m_currentDeathStrength);
+  m_engine->getPresenter().getRenderSystem().getMaterialManager().setDeathStrength(m_currentDeathStrength);
 
   static constexpr auto UVAnimTime = core::FrameRate * 1_sec / 3;
 
@@ -672,7 +672,7 @@ void World::update(const bool godMode)
                   return w.expired();
                 });
   for(auto& w : m_pickupWidgets)
-    w.nextFrame();
+    w.tick();
 
   m_audioEngine->cleanup();
 }
@@ -925,11 +925,11 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
                            return room.physicalId;
                          });
 
-  getPresenter().getRenderer().getRootNode()->clear();
+  m_engine->getPresenter().getRenderSystem().getSceneGraph().getRootNode()->clear();
   for(auto& room : m_rooms)
   {
     room.resetScenery();
-    setParent(gsl_lite::not_null{room.node}, getPresenter().getRenderer().getRootNode());
+    setParent(gsl_lite::not_null{room.node}, m_engine->getPresenter().getRenderSystem().getSceneGraph().getRootNode());
   }
 
   ser(S_NV("roomPhysicalIds", serialization::DeserializingFrozenVector{std::ref(physicalIds)}));
@@ -964,12 +964,10 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
   updateStaticSoundEffects();
 }
 
-void World::gameLoop(const bool godMode, const float blackAlpha, ui::Ui& ui)
+void World::updateGameLogic(const bool godMode)
 {
-  update(godMode);
+  updateLogicWorldState(godMode);
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
-
-  const auto waterEntryPortals = m_cameraController->update();
 
   for(const auto& room : m_rooms)
   {
@@ -987,22 +985,6 @@ void World::gameLoop(const bool godMode, const float blackAlpha, ui::Ui& ui)
   }
 
   doGlobalEffect();
-  getPresenter().drawBars(
-    ui, m_worldGeometry->getPalette(), getObjectManager(), getEngine().getEngineConfig()->pulseLowHealthHealthBar);
-
-  drawPickupWidgets(ui);
-  if(const auto lara = getObjectManager().getLaraPtr())
-    lara->m_state.location.room->node->setVisible(true);
-  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals, *this);
-  getPresenter().renderScreenOverlay();
-  if(blackAlpha > 0)
-  {
-    ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, gsl_lite::narrow_cast<uint8_t>(255 * blackAlpha)});
-  }
-
-  getPresenter().renderUi(ui, 1);
-  getPresenter().updateSoundEngine();
-  getPresenter().swapBuffers();
 
   if(m_engine->getEngineConfig()->waterBedBubbles)
   {
@@ -1011,34 +993,40 @@ void World::gameLoop(const bool godMode, const float blackAlpha, ui::Ui& ui)
       emitGroundBubbles(gsl_lite::not_null{&room}, *this);
     }
   }
+
+  m_cameraController->updateGameLogic(true);
 }
 
-bool World::cinematicLoop()
+bool World::tickCinematic()
 {
-  m_cameraController->m_cinematicFrame += 1_frame;
-  if(gsl_lite::narrow<size_t>(m_cameraController->m_cinematicFrame.get()) >= m_cinematicFrames.size())
+  if(!m_cameraController->tickCinematic(m_cinematicFrames, false))
     return false;
-
-  update(false);
-  getPresenter().getMaterialManager()->setDeathStrength(0);
-
-  const auto waterEntryPortals
-    = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame.get()), false);
   doGlobalEffect();
-
-  ui::Ui ui{
-    getPresenter().getMaterialManager()->getUi(), m_worldGeometry->getPalette(), getPresenter().getUiViewport()};
-  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals, *this);
-  getPresenter().renderScreenOverlay();
-  getPresenter().renderUi(ui, 1);
-  getPresenter().updateSoundEngine();
-  getPresenter().swapBuffers();
   return true;
+}
+
+void World::renderCinematic() const
+{
+  m_engine->getPresenter().getRenderSystem().getMaterialManager().setDeathStrength(0);
+
+  for(const auto& val : m_objectManager.getObjects() | std::views::values)
+  {
+    if(const auto node = val->getNode(); node != nullptr)
+      node->setVisible(true);
+  }
+
+  for(const auto& room : m_rooms)
+  {
+    room.node->setVisible(true);
+  }
+
+  m_engine->getPresenter().renderWorldGeometryFramebuffers(
+    m_rooms, *m_cameraController, m_cameraController->getWaterEntryPortals(), *this);
 }
 
 void World::load(const std::optional<size_t>& slot)
 {
-  getPresenter().drawLoadingScreen(_("Loading..."));
+  m_engine->getPresenter().drawLoadingScreen(_("Loading..."));
   const auto filename = m_engine->getSavegamePath(slot);
   BOOST_LOG_TRIVIAL(info) << "Load " << filename;
   serialization::YAMLDocument<true> doc{filename};
@@ -1061,7 +1049,7 @@ void World::load(const std::optional<size_t>& slot)
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_objectManager.getLara().initWeaponAnimData();
   connectSectors();
-  getPresenter().disableScreenOverlay();
+  m_engine->getPresenter().disableScreenOverlay();
 
   m_engine->onGameSavedOrLoaded();
 }
@@ -1087,7 +1075,7 @@ void World::save(const std::optional<size_t>& slot)
 {
   const auto filename = m_engine->getSavegamePath(slot);
   save(filename);
-  getPresenter().disableScreenOverlay();
+  m_engine->getPresenter().disableScreenOverlay();
 }
 
 std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::getSavedGames() const
@@ -1177,7 +1165,7 @@ World::World(const gsl_lite::not_null<Engine*>& engine,
     m_audioEngine->addWav(gsl_lite::not_null{&m_samplesData.at(offset)});
   }
 
-  getPresenter().drawLoadingScreen(util::unescape(m_title));
+  m_engine->getPresenter().drawLoadingScreen(util::unescape(m_title));
 
   initFromLevel(*level, fromSave);
 
@@ -1186,14 +1174,14 @@ World::World(const gsl_lite::not_null<Engine*>& engine,
     useAlternativeLaraAppearance();
   }
 
-  getPresenter().getSoundEngine()->setListener(m_cameraController.get());
-  getPresenter().setTrFont(
+  m_engine->getPresenter().getSoundEngine()->setListener(m_cameraController.get());
+  m_engine->getPresenter().setTrFont(
     std::make_unique<ui::TRFont>(*m_worldGeometry->getSpriteSequences().at(TR1ItemId::FontGraphics)));
   if(ambient.has_value())
   {
     m_audioEngine->playStopCdTrack(m_engine->getScriptEngine().getGameflow(), *ambient, false);
   }
-  getPresenter().disableScreenOverlay();
+  m_engine->getPresenter().disableScreenOverlay();
 
   m_engine->onGameSavedOrLoaded();
 }
@@ -1203,7 +1191,7 @@ World::~World()
   m_engine->unregisterWorld(gsl_lite::not_null{this});
 }
 
-void World::drawPickupWidgets(ui::Ui& ui)
+void World::constructPickupWidgets(ui::Ui& ui)
 {
   auto x = ui.getSize().x;
   const auto y = ui.getSize().y * 9 / 10;
@@ -1316,7 +1304,7 @@ void World::initStaticSoundEffects(const loader::file::level::Level& level)
   for(const loader::file::SoundSource& src : level.m_soundSources)
   {
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(),
-                                      gsl_lite::not_null{getPresenter().getSoundEngine().get()});
+                                      gsl_lite::not_null{m_engine->getPresenter().getSoundEngine().get().get()});
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     gsl_Assert(voice != nullptr);
     voice->pause();
@@ -1331,8 +1319,8 @@ void World::initCameraController()
 {
   if(m_objectManager.getLaraPtr() == nullptr)
   {
-    m_cameraController
-      = std::make_unique<CameraController>(gsl_lite::not_null{this}, getPresenter().getRenderer().getCamera(), true);
+    m_cameraController = std::make_unique<CameraController>(
+      gsl_lite::not_null{this}, m_engine->getPresenter().getRenderSystem().getCamera(), true);
 
     for(const auto& item : m_objectManager.getObjects() | std::views::values)
     {
@@ -1344,8 +1332,8 @@ void World::initCameraController()
   }
   else
   {
-    m_cameraController
-      = std::make_unique<CameraController>(gsl_lite::not_null{this}, getPresenter().getRenderer().getCamera());
+    m_cameraController = std::make_unique<CameraController>(gsl_lite::not_null{this},
+                                                            m_engine->getPresenter().getRenderSystem().getCamera());
   }
 }
 
@@ -1425,9 +1413,12 @@ void World::initRooms(const loader::file::level::Level& level)
     }
     m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
 
-    m_rooms[i].createSceneNode(
-      level.m_rooms.at(i), *this, level.m_animatedTextures, *getPresenter().getMaterialManager());
-    setParent(gsl_lite::not_null{m_rooms[i].node}, getPresenter().getRenderer().getRootNode());
+    m_rooms[i].createSceneNode(level.m_rooms.at(i),
+                               *this,
+                               level.m_animatedTextures,
+                               m_engine->getPresenter().getRenderSystem().getMaterialManager());
+    setParent(gsl_lite::not_null{m_rooms[i].node},
+              m_engine->getPresenter().getRenderSystem().getSceneGraph().getRootNode());
   }
 }
 

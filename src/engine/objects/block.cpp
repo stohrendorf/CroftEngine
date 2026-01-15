@@ -97,7 +97,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
       = snappedSector(getWorld().getObjectManager().getLara().m_state.location.position.*vp) + d;
 
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
-    getWorld().getObjectManager().getLara().advanceFrame();
+    getWorld().getObjectManager().getLara().advanceLaraFrame();
     if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PushableGrab)
     {
       getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
@@ -139,24 +139,24 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   // start moving the block, remove it from the floordata
   activate();
   world::patchHeightsForBlock(*this, 1_sectors);
-  getSkeleton()->resetInterpolation();
+  getSkeleton()->resetSmoothing();
   m_state.triggerState = TriggerState::Active;
 
-  ModelObject::update();
-  getWorld().getObjectManager().getLara().advanceFrame();
+  advanceFrame();
+  getWorld().getObjectManager().getLara().advanceLaraFrame();
 }
 
-void Block::update()
+void Block::updateLogic()
 {
   if(m_state.activationState.isOneshot())
   {
     world::patchHeightsForBlock(*this, 1_sectors);
-    getSkeleton()->resetInterpolation();
+    getSkeleton()->resetSmoothing();
     kill();
     return;
   }
 
-  ModelObject::update();
+  advanceFrame();
 
   auto location = m_state.location;
   auto sector = location.updateRoom();
@@ -173,7 +173,7 @@ void Block::update()
     m_state.triggerState = TriggerState::Deactivated;
     getWorld().dinoStompEffect(*this);
     playSoundEffect(TR1SoundEffect::BigFloorImpact);
-    applyTransform(); // needed for properly placing geometry on floor
+    applyLogicTransform(); // needed for properly placing geometry on floor
   }
 
   setCurrentRoom(location.room);
@@ -186,7 +186,7 @@ void Block::update()
   m_state.triggerState = TriggerState::Inactive;
   deactivate();
   world::patchHeightsForBlock(*this, -1_sectors);
-  getSkeleton()->resetInterpolation();
+  getSkeleton()->resetSmoothing();
   location = m_state.location;
   sector = location.updateRoom();
   getWorld().handleCommandSequence(
@@ -372,7 +372,7 @@ Block::Block(const std::string& name,
   if(m_state.triggerState != TriggerState::Invisible)
   {
     world::patchHeightsForBlock(*this, -1_sectors);
-    getSkeleton()->resetInterpolation();
+    getSkeleton()->resetSmoothing();
   }
   getSkeleton()->getRenderState().setScissorTest(false);
 }

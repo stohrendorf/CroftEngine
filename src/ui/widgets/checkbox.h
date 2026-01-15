@@ -24,7 +24,7 @@ public:
   explicit Checkbox(const std::string& label);
   explicit Checkbox(gslu::nn_shared<Widget> content);
   ~Checkbox() override;
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   void setChecked(const bool checked) noexcept

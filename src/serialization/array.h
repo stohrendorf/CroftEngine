@@ -16,7 +16,7 @@ void serialize(const std::array<T, N>& data, const Serializer<TContext>& ser)
   for(typename std::array<T, N>::size_type i = 0; i < N; ++i)
   {
     const auto tmp = ser.newChild();
-    access::dispatch(data[i], tmp);
+    access::dispatchSerialize(data[i], tmp);
   }
 }
 
@@ -28,7 +28,7 @@ void deserialize(std::array<T, N>& data, const Deserializer<TContext>& ser)
   gsl_Expects(ser.node.num_children() == N);
   for(typename std::array<T, N>::size_type i = 0; i < N; ++i)
   {
-    access::dispatch(data[i], ser.withNode(ser.node[i]));
+    access::dispatchDeserialize(data[i], ser.withNode(ser.node[i]));
   }
 }
 } // namespace serialization

@@ -62,7 +62,38 @@ RenderPipeline::RenderPipeline(material::MaterialManager& materialManager,
   resize(materialManager, renderViewport, uiViewport, displayViewport, true);
 }
 
-void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>& rooms, const bool inWater)
+void RenderPipeline::renderDust(const std::vector<engine::world::Room>& rooms)
+{
+  SOGLB_DEBUGGROUP("dust");
+
+  const auto fb = m_worldCompositionPass->getFramebuffer();
+  fb->bind();
+  scene::RenderContext context{material::RenderMode::FullNonOpaque, std::nullopt, scene::Translucency::NonOpaque};
+  context.pushState(fb->getRenderState());
+
+  for(const auto& room : rooms)
+  {
+    if(!room.node->isVisible() || room.dust == nullptr)
+      continue;
+
+    SOGLB_DEBUGGROUP(room.node->getName() + ":dust");
+    auto state = context.getCurrentState();
+    state.setScissorTest(true);
+    const auto [x, y] = room.node->getCombinedScissors();
+    state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
+    context.pushState(state);
+
+    scene::Visitor visitor{gsl_lite::not_null{&context}};
+    room.dust->accept(visitor);
+    visitor.render(std::nullopt);
+
+    context.popState();
+  }
+  fb->unbind();
+}
+
+void RenderPipeline::renderWorldCompositionPassToBackbuffer(const std::vector<engine::world::Room>& rooms,
+                                                            const bool inWater)
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
@@ -83,34 +114,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
   m_worldCompositionPass->render(inWater);
 
-  {
-    SOGLB_DEBUGGROUP("dust");
-
-    const auto& fb = m_worldCompositionPass->getFramebuffer();
-    fb->bind();
-    scene::RenderContext context{material::RenderMode::FullNonOpaque, std::nullopt, scene::Translucency::NonOpaque};
-    context.pushState(fb->getRenderState());
-
-    for(const auto& room : rooms)
-    {
-      if(!room.node->isVisible() || room.dust == nullptr)
-        continue;
-
-      SOGLB_DEBUGGROUP(room.node->getName() + ":dust");
-      auto state = context.getCurrentState();
-      state.setScissorTest(true);
-      const auto [x, y] = room.node->getCombinedScissors();
-      state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
-      context.pushState(state);
-
-      scene::Visitor visitor{gsl_lite::not_null{&context}};
-      room.dust->accept(visitor);
-      visitor.render(std::nullopt);
-
-      context.popState();
-    }
-    m_worldCompositionPass->getFramebuffer()->unbind();
-  }
+  renderDust(rooms);
 
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
   for(const auto& effect : m_effects)
@@ -125,7 +129,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   finalOutput->blit(*m_backbuffer);
 }
 
-void RenderPipeline::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
+void RenderPipeline::updateCameraData(const gslu::nn_shared<scene::Camera>& camera)
 {
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
   m_worldCompositionPass->updateCamera(camera);
@@ -304,10 +308,10 @@ void RenderPipeline::renderPortalFrameBuffer(const std::function<void(const gl::
     GL_ASSERT(gl::api::finish());
 }
 
-void RenderPipeline::renderUiFrameBuffer(const std::function<void()>& doRender)
+void RenderPipeline::renderUiIntoFramebuffer(const std::function<void()>& doRender)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
-  m_uiPass->render(doRender);
+  m_uiPass->renderToFramebuffer(doRender);
 }
 
 void RenderPipeline::renderGeometryFrameBuffer(const std::function<void()>& doRender, const float farPlane)
@@ -325,7 +329,7 @@ void RenderPipeline::renderGeometryFrameBuffer(const std::function<void()>& doRe
     GL_ASSERT(gl::api::finish());
 }
 
-void RenderPipeline::renderUiFrameBuffer(const float alpha)
+void RenderPipeline::renderUiFrameBufferToBackbuffer(const float alpha)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
   m_backbuffer->bind();

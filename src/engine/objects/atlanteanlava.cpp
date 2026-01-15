@@ -20,7 +20,7 @@
 
 namespace engine::objects
 {
-void AtlanteanLava::update()
+void AtlanteanLava::updateLogic()
 {
   m_state.location.updateRoom();
   setParent(gsl_lite::not_null{getNode()}, m_state.location.room->node);
@@ -47,7 +47,7 @@ void AtlanteanLava::update()
       break;
     }
 
-    applyTransform();
+    applyLogicTransform();
 
     if(const auto sector = location.updateRoom();
        HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y

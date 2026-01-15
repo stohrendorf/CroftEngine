@@ -5,6 +5,7 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "engine/engine.h"
 #include "engine/inventory.h"
 #include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
@@ -76,11 +77,16 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
   do
   {
     lara.setGoalAnimState(loader::file::LaraStateId::InsertKey);
-    lara.advanceFrame();
+    lara.advanceLaraFrame();
   } while(lara.getCurrentAnimState() != loader::file::LaraStateId::InsertKey);
 
   lara.setGoalAnimState(loader::file::LaraStateId::Stop);
   lara.setHandStatus(HandStatus::Grabbing);
   m_state.triggerState = TriggerState::Active;
+}
+
+void KeyHole::updateLogic()
+{
+  advanceFrame();
 }
 } // namespace engine::objects

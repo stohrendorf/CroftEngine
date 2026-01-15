@@ -60,7 +60,7 @@ CentaurStatue::CentaurStatue(const std::string& name,
                                                model->animations[7].firstFrame + 36_frame);
     childState.goal_anim_state = childState.current_anim_state = model->animations[7].state_id;
     childState.rotation.Y = m_state.rotation.Y;
-    m_childObject->getSkeleton()->updatePose();
+    m_childObject->getSkeleton()->calculatePoseMatrices(true);
     m_childObject->m_state.triggerState = TriggerState::Invisible;
     getWorld().getObjectManager().registerObject(gsl_lite::not_null{m_childObject});
   }
@@ -70,7 +70,7 @@ CentaurStatue::CentaurStatue(const std::string& name,
   }
 }
 
-void CentaurStatue::update()
+void CentaurStatue::updateLogic()
 {
   const auto d = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
   if(abs(d.Y) >= 1_sectors)

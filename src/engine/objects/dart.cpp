@@ -28,7 +28,7 @@ void Dart::collide(CollisionInfo& info)
   collideWithLara(info);
 }
 
-void Dart::update()
+void Dart::updateLogic()
 {
   if(m_state.touch_bits != 0)
   {
@@ -40,7 +40,7 @@ void Dart::update()
 
   const auto oldLocation = m_state.location;
 
-  ModelObject::update();
+  advanceFrame();
   const auto sector = m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 

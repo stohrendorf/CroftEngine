@@ -7,7 +7,7 @@
 
 namespace engine::objects
 {
-void Animating::update()
+void Animating::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {
@@ -18,7 +18,7 @@ void Animating::update()
     m_state.goal_anim_state = 0_as;
   }
 
-  ModelObject::update();
+  advanceFrame();
   m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 }

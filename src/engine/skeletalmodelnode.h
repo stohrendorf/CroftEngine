@@ -45,15 +45,16 @@ struct ObjectState;
 
 namespace engine
 {
-struct InterpolationInfo
+struct AnimSegmentInterpolationInfo
 {
+  // Animations can span multiple logic ticks (not strictly 30fps - keyframes may be several ticks apart).
   gsl_lite::not_null<const loader::file::AnimFrame*> firstFrame;
   gsl_lite::not_null<const loader::file::AnimFrame*> secondFrame;
-  float bias;
+  float interKeyframeFactor;
 
   [[nodiscard]] const auto& getNearestFrame() const noexcept
   {
-    if(bias <= 0.5f)
+    if(interKeyframeFactor <= 0.5f)
     {
       return firstFrame;
     }
@@ -68,11 +69,11 @@ class SkeletalModelNode final : public render::scene::Node
 {
 public:
   explicit SkeletalModelNode(const std::string& id,
-                             gsl_lite::not_null<const world::World*> world,
+                             gsl_lite::not_null<world::World*> world,
                              gsl_lite::not_null<const world::SkeletalModelType*> model,
                              bool shadowCaster);
 
-  void updatePose();
+  void calculatePoseMatrices(bool predictive);
 
   void setAnimation(core::AnimStateId& animState,
                     const gsl_lite::not_null<const world::Animation*>& animation,
@@ -90,7 +91,8 @@ public:
 
   [[nodiscard]] bool advanceFrame(objects::ObjectState& state);
 
-  InterpolationInfo getInterpolationInfo() const;
+  [[nodiscard]] AnimSegmentInterpolationInfo getInterpolationInfo() const;
+  [[nodiscard]] AnimSegmentInterpolationInfo getNextInterpolationInfo() const;
 
   struct Sphere
   {
@@ -161,14 +163,20 @@ public:
     return m_meshParts.size();
   }
 
-  void setPoseMatrix(const size_t idx, const glm::mat4& m)
+  void setPoseMatrix(const size_t idx, const glm::mat4& m, const glm::mat4& next)
   {
     m_meshParts.at(idx).poseMatrix = m;
+    m_meshParts.at(idx).nextPoseMatrix = next;
   }
 
   [[nodiscard]] const auto& getPoseMatrix(const size_t idx) const
   {
     return m_meshParts.at(idx).poseMatrix;
+  }
+
+  [[nodiscard]] const auto& getNextPoseMatrix(const size_t idx) const
+  {
+    return m_meshParts.at(idx).nextPoseMatrix;
   }
 
   void setReflective(const size_t idx, const gl::SRGBA8& reflective)
@@ -188,6 +196,11 @@ public:
 
   [[nodiscard]] const gl::ShaderStorageBuffer<glm::mat4>&
     getMeshMatricesBuffer(const std::function<bool()>& smooth) const;
+
+  [[nodiscard]] const gl::ShaderStorageBuffer<glm::mat4>&
+    getNextMeshMatricesBuffer(const std::function<bool()>& smooth) const;
+
+  void updateSmoothMatrices();
 
   void clearParts()
   {
@@ -213,11 +226,12 @@ public:
     return m_anim;
   }
 
-  void resetInterpolation() noexcept
+  void resetSmoothing() noexcept
   {
     for(auto& part : m_meshParts)
     {
       part.poseMatrixSmooth.reset();
+      part.nextPoseMatrixSmooth.reset();
     }
   }
 
@@ -234,7 +248,9 @@ private:
 
     glm::mat4 patch{1.0f};
     glm::mat4 poseMatrix{1.0f};
-    mutable std::optional<glm::mat4> poseMatrixSmooth;
+    std::optional<glm::mat4> poseMatrixSmooth;
+    glm::mat4 nextPoseMatrix{1.0f};
+    std::optional<glm::mat4> nextPoseMatrixSmooth;
     std::shared_ptr<world::RenderMeshData> mesh{nullptr};
     std::shared_ptr<world::RenderMeshData> currentMesh{nullptr};
     gl::SRGBA8 reflective{0, 0, 0, 0};
@@ -247,21 +263,25 @@ private:
       return visible != currentVisible || mesh != currentMesh || reflective != currentReflective;
     }
 
+    void updateSmoothMatrices();
+
     void serialize(const serialization::Serializer<world::World>& ser) const;
     void deserialize(const serialization::Deserializer<world::World>& ser);
     [[nodiscard]] static MeshPart create(const serialization::Deserializer<world::World>& ser);
   };
 
-  gsl_lite::not_null<const world::World*> m_world;
+  gsl_lite::not_null<world::World*> m_world;
   gsl_lite::not_null<const world::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts;
   mutable std::unique_ptr<gl::ShaderStorageBuffer<glm::mat4>> m_meshMatricesBuffer;
+  mutable std::unique_ptr<gl::ShaderStorageBuffer<glm::mat4>> m_nextMeshMatricesBuffer;
   bool m_forceMeshRebuild = false;
 
   const world::Animation* m_anim = nullptr;
   core::Frame m_frame = 0_frame;
 
-  void updatePose(const InterpolationInfo& framePair);
+  void calculatePoseMatrices(const AnimSegmentInterpolationInfo& framePair, glm::mat4 MeshPart::* targetMatrix);
+  AnimSegmentInterpolationInfo getInterpolationInfo(const world::Animation& anim, core::Frame frame) const;
 
   bool m_shadowCaster;
 };

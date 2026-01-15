@@ -286,7 +286,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     subNode->setRenderable(sm.staticMesh->renderMesh);
     subNode->getRenderState().setScissorTest(false);
     subNode->setLocalMatrix(translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem())
-                            * rotate(glm::mat4{1.0f}, toRad(sm.rotation), glm::vec3{0, -1, 0}));
+                            * rotate(glm::mat4{1.0f}, toRad(sm.rotation).get<>(), glm::vec3{0, -1, 0}));
 
     subNode->bind("u_lightAmbient",
                   [brightness = toBrightness(ambientShade)](
@@ -405,7 +405,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     verticesBBoxMax = glm::max(verticesBBoxMax, vv);
   }
 
-  regenerateDust(world.getPresenter(),
+  regenerateDust(world.getEngine().getPresenter(),
                  materialManager.getDustParticle(),
                  world.getEngine().getEngineConfig()->renderSettings.dustActive,
                  world.getEngine().getEngineConfig()->renderSettings.dustDensity);
@@ -789,18 +789,19 @@ void Room::buildMeshData(WorldGeometry& worldGeometry,
 
 std::pair<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>>
   Room::buildMesh(const loader::file::Room& srcRoom,
-                  const Engine& engine,
+                  Engine& engine,
                   WorldGeometry& worldGeometry,
                   render::TextureAnimator& textureAnimator)
 {
   RoomRenderMesh renderMesh;
-  renderMesh.m_materialDepthOnly = engine.getPresenter().getMaterialManager()->getDepthOnly(false,
-                                                                                            []
-                                                                                            {
-                                                                                              return false;
-                                                                                            });
+  renderMesh.m_materialDepthOnly
+    = engine.getPresenter().getRenderSystem().getMaterialManager().getDepthOnly(false,
+                                                                                []
+                                                                                {
+                                                                                  return false;
+                                                                                });
   renderMesh.m_materialCSMDepthOnly = nullptr;
-  renderMesh.m_materialFullOpaque = engine.getPresenter().getMaterialManager()->getGeometry(
+  renderMesh.m_materialFullOpaque = engine.getPresenter().getRenderSystem().getMaterialManager().getGeometry(
     isWaterRoom,
     false,
     true,
@@ -814,7 +815,7 @@ std::pair<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer
       const auto& settings = config->renderSettings;
       return !settings.lightingModeActive ? 0 : settings.lightingMode;
     });
-  renderMesh.m_materialFullNonOpaque = engine.getPresenter().getMaterialManager()->getGeometry(
+  renderMesh.m_materialFullNonOpaque = engine.getPresenter().getRenderSystem().getMaterialManager().getGeometry(
     isWaterRoom,
     false,
     true,

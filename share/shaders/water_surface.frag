@@ -21,10 +21,11 @@ float bumpTex(in vec2 uv, in float time) {
     vec2 coords1 = rot1 * uv + time*vec2(0.1, -0.3)*TimeMult;
     vec2 coords2 = rot2 * uv - time*vec2(0.1, 0.2)*TimeMult;
 
+    // 0.25 * noise(st * 0.0064) + 0.5
     const vec2 scale = vec2(30.0, 20.0) * 0.0064;
-    float n1 = noise(coords1 * scale);
-    float n2 = noise(coords2 * scale);
-    float x = 0.125 * (n1 + n2) + 0.5;
+    float wave1 = (noise(coords1 * scale) + 0.5) * 0.125;
+    float wave2 = (noise(coords2 * scale) + 0.5) * 0.125;
+    float x = wave1 + wave2;
     return x*x;
 }
 

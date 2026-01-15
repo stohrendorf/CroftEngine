@@ -16,7 +16,7 @@ void serialize(const std::deque<T>& data, const Serializer<TContext>& ser)
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access::dispatch(element, tmp);
+    access::dispatchSerialize(element, tmp);
   }
 }
 
@@ -31,7 +31,7 @@ void deserialize(std::deque<T>& data, const Deserializer<TContext>& ser)
                  std::back_inserter(data),
                  [&ser](const ryml::ConstNodeRef& element)
                  {
-                   return access::dispatch<T>(ser.withNode(element));
+                   return access::dispatchCreate<T>(ser.withNode(element));
                  });
 }
 } // namespace serialization

@@ -59,7 +59,7 @@ SkateboardKid::SkateboardKid(const std::string& name,
   m_lighting.bind(*m_skateboard, *world);
 }
 
-void SkateboardKid::update()
+void SkateboardKid::updateLogic()
 {
   // FIXME this is done somewhere else in the original engine, so this should be replaced with an "Expects" instead of
   //       initializing it here.
@@ -167,7 +167,7 @@ void SkateboardKid::update()
     = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard)->animations[animIdx];
   const auto animFrame = skateboardAnim.firstFrame + getSkeleton()->getLocalFrame();
   m_skateboard->setAnim(gsl_lite::not_null{&skateboardAnim}, std::min(skateboardAnim.lastFrame, animFrame));
-  m_skateboard->updatePose();
+  m_skateboard->calculatePoseMatrices(true);
   setParent(gsl_lite::not_null{m_skateboard}, getNode());
 }
 

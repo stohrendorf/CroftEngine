@@ -23,7 +23,7 @@ class Sprite final : public Widget
 public:
   explicit Sprite(engine::world::Sprite sprite);
   ~Sprite() override;
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   void setPosition(const glm::ivec2& position) override;

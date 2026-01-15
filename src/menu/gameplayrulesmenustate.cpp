@@ -127,30 +127,20 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
   }
 }
 
-std::unique_ptr<MenuState>
-  GameplayRulesMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> GameplayRulesMenuState::tick(engine::world::World& world, MenuDisplay& /*display*/)
 {
-  m_container->setPosition(
-    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
-  m_container->update(true);
-  m_container->draw(ui, world.getPresenter());
+  m_container->tick(true);
   world.getEngine().setGameplayRules(m_rules);
 
-  {
-    const auto& description = m_descriptions.at(m_listBox->getSelectedIndex());
-    description->setPosition({(ui.getSize().x - MaxDescriptionWidth) / 2,
-                              m_listBox->getPosition().y - description->getSize().y - 3 * ui::FontHeight});
-    description->draw(ui, world.getPresenter());
-  }
-
-  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward))
+  if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+       hid::AxisMovement::Forward))
   {
     if(!m_listBox->prevEntry())
     {
       m_listBox->setSelectedEntry(m_listBox->getEntryCount() - 1);
     }
   }
-  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+  else if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
             hid::AxisMovement::Backward))
   {
     if(!m_listBox->nextEntry())
@@ -158,18 +148,32 @@ std::unique_ptr<MenuState>
       m_listBox->setSelectedEntry(0);
     }
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     const auto& [getter, toggler, checkbox] = m_listBox->getSelected();
     toggler();
     checkbox->setChecked(getter());
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     return std::move(m_previous);
   }
 
   return nullptr;
+}
+
+void GameplayRulesMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+{
+  m_container->setPosition(
+    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
+  m_container->draw(ui, world.getEngine().getPresenter());
+
+  {
+    const auto& description = m_descriptions.at(m_listBox->getSelectedIndex());
+    description->setPosition({(ui.getSize().x - MaxDescriptionWidth) / 2,
+                              m_listBox->getPosition().y - description->getSize().y - 3 * ui::FontHeight});
+    description->draw(ui, world.getEngine().getPresenter());
+  }
 }
 
 GameplayRulesMenuState::~GameplayRulesMenuState() = default;

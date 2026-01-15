@@ -93,10 +93,10 @@ void MessageBox::draw(Ui& ui, const engine::Presenter& presenter) const
   m_no->draw(ui, presenter);
 }
 
-void MessageBox::update(const bool hasFocus)
+void MessageBox::tick(const bool hasFocus)
 {
-  m_yes->update(hasFocus && m_confirmed);
-  m_no->update(hasFocus && !m_confirmed);
+  m_yes->tick(hasFocus && m_confirmed);
+  m_no->tick(hasFocus && !m_confirmed);
 }
 
 void MessageBox::setPosition(const glm::ivec2& position)

@@ -28,5 +28,7 @@ public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(TeethSpikes, true, false)
 
   void collide(CollisionInfo& collisionInfo) override;
+
+  void updateLogic() override;
 };
 } // namespace engine::objects

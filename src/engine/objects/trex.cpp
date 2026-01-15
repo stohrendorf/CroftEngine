@@ -28,7 +28,7 @@
 
 namespace engine::objects
 {
-void TRex::update()
+void TRex::updateLogic()
 {
   static constexpr auto Think = 1_as;
   static constexpr auto Attack = 2_as;

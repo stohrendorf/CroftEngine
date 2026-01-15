@@ -47,9 +47,9 @@ void Checkbox::draw(Ui& ui, const engine::Presenter& presenter) const
   }
 }
 
-void Checkbox::update(const bool hasFocus)
+void Checkbox::tick(const bool hasFocus)
 {
-  m_content->update(hasFocus);
+  m_content->tick(hasFocus);
 }
 
 void Checkbox::setPosition(const glm::ivec2& position)

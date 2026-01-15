@@ -830,36 +830,25 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
   }
 }
 
-std::unique_ptr<MenuState> SettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> SettingsMenuState::tick(engine::world::World& world, MenuDisplay& /*display*/)
 {
-  m_tabs->fitToContent();
-  m_tabs->setPosition({(ui.getSize().x - m_tabs->getSize().x) / 2, ui.getSize().y - m_tabs->getSize().y - 90});
-
   for(size_t i = 0; i < m_listBoxes.size(); ++i)
   {
-    m_listBoxes[i]->update(i == m_tabs->getSelectedTab());
+    m_listBoxes[i]->tick(i == m_tabs->getSelectedTab());
   }
-  m_tabs->update(true);
-  m_tabs->draw(ui, world.getPresenter());
+  m_tabs->tick(true);
 
   const auto& listBox = m_listBoxes[m_tabs->getSelectedTab()];
 
-  {
-    const auto& descriptions = m_descriptions.at(m_tabs->getSelectedTab());
-    const auto& description = descriptions.at(listBox->getSelectedIndex());
-    description->setPosition({(ui.getSize().x - MaxDescriptionWidth) / 2,
-                              listBox->getPosition().y - description->getSize().y - 3 * ui::FontHeight});
-    description->draw(ui, world.getPresenter());
-  }
-
-  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward))
+  if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+       hid::AxisMovement::Forward))
   {
     if(!listBox->prevEntry())
     {
       listBox->setSelectedEntry(listBox->getEntryCount() - 1);
     }
   }
-  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+  else if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
             hid::AxisMovement::Backward))
   {
     if(!listBox->nextEntry())
@@ -867,21 +856,21 @@ std::unique_ptr<MenuState> SettingsMenuState::onFrame(ui::Ui& ui, engine::world:
       listBox->setSelectedEntry(0);
     }
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
   {
     m_tabs->prevTab();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
   {
     m_tabs->nextTab();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     const auto& [getter, toggler, checkbox] = listBox->getSelected();
     toggler();
     checkbox->setChecked(getter());
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     return std::move(m_previous);
   }
@@ -889,13 +878,27 @@ std::unique_ptr<MenuState> SettingsMenuState::onFrame(ui::Ui& ui, engine::world:
             std::get<2>(listBox->getSelected())->getContent());
           tmp != nullptr)
   {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft))
+    if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft))
       tmp->selectPrev();
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+    else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
       tmp->selectNext();
   }
 
   return nullptr;
+}
+
+void SettingsMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+{
+  m_tabs->fitToContent();
+  m_tabs->setPosition({(ui.getSize().x - m_tabs->getSize().x) / 2, ui.getSize().y - m_tabs->getSize().y - 90});
+  m_tabs->draw(ui, world.getEngine().getPresenter());
+
+  const auto& listBox = m_listBoxes[m_tabs->getSelectedTab()];
+  const auto& descriptions = m_descriptions.at(m_tabs->getSelectedTab());
+  const auto& description = descriptions.at(listBox->getSelectedIndex());
+  description->setPosition({(ui.getSize().x - MaxDescriptionWidth) / 2,
+                            listBox->getPosition().y - description->getSize().y - 3 * ui::FontHeight});
+  description->draw(ui, world.getEngine().getPresenter());
 }
 
 SettingsMenuState::~SettingsMenuState() = default;

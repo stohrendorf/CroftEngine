@@ -82,10 +82,9 @@ public:
   }
 
 protected:
-  void handleDiveRotationInput()
+  void handleDiveRotationInput(const hid::AxisMovement& xMovement, const hid::AxisMovement& zMovement)
   {
-    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
-    switch(inputHandler.getInputState().zMovement)
+    switch(zMovement)
     {
     case hid::AxisMovement::Forward:
       getLara().m_state.rotation.X -= core::DiveRotationSpeedX * 1_frame;
@@ -97,7 +96,7 @@ protected:
       break;
     }
 
-    switch(inputHandler.getInputState().xMovement)
+    switch(xMovement)
     {
     case hid::AxisMovement::Right:
       getLara().m_state.rotation.Y += core::DiveRotationSpeedY * 1_frame;

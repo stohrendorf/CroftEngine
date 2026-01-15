@@ -6,6 +6,7 @@
 #include "core/units.h"
 #include "core/vec.h"
 #include "engine/cameracontroller.h"
+#include "engine/engine.h"
 #include "engine/inventory.h"
 #include "engine/items_tr1.h"
 #include "engine/location.h"
@@ -48,11 +49,7 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
     getWorld().getPlayer().selectedWeaponType = WeaponType::None;
     lara.setAir(-1_frame);
     lara.m_state.falling = false;
-    auto& cameraController = getWorld().getCameraController();
-    cameraController.setMode(CameraMode::Cinematic);
-    cameraController.m_cinematicFrame = 0_frame;
-    cameraController.m_cinematicPos = lara.m_state.location.position;
-    cameraController.m_cinematicRot = lara.m_state.rotation;
+    getWorld().getCameraController().startCinematic(lara.m_state.location.position, lara.m_state.rotation);
     return;
   }
 
@@ -78,5 +75,10 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
   lara.setCurrentAnimState(loader::file::LaraStateId::UseMidas);
   lara.setGoalAnimState(loader::file::LaraStateId::UseMidas);
   lara.setHandStatus(HandStatus::Grabbing);
+}
+
+void MidasGoldTouch::updateLogic()
+{
+  advanceFrame();
 }
 } // namespace engine::objects

@@ -21,7 +21,7 @@
 
 namespace engine::objects
 {
-void Bear::update()
+void Bear::updateLogic()
 {
   activateAi();
 

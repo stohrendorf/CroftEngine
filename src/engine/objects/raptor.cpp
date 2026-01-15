@@ -19,7 +19,7 @@
 
 namespace engine::objects
 {
-void Raptor::update()
+void Raptor::updateLogic()
 {
   activateAi();
 

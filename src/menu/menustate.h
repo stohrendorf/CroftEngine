@@ -36,8 +36,9 @@ public:
   virtual void begin(engine::world::World& /*world*/)
   {
   }
-  virtual void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) = 0;
-  virtual std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) = 0;
+  virtual void handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object) = 0;
+  virtual std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) = 0;
+  virtual void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) = 0;
 
   template<std::derived_from<MenuState> T, typename... Ts>
   std::unique_ptr<T> create(Ts&&... args)

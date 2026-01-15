@@ -112,7 +112,7 @@ struct Tile
   {
   }
 
-  [[nodiscard]] constexpr auto getXY1() const
+  [[nodiscard]] auto getXY1() const
   {
     return position + size;
   }

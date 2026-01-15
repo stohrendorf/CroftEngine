@@ -36,7 +36,7 @@ Mummy::Mummy(const std::string& name,
   getSkeleton()->rebuildMesh();
 }
 
-void Mummy::update()
+void Mummy::updateLogic()
 {
   if(m_state.current_anim_state == 1_as)
   {
@@ -53,7 +53,7 @@ void Mummy::update()
     }
   }
 
-  ModelObject::update();
+  advanceFrame();
 
   if(m_state.triggerState == TriggerState::Deactivated)
   {

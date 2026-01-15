@@ -159,7 +159,7 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
 #endif
 
   // this can move the entity into an invalid position
-  ModelObject::update();
+  advanceFrame();
 
   // Moving to a different sector is basically a wall glitch, as the collision check always moves the entity away
   // from the sector boundaries if it detects a collision. As the max norm is always greater than or equal to the

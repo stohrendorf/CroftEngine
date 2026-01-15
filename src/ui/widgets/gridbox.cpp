@@ -61,7 +61,7 @@ void GridBox::setPosition(const glm::ivec2& position)
   m_position = position;
 }
 
-void GridBox::update(const bool hasFocus)
+void GridBox::tick(const bool hasFocus)
 {
   for(WidgetArray::size_type x = 0; x < m_widgets.shape()[0]; ++x)
   {
@@ -71,7 +71,7 @@ void GridBox::update(const bool hasFocus)
       if(widget == nullptr)
         continue;
 
-      widget->update(hasFocus && m_selected == std::tuple{x, y});
+      widget->tick(hasFocus && m_selected == std::tuple{x, y});
     }
   }
 }

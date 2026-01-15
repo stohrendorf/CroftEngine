@@ -44,7 +44,7 @@ public:
   {
     m_size = size;
   }
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void fitToContent() override;
 
 private:
@@ -77,7 +77,7 @@ public:
   {
     m_size = size;
   }
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void fitToContent() override;
 
   void addTab(const gslu::nn_shared<Tab>& tab, const gslu::nn_shared<Widget>& content);

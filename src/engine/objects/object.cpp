@@ -37,15 +37,40 @@
 namespace engine::objects
 {
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void Object::applyTransform()
+void Object::applyLogicTransform()
 {
-  const glm::vec3 tr = m_state.location.position.toRenderSystem() - m_state.location.room->position.toRenderSystem();
-  getNode()->setLocalMatrix(translate(glm::mat4{1.0f}, tr) * m_state.rotation.toMatrix());
+  updatePrediction();
+  interpolateTransform(0);
+}
+
+// NOLINTNEXTLINE(readability-make-member-function-const)
+void Object::interpolateTransform(const float interTickFactor)
+{
+  const auto pos = core::lerp(m_state.location.position, m_state.predictedPosition, interTickFactor);
+  const auto rot = core::lerp(m_state.rotation, m_state.predictedRotation, interTickFactor);
+  const auto tr = pos.toRenderSystem() - m_state.location.room->position.toRenderSystem();
+  getNode()->setLocalMatrix(translate(glm::mat4{1.0f}, tr) * rot.toMatrix());
+}
+
+void Object::updatePrediction()
+{
+  m_state.predictedPosition = m_state.location.position;
+  m_state.predictedRotation = m_state.rotation;
+
+  if(m_state.speed != 0_spd)
+  {
+    m_state.predictedPosition += util::pitch(m_state.speed * 1_frame, getMovementAngle());
+  }
+
+  if(m_state.falling && m_state.fallspeed != 0_spd)
+  {
+    m_state.predictedPosition.Y += m_state.fallspeed * 1_frame;
+  }
 }
 
 Object::Object(const gsl_lite::not_null<world::World*>& world, const Location& location)
     : m_world{world}
-    , m_state{gsl_lite::not_null{world->getPresenter().getSoundEngine().get()}, location}
+    , m_state{gsl_lite::not_null{world->getEngine().getPresenter().getSoundEngine().get().get()}, location}
     , m_hasUpdateFunction{false}
 {
 }
@@ -94,7 +119,7 @@ void Object::setCurrentRoom(const gsl_lite::not_null<const world::Room*>& newRoo
   setParent(gsl_lite::not_null{getNode()}, newRoom->node);
 
   m_state.location.room = newRoom;
-  applyTransform();
+  applyLogicTransform();
 }
 
 void Object::activate()
@@ -232,7 +257,8 @@ void Object::deserialize(const serialization::Deserializer<world::World>& ser)
   {
     setParent(gsl_lite::not_null{getNode()}, m_state.location.room->node);
 
-    applyTransform();
+    applyLogicTransform();
+    updatePrediction();
   };
 }
 

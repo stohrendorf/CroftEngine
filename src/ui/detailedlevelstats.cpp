@@ -126,7 +126,7 @@ void DetailedLevelStats::draw(Ui& ui, const engine::Presenter& presenter, const 
 {
   m_grid->fitToContent();
   m_container->fitToContent();
-  m_grid->update(false);
+  m_grid->tick(false);
 
   if(compass)
   {

@@ -17,7 +17,7 @@ void serialize(const std::vector<T>& data, const Serializer<TContext>& ser)
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access::dispatch(element, tmp);
+    access::dispatchSerialize(element, tmp);
   }
 }
 
@@ -33,7 +33,7 @@ void deserialize(std::vector<T>& data, const Deserializer<TContext>& ser)
                  std::back_inserter(data),
                  [&ser](const ryml::ConstNodeRef& element)
                  {
-                   return access::dispatch<T>(ser.withNode(element));
+                   return access::dispatchCreate<T>(ser.withNode(element));
                  });
 }
 
@@ -54,7 +54,7 @@ struct DeserializingFrozenVector
     auto it = vec.get().begin();
     for(const auto& element : ser.node.children())
     {
-      access::dispatch(*it++, ser.withNode(element));
+      access::dispatchDeserialize(*it++, ser.withNode(element));
     }
   }
 };
@@ -76,7 +76,7 @@ struct SerializingFrozenVector
     for(auto& element : vec.get())
     {
       const auto tmp = ser.newChild();
-      access::dispatch(element, tmp);
+      access::dispatchSerialize(element, tmp);
     }
   }
 };

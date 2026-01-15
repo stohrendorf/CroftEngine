@@ -6,7 +6,7 @@
 
 namespace engine::objects
 {
-void Motorboat::update()
+void Motorboat::updateLogic()
 {
   if(m_state.current_anim_state == 1_as)
   {
@@ -21,6 +21,6 @@ void Motorboat::update()
     kill();
   }
 
-  ModelObject::update();
+  advanceFrame();
 }
 } // namespace engine::objects

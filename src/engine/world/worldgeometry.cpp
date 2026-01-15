@@ -177,7 +177,7 @@ void WorldGeometry::initTextureDependentDataFromLevel(const loader::file::level:
 
 void WorldGeometry::initStaticMeshes(const loader::file::level::Level& level,
                                      const std::vector<gsl_lite::not_null<const Mesh*>>& meshesDirect,
-                                     const Engine& engine)
+                                     Engine& engine)
 {
   for(const auto& staticMesh : level.m_staticMeshes)
   {
@@ -185,7 +185,7 @@ void WorldGeometry::initStaticMeshes(const loader::file::level::Level& level,
     if(staticMesh.isVisible())
       compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData, gl::SRGBA8{0, 0, 0, 0});
     auto mesh = compositor.toMesh(
-      *engine.getPresenter().getMaterialManager(),
+      engine.getPresenter().getRenderSystem().getMaterialManager(),
       false,
       false,
       []
@@ -404,14 +404,15 @@ void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Leve
   std::filesystem::create_directories(cacheDir);
 
   render::MultiTextureAtlas atlases{3072, validTextureCache};
-  m_controllerLayouts = loadControllerButtonIcons(
-    atlases,
-    util::ensureFileExists(engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
-    engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                          []
-                                                          {
-                                                            return 0;
-                                                          }));
+  m_controllerLayouts
+    = loadControllerButtonIcons(atlases,
+                                util::ensureFileExists(engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
+                                engine.getPresenter().getRenderSystem().getMaterialManager().getSprite(
+                                  render::material::SpriteMaterialMode::Billboard,
+                                  []
+                                  {
+                                    return 0;
+                                  }));
 
   {
     auto lastDrawUpdate = std::chrono::high_resolution_clock::now();
@@ -431,13 +432,13 @@ void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Leve
       },
       cacheDir);
   }
-  engine.getPresenter().getMaterialManager()->setGeometryTextures(gsl_lite::not_null{m_allTextures});
+  engine.getPresenter().getRenderSystem().getMaterialManager().setGeometryTextures(gsl_lite::not_null{m_allTextures});
 
   // NOLINTNEXTLINE(bugprone-unused-raii)
   std::ofstream{getTextureCacheVersionFilePath(cacheDir), std::ios::trunc};
 }
 
-void WorldGeometry::initSpriteMeshes(const Engine& engine)
+void WorldGeometry::initSpriteMeshes(Engine& engine)
 {
   for(size_t i = 0; i < m_sprites.size(); ++i)
   {
@@ -450,13 +451,12 @@ void WorldGeometry::initSpriteMeshes(const Engine& engine)
       sprite.uv0,
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
-      engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::YAxisBound,
-                                                            [config = engine.getEngineConfig()]
-                                                            {
-                                                              return !config->renderSettings.lightingModeActive
-                                                                       ? 0
-                                                                       : config->renderSettings.lightingMode;
-                                                            }),
+      engine.getPresenter().getRenderSystem().getMaterialManager().getSprite(
+        render::material::SpriteMaterialMode::YAxisBound,
+        [config = engine.getEngineConfig()]
+        {
+          return !config->renderSettings.lightingModeActive ? 0 : config->renderSettings.lightingMode;
+        }),
       sprite.atlasId.get_as<int32_t>(),
       "sprite-" + std::to_string(i) + "-ybound");
     sprite.billboardMesh = render::scene::createSpriteMesh(
@@ -467,13 +467,12 @@ void WorldGeometry::initSpriteMeshes(const Engine& engine)
       sprite.uv0,
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
-      engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                            [config = engine.getEngineConfig()]
-                                                            {
-                                                              return !config->renderSettings.lightingModeActive
-                                                                       ? 0
-                                                                       : config->renderSettings.lightingMode;
-                                                            }),
+      engine.getPresenter().getRenderSystem().getMaterialManager().getSprite(
+        render::material::SpriteMaterialMode::Billboard,
+        [config = engine.getEngineConfig()]
+        {
+          return !config->renderSettings.lightingModeActive ? 0 : config->renderSettings.lightingMode;
+        }),
       sprite.atlasId.get_as<int32_t>(),
       "sprite-" + std::to_string(i) + "-billboard");
     sprite.instancedBillboardMesh = render::scene::createInstancedSpriteMesh(
@@ -484,13 +483,12 @@ void WorldGeometry::initSpriteMeshes(const Engine& engine)
       sprite.uv0,
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
-      engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::InstancedBillboard,
-                                                            [config = engine.getEngineConfig()]
-                                                            {
-                                                              return !config->renderSettings.lightingModeActive
-                                                                       ? 0
-                                                                       : config->renderSettings.lightingMode;
-                                                            }),
+      engine.getPresenter().getRenderSystem().getMaterialManager().getSprite(
+        render::material::SpriteMaterialMode::InstancedBillboard,
+        [config = engine.getEngineConfig()]
+        {
+          return !config->renderSettings.lightingModeActive ? 0 : config->renderSettings.lightingMode;
+        }),
       sprite.atlasId.get_as<int32_t>(),
       "sprite-" + std::to_string(i) + "-instanced");
   }

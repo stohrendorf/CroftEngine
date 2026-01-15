@@ -191,7 +191,7 @@ public:
   [[nodiscard]] const std::vector<Room>& getRooms() const noexcept;
   std::vector<Room>& getRooms() noexcept;
   [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const noexcept;
-  void update(bool godMode);
+  void updateLogicWorldState(bool godMode);
   void dinoStompEffect(objects::Object& object);
   void laraNormalEffect();
   void laraBubblesEffect(objects::Object& object);
@@ -217,8 +217,9 @@ public:
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   void serialize(const serialization::Serializer<World>& ser) const;
   void deserialize(const serialization::Deserializer<World>& ser);
-  void gameLoop(bool godMode, float blackAlpha, ui::Ui& ui);
-  bool cinematicLoop();
+  void updateGameLogic(bool godMode);
+  bool tickCinematic();
+  void renderCinematic() const;
   void load(const std::optional<size_t>& slot);
   void save(const std::optional<size_t>& slot);
   void save(const std::filesystem::path& filename);
@@ -270,7 +271,7 @@ public:
 
   void addPickupWidget(Sprite sprite, size_t count)
   {
-    static auto constexpr widgetLifetime = 75_frame;
+    static auto constexpr widgetLifetime = 75_tick;
     auto isSameVirginItem = [&sprite](const ui::PickupWidget& item) -> bool
     {
       return item.getSprite() == sprite && item.getDuration() == widgetLifetime;
@@ -344,9 +345,9 @@ public:
 
   void hitLara(const core::Health& damage);
 
-private:
-  void drawPickupWidgets(ui::Ui& ui);
+  void constructPickupWidgets(ui::Ui& ui);
 
+private:
   gsl_lite::not_null<Engine*> m_engine;
   std::filesystem::path m_levelFilename;
 

@@ -28,7 +28,7 @@ public:
 
   ~GhostManager();
 
-  bool askGhostSave(Presenter& presenter, world::World& world);
+  void askGhostSave(Presenter& presenter, world::World& world);
 
   [[nodiscard]] const auto& getModel() const noexcept
   {

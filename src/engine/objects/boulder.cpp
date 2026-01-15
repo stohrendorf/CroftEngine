@@ -41,7 +41,7 @@ constexpr auto Stopped = 0_as;
 constexpr auto Rolling = 1_as;
 } // namespace
 
-void Boulder::update()
+void Boulder::updateLogic()
 {
   if(m_state.triggerState == TriggerState::Active)
   {
@@ -61,7 +61,7 @@ void Boulder::update()
       }
     }
     const auto oldPos = m_state.location.position;
-    ModelObject::update();
+    advanceFrame();
 
     auto sector = m_state.location.updateRoom();
     setCurrentRoom(m_state.location.room);
@@ -106,7 +106,7 @@ void Boulder::update()
     deactivate();
   }
 
-  applyTransform();
+  applyLogicTransform();
 }
 
 void Boulder::collide(CollisionInfo& collisionInfo)
@@ -137,7 +137,7 @@ void Boulder::collide(CollisionInfo& collisionInfo)
     lara.setCurrentRoom(m_state.location.room);
     lara.setAnimation(loader::file::AnimationId::SQUASH_BOULDER);
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
-    getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
+    getWorld().getCameraController().setCinematicBaseRotation(-25_deg, 170_deg);
     lara.m_state.rotation.X = 0_deg;
     lara.m_state.rotation.Y = m_state.rotation.Y;
     lara.m_state.rotation.Z = 0_deg;

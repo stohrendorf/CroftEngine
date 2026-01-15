@@ -24,9 +24,9 @@ void trySerialize(const std::variant<Ts...>& data, const BaseSerializer<Loading,
     {
       using Alternative = std::variant_alternative_t<I, std::variant<Ts...>>;
       if constexpr(Loading)
-        access::dispatch(std::get<I>(data), ser);
+        access::dispatchSerialize(std::get<I>(data), ser);
       else if(std::holds_alternative<Alternative>(data))
-        access::dispatch(std::get<I>(data), ser);
+        access::dispatchSerialize(std::get<I>(data), ser);
       else
         trySerialize<I + 1u>(data, ser);
     }
@@ -51,7 +51,7 @@ std::variant<Ts...> tryCreate(const TypeId<std::variant<Ts...>>& tid, const Dese
     try
     {
       using Alternative = std::variant_alternative_t<I, std::variant<Ts...>>;
-      return access::dispatch<Alternative>(ser);
+      return access::dispatchCreate<Alternative>(ser);
     }
     catch(const std::exception&)
     {

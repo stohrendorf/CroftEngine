@@ -25,8 +25,8 @@ struct MenuRingTransform;
 
 class DeflateRingMenuState final : public MenuState
 {
-  static constexpr core::Frame Duration = 32_frame / 2;
-  core::Frame m_duration{Duration};
+  static constexpr core::Tick Duration = 32_tick / 2;
+  core::Tick m_duration{Duration};
   std::unique_ptr<MenuState> m_next;
   core::Length m_initialRadius;
   core::Angle m_initialCameraRotX;
@@ -49,7 +49,8 @@ public:
 
   void begin(engine::world::World& world) override;
 
-  void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  void handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

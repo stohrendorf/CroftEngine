@@ -9,6 +9,7 @@
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
+#include "engine/engine.h"
 #include "engine/heightinfo.h"
 #include "engine/inventory.h"
 #include "engine/items_tr1.h"
@@ -66,11 +67,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
       lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
       lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
       lara.setHandStatus(HandStatus::Grabbing);
-      auto& cameraController = getWorld().getCameraController();
-      cameraController.setMode(CameraMode::Cinematic);
-      cameraController.m_cinematicFrame = 0_frame;
-      cameraController.m_cinematicPos = lara.m_state.location.position;
-      cameraController.m_cinematicRot = lara.m_state.rotation;
+      getWorld().getCameraController().startCinematic(lara.m_state.location.position, lara.m_state.rotation);
     }
   }
   else if(lara.getSkeleton()->getLocalFrame() == 44_frame)
@@ -102,12 +99,12 @@ void ScionPiece::deserialize(const serialization::Deserializer<world::World>& se
   };
 }
 
-void ScionPiece3::update()
+void ScionPiece3::updateLogic()
 {
   if(!m_state.isDead())
   {
     m_deadTime = 0_frame;
-    ModelObject::update();
+    advanceFrame();
     return;
   }
 
@@ -134,7 +131,7 @@ void ScionPiece3::update()
     getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion,
                                                 gsl_lite::not_null{particle.get().get()});
 
-    getWorld().getCameraController().setBounce(-200_len);
+    getWorld().getCameraController().setShake(-200_len);
   }
 
   m_deadTime += 1_frame;
@@ -166,11 +163,13 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
   lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
   lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
   lara.setHandStatus(HandStatus::Grabbing);
-  auto& cameraController = getWorld().getCameraController();
-  cameraController.m_cinematicFrame = 0_frame;
-  cameraController.setMode(CameraMode::Cinematic);
-  cameraController.m_cinematicPos = lara.m_state.location.position;
-  cameraController.m_cinematicRot = lara.m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};
+  getWorld().getCameraController().startCinematic(lara.m_state.location.position,
+                                                  lara.m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg});
+}
+
+void ScionPiece4::updateLogic()
+{
+  advanceFrame();
 }
 
 void ScionHolder::collide(CollisionInfo& info)
@@ -185,5 +184,10 @@ void ScionHolder::collide(CollisionInfo& info)
     return;
 
   enemyPush(info, false, true);
+}
+
+void ScionHolder::updateLogic()
+{
+  advanceFrame();
 }
 } // namespace engine::objects

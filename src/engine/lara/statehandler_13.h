@@ -28,9 +28,10 @@ public:
       return;
     }
 
-    handleDiveRotationInput();
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    handleDiveRotationInput(inputHandler.getInputState().xMovement, inputHandler.getInputState().zMovement);
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
+    if(inputHandler.hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::UnderwaterForward);
     }

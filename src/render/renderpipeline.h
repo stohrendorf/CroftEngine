@@ -62,6 +62,7 @@ class RenderPipeline
 
   void initBackbufferEffects(material::MaterialManager& materialManager);
   void initWorldEffects(material::MaterialManager& materialManager);
+  void renderDust(const std::vector<engine::world::Room>& rooms);
 
 public:
   explicit RenderPipeline(material::MaterialManager& materialManager,
@@ -71,11 +72,11 @@ public:
 
   void renderGeometryFrameBuffer(const std::function<void()>& doRender, float farPlane);
   void renderPortalFrameBuffer(const std::function<void(const gl::RenderState&)>& doRender);
-  void renderUiFrameBuffer(const std::function<void()>& doRender);
-  void renderUiFrameBuffer(float alpha);
-  void worldCompositionPass(const std::vector<engine::world::Room>& rooms, bool inWater);
+  void renderUiIntoFramebuffer(const std::function<void()>& doRender);
+  void renderUiFrameBufferToBackbuffer(float alpha);
+  void renderWorldCompositionPassToBackbuffer(const std::vector<engine::world::Room>& rooms, bool inWater);
 
-  void updateCamera(const gslu::nn_shared<scene::Camera>& camera);
+  void updateCameraData(const gslu::nn_shared<scene::Camera>& camera);
 
   void resize(material::MaterialManager& materialManager,
               const glm::ivec2& renderViewport,

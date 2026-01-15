@@ -43,7 +43,7 @@ void ParticleCollection::update(world::World& world)
 {
   for(const auto currentParticles = std::move(m_particles); const auto& particle : currentParticles)
   {
-    if(particle->update(world))
+    if(particle->updateLogic(world))
     {
       if(!particle->withoutParent())
         setParent(particle, particle->location.room->node);
@@ -74,7 +74,7 @@ void InstancedParticleCollection::render(const std::string& roomName,
     auto buffer = std::get<1>(particle->getCurrentMesh());
     if(buffer == nullptr)
       continue;
-    particle->applyTransform();
+    particle->applyLogicTransform();
     if(const auto it = buffersData.find(gsl_lite::not_null{buffer}); it != buffersData.end())
     {
       std::get<0>(it->second).emplace_back(particle->getTransform().modelMatrix);

@@ -42,7 +42,7 @@ def generate_header_lines(args, enums: List[Tuple[str, str]]) -> Iterable[str]:
     yield "};"
 
     yield ""
-    yield f"extern gsl::czstring toString({args.name} val) noexcept;"
+    yield f"extern gsl_lite::czstring toString({args.name} val) noexcept;"
 
     yield ""
     yield "template<typename T> struct EnumUtil;"
@@ -75,7 +75,7 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield "{"
 
     yield "// NOLINTNEXTLINE(readability-function-cognitive-complexity)"
-    yield f"gsl::czstring toString({args.name} val) noexcept"
+    yield f"gsl_lite::czstring toString({args.name} val) noexcept"
     yield "{"
     yield "    switch(val)"
     yield "    {"

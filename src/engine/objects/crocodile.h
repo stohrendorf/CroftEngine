@@ -24,7 +24,7 @@ class Crocodile final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(Crocodile)
 
-  void update() override;
+  void updateLogic() override;
 
 private:
   void updateInWater();

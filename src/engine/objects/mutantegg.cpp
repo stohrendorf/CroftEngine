@@ -120,7 +120,7 @@ MutantEgg::MutantEgg(const std::string& name,
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-void MutantEgg::update()
+void MutantEgg::updateLogic()
 {
   if(m_state.goal_anim_state != 1_as)
   {
@@ -147,7 +147,7 @@ void MutantEgg::update()
         childState.rotation.Y = m_state.rotation.Y;
         addChild(gsl_lite::not_null{m_state.location.room->node}, gsl_lite::not_null{m_childObject->getNode()});
 
-        m_childObject->applyTransform();
+        m_childObject->applyLogicTransform();
 
         childState.touch_bits.reset();
         m_childObject->initCreatureInfo();
@@ -157,7 +157,7 @@ void MutantEgg::update()
     }
   }
 
-  ModelObject::update();
+  advanceFrame();
 }
 
 void MutantEgg::collide(CollisionInfo& info)

@@ -17,9 +17,11 @@ float toSrgb(float cl)
 
 vec3 toSrgb(vec3 cl)
 {
-    vec3 s1 = 12.92 * cl;
-    vec3 s2 = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-    return mix(s2, s1, step(cl, vec3(0.0031308)));
+    return vec3(
+    toSrgb(cl.r),
+    toSrgb(cl.g),
+    toSrgb(cl.b)
+    );
 }
 
 vec4 toSrgb(vec4 cl)
@@ -36,9 +38,11 @@ float toLinear(float cs)
 }
 
 vec3 toLinear(vec3 cs) {
-    vec3 l1 = cs / 12.92;
-    vec3 l2 = pow((cs + 0.055) / 1.055, vec3(2.4));
-    return mix(l2, l1, step(cs, vec3(0.04045)));
+    return vec3(
+    toLinear(cs.r),
+    toLinear(cs.g),
+    toLinear(cs.b)
+    );
 }
 
 vec4 toLinear(vec4 cs)

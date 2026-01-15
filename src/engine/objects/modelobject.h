@@ -93,8 +93,6 @@ public:
     return true;
   }
 
-  void update() override;
-
   void applyMovement(bool forLara);
 
   core::BoundingBox getBoundingBox() const override;
@@ -124,7 +122,7 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
-  static std::shared_ptr<ModelObject> create(serialization::Deserializer<world::World>& ser);
+  void advanceFrame();
 
 protected:
   std::shared_ptr<SkeletalModelNode> m_skeleton;
@@ -164,7 +162,4 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
 };
-
-std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Deserializer<world::World>& ser);
 } // namespace engine::objects

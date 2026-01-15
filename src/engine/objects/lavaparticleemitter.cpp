@@ -13,7 +13,7 @@
 
 namespace engine::objects
 {
-void LavaParticleEmitter::update()
+void LavaParticleEmitter::updateLogic()
 {
   const auto particle = gsl_lite::make_shared<LavaParticle>(m_state.location, getWorld());
   setParent(particle, m_state.location.room->node);

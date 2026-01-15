@@ -11,17 +11,17 @@ namespace render::scene
 class Camera;
 class Node;
 
-class Renderer final
+class SceneGraph final
 {
 public:
-  Renderer(const Renderer&) = delete;
-  Renderer(Renderer&&) = delete;
-  Renderer& operator=(const Renderer&) = delete;
-  Renderer& operator=(Renderer&&) = delete;
+  SceneGraph(const SceneGraph&) = delete;
+  SceneGraph(SceneGraph&&) = delete;
+  SceneGraph& operator=(const SceneGraph&) = delete;
+  SceneGraph& operator=(SceneGraph&&) = delete;
 
-  explicit Renderer(gslu::nn_shared<Camera> camera);
+  explicit SceneGraph(gslu::nn_shared<Camera> camera);
 
-  ~Renderer();
+  ~SceneGraph();
 
   [[nodiscard]] std::chrono::high_resolution_clock::time_point getGameTime() const
   {
@@ -47,11 +47,6 @@ public:
   [[nodiscard]] const auto& getRootNode() const
   {
     return m_rootNode;
-  }
-
-  [[nodiscard]] const auto& getCamera() const
-  {
-    return m_camera;
   }
 
   void resetRootNode();

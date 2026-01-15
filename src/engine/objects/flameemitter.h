@@ -43,7 +43,7 @@ public:
   {
   }
 
-  void update() override;
+  void updateLogic() override;
 
 private:
   std::shared_ptr<Particle> m_flame;

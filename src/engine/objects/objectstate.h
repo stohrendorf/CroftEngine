@@ -53,10 +53,12 @@ private:
   explicit ObjectState(const gsl_lite::not_null<audio::SoundEngine*>& engine, Location location)
       : Emitter{engine}
       , location{std::move(location)}
+      , predictedPosition{location.position}
   {
   }
 
 public:
+  /// Deserialization constructor. Fields will be populated by deserialization code.
   explicit ObjectState(const gsl_lite::not_null<audio::SoundEngine*>& engine,
                        const gsl_lite::not_null<const world::Room*>& room,
                        const core::TypeId& type)
@@ -77,7 +79,9 @@ public:
 
   core::TypeId type = core::TypeId{static_cast<uint16_t>(-1)};
   Location location;
+  core::TRVec predictedPosition;
   core::TRRotation rotation;
+  core::TRRotation predictedRotation;
   core::Speed speed = 0_spd;
   core::Speed fallspeed = 0_spd;
   core::AnimStateId current_anim_state = 0_as;

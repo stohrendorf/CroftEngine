@@ -32,7 +32,7 @@ Tab::Tab(const std::string& title)
 
 Tab::~Tab() = default;
 
-void Tab::update(const bool hasFocus)
+void Tab::tick(const bool hasFocus)
 {
   m_hasFocus = hasFocus;
 }
@@ -79,11 +79,11 @@ void TabBox::fitToContent()
   m_size = {maxWidth, maxHeight + FontHeight};
 }
 
-void TabBox::update(bool /*hasFocus*/)
+void TabBox::tick(bool /*hasFocus*/)
 {
   for(size_t i = 0; i < m_tabs.size(); i++)
   {
-    m_tabs[i].container->update(i == m_selectedTabIndex);
+    m_tabs[i].container->tick(i == m_selectedTabIndex);
   }
 }
 

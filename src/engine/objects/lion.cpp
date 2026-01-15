@@ -19,7 +19,7 @@
 
 namespace engine::objects
 {
-void Lion::update()
+void Lion::updateLogic()
 {
   activateAi();
 

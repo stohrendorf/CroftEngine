@@ -94,7 +94,7 @@ public:
     CustomErrorCallbacks callbacks{};
 
     Deserializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
-    auto result = access::dispatch<T>(ser);
+    auto result = access::dispatchCreate<T>(ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());
@@ -110,7 +110,7 @@ public:
     CustomErrorCallbacks callbacks{};
 
     Deserializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, nullptr};
-    access::dispatch(data, ser);
+    access::dispatchDeserialize(data, ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());
@@ -125,7 +125,7 @@ public:
     CustomErrorCallbacks callbacks{};
 
     Serializer<TContext> ser{m_tree.rootref()[m_tree.copy_to_arena(c4::to_csubstr(key))], context, nullptr};
-    access::dispatch(data, ser);
+    access::dispatchSerialize(data, ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());

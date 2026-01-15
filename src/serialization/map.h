@@ -16,8 +16,8 @@ void serialize(const std::map<T, U>& data, const Serializer<TContext>& ser)
   for(auto& [key, value] : data)
   {
     const auto tmp = ser.newChild();
-    access::dispatch(key, tmp["key"]);
-    access::dispatch(value, tmp["value"]);
+    access::dispatchSerialize(key, tmp["key"]);
+    access::dispatchSerialize(value, tmp["value"]);
   }
 }
 
@@ -32,8 +32,8 @@ void deserialize(std::map<T, U>& data, const Deserializer<TContext>& ser)
     gsl_Assert(element.num_children() == 2);
     gsl_Assert(element["key"].readable() && element["value"].readable());
 
-    data.emplace(access::dispatch<T>(ser.withNode(element["key"])),
-                 access::dispatch<U>(ser.withNode(element["value"])));
+    data.emplace(access::dispatchCreate<T>(ser.withNode(element["key"])),
+                 access::dispatchCreate<U>(ser.withNode(element["value"])));
   }
 }
 } // namespace serialization

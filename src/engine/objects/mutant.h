@@ -31,7 +31,7 @@ class FlyingMutant : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(FlyingMutant)
 
-  void update() final;
+  void updateLogic() final;
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
@@ -63,7 +63,7 @@ class CentaurMutant final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(CentaurMutant)
 
-  void update() override;
+  void updateLogic() override;
 };
 
 class TorsoBoss final : public AIAgent
@@ -71,7 +71,7 @@ class TorsoBoss final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(TorsoBoss)
 
-  void update() override;
+  void updateLogic() override;
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;

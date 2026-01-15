@@ -8,7 +8,7 @@
 void main()
 {
     #ifdef SKELETAL
-    mat4 mm = modelTransform.m * boneTransform.m[int(a_boneIndex)];
+    mat4 mm = modelTransform.m * (boneTransform.m[int(a_boneIndex)] * (1.0 - u_interTickFactor) + nextBoneTransform.m[int(a_boneIndex)] * u_interTickFactor);
     #elif SPRITEMODE == 3
     mat4 mm = a_modelMatrix;
     #else
@@ -50,10 +50,12 @@ void main()
     {
         #ifdef SKELETAL
         mat4 lmvp = csm.lightMVP[i] * boneTransform.m[int(a_boneIndex)];
+        mat4 lmvp2 = csm.lightMVP[i] * nextBoneTransform.m[int(a_boneIndex)];
+        vec4 tmp = mix(lmvp * pos, lmvp2 * pos, u_interTickFactor);
         #else
         mat4 lmvp = csm.lightMVP[i];
-        #endif
         vec4 tmp = lmvp * pos;
+        #endif
         gpi.vertexPosLight[i] = tmp.xyz * 0.5 + 0.5;
     }
 

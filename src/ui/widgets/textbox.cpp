@@ -46,7 +46,7 @@ void TextBox::setSize(const glm::ivec2& size)
   setText(text);
 }
 
-void TextBox::update(bool /*hasFocus*/)
+void TextBox::tick(bool /*hasFocus*/)
 {
 }
 

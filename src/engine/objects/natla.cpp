@@ -31,7 +31,7 @@
 
 namespace engine::objects
 {
-void Natla::update()
+void Natla::updateLogic()
 {
   static constexpr core::TRVec bulletEmissionPos{5_len, 220_len, 7_len};
   static constexpr size_t bulletEmissionBoneIdx = 4;

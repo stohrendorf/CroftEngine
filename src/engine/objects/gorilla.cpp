@@ -25,7 +25,7 @@
 
 namespace engine::objects
 {
-void Gorilla::update()
+void Gorilla::updateLogic()
 {
   activateAi();
 

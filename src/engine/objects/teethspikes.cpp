@@ -19,7 +19,9 @@
 
 #include <memory>
 
-void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
+namespace engine::objects
+{
+void TeethSpikes::collide(CollisionInfo& collisionInfo)
 {
   if(!getWorld().getObjectManager().getLara().isDead()
      && isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius)
@@ -65,3 +67,9 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
     }
   }
 }
+
+void TeethSpikes::updateLogic()
+{
+  advanceFrame();
+}
+} // namespace engine::objects

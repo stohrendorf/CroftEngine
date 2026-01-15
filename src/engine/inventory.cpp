@@ -124,9 +124,13 @@ size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t 
   }
 }
 
-bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const GameplayRules& gameplayRules)
+bool Inventory::tryUse(objects::LaraObject& lara,
+                       const TR1ItemId id,
+                       const GameplayRules& gameplayRules,
+                       const hid::InputHandler& inputHandler)
 {
-  auto tryUseWeapon = [this, &lara, &gameplayRules](const TR1ItemId weapon, const WeaponType weaponType) -> bool
+  auto tryUseWeapon
+    = [this, &lara, &gameplayRules, &inputHandler](const TR1ItemId weapon, const WeaponType weaponType) -> bool
   {
     if(count(weapon) == 0)
       return false;
@@ -148,7 +152,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const Game
       else if(lara.getHandStatus() == objects::HandStatus::Combat)
       {
         lara.setHandStatus(objects::HandStatus::Holster);
-        lara.updateLarasWeaponsStatus();
+        lara.updateLaraWeaponsStatus(inputHandler);
       }
     }
 

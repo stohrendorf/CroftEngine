@@ -23,7 +23,7 @@ class Cowboy final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(Cowboy)
 
-  void update() override;
+  void updateLogic() override;
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;

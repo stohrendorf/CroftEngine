@@ -19,7 +19,7 @@
 
 namespace engine::objects
 {
-void Larson::update()
+void Larson::updateLogic()
 {
   activateAi();
 

@@ -33,7 +33,7 @@ public:
                         const std::vector<std::string>& options,
                         size_t initialSelection = 0);
   ~SelectionBox() override;
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   void setPosition(const glm::ivec2& position) override;

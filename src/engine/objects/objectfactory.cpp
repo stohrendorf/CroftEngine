@@ -75,6 +75,7 @@
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <concepts>
 #include <cstddef>
 #include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
@@ -120,7 +121,7 @@ struct UnsupportedObjectFactory : ObjectFactory
   }
 };
 
-template<typename T>
+template<std::derived_from<ModelObject> T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct ModelFactory : ObjectFactory
 {
@@ -144,7 +145,7 @@ struct ModelFactory : ObjectFactory
       .at(item.type.get_as<TR1ItemId>())
       ->customize(object);
 
-    object->applyTransform();
+    object->applyLogicTransform();
     return object;
   }
 
@@ -157,7 +158,7 @@ struct ModelFactory : ObjectFactory
   }
 };
 
-template<typename T>
+template<std::derived_from<SpriteObject> T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct SpriteFactory : ObjectFactory
 {
@@ -230,7 +231,7 @@ struct WalkingMutantFactory : ObjectFactory
       .at(item.type.get_as<TR1ItemId>())
       ->customize(object);
 
-    object->applyTransform();
+    object->applyLogicTransform();
     return object;
   }
 
@@ -435,7 +436,7 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
 
     addChild(gsl_lite::not_null{room->node}, gsl_lite::not_null{object->getNode()});
 
-    object->applyTransform();
+    object->applyLogicTransform();
 
     return object;
   }

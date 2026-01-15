@@ -128,21 +128,21 @@ struct Id
   void serialize(const serialization::Serializer<TContext>& ser) const
   {
     ser.tag("id");
-    serialization::access::dispatch(m_value, ser);
+    serialization::access::dispatchSerialize(m_value, ser);
   }
 
   template<typename TContext>
   void deserialize(const serialization::Deserializer<TContext>& ser)
   {
     ser.tag("id");
-    serialization::access::dispatch(m_value, ser);
+    serialization::access::dispatchDeserialize(m_value, ser);
   }
 
   template<typename TContext>
   [[nodiscard]] static Id create(const serialization::Deserializer<TContext>& ser)
   {
     ser.tag("id");
-    return Id{serialization::access::dispatch<StorageType>(ser)};
+    return Id{serialization::access::dispatchCreate<StorageType>(ser)};
   }
 
 private:

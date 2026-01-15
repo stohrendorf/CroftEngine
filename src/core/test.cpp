@@ -206,4 +206,70 @@ BOOST_AUTO_TEST_CASE(test_atan_len)
   BOOST_CHECK_LE(abs(core::angleFromAtan(0_len, -1_len) - 180_deg), 1_au);
 }
 
+BOOST_AUTO_TEST_CASE(test_angle_lerp_basic)
+{
+  // Basic interpolation - no wraparound
+  BOOST_CHECK_EQUAL(core::lerp(0_deg, 90_deg, 0.0f), 0_deg);
+  BOOST_CHECK_EQUAL(core::lerp(0_deg, 90_deg, 1.0f), 90_deg);
+  BOOST_CHECK_EQUAL(core::lerp(0_deg, 90_deg, 0.5f), 45_deg);
+  BOOST_CHECK_LT(core::lerp(10_deg, 30_deg, 0.5f) - 20_deg, 1_au);
+}
+
+BOOST_AUTO_TEST_CASE(test_angle_lerp_wraparound)
+{
+  // Test wraparound cases - should take shortest path
+  // From 170 to -170 should go through 180, not back through 0
+  auto result = core::lerp(170_deg, -170_deg, 0.5f);
+  BOOST_CHECK_LE(abs(result - 180_deg), 1_au);
+
+  // From -170 to 170 should also go through 180
+  result = core::lerp(-170_deg, 170_deg, 0.5f);
+  BOOST_CHECK_LE(abs(result - 180_deg), 1_au);
+
+  // From 10 to -10 should go through 0
+  BOOST_CHECK_EQUAL(core::lerp(10_deg, -10_deg, 0.5f), 0_deg);
+
+  // From -10 to 350 (which is same as -10) - shortest path goes backward
+  result = core::lerp(-10_deg, 350_deg, 0.5f);
+  BOOST_CHECK_LE(abs(result + 10_deg), 1_au);
+}
+
+BOOST_AUTO_TEST_CASE(test_angle_lerp_edge_cases)
+{
+  // Same angles
+  BOOST_CHECK_EQUAL(core::lerp(45_deg, 45_deg, 0.5f), 45_deg);
+
+  // Negative angles
+  BOOST_CHECK_EQUAL(core::lerp(-90_deg, -45_deg, 0.5f), -67.5_deg);
+
+  // Full circle difference
+  auto result = core::lerp(0_deg, 180_deg, 0.5f);
+  BOOST_CHECK_EQUAL(result, -90_deg);
+
+  result = core::lerp(0_deg, -180_deg, 0.5f);
+  BOOST_CHECK_EQUAL(result, -90_deg);
+}
+
+BOOST_AUTO_TEST_CASE(test_rotation_lerp)
+{
+  // Test TRRotation lerp
+  core::TRRotation a{0_deg, 0_deg, 0_deg};
+  core::TRRotation b{90_deg, 45_deg, 180_deg};
+
+  auto result = core::lerp(a, b, 0.0f);
+  BOOST_CHECK_EQUAL(result.X, 0_deg);
+  BOOST_CHECK_EQUAL(result.Y, 0_deg);
+  BOOST_CHECK_EQUAL(result.Z, 0_deg);
+
+  result = core::lerp(a, b, 1.0f);
+  BOOST_CHECK_EQUAL(result.X, 90_deg);
+  BOOST_CHECK_EQUAL(result.Y, 45_deg);
+  BOOST_CHECK_EQUAL(result.Z, 180_deg);
+
+  result = core::lerp(a, b, 0.5f);
+  BOOST_CHECK_EQUAL(result.X, 45_deg);
+  BOOST_CHECK_EQUAL(result.Y, 22.5_deg);
+  BOOST_CHECK_EQUAL(result.Z, -90_deg);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

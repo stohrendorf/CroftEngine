@@ -21,6 +21,6 @@ class Rat final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(Rat)
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

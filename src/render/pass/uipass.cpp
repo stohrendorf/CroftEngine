@@ -60,7 +60,7 @@ UIPass::UIPass(material::MaterialManager& materialManager,
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void UIPass::render(const std::function<void()>& doRender)
+void UIPass::renderToFramebuffer(const std::function<void()>& doRender)
 {
   SOGLB_DEBUGGROUP("ui-pass");
   m_colorBuffer->clear({0, 0, 0, 0});

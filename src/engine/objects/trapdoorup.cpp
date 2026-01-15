@@ -21,7 +21,7 @@
 
 namespace engine::objects
 {
-void TrapDoorUp::update()
+void TrapDoorUp::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {
@@ -32,7 +32,7 @@ void TrapDoorUp::update()
     m_state.goal_anim_state = 0_as;
   }
 
-  ModelObject::update();
+  advanceFrame();
   m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 }

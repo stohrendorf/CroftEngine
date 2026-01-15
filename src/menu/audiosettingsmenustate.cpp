@@ -66,8 +66,7 @@ AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTra
   m_container->fitToContent();
 }
 
-std::unique_ptr<MenuState>
-  AudioSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> AudioSettingsMenuState::tick(engine::world::World& world, MenuDisplay& /*display*/)
 {
   static constexpr float Stepping = 0.1f;
   auto& audioSettings = world.getEngine().getEngineConfig()->audioSettings;
@@ -119,7 +118,7 @@ std::unique_ptr<MenuState>
   audioSettings.musicVolume = m_musicVolume->getValue();
   audioSettings.sfxVolume = m_sfxVolume->getValue();
 
-  world.getPresenter().getSoundEngine()->setListenerGain(audioSettings.globalVolume);
+  world.getEngine().getPresenter().getSoundEngine()->setListenerGain(audioSettings.globalVolume);
   world.getAudioEngine().setMusicGain(audioSettings.musicVolume);
   world.getAudioEngine().setSfxGain(audioSettings.sfxVolume);
 
@@ -128,12 +127,15 @@ std::unique_ptr<MenuState>
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
   }
 
-  m_grid->update(true);
-
-  m_container->setPosition(
-    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
-  m_container->draw(ui, world.getPresenter());
+  m_grid->tick(true);
 
   return nullptr;
+}
+
+void AudioSettingsMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+{
+  m_container->setPosition(
+    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
+  m_container->draw(ui, world.getEngine().getPresenter());
 }
 } // namespace menu

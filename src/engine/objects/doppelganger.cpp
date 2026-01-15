@@ -45,7 +45,7 @@ Doppelganger::Doppelganger(const std::string& name,
     m_state.current_anim_state, gsl_lite::not_null{&laraModel->animations[0]}, laraModel->animations->firstFrame);
 }
 
-void Doppelganger::update()
+void Doppelganger::updateLogic()
 {
   const auto& lara = getWorld().getObjectManager().getLara();
 
@@ -91,7 +91,7 @@ void Doppelganger::update()
 
   if(m_killed)
   {
-    ModelObject::update();
+    advanceFrame();
     const auto sector = m_state.location.moved({}).updateRoom();
     const auto hi
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
@@ -116,10 +116,10 @@ void Doppelganger::update()
     gsl_Assert(getSkeleton()->getBoneCount() == lara.getSkeleton()->getBoneCount());
     for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
     {
-      getSkeleton()->setPoseMatrix(i, lara.getSkeleton()->getPoseMatrix(i));
+      getSkeleton()->setPoseMatrix(i, lara.getSkeleton()->getPoseMatrix(i), lara.getSkeleton()->getNextPoseMatrix(i));
     }
 
-    applyTransform();
+    applyLogicTransform();
   }
 }
 

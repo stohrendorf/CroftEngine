@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/magic.h"
+
 #include <cstdint>
 #include <gl/buffer.h>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -42,7 +44,7 @@ class Camera final
 
 public:
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  Camera(const float fieldOfView, const glm::vec2& viewport, const float nearPlane, const float farPlane)
+  Camera(const core::Radians& fieldOfView, const glm::vec2& viewport, const float nearPlane, const float farPlane)
       : m_fieldOfView{fieldOfView}
       , m_matricesBuffer{"camera-matrices-ubo", gl::api::BufferUsage::DynamicDraw, m_matrices}
   {
@@ -62,7 +64,7 @@ public:
 
   ~Camera() = default;
 
-  void setFieldOfView(const float fieldOfView) noexcept
+  void setFieldOfView(const core::Radians& fieldOfView) noexcept
   {
     m_fieldOfView = fieldOfView;
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
@@ -120,8 +122,8 @@ public:
   {
     if(m_dirty.is_set(CameraMatrices::DirtyFlag::Projection))
     {
-      m_matrices.projection
-        = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
+      m_matrices.projection = glm::perspective(
+        m_fieldOfView.get<float>(), m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
       m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
       m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
     }
@@ -160,12 +162,12 @@ public:
 
   [[nodiscard]] glm::vec3 getUpVector() const
   {
-    return getRotatedVector(glm::vec3{0, 1, 0});
+    return getRotatedVector(core::RenderAxisUp);
   }
 
   [[nodiscard]] glm::vec3 getRightVector() const
   {
-    return getRotatedVector(glm::vec3{1, 0, 0});
+    return getRotatedVector(core::RenderAxisRight);
   }
 
   [[nodiscard]] auto getFieldOfViewY() const noexcept
@@ -191,7 +193,7 @@ public:
   }
 
 private:
-  float m_fieldOfView;
+  core::Radians m_fieldOfView;
 
   mutable type_safe::flag_set<CameraMatrices::DirtyFlag> m_dirty;
   mutable CameraMatrices m_matrices{};

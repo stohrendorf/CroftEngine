@@ -33,12 +33,14 @@
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "loader/file/animation.h"
+#include "matrixstack.h"
 #include "modelobject.h"
 #include "object.h"
 #include "objectstate.h"
 #include "qs/quantity.h"
 #include "render/rendersettings.h"
 #include "render/scene/node.h"
+#include "segmentinterpolationmatrixstack.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
@@ -125,7 +127,7 @@ void LaraObject::setAnimation(const AnimationId anim, const std::optional<core::
                               firstFrame.value_or(0_frame));
 }
 
-void LaraObject::handleLaraStateOnLand()
+void LaraObject::handleLaraStateOnLand(const hid::InputHandler& inputHandler)
 {
   CollisionInfo collisionInfo;
   collisionInfo.initialPosition = m_state.location.position;
@@ -177,7 +179,7 @@ void LaraObject::handleLaraStateOnLand()
 
   m_state.rotation.Y += m_yRotationSpeed * 1_frame;
 
-  advanceFrame();
+  advanceLaraFrame();
 
   testInteractions(collisionInfo);
 
@@ -185,11 +187,11 @@ void LaraObject::handleLaraStateOnLand()
 
   updateFloorHeight(-core::LaraWalkHeight / 2);
 
-  updateLarasWeaponsStatus();
+  updateLaraWeaponsStatus(inputHandler);
   getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 
-  drawRoutine();
-  applyTransform();
+  updateLogicPose();
+  applyLogicTransform();
 }
 
 void LaraObject::smoothlyRevertHeadRotation() noexcept
@@ -204,7 +206,7 @@ void LaraObject::smoothlyRevertHeadRotation() noexcept
     m_headRotation.Y = 0_deg;
 }
 
-void LaraObject::handleLaraStateDiving()
+void LaraObject::handleLaraStateDiving(const hid::InputHandler& inputHandler)
 {
   CollisionInfo collisionInfo;
   collisionInfo.initialPosition = m_state.location.position;
@@ -243,7 +245,7 @@ void LaraObject::handleLaraStateDiving()
   m_torsoRotation.X /= 2;
   m_torsoRotation.Y /= 2;
 
-  advanceFrame();
+  advanceLaraFrame();
 
   m_state.location.move(util::yawPitch(m_state.fallspeed * 1_frame / 4, m_state.rotation));
 
@@ -252,14 +254,14 @@ void LaraObject::handleLaraStateDiving()
   lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(0_len);
-  updateLarasWeaponsStatus();
+  updateLaraWeaponsStatus(inputHandler);
   getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 
-  drawRoutine();
-  applyTransform();
+  updateLogicPose();
+  applyLogicTransform();
 }
 
-void LaraObject::handleLaraStateSwimming()
+void LaraObject::handleLaraStateSwimming(const hid::InputHandler& inputHandler)
 {
   CollisionInfo collisionInfo;
   collisionInfo.initialPosition = m_state.location.position;
@@ -298,7 +300,7 @@ void LaraObject::handleLaraStateSwimming()
     handleUnderwaterCurrent(collisionInfo);
   }
 
-  advanceFrame();
+  advanceLaraFrame();
 
   m_state.location.move(util::pitch(m_state.fallspeed * 1_frame / 4, getMovementAngle()).toRenderSystem());
 
@@ -307,11 +309,11 @@ void LaraObject::handleLaraStateSwimming()
   lara::AbstractStateHandler::create(getCurrentAnimState(), gsl_lite::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(core::DefaultCollisionRadius);
-  updateLarasWeaponsStatus();
+  updateLaraWeaponsStatus(inputHandler);
   getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 
-  drawRoutine();
-  applyTransform();
+  updateLogicPose();
+  applyLogicTransform();
 }
 
 void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo) noexcept
@@ -321,33 +323,66 @@ void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo) noexcept
 
 LaraObject::~LaraObject() = default;
 
-void LaraObject::update()
+void LaraObject::updatePrediction()
+{
+  m_state.predictedPosition = m_state.location.position;
+  m_state.predictedRotation = m_state.rotation;
+
+  switch(m_underwaterState)
+  {
+  case UnderwaterState::OnLand:
+    if(m_state.speed != 0_spd)
+    {
+      m_state.predictedPosition += util::pitch(m_state.speed * 1_frame, getMovementAngle());
+    }
+    if(m_state.falling && m_state.fallspeed != 0_spd)
+    {
+      m_state.predictedPosition.Y += m_state.fallspeed * 1_frame;
+    }
+
+    m_state.predictedRotation.Y += m_yRotationSpeed * 1_frame;
+    break;
+  case UnderwaterState::Diving:
+    m_state.predictedPosition += util::yawPitch(m_state.fallspeed * 1_frame / 4, m_state.rotation);
+    break;
+  case UnderwaterState::Swimming:
+    m_state.predictedPosition += util::pitch(m_state.fallspeed * 1_frame / 4, getMovementAngle());
+    break;
+  }
+}
+
+void LaraObject::updateLogic()
 {
   updateCheats();
 
-  if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawPistols))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Pistols, getWorld().getEngine().getGameplayRules());
-  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawShotgun))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Shotgun, getWorld().getEngine().getGameplayRules());
-  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawUzis))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Uzis, getWorld().getEngine().getGameplayRules());
-  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawMagnums))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Magnums, getWorld().getEngine().getGameplayRules());
-  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeSmallMedipack))
+  const auto& inputHandler = getWorld().getEngine().getPresenter().getInputHandler();
+  if(inputHandler.hasDebouncedAction(hid::Action::DrawPistols))
+    getWorld().getPlayer().getInventory().tryUse(
+      *this, TR1ItemId::Pistols, getWorld().getEngine().getGameplayRules(), inputHandler);
+  else if(inputHandler.hasDebouncedAction(hid::Action::DrawShotgun))
+    getWorld().getPlayer().getInventory().tryUse(
+      *this, TR1ItemId::Shotgun, getWorld().getEngine().getGameplayRules(), inputHandler);
+  else if(inputHandler.hasDebouncedAction(hid::Action::DrawUzis))
+    getWorld().getPlayer().getInventory().tryUse(
+      *this, TR1ItemId::Uzis, getWorld().getEngine().getGameplayRules(), inputHandler);
+  else if(inputHandler.hasDebouncedAction(hid::Action::DrawMagnums))
+    getWorld().getPlayer().getInventory().tryUse(
+      *this, TR1ItemId::Magnums, getWorld().getEngine().getGameplayRules(), inputHandler);
+  else if(inputHandler.hasDebouncedAction(hid::Action::ConsumeSmallMedipack))
   {
     if(getWorld().getPlayer().getInventory().tryUse(
-         *this, TR1ItemId::SmallMedipack, getWorld().getEngine().getGameplayRules()))
+         *this, TR1ItemId::SmallMedipack, getWorld().getEngine().getGameplayRules(), inputHandler))
       ++getWorld().getPlayer().smallMedipacks;
   }
-  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeLargeMedipack))
+  else if(inputHandler.hasDebouncedAction(hid::Action::ConsumeLargeMedipack))
   {
     if(getWorld().getPlayer().getInventory().tryUse(
-         *this, TR1ItemId::LargeMedipack, getWorld().getEngine().getGameplayRules()))
+         *this, TR1ItemId::LargeMedipack, getWorld().getEngine().getGameplayRules(), inputHandler))
       ++getWorld().getPlayer().largeMedipacks;
   }
 
 #ifndef NDEBUG
-  if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::CheatDive))
+  if(inputHandler.hasDebouncedAction(hid::Action::CheatDive))
     m_cheatDive = !m_cheatDive;
 #endif
 
@@ -363,14 +398,14 @@ void LaraObject::update()
     {
       m_state.rotation.X = -45_deg;
       setGoalAnimState(LaraStateId::UnderwaterDiving);
-      advanceFrame();
+      advanceLaraFrame();
       m_state.fallspeed *= 2;
     }
     else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
     {
       m_state.rotation.X = -85_deg;
       setGoalAnimState(LaraStateId::UnderwaterDiving);
-      advanceFrame();
+      advanceLaraFrame();
       m_state.fallspeed *= 2;
     }
     else
@@ -466,7 +501,7 @@ void LaraObject::update()
   {
   case UnderwaterState::OnLand:
     m_air = core::LaraAir;
-    handleLaraStateOnLand();
+    handleLaraStateOnLand(inputHandler);
     break;
   case UnderwaterState::Diving:
     if(!isDead() && !m_cheatDive)
@@ -478,19 +513,19 @@ void LaraObject::update()
         m_state.health -= 5_hp;
       }
     }
-    handleLaraStateDiving();
+    handleLaraStateDiving(inputHandler);
     break;
   case UnderwaterState::Swimming:
     if(!isDead())
     {
       m_air = std::min(m_air + core::FrameRate * 1_sec / 3, core::LaraAir);
     }
-    handleLaraStateSwimming();
+    handleLaraStateSwimming(inputHandler);
     break;
   }
 }
 
-void LaraObject::advanceFrame()
+void LaraObject::advanceLaraFrame()
 {
   const auto endOfAnim = getSkeleton()->advanceFrame(m_state);
 
@@ -511,6 +546,7 @@ void LaraObject::advanceFrame()
           moveLocal(core::TRVec{core::Length{static_cast<core::Length::type>(cmd[0])},
                                 core::Length{static_cast<core::Length::type>(cmd[1])},
                                 core::Length{static_cast<core::Length::type>(cmd[2])}});
+          getSkeleton()->resetSmoothing();
           cmd += 3;
           break;
         case AnimCommandOpcode::StartFalling:
@@ -702,7 +738,7 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
   collisionInfo.initialPosition = m_state.location.position;
 }
 
-void LaraObject::updateLarasWeaponsStatus()
+void LaraObject::updateLaraWeaponsStatus(const hid::InputHandler& inputHandler)
 {
   if(leftArm.flashTimeout > 0_frame)
   {
@@ -731,8 +767,7 @@ void LaraObject::updateLarasWeaponsStatus()
     }
     else if(player.requestedWeaponType == player.selectedWeaponType)
     {
-      if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Holster)
-         && player.selectedWeaponType != WeaponType::None
+      if(inputHandler.hasDebouncedAction(hid::Action::Holster) && player.selectedWeaponType != WeaponType::None
          && getWorld().getPlayer().getInventory().count(
               getWorld().getPlayer().getInventory().getAmmo(player.selectedWeaponType).weaponType)
               > 0)
@@ -834,7 +869,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponType::Pistols:
       if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Pistols).shots != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+        if(inputHandler.hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -846,12 +881,12 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         getWorld().getCameraController().setMode(CameraMode::Combat);
       }
-      updateTwoWeapons(getWorld().getPlayer().selectedWeaponType);
+      updateTwoWeapons(getWorld().getPlayer().selectedWeaponType, inputHandler);
       break;
     case WeaponType::Magnums:
       if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums).shots != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+        if(inputHandler.hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -863,12 +898,12 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         getWorld().getCameraController().setMode(CameraMode::Combat);
       }
-      updateTwoWeapons(getWorld().getPlayer().selectedWeaponType);
+      updateTwoWeapons(getWorld().getPlayer().selectedWeaponType, inputHandler);
       break;
     case WeaponType::Uzis:
       if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).shots != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+        if(inputHandler.hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -880,12 +915,12 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         getWorld().getCameraController().setMode(CameraMode::Combat);
       }
-      updateTwoWeapons(getWorld().getPlayer().selectedWeaponType);
+      updateTwoWeapons(getWorld().getPlayer().selectedWeaponType, inputHandler);
       break;
     case WeaponType::Shotgun:
       if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+        if(inputHandler.hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -897,7 +932,7 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         getWorld().getCameraController().setMode(CameraMode::Combat);
       }
-      updateShotgun();
+      updateShotgun(inputHandler);
       break;
     default:
       break;
@@ -910,9 +945,9 @@ void LaraObject::updateLarasWeaponsStatus()
   }
 }
 
-void LaraObject::updateShotgun()
+void LaraObject::updateShotgun(const hid::InputHandler& inputHandler)
 {
-  if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  if(inputHandler.hasAction(hid::Action::Action))
   {
     updateAimingState(Weapon::get(WeaponType::Shotgun));
   }
@@ -932,13 +967,13 @@ void LaraObject::updateShotgun()
     m_headRotation.X = 0_deg;
     m_headRotation.Y = 0_deg;
   }
-  updateAnimShotgun();
+  updateAnimShotgun(inputHandler);
 }
 
-void LaraObject::updateTwoWeapons(const WeaponType weaponType)
+void LaraObject::updateTwoWeapons(const WeaponType weaponType, const hid::InputHandler& inputHandler)
 {
   const auto& weapon = Weapon::get(weaponType);
-  if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  if(inputHandler.hasAction(hid::Action::Action))
   {
     updateAimingState(weapon);
   }
@@ -968,7 +1003,7 @@ void LaraObject::updateTwoWeapons(const WeaponType weaponType)
     m_headRotation.X = m_torsoRotation.X = (leftArm.aimRotation.X + rightArm.aimRotation.X) / 4;
   }
 
-  updateAnimTwoWeapons(weaponType);
+  updateAnimTwoWeapons(weaponType, inputHandler);
 }
 
 void LaraObject::updateAimingState(const Weapon& weapon)
@@ -1202,9 +1237,9 @@ void LaraObject::drawShotgun()
   leftArm.frame = rightArm.frame = nextFrame;
 }
 
-void LaraObject::updateAnimShotgun()
+void LaraObject::updateAnimShotgun(const hid::InputHandler& inputHandler)
 {
-  leftArm.updateAnimShotgun(*this);
+  leftArm.updateAnimShotgun(*this, inputHandler);
   rightArm.frame = leftArm.frame;
 }
 
@@ -1263,12 +1298,12 @@ void LaraObject::holsterTwoWeapons(const WeaponType weaponType)
   m_torsoRotation.Y = rightArm.aimRotation.Y / 4;
 }
 
-void LaraObject::updateAnimTwoWeapons(const WeaponType weaponType)
+void LaraObject::updateAnimTwoWeapons(const WeaponType weaponType, const hid::InputHandler& inputHandler)
 {
   const auto& weapon = Weapon::get(weaponType);
 
-  rightArm.updateAnimTwoWeapons(*this, weapon);
-  leftArm.updateAnimTwoWeapons(*this, weapon);
+  rightArm.updateAnimTwoWeapons(*this, weapon, inputHandler);
+  leftArm.updateAnimTwoWeapons(*this, weapon, inputHandler);
 }
 
 bool LaraObject::tryShootShot(const WeaponType weaponType,
@@ -1396,213 +1431,214 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   object.playSoundEffect(soundEffect);
 }
 
-namespace
+std::vector<glm::mat4> LaraObject::calcPoseMatrices(const world::SkeletalModelType& objInfo,
+                                                    const loader::file::AnimFrame& frame) const
 {
-class MatrixStack
+  const auto angleData = frame.getAngleData();
+  MatrixStack matrixStack;
+
+  matrixStack.push();
+  matrixStack.translate(frame.pos.toGl());
+  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneHips]);
+  matrixStack.apply(BoneHips);
+
+  matrixStack.push();
+  matrixStack.transform({BoneThighR, BoneCalfR, BoneFootR}, objInfo.bones, angleData);
+
+  matrixStack.pop();
+  matrixStack.push();
+  matrixStack.transform({BoneThighL, BoneCalfL, BoneFootL}, objInfo.bones, angleData);
+
+  matrixStack.pop();
+  matrixStack.translate(objInfo.bones[BoneTorso].position);
+  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneTorso]);
+  matrixStack.rotate(m_torsoRotation);
+  matrixStack.apply(BoneTorso);
+
+  matrixStack.push();
+  matrixStack.translate(objInfo.bones[BoneHead].position);
+  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneHead]);
+  matrixStack.rotate(m_headRotation);
+  matrixStack.apply(BoneHead);
+
+  auto activeWeaponType = WeaponType::None;
+  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
+     || m_handStatus == HandStatus::Holster)
+  {
+    activeWeaponType = getWorld().getPlayer().selectedWeaponType;
+  }
+
+  matrixStack.pop();
+  gsl_lite::span<const uint8_t> armAngleData;
+  switch(activeWeaponType)
+  {
+  case WeaponType::None:
+    matrixStack.push();
+    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, angleData);
+
+    matrixStack.pop();
+    matrixStack.push();
+    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleData);
+
+    m_muzzleFlashLeft->setVisible(false);
+    m_muzzleFlashRight->setVisible(false);
+    break;
+  case WeaponType::Pistols:
+  case WeaponType::Magnums:
+  case WeaponType::Uzis:
+    matrixStack.push();
+    matrixStack.translate(objInfo.bones[BoneArmL].position);
+    matrixStack.resetRotation();
+    matrixStack.rotate(rightArm.aimRotation);
+
+    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmL]);
+    matrixStack.apply(BoneArmL);
+
+    matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData);
+    matrixStack.transform(BoneHandL, objInfo.bones, armAngleData);
+
+    renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
+    matrixStack.pop();
+    matrixStack.push();
+    matrixStack.translate(objInfo.bones[BoneArmR].position);
+    matrixStack.resetRotation();
+    matrixStack.rotate(leftArm.aimRotation);
+    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmR]);
+    matrixStack.apply(BoneArmR);
+
+    matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData);
+
+    renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
+    break;
+  case WeaponType::Shotgun:
+    matrixStack.push();
+    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
+    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, armAngleData);
+
+    matrixStack.pop();
+    matrixStack.push();
+    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
+    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData);
+    break;
+  default:
+    break;
+  }
+
+  return matrixStack.getPoseMatrices();
+}
+
+std::vector<glm::mat4>
+  LaraObject::calcPoseMatricesInterpolated(const world::SkeletalModelType& objInfo,
+                                           const AnimSegmentInterpolationInfo& interpolationInfo) const
 {
-  std::stack<glm::mat4> m_stack;
+  const auto angleDataA = interpolationInfo.firstFrame->getAngleData();
+  const auto angleDataB = interpolationInfo.secondFrame->getAngleData();
 
-public:
-  explicit MatrixStack()
+  SegmentInterpolationMatrixStack matrixStack{interpolationInfo.interKeyframeFactor};
+
+  matrixStack.push();
+  matrixStack.translate(interpolationInfo.firstFrame->pos.toGl(), interpolationInfo.secondFrame->pos.toGl());
+  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneHips], &angleDataB[sizeof(uint32_t) * BoneHips]);
+  matrixStack.apply(BoneHips);
+
+  matrixStack.push();
+  matrixStack.transform({BoneThighR, BoneCalfR, BoneFootR}, objInfo.bones, angleDataA, angleDataB);
+
+  matrixStack.pop();
+  matrixStack.push();
+  matrixStack.transform({BoneThighL, BoneCalfL, BoneFootL}, objInfo.bones, angleDataA, angleDataB);
+
+  matrixStack.pop();
+  matrixStack.translate(objInfo.bones[BoneTorso].position);
+  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneTorso], &angleDataB[sizeof(uint32_t) * BoneTorso]);
+  matrixStack.rotate(m_torsoRotation);
+  matrixStack.apply(BoneTorso);
+
+  matrixStack.push();
+  matrixStack.translate(objInfo.bones[BoneHead].position);
+  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneHead], &angleDataB[sizeof(uint32_t) * BoneHead]);
+  matrixStack.rotate(m_headRotation);
+  matrixStack.apply(BoneHead);
+
+  auto activeWeaponType = WeaponType::None;
+  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
+     || m_handStatus == HandStatus::Holster)
   {
-    m_stack.emplace(1.0f);
+    activeWeaponType = getWorld().getPlayer().selectedWeaponType;
   }
 
-  void push()
+  matrixStack.pop();
+  gsl_lite::span<const uint8_t> armAngleData;
+  switch(activeWeaponType)
   {
-    const auto top = m_stack.top();
-    m_stack.emplace(top);
+  case WeaponType::None:
+    matrixStack.push();
+    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, angleDataA, angleDataB);
+
+    matrixStack.pop();
+    matrixStack.push();
+    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleDataA, angleDataB);
+
+    m_muzzleFlashLeft->setVisible(false);
+    m_muzzleFlashRight->setVisible(false);
+    break;
+  case WeaponType::Pistols:
+  case WeaponType::Magnums:
+  case WeaponType::Uzis:
+    matrixStack.push();
+    matrixStack.translate(objInfo.bones[BoneArmL].position);
+    matrixStack.resetRotation();
+    matrixStack.rotate(rightArm.aimRotation);
+
+    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmL], &armAngleData[sizeof(uint32_t) * BoneArmL]);
+    matrixStack.apply(BoneArmL);
+
+    matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData, armAngleData);
+    matrixStack.transform(BoneHandL, objInfo.bones, armAngleData, armAngleData);
+
+    renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
+    matrixStack.pop();
+    matrixStack.push();
+    matrixStack.translate(objInfo.bones[BoneArmR].position);
+    matrixStack.resetRotation();
+    matrixStack.rotate(leftArm.aimRotation);
+    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmR], &armAngleData[sizeof(uint32_t) * BoneArmR]);
+    matrixStack.apply(BoneArmR);
+
+    matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData);
+
+    renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
+    break;
+  case WeaponType::Shotgun:
+    matrixStack.push();
+    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
+    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, armAngleData, armAngleData);
+
+    matrixStack.pop();
+    matrixStack.push();
+    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
+    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData);
+    break;
+  default:
+    break;
   }
 
-  void pop() noexcept
-  {
-    m_stack.pop();
-  }
+  return matrixStack.getPoseMatrices();
+}
 
-  [[nodiscard]] const glm::mat4& top() const noexcept
-  {
-    return m_stack.top();
-  }
-
-  glm::mat4& top() noexcept
-  {
-    return m_stack.top();
-  }
-
-  void rotate(const glm::mat4& m)
-  {
-    m_stack.top() *= m;
-  }
-
-  void rotate(const core::TRRotation& r)
-  {
-    rotate(r.toMatrix());
-  }
-
-  void rotate(const core::TRRotationXY& r)
-  {
-    rotate(r.toMatrix());
-  }
-
-  void resetRotation()
-  {
-    top()[0] = glm::vec4{1, 0, 0, 0};
-    top()[1] = glm::vec4{0, 1, 0, 0};
-    top()[2] = glm::vec4{0, 0, 1, 0};
-  }
-
-  void rotate(const uint8_t* packed)
-  {
-    m_stack.top() *= core::fromPackedAngles(packed);
-  }
-
-  void translate(const glm::vec3& c)
-  {
-    m_stack.top() = glm::translate(m_stack.top(), c);
-  }
-
-  void transform(const std::initializer_list<size_t>& indices,
-                 const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl_lite::span<const uint8_t>& angleData,
-                 const std::shared_ptr<SkeletalModelNode>& skeleton)
-  {
-    for(const auto idx : indices)
-      transform(idx, bones, angleData, skeleton);
-  }
-
-  void transform(const size_t idx,
-                 const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl_lite::span<const uint8_t>& angleData,
-                 const std::shared_ptr<SkeletalModelNode>& skeleton)
-  {
-    BOOST_ASSERT(idx > 0);
-    translate(bones.at(idx).position);
-    rotate(&angleData[sizeof(uint32_t) * idx]);
-    apply(skeleton, idx);
-  }
-
-  void apply(const std::shared_ptr<SkeletalModelNode>& skeleton, const size_t idx)
-  {
-    BOOST_ASSERT(skeleton != nullptr);
-    skeleton->setPoseMatrix(idx, m_stack.top());
-  }
-};
-
-class DualMatrixStack
-{
-  MatrixStack m_stack1;
-  MatrixStack m_stack2;
-  float m_bias;
-
-public:
-  explicit DualMatrixStack(const float bias)
-      : m_bias{bias}
-  {
-  }
-
-  void push()
-  {
-    m_stack1.push();
-    m_stack2.push();
-  }
-
-  void pop()
-  {
-    m_stack1.pop();
-    m_stack2.pop();
-  }
-
-  [[nodiscard]] glm::mat4 itop() const
-  {
-    return util::mix(m_stack1.top(), m_stack2.top(), m_bias);
-  }
-
-  void rotate(const glm::mat4& m)
-  {
-    m_stack1.top() *= m;
-    m_stack2.top() *= m;
-  }
-
-  void rotate(const core::TRRotation& r)
-  {
-    rotate(r.toMatrix());
-  }
-
-  void rotate(const core::TRRotationXY& r)
-  {
-    rotate(r.toMatrix());
-  }
-
-  void rotate(const uint8_t* packed1, const uint8_t* packed2)
-  {
-    m_stack1.top() *= core::fromPackedAngles(packed1);
-    m_stack2.top() *= core::fromPackedAngles(packed2);
-  }
-
-  void resetRotation()
-  {
-    m_stack1.resetRotation();
-    m_stack2.resetRotation();
-  }
-
-  void translate(const glm::vec3& v1, const glm::vec3& v2)
-  {
-    m_stack1.top() = glm::translate(m_stack1.top(), v1);
-    m_stack2.top() = glm::translate(m_stack2.top(), v2);
-  }
-
-  void translate(const glm::vec3& v)
-  {
-    translate(v, v);
-  }
-
-  void transform(const std::initializer_list<size_t>& indices,
-                 const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl_lite::span<const uint8_t>& angleData1,
-                 const gsl_lite::span<const uint8_t>& angleData2,
-                 const std::shared_ptr<SkeletalModelNode>& skeleton)
-  {
-    for(const auto idx : indices)
-      transform(idx, bones, angleData1, angleData2, skeleton);
-  }
-
-  void transform(const size_t idx,
-                 const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl_lite::span<const uint8_t>& angleData1,
-                 const gsl_lite::span<const uint8_t>& angleData2,
-                 const std::shared_ptr<SkeletalModelNode>& skeleton)
-  {
-    BOOST_ASSERT(idx > 0);
-    translate(bones.at(idx).position);
-    rotate(&angleData1[sizeof(uint32_t) * idx], &angleData2[sizeof(uint32_t) * idx]);
-    apply(skeleton, idx);
-  }
-
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void apply(const std::shared_ptr<SkeletalModelNode>& skeleton, const size_t idx)
-  {
-    BOOST_ASSERT(skeleton != nullptr);
-    skeleton->setPoseMatrix(idx, itop());
-  }
-};
-} // namespace
-
-void LaraObject::drawRoutine()
+void LaraObject::updateLogicPose()
 {
   const auto interpolationInfo = getSkeleton()->getInterpolationInfo();
-  if(!hit_direction.has_value() && interpolationInfo.firstFrame != interpolationInfo.secondFrame)
-  {
-    drawRoutineInterpolated(interpolationInfo);
-    return;
-  }
-
+  const auto nextInterpolationInfo = getSkeleton()->getNextInterpolationInfo();
   const auto& objInfo = *getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type);
   const loader::file::AnimFrame* frame;
-  if(!hit_direction.has_value())
-  {
-    frame = interpolationInfo.firstFrame;
-  }
-  else
+  const loader::file::AnimFrame* nextFrame;
+
+  if(hit_direction.has_value())
   {
     switch(*hit_direction)
     {
@@ -1620,200 +1656,44 @@ void LaraObject::drawRoutine()
       break;
     }
     frame = frame->next(hit_frame.get());
+    nextFrame = frame->next(std::min(hit_frame + 1_frame, core::HitAnimationLastFrame).get());
+  }
+  else if(interpolationInfo.firstFrame != interpolationInfo.secondFrame
+          || nextInterpolationInfo.firstFrame != nextInterpolationInfo.secondFrame)
+  {
+    updateLogicPoseInterpolated(interpolationInfo, nextInterpolationInfo);
+    return;
+  }
+  else
+  {
+    frame = interpolationInfo.firstFrame;
+    nextFrame = nextInterpolationInfo.firstFrame;
   }
 
-  MatrixStack matrixStack;
+  const auto matrices = calcPoseMatrices(objInfo, *frame);
+  const auto nextMatrices = calcPoseMatrices(objInfo, *nextFrame);
+  gsl_Assert(matrices.size() == nextMatrices.size());
 
-  matrixStack.push();
-  matrixStack.translate(frame->pos.toGl());
-  const auto angleData = frame->getAngleData();
-  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneHips]);
-  matrixStack.apply(getSkeleton(), BoneHips);
-
-  matrixStack.push();
-  matrixStack.transform({BoneThighR, BoneCalfR, BoneFootR}, objInfo.bones, angleData, getSkeleton());
-
-  matrixStack.pop();
-  matrixStack.push();
-  matrixStack.transform({BoneThighL, BoneCalfL, BoneFootL}, objInfo.bones, angleData, getSkeleton());
-
-  matrixStack.pop();
-  matrixStack.translate(objInfo.bones[BoneTorso].position);
-  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneTorso]);
-  matrixStack.rotate(m_torsoRotation);
-  matrixStack.apply(getSkeleton(), BoneTorso);
-
-  matrixStack.push();
-  matrixStack.translate(objInfo.bones[BoneHead].position);
-  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneHead]);
-  matrixStack.rotate(m_headRotation);
-  matrixStack.apply(getSkeleton(), BoneHead);
-
-  auto activeWeaponType = WeaponType::None;
-  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
-     || m_handStatus == HandStatus::Holster)
+  for(size_t i = 0; i < matrices.size(); ++i)
   {
-    activeWeaponType = getWorld().getPlayer().selectedWeaponType;
-  }
-
-  matrixStack.pop();
-  gsl_lite::span<const uint8_t> armAngleData;
-  switch(activeWeaponType)
-  {
-  case WeaponType::None:
-    matrixStack.push();
-    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, angleData, getSkeleton());
-
-    matrixStack.pop();
-    matrixStack.push();
-    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleData, getSkeleton());
-
-    m_muzzleFlashLeft->setVisible(false);
-    m_muzzleFlashRight->setVisible(false);
-    break;
-  case WeaponType::Pistols:
-  case WeaponType::Magnums:
-  case WeaponType::Uzis:
-    matrixStack.push();
-    matrixStack.translate(objInfo.bones[BoneArmL].position);
-    matrixStack.resetRotation();
-    matrixStack.rotate(rightArm.aimRotation);
-
-    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmL]);
-    matrixStack.apply(getSkeleton(), BoneArmL);
-
-    matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData, getSkeleton());
-    matrixStack.transform(BoneHandL, objInfo.bones, armAngleData, getSkeleton());
-
-    renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
-    matrixStack.pop();
-    matrixStack.push();
-    matrixStack.translate(objInfo.bones[BoneArmR].position);
-    matrixStack.resetRotation();
-    matrixStack.rotate(leftArm.aimRotation);
-    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmR]);
-    matrixStack.apply(getSkeleton(), BoneArmR);
-
-    matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, getSkeleton());
-
-    renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
-    break;
-  case WeaponType::Shotgun:
-    matrixStack.push();
-    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, armAngleData, getSkeleton());
-
-    matrixStack.pop();
-    matrixStack.push();
-    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, getSkeleton());
-    break;
-  default:
-    break;
+    getSkeleton()->setPoseMatrix(i, matrices[i], nextMatrices[i]);
   }
 
   updateMuzzleFlashLightPosStrength();
 }
 
-void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationInfo)
+void LaraObject::updateLogicPoseInterpolated(const AnimSegmentInterpolationInfo& interpolationInfo,
+                                             const AnimSegmentInterpolationInfo& nextInterpolationInfo)
 {
   const auto& objInfo = *getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type);
 
-  DualMatrixStack matrixStack{interpolationInfo.bias};
+  const auto matrices = calcPoseMatricesInterpolated(objInfo, interpolationInfo);
+  const auto nextMatrices = calcPoseMatricesInterpolated(objInfo, nextInterpolationInfo);
+  gsl_Assert(matrices.size() == nextMatrices.size());
 
-  matrixStack.push();
-  matrixStack.translate(interpolationInfo.firstFrame->pos.toGl(), interpolationInfo.secondFrame->pos.toGl());
-  const auto angleDataA = interpolationInfo.firstFrame->getAngleData();
-  const auto angleDataB = interpolationInfo.secondFrame->getAngleData();
-  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneHips], &angleDataB[sizeof(uint32_t) * BoneHips]);
-  matrixStack.apply(getSkeleton(), 0);
-
-  matrixStack.push();
-  matrixStack.transform({BoneThighR, BoneCalfR, BoneFootR}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
-
-  matrixStack.pop();
-  matrixStack.push();
-  matrixStack.transform({BoneThighL, BoneCalfL, BoneFootL}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
-
-  matrixStack.pop();
-  matrixStack.translate(objInfo.bones[BoneTorso].position);
-  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneTorso], &angleDataB[sizeof(uint32_t) * BoneTorso]);
-  matrixStack.rotate(m_torsoRotation);
-  matrixStack.apply(getSkeleton(), BoneTorso);
-
-  matrixStack.push();
-  matrixStack.translate(objInfo.bones[14].position);
-  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneHead], &angleDataB[sizeof(uint32_t) * BoneHead]);
-  matrixStack.rotate(m_headRotation);
-  matrixStack.apply(getSkeleton(), BoneHead);
-
-  auto activeWeaponType = WeaponType::None;
-  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
-     || m_handStatus == HandStatus::Holster)
+  for(size_t i = 0; i < matrices.size(); ++i)
   {
-    activeWeaponType = getWorld().getPlayer().selectedWeaponType;
-  }
-
-  matrixStack.pop();
-  gsl_lite::span<const uint8_t> armAngleData;
-  switch(activeWeaponType)
-  {
-  case WeaponType::None:
-    matrixStack.push();
-    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
-
-    matrixStack.pop();
-    matrixStack.push();
-    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
-
-    m_muzzleFlashLeft->setVisible(false);
-    m_muzzleFlashRight->setVisible(false);
-    break;
-  case WeaponType::Pistols:
-  case WeaponType::Magnums:
-  case WeaponType::Uzis:
-    matrixStack.push();
-    matrixStack.translate(objInfo.bones[8].position);
-    matrixStack.resetRotation();
-    matrixStack.rotate(rightArm.aimRotation);
-
-    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmL], &armAngleData[sizeof(uint32_t) * BoneArmL]);
-    matrixStack.apply(getSkeleton(), BoneArmL);
-
-    matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData, armAngleData, getSkeleton());
-    matrixStack.transform(BoneHandL, objInfo.bones, armAngleData, armAngleData, getSkeleton());
-
-    renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
-    matrixStack.pop();
-    matrixStack.push();
-    matrixStack.translate(objInfo.bones[11].position);
-    matrixStack.resetRotation();
-    matrixStack.rotate(leftArm.aimRotation);
-    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmR], &armAngleData[sizeof(uint32_t) * BoneArmR]);
-    matrixStack.apply(getSkeleton(), BoneArmR);
-
-    matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
-
-    renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
-    break;
-  case WeaponType::Shotgun:
-    matrixStack.push();
-    armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.transform(
-      {BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
-
-    matrixStack.pop();
-    matrixStack.push();
-    armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.transform(
-      {BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
-    break;
-  default:
-    break;
+    getSkeleton()->setPoseMatrix(i, matrices[i], nextMatrices[i]);
   }
 
   updateMuzzleFlashLightPosStrength();
@@ -1863,7 +1743,8 @@ void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
   muzzleFlashNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
 
   muzzleFlashNode->bind("u_lightAmbient",
-                        [brightness = toBrightness(shade)](const render::scene::Node* /*node*/,
+                        [brightness = toBrightness(shade)](const render::scene::Node* /*node*/
+                                                           ,
                                                            const render::scene::Mesh& /*mesh*/,
                                                            gl::Uniform& uniform)
                         {
@@ -2019,7 +1900,7 @@ void LaraObject::initMuzzleFlashes()
   world::RenderMeshDataCompositor compositor;
   compositor.append(*muzzleFlashModel->bones[0].mesh, gl::SRGBA8{0, 0, 0, 0});
   const auto mesh = compositor.toMesh(
-    *getWorld().getPresenter().getMaterialManager(),
+    getWorld().getEngine().getPresenter().getRenderSystem().getMaterialManager(),
     false,
     false,
     [&engine = getWorld().getEngine()]
@@ -2052,11 +1933,7 @@ void LaraObject::updateExplosionStumbling()
     playSoundEffect(TR1SoundEffect::LaraOof);
   }
 
-  hit_frame += 1_frame;
-  if(hit_frame > 34_frame)
-  {
-    hit_frame = 34_frame;
-  }
+  hit_frame = std::min(hit_frame + 1_frame, core::HitAnimationLastFrame);
   explosionStumblingDuration -= 1_frame;
 }
 
@@ -2126,7 +2003,7 @@ void LaraObject::updateCheats()
   case WaitTurn:
     if(getCurrentAnimState() != LaraStateId::Stop)
     {
-      m_cheatTotalRotation = 0;
+      m_cheatTotalRotation = 0_deg;
       m_cheatLastRotation = m_state.rotation.Y;
       switch(getCurrentAnimState())
       {
@@ -2145,23 +2022,23 @@ void LaraObject::updateCheats()
   case WaitTurnL:
     if(getCurrentAnimState() == LaraStateId::TurnLeftSlow || getCurrentAnimState() == LaraStateId::TurnFast)
     {
-      m_cheatTotalRotation += toDegrees(m_state.rotation.Y - m_cheatLastRotation);
+      m_cheatTotalRotation += m_state.rotation.Y - m_cheatLastRotation;
       m_cheatLastRotation = m_state.rotation.Y;
     }
     else
     {
-      m_cheatIdx = m_cheatTotalRotation < -517.5f ? WaitJump : WaitWalkFwd;
+      m_cheatIdx = m_cheatTotalRotation < -517.5_deg ? WaitJump : WaitWalkFwd;
     }
     break;
   case WaitTurnR:
     if(getCurrentAnimState() == LaraStateId::TurnRightSlow || getCurrentAnimState() == LaraStateId::TurnFast)
     {
-      m_cheatTotalRotation += toDegrees(m_state.rotation.Y - m_cheatLastRotation);
+      m_cheatTotalRotation += m_state.rotation.Y - m_cheatLastRotation;
       m_cheatLastRotation = m_state.rotation.Y;
     }
     else
     {
-      m_cheatIdx = m_cheatTotalRotation > 517.5f ? WaitJump : WaitWalkFwd;
+      m_cheatIdx = m_cheatTotalRotation > 517.5_deg ? WaitJump : WaitWalkFwd;
     }
     break;
   case WaitJump:
@@ -2257,7 +2134,7 @@ void LaraObject::updateCheats()
 
 void LaraObject::updateMuzzleFlashLightPosStrength()
 {
-  static constexpr auto Strength = 2.0f * glm::vec4{1.0f, 0.94f, 0.58f, 0.0f};
+  static const auto Strength = 2.0f * glm::vec4{1.0f, 0.94f, 0.58f, 0.0f};
 
   flashLightsBufferData.clear();
 

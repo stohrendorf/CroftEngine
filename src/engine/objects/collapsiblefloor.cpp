@@ -18,7 +18,7 @@
 
 namespace engine::objects
 {
-void CollapsibleFloor::update()
+void CollapsibleFloor::updateLogic()
 {
   if(m_state.current_anim_state == 0_as) // stationary
   {
@@ -39,7 +39,7 @@ void CollapsibleFloor::update()
     m_state.falling = true;
   }
 
-  ModelObject::update();
+  advanceFrame();
 
   if(m_state.triggerState == TriggerState::Deactivated)
   {

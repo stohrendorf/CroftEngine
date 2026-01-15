@@ -58,7 +58,7 @@ SpriteObject::SpriteObject(const std::string& name,
   createModel();
   addChild(gsl_lite::not_null{room->node}, m_objectNode);
   addChild(m_objectNode, m_displayNode);
-  applyTransform();
+  applyLogicTransform();
 }
 
 SpriteObject::SpriteObject(const std::string& name,

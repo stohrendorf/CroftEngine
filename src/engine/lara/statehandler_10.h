@@ -44,7 +44,8 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().zMovement != hid::AxisMovement::Forward)
     {
       return;
     }
@@ -59,7 +60,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+    if(inputHandler.hasAction(hid::Action::Walk))
     {
       setGoalAnimState(LaraStateId::Handstand);
     }

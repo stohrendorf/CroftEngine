@@ -21,7 +21,7 @@ class ProgressBar : public Widget
 public:
   explicit ProgressBar() = default;
   ~ProgressBar() override;
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   void setValue(const float value)

@@ -78,7 +78,7 @@ public:
     return m_objectNode;
   }
 
-  void update() override
+  void updateLogic() override
   {
   }
 

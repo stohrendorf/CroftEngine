@@ -25,8 +25,8 @@ struct MenuRingTransform;
 
 class ResetItemTransformMenuState final : public MenuState
 {
-  static constexpr core::Frame Duration = 16_frame / 2;
-  core::Frame m_duration{Duration};
+  static constexpr core::Tick Duration = 16_tick / 2;
+  core::Tick m_duration{Duration};
   std::unique_ptr<MenuState> m_next;
 
 public:
@@ -37,8 +37,9 @@ public:
   {
   }
 
-  void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  void handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
   void begin(engine::world::World& world) override;
 };
 } // namespace menu

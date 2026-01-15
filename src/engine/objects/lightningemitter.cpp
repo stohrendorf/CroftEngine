@@ -4,6 +4,7 @@
 #include "core/genericvec.h"
 #include "core/magic.h"
 #include "core/units.h"
+#include "engine/engine.h"
 #include "engine/heightinfo.h"
 #include "engine/location.h"
 #include "engine/objectmanager.h"
@@ -152,11 +153,12 @@ LightningEmitter::LightningEmitter(const std::string& name,
   }
 
   init(*world);
+  advanceFrame();
   prepareRender();
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-void LightningEmitter::update()
+void LightningEmitter::updateLogic()
 {
   if(!m_state.updateActivationTimeout())
   {
@@ -168,10 +170,12 @@ void LightningEmitter::update()
 
     deactivate();
     m_state.triggerState = TriggerState::Inactive;
+    advanceFrame();
     prepareRender();
     return;
   }
 
+  advanceFrame();
   prepareRender();
 
   if(--m_chargeTimeout > 0)
@@ -236,14 +240,11 @@ void LightningEmitter::collide(CollisionInfo& /*info*/)
 
   auto& lara = getWorld().getObjectManager().getLara();
   lara.hit_direction = static_cast<core::Axis>(util::rand15(4));
-  lara.hit_frame += 1_frame;
-  if(lara.hit_frame > 34_frame)
-    lara.hit_frame = 34_frame;
+  lara.hit_frame = std::min(lara.hit_frame + 1_frame, core::HitAnimationLastFrame);
 }
 
 void LightningEmitter::prepareRender()
 {
-  ModelObject::update();
   for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
     getSkeleton()->setVisible(i, false);
   getSkeleton()->rebuildMesh();
@@ -271,7 +272,8 @@ void LightningEmitter::prepareRender()
 
 void LightningEmitter::init(world::World& world)
 {
-  std::tie(m_mainBoltMesh, m_mainVb) = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 10);
+  std::tie(m_mainBoltMesh, m_mainVb)
+    = createBolt(world.getEngine().getPresenter().getRenderSystem().getMaterialManager().getLightning(), 10);
   m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
   m_mainBoltNode->setRenderable(m_mainBoltMesh);
   m_mainBoltNode->setVisible(false);
@@ -279,7 +281,8 @@ void LightningEmitter::init(world::World& world)
 
   for(auto& childBolt : m_childBolts)
   {
-    std::tie(childBolt.mesh, childBolt.vb) = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 3);
+    std::tie(childBolt.mesh, childBolt.vb)
+      = createBolt(world.getEngine().getPresenter().getRenderSystem().getMaterialManager().getLightning(), 3);
 
     childBolt.node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     childBolt.node->setRenderable(childBolt.mesh);
@@ -311,6 +314,7 @@ void LightningEmitter::deserialize(const serialization::Deserializer<world::Worl
   ser << [this](const serialization::Deserializer<world::World>& /*ser*/)
   {
     prepareRender();
+    advanceFrame();
   };
 
   getSkeleton()->getRenderState().setScissorTest(false);

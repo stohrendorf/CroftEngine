@@ -18,8 +18,8 @@ template<typename T, typename U, typename TContext>
 std::pair<T, U> create(const TypeId<std::pair<T, U>>&, const Deserializer<TContext>& ser)
 {
   ser.tag("pair");
-  return {access::dispatch<T>(ser.withNode(ser.node["first"])),
-          access::dispatch<U>(ser.withNode(ser.node["second"]))};
+  return {access::dispatchCreate<T>(ser.withNode(ser.node["first"])),
+          access::dispatchCreate<U>(ser.withNode(ser.node["second"]))};
 }
 
 template<typename T, typename U, typename TContext>

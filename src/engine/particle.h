@@ -45,7 +45,9 @@ class Particle
 {
 public:
   Location location;
+  core::TRVec predictedPosition;
   core::TRRotation angle;
+  core::TRRotation predictedAngle;
   core::TypeId object_number;
   core::Speed speed = 0_spd;
   core::Speed fall_speed = 0_spd;
@@ -98,11 +100,12 @@ public:
     m_shade = shade;
   }
 
-  virtual bool update(world::World& world) = 0;
+  virtual bool updateLogic(world::World& world) = 0;
 
   glm::vec3 getPosition() const final;
 
-  void applyTransform();
+  void applyLogicTransform();
+  void interpolateTransform(float interTickFactor);
 
   [[nodiscard]] bool withoutParent() const noexcept
   {
@@ -118,7 +121,7 @@ public:
                                  const core::Angle& angle_,
                                  world::World& world);
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 };
 
 class SplashParticle final : public Particle
@@ -126,7 +129,7 @@ class SplashParticle final : public Particle
 public:
   explicit SplashParticle(const Location& location, world::World& world, bool waterfall);
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 };
 
 class RicochetParticle final : public Particle
@@ -134,7 +137,7 @@ class RicochetParticle final : public Particle
 public:
   explicit RicochetParticle(const Location& location, world::World& world);
 
-  bool update(world::World& /*world*/) override;
+  bool updateLogic(world::World& /*world*/) override;
 };
 
 class BubbleParticle final : public Particle
@@ -145,7 +148,7 @@ public:
                           bool onlyInWater = true,
                           bool instanced = false);
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 
   core::Length circleRadius = 11_len;
 
@@ -158,7 +161,7 @@ class SparkleParticle final : public Particle
 public:
   explicit SparkleParticle(const Location& location, world::World& world);
 
-  bool update(world::World& /*world*/) override;
+  bool updateLogic(world::World& /*world*/) override;
 };
 
 class MuzzleFlashParticle final : public Particle
@@ -166,7 +169,7 @@ class MuzzleFlashParticle final : public Particle
 public:
   explicit MuzzleFlashParticle(const Location& location, world::World& world, const core::Angle& yAngle);
 
-  bool update(world::World& /*world*/) override;
+  bool updateLogic(world::World& /*world*/) override;
 };
 
 class FlameParticle final : public Particle
@@ -174,7 +177,7 @@ class FlameParticle final : public Particle
 public:
   explicit FlameParticle(const Location& location, world::World& world, bool randomize = false);
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 };
 
 class ExplosionParticle final : public Particle
@@ -185,7 +188,7 @@ public:
                              const core::Speed& fallSpeed,
                              const core::TRRotation& angle);
 
-  bool update(world::World& /*world*/) override;
+  bool updateLogic(world::World& /*world*/) override;
 };
 
 class MeshShrapnelParticle final : public Particle
@@ -197,7 +200,7 @@ public:
                                 bool torsoBoss,
                                 const core::Length& damageRadius);
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 
 private:
   core::Length m_damageRadius;
@@ -223,7 +226,7 @@ public:
     aimLaraChest(world);
   }
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 };
 
 class MutantGrenadeParticle final : public MutantAmmoParticle
@@ -237,7 +240,7 @@ public:
     aimLaraChest(world);
   }
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 };
 
 class LavaParticle final : public Particle
@@ -245,7 +248,7 @@ class LavaParticle final : public Particle
 public:
   explicit LavaParticle(const Location& location, world::World& world);
 
-  bool update(world::World& world) override;
+  bool updateLogic(world::World& world) override;
 };
 
 class SmokeParticle final : public Particle
@@ -253,7 +256,7 @@ class SmokeParticle final : public Particle
 public:
   explicit SmokeParticle(const Location& location, world::World& world, const core::TRRotation& rotation);
 
-  bool update(world::World& /*world*/) override;
+  bool updateLogic(world::World& /*world*/) override;
 };
 
 extern gslu::nn_shared<Particle>

@@ -160,14 +160,11 @@ core::Length sin(const core::Length& len, const core::Angle& rot)
   return tmp.cast<core::Length>();
 }
 
-glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
+glm::mat4 lerp(const glm::mat4& a, const glm::mat4& b, const float alpha)
 {
   glm::mat4 result{0.0f};
-  const auto ap = value_ptr(a);
-  const auto bp = value_ptr(b);
-  const auto rp = value_ptr(result);
-  for(int i = 0; i < 16; ++i)
-    rp[i] = ap[i] * (1 - bias) + bp[i] * bias;
+  for(int i = 0; i < 4; ++i)
+    result[i] = a[i] * (1 - alpha) + b[i] * alpha;
   return result;
 }
 

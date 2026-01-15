@@ -7,6 +7,7 @@
 #include "deflateringmenustate.h"
 #include "deselectingmenustate.h"
 #include "donemenustate.h"
+#include "engine/engine.h"
 #include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
@@ -32,7 +33,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SelectedMenuState::tick(engine::world::World& world, MenuDisplay& display)
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   switch(currentObject.type)
@@ -57,11 +58,11 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
     break;
   }
 
-  if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
+  if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.tick())
     return nullptr;
 
   const bool autoSelect = MenuDisplay::doOptions(world, currentObject);
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     if(display.rings.size() > 1 || !display.allowMenuClose)
     {
@@ -73,7 +74,8 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
         DeflateRingMenuState::Direction::Backpack, create<DoneMenuState>(MenuResult::Closed))));
     }
   }
-  else if(autoSelect || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(autoSelect
+          || world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     display.inventoryChosen = currentObject.type;
     if(display.mode == InventoryMode::TitleMode
@@ -115,18 +117,19 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
       create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack, create<DoneMenuState>(result))));
   }
 
-  if(m_itemTitle == nullptr)
-    m_itemTitle = std::make_unique<ui::Text>(currentObject.name);
-  m_itemTitle->draw(
-    ui, world.getPresenter().getTrFont(), {(ui.getSize().x - m_itemTitle->getWidth()) / 2, ui.getSize().y - 16});
-
   return nullptr;
 }
 
-void SelectedMenuState::handleObject(ui::Ui& /*ui*/,
-                                     engine::world::World& /*world*/,
-                                     MenuDisplay& display,
-                                     MenuObject& object)
+void SelectedMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  if(m_itemTitle == nullptr)
+    m_itemTitle = std::make_unique<ui::Text>(display.getCurrentRing().getSelectedObject().name);
+  m_itemTitle->draw(ui,
+                    world.getEngine().getPresenter().getTrFont(),
+                    {(ui.getSize().x - m_itemTitle->getWidth()) / 2, ui.getSize().y - 16});
+}
+
+void SelectedMenuState::handleObjectTick(engine::world::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);

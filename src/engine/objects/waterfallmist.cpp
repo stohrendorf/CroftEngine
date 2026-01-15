@@ -17,7 +17,7 @@
 
 namespace engine::objects
 {
-void WaterfallMist::update()
+void WaterfallMist::updateLogic()
 {
   if(!m_state.activationState.isFullyActivated())
     return;

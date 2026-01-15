@@ -35,7 +35,7 @@ public:
     setColor(gl::SRGB8{51, 51, 204});
   }
 
-  void apply(const world::World& world, const GhostFrame& frame);
+  void apply(world::World& world, const GhostFrame& frame);
 
   [[nodiscard]] const auto& getMeshMatricesBuffer() const
   {

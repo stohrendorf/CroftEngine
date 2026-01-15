@@ -40,7 +40,7 @@
 
 namespace engine::objects
 {
-void FlyingMutant::update()
+void FlyingMutant::updateLogic()
 {
   activateAi();
 
@@ -311,7 +311,7 @@ void FlyingMutant::deserialize(const serialization::Deserializer<world::World>& 
       S_NV("lookingAround", m_lookingAround));
 }
 
-void CentaurMutant::update()
+void CentaurMutant::updateLogic()
 {
   activateAi();
 
@@ -396,7 +396,7 @@ void CentaurMutant::update()
   }
 }
 
-void TorsoBoss::update()
+void TorsoBoss::updateLogic()
 {
   static constexpr auto Think = 1_as;
   static constexpr auto TurnLeft = 2_as;
@@ -571,12 +571,12 @@ void TorsoBoss::update()
   rotateCreatureHead(headRot);
   if(m_state.current_anim_state == Falling)
   {
-    ModelObject::update();
+    advanceFrame();
     if(m_state.location.position.Y > m_state.floor)
     {
       goal(Think);
       settle();
-      getWorld().getCameraController().setBounce(500_len);
+      getWorld().getCameraController().setShake(500_len);
     }
   }
   else

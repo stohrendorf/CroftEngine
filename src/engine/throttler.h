@@ -2,6 +2,7 @@
 
 #include "core/magic.h"
 
+#include <algorithm>
 #include <chrono>
 #include <thread>
 
@@ -11,35 +12,52 @@ class Throttler
 {
 public:
   Throttler()
-      : m_nextFrameTime{std::chrono::high_resolution_clock::now() + FrameDuration}
+      : m_now{std::chrono::high_resolution_clock::now()}
+      , m_nextLogicTick{std::chrono::high_resolution_clock::now()}
   {
+    reset();
   }
 
-  void wait()
+  [[nodiscard]] bool isTimeForLogic() const noexcept
   {
-    // frame rate throttling
-    const auto now = std::chrono::high_resolution_clock::now();
+    return m_isLogicTick;
+  }
 
-    if(const auto wait = std::chrono::duration_cast<TimeType>(m_nextFrameTime - now).count(); wait > 0)
+  void tick()
+  {
+    m_now = std::chrono::high_resolution_clock::now();
+    m_isLogicTick = m_now >= m_nextLogicTick;
+    if(m_isLogicTick)
     {
-      std::this_thread::sleep_until(m_nextFrameTime);
-      m_nextFrameTime += FrameDuration;
+      m_nextLogicTick += LogicTickDuration;
     }
-    else
-    {
-      m_nextFrameTime = now + FrameDuration;
-    }
+
+    const auto elapsed = m_now - (m_nextLogicTick - LogicTickDuration);
+    const auto factor = std::chrono::duration_cast<std::chrono::duration<float>>(elapsed).count()
+                        / std::chrono::duration_cast<std::chrono::duration<float>>(LogicTickDuration).count();
+    m_interTickFactor = std::clamp(factor, 0.0f, 1.0f);
+  }
+
+  [[nodiscard]] float getInterTickFactor() const noexcept
+  {
+    return m_interTickFactor;
   }
 
   void reset() noexcept
   {
-    m_nextFrameTime = std::chrono::high_resolution_clock::now() + FrameDuration;
+    m_now = std::chrono::high_resolution_clock::now();
+    m_nextLogicTick = m_now + LogicTickDuration;
+    m_interTickFactor = 0;
+    m_isLogicTick = true;
   }
 
 private:
   using TimeType = std::chrono::microseconds;
-  static constexpr TimeType FrameDuration = std::chrono::duration_cast<TimeType>(core::TimePerFrame);
+  static constexpr TimeType LogicTickDuration = std::chrono::duration_cast<TimeType>(core::TimePerFrame);
 
-  std::chrono::high_resolution_clock::time_point m_nextFrameTime;
+  std::chrono::high_resolution_clock::time_point m_now;
+  std::chrono::high_resolution_clock::time_point m_nextLogicTick;
+  float m_interTickFactor = 0;
+  bool m_isLogicTick = true;
 };
 } // namespace engine

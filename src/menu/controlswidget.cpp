@@ -194,9 +194,9 @@ void ControlsWidget::setSize(const glm::ivec2& size)
   m_container->setSize(size);
 }
 
-void ControlsWidget::update(const bool hasFocus)
+void ControlsWidget::tick(const bool hasFocus)
 {
-  m_container->update(hasFocus);
+  m_container->tick(hasFocus);
 }
 
 void ControlsWidget::draw(ui::Ui& ui, const engine::Presenter& presenter) const
@@ -282,7 +282,8 @@ void ControlsWidget::updateBindings(
                  std::make_shared<ui::widgets::Label>(
                    /* translators: TR charmap encoding */ _("Controller Type: %1%", mappingConfig.controllerType)));
 
-  auto set = [&mappingConfig, &factory](ui::widgets::GridBox& gridBox, const size_t x0, const size_t y, const hid::Action action)
+  auto set =
+    [&mappingConfig, &factory](ui::widgets::GridBox& gridBox, const size_t x0, const size_t y, const hid::Action action)
   {
     gridBox.set(
       x0, y, std::make_shared<ui::widgets::Label>(hid::getName(action), ui::widgets::Label::Alignment::Right));

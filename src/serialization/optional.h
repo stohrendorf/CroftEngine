@@ -12,7 +12,7 @@ void serialize(const std::optional<T>& optional, const Serializer<TContext>& ser
 {
   if(optional.has_value())
   {
-    access::dispatch(*optional, ser);
+    access::dispatchSerialize(*optional, ser);
   }
   else
   {
@@ -30,9 +30,9 @@ void deserialize(std::optional<T>& optional, const Deserializer<TContext>& ser)
   else
   {
     if(optional.has_value())
-      access::dispatch(*optional, ser);
+      access::dispatchDeserialize(*optional, ser);
     else
-      optional = access::dispatch<T>(ser);
+      optional = access::dispatchCreate<T>(ser);
   }
 }
 
@@ -45,7 +45,7 @@ std::optional<T> create(const TypeId<std::optional<T>>&, const Deserializer<TCon
   }
   else
   {
-    return access::dispatch<T>(ser);
+    return access::dispatchCreate<T>(ser);
   }
 }
 } // namespace serialization

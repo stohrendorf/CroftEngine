@@ -42,9 +42,9 @@ void CheckListBox::setSize(const glm::ivec2& size)
   m_listBox->setSize(size);
 }
 
-void CheckListBox::update(const bool hasFocus)
+void CheckListBox::tick(const bool hasFocus)
 {
-  m_listBox->update(hasFocus);
+  m_listBox->tick(hasFocus);
 }
 
 void CheckListBox::fitToContent()

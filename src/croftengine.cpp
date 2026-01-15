@@ -1,5 +1,6 @@
 #include "cpuinfo_x86.h"
 #include "engine/engine.h"
+#include "engine/levelloopresult.h"
 #include "engine/player.h"
 #include "engine/script/reflection.h"
 #include "engine/script/scriptengine.h"
@@ -174,7 +175,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, c
 
   while(true)
   {
-    std::pair<engine::RunResult, std::optional<size_t>> runResult;
+    std::pair<engine::LevelLoopResult, std::optional<size_t>> runResult;
     switch(mode)
     {
     case Mode::Boot:
@@ -226,32 +227,33 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, c
     switch(mode)
     {
     case Mode::Boot:
-      if(runResult.first == engine::RunResult::ExitGame)
+      if(runResult.first == engine::LevelLoopResult::ExitGame)
         return;
       mode = Mode::Title;
       break;
     case Mode::Title:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitGame:
+      case engine::LevelLoopResult::ExitGame:
         return;
-      case engine::RunResult::NextLevel:
+      case engine::LevelLoopResult::NextLevel:
         levelSequenceIndex = 0;
         mode = Mode::Game;
         levelStartPlayer.reset();
         break;
-      case engine::RunResult::TitleLevel:
+      case engine::LevelLoopResult::TitleLevel:
+        engine.resetGameplayRules();
         mode = Mode::Title;
         break;
-      case engine::RunResult::LaraHomeLevel:
+      case engine::LevelLoopResult::LaraHomeLevel:
         mode = Mode::Gym;
         break;
-      case engine::RunResult::RequestLoad:
+      case engine::LevelLoopResult::RequestLoad:
         processLoadRequest(runResult.second);
         break;
-      case engine::RunResult::RestartLevel:
+      case engine::LevelLoopResult::RestartLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
-      case engine::RunResult::RequestLevel:
+      case engine::LevelLoopResult::RequestLevel:
       {
         gsl_Assert(runResult.second.has_value());
 
@@ -279,30 +281,31 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, c
     case Mode::Gym:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitGame:
+      case engine::LevelLoopResult::ExitGame:
         return;
-      case engine::RunResult::NextLevel:
-      case engine::RunResult::TitleLevel:
+      case engine::LevelLoopResult::NextLevel:
+      case engine::LevelLoopResult::TitleLevel:
+        engine.resetGameplayRules();
         mode = Mode::Title;
         break;
-      case engine::RunResult::LaraHomeLevel:
+      case engine::LevelLoopResult::LaraHomeLevel:
         mode = Mode::Gym;
         break;
-      case engine::RunResult::RequestLoad:
+      case engine::LevelLoopResult::RequestLoad:
         processLoadRequest(runResult.second);
         break;
-      case engine::RunResult::RestartLevel:
+      case engine::LevelLoopResult::RestartLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
-      case engine::RunResult::RequestLevel:
+      case engine::LevelLoopResult::RequestLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level selection request while running title menu"));
       }
       break;
     case Mode::Game:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitGame:
+      case engine::LevelLoopResult::ExitGame:
         return;
-      case engine::RunResult::NextLevel:
+      case engine::LevelLoopResult::NextLevel:
         ++levelSequenceIndex;
         if(levelSequenceIndex >= gameflow.getLevelSequence().size())
         {
@@ -315,20 +318,21 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, c
           player->accumulateStats();
         }
         break;
-      case engine::RunResult::TitleLevel:
+      case engine::LevelLoopResult::TitleLevel:
+        engine.resetGameplayRules();
         mode = Mode::Title;
         break;
-      case engine::RunResult::LaraHomeLevel:
+      case engine::LevelLoopResult::LaraHomeLevel:
         mode = Mode::Gym;
         break;
-      case engine::RunResult::RequestLoad:
+      case engine::LevelLoopResult::RequestLoad:
         processLoadRequest(runResult.second);
         break;
-      case engine::RunResult::RestartLevel:
+      case engine::LevelLoopResult::RestartLevel:
         BOOST_ASSERT(levelStartPlayer != nullptr);
         player = std::make_shared<engine::Player>(*levelStartPlayer);
         break;
-      case engine::RunResult::RequestLevel:
+      case engine::LevelLoopResult::RequestLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level selection request while in game"));
       }
       break;

@@ -1,6 +1,7 @@
 #include "cameracontroller.h"
 
 #include "audio/listener.h"
+#include "audio/soundengine.h"
 #include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/genericvec.h"
@@ -8,6 +9,7 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "engine.h"
 #include "engine/floordata/floordata.h"
 #include "engine/floordata/types.h"
 #include "engine/heightinfo.h"
@@ -52,31 +54,31 @@ namespace engine
 {
 namespace
 {
-void freeLookClamp(core::Length& goalX,
-                   core::Length& goalY,
-                   const core::Length& startX,
-                   const core::Length& startY,
-                   const core::Length& minX,
-                   const core::Length& minY,
-                   const core::Length& maxX,
-                   const core::Length& maxY) noexcept
+void freeLookClamp(core::Length& targetA,
+                   core::Length& targetB,
+                   const core::Length& pivotA,
+                   const core::Length& pivotB,
+                   const core::Length& minA,
+                   const core::Length& minB,
+                   const core::Length& maxA,
+                   const core::Length& maxB) noexcept
 {
-  const auto dx = goalX - startX;
-  const auto dy = goalY - startY;
+  const auto da = targetA - pivotA;
+  const auto db = targetB - pivotB;
   // ReSharper disable once CppRedundantParentheses
-  if((minX < maxX) != (startX < minX))
+  if((minA < maxA) != (pivotA < minA))
   {
-    goalY = startY + dy * (minX - startX) / dx;
-    goalX = minX;
+    targetB = pivotB + db * (minA - pivotA) / da;
+    targetA = minA;
   }
-  if((goalY < minY && minY < std::min(maxY, startY)) || (goalY > minY && minY > std::max(maxY, startY)))
+  if((targetB < minB && minB < std::min(maxB, pivotB)) || (targetB > minB && minB > std::max(maxB, pivotB)))
   {
-    goalX = startX + dx * (minY - startY) / dy;
-    goalY = minY;
+    targetA = pivotA + da * (minB - pivotB) / db;
+    targetB = minB;
   }
 }
 
-bool isVerticallyOutsideRoom(Location location, const ObjectManager& objectManager)
+bool isCollidingWithFloorOrCeiling(Location location, const ObjectManager& objectManager)
 {
   const auto sector = location.updateRoom();
   const auto floor = HeightInfo::fromFloor(sector, location.position, objectManager.getObjects()).y;
@@ -85,80 +87,80 @@ bool isVerticallyOutsideRoom(Location location, const ObjectManager& objectManag
 }
 
 void clampToCorners(const core::Area& targetHorizontalDistanceSq,
-                    core::Length& x,
-                    core::Length& y,
-                    const core::Length& targetX,
-                    const core::Length& targetY,
-                    const core::Length& minX,
-                    const core::Length& minY,
-                    const core::Length& maxX,
-                    const core::Length& maxY)
+                    core::Length& posA,
+                    core::Length& posB,
+                    const core::Length& pivotA,
+                    const core::Length& pivotB,
+                    const core::Length& minA,
+                    const core::Length& minB,
+                    const core::Length& maxA,
+                    const core::Length& maxB)
 {
-  const auto dxSqMinX = util::square(targetX - minX);
-  const auto dySqMinY = util::square(targetY - minY);
+  const auto daSqMinA = util::square(pivotA - minA);
+  const auto dbSqMinB = util::square(pivotB - minB);
 
-  if(const auto dxySqMin = dxSqMinX + dySqMinY; dxySqMin > targetHorizontalDistanceSq)
+  if(const auto dabSqMin = daSqMinA + dbSqMinB; dabSqMin > targetHorizontalDistanceSq)
   {
-    x = minX;
-    if(const auto delta = targetHorizontalDistanceSq - dxSqMinX; delta >= util::square(0_len))
+    posA = minA;
+    if(const auto delta = targetHorizontalDistanceSq - daSqMinA; delta >= util::square(0_len))
     {
       auto tmp = sqrt(delta);
-      if(minY < maxY)
+      if(minB < maxB)
         tmp = -tmp;
-      y = tmp + targetY;
+      posB = tmp + pivotB;
     }
     return;
   }
-  else if(dxySqMin > util::square(core::QuarterSectorSize))
+  else if(dabSqMin > util::square(core::QuarterSectorSize))
   {
-    x = minX;
-    y = minY;
+    posA = minA;
+    posB = minB;
     return;
   }
 
-  if(const auto dxySqMinXMaxY = dxSqMinX + util::square(targetY - maxY); dxySqMinXMaxY > targetHorizontalDistanceSq)
+  if(const auto dabSqMinAMaxB = daSqMinA + util::square(pivotB - maxB); dabSqMinAMaxB > targetHorizontalDistanceSq)
   {
-    x = minX;
-    if(const auto delta = targetHorizontalDistanceSq - dxSqMinX; delta >= util::square(0_len))
+    posA = minA;
+    if(const auto delta = targetHorizontalDistanceSq - daSqMinA; delta >= util::square(0_len))
     {
       auto tmp = sqrt(delta);
-      if(minY >= maxY)
+      if(minB >= maxB)
         tmp = -tmp;
-      y = tmp + targetY;
+      posB = tmp + pivotB;
     }
     return;
   }
-  else if(dxySqMinXMaxY > util::square(core::QuarterSectorSize))
+  else if(dabSqMinAMaxB > util::square(core::QuarterSectorSize))
   {
-    x = minX;
-    y = maxY;
+    posA = minA;
+    posB = maxB;
     return;
   }
 
-  if(const auto dxySqMaxXMinY = util::square(targetX - maxX) + dySqMinY; targetHorizontalDistanceSq >= dxySqMaxXMinY)
+  if(const auto dabSqMaxAMinB = util::square(pivotA - maxA) + dbSqMinB; targetHorizontalDistanceSq >= dabSqMaxAMinB)
   {
-    x = maxX;
-    y = minY;
+    posA = maxA;
+    posB = minB;
     return;
   }
-  if(const auto delta = targetHorizontalDistanceSq - dySqMinY; delta >= util::square(0_len))
+  if(const auto delta = targetHorizontalDistanceSq - dbSqMinB; delta >= util::square(0_len))
   {
-    y = minY;
+    posB = minB;
     auto tmp = sqrt(delta);
-    if(minX >= maxX)
+    if(minA >= maxA)
       tmp = -tmp;
-    x = tmp + targetX;
+    posA = tmp + pivotA;
   }
 }
 
-using ClampCallback = void(core::Length& goalX,
-                           core::Length& goalY,
-                           const core::Length& startX,
-                           const core::Length& startY,
-                           const core::Length& minX,
-                           const core::Length& minY,
-                           const core::Length& maxX,
-                           const core::Length& maxY);
+using ClampCallback = void(core::Length& posA,
+                           core::Length& posB,
+                           const core::Length& pivotA,
+                           const core::Length& pivotB,
+                           const core::Length& minA,
+                           const core::Length& minB,
+                           const core::Length& maxA,
+                           const core::Length& maxB);
 
 Location clampBox(const Location& start,
                   const core::TRVec& goal,
@@ -194,7 +196,7 @@ Location clampBox(const Location& start,
 
   const auto testPosInvalid = [&testPos, &result, &objectManager]
   {
-    return isVerticallyOutsideRoom(Location{result.room, testPos}, objectManager);
+    return isCollidingWithFloorOrCeiling(Location{result.room, testPos}, objectManager);
   };
 
   alignNeg(testPos.Z);
@@ -286,11 +288,13 @@ Location clampBox(const Location& start,
 
 CameraController::CameraController(const gsl_lite::not_null<world::World*>& world,
                                    gslu::nn_shared<render::scene::Camera> camera)
-    : Listener{gsl_lite::not_null{world->getPresenter().getSoundEngine().get()}}
+    : Listener{gsl_lite::not_null{world->getEngine().getPresenter().getSoundEngine().get().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
     , m_location{world->getObjectManager().getLara().m_state.location}
+    , m_previousLocation{world->getObjectManager().getLara().m_state.location}
     , m_lookAt{world->getObjectManager().getLara().m_state.location}
+    , m_previousLookAt{world->getObjectManager().getLara().m_state.location}
 {
   const auto yOffset = world->getObjectManager().getLara().m_state.location.position.Y - 1_sectors;
   m_lookAt.position.Y -= yOffset;
@@ -337,14 +341,14 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
     return;
 
   if(camParams.timeout != 1_sec)
-    m_camOverrideTimeout = camParams.timeout * core::FrameRate;
+    m_overrideTimeout = camParams.timeout * core::FrameRate;
   else
-    m_camOverrideTimeout = 1_frame;
+    m_overrideTimeout = 1_frame;
 
   if(camParams.oneshot)
     m_world->getCameraSinks()[camId].setActive(true);
 
-  m_smoothness = 1_frame + gsl_lite::narrow_cast<core::Frame::type>(camParams.smoothness) * 4_frame;
+  m_smoothingFactor = 1_frame + gsl_lite::narrow_cast<core::Frame::type>(camParams.smoothness) * 4_frame;
   if(fromHeavy)
     m_mode = CameraMode::HeavyFixedPosition;
   else
@@ -384,7 +388,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
       else
       {
         m_fixedCameraId = m_currentFixedCameraId;
-        if(m_camOverrideTimeout >= 0_frame && m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat)
+        if(m_overrideTimeout >= 0_frame && m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat)
         {
           type = Type::FixedCamChange;
           m_mode = CameraMode::FixedPosition;
@@ -392,7 +396,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
         else
         {
           type = Type::Invalid;
-          m_camOverrideTimeout = -1_frame;
+          m_overrideTimeout = -1_frame;
         }
       }
     }
@@ -411,7 +415,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
     m_lookAtObject = nullptr;
 }
 
-std::unordered_set<const world::Portal*> CameraController::tracePortals() const
+std::unordered_set<const world::Portal*> CameraController::traceWaterSurfacePortals() const
 {
   for(const auto& room : m_world->getRooms())
   {
@@ -422,37 +426,36 @@ std::unordered_set<const world::Portal*> CameraController::tracePortals() const
   return render::PortalTracer::trace(*m_location.room, *m_world);
 }
 
-std::unordered_set<const world::Portal*> CameraController::update()
+void CameraController::updateGameLogic(const bool inGameCamera)
 {
+  m_previousLocation = m_location;
+  m_previousLookAt = m_lookAt;
+
   m_rotationAroundLara.X = std::clamp(m_rotationAroundLara.X, -85_deg, +85_deg);
 
   if(m_mode == CameraMode::Cinematic)
   {
-    m_cinematicFrame
-      = std::min(m_cinematicFrame + 1_frame,
-                 core::Frame{gsl_lite::narrow_cast<core::Frame::type>(m_world->getCinematicFrames().size() - 1)});
-
-    updateCinematic(m_world->getCinematicFrames()[gsl_lite::narrow_cast<size_t>(m_cinematicFrame.get())], true);
-    return tracePortals();
+    tickCinematic(m_world->getCinematicFrames(), inGameCamera);
+    return;
   }
 
   if(m_modifier != CameraModifier::AllowSteepSlants)
     HeightInfo::skipSteepSlants = true;
 
-  const bool isCompletelyFixed
+  const bool isInFixedMode
     = m_lookAtObject != nullptr && (m_mode == CameraMode::FixedPosition || m_mode == CameraMode::HeavyFixedPosition);
 
   // if we have a fixed position, we also have an object we're looking at
   const auto focusedObject
-    = gsl_lite::not_null{isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara()};
+    = gsl_lite::not_null{isInFixedMode ? m_lookAtObject.get() : &m_world->getObjectManager().getLara()};
   auto focusBBox = focusedObject->getBoundingBox();
-  auto focusY = focusedObject->m_state.location.position.Y;
-  if(isCompletelyFixed)
-    focusY += focusBBox.y.mid();
+  auto lookAtHeight = focusedObject->m_state.location.position.Y;
+  if(isInFixedMode)
+    lookAtHeight += focusBBox.y.mid();
   else
-    focusY += focusBBox.y.max - focusBBox.y.size() * 3 / 4;
+    lookAtHeight += focusBBox.y.max - focusBBox.y.size() * 3 / 4;
 
-  if(m_lookAtObject != nullptr && !isCompletelyFixed)
+  if(m_lookAtObject != nullptr && !isInFixedMode)
   {
     // lara moves around and looks at some object, some sort of involuntary free look;
     // in this case, we have an object to look at, but the camera is _not_ fixed
@@ -466,7 +469,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
     eyeRotY /= 2;
     focusBBox = m_lookAtObject->getBoundingBox();
     auto eyeRotX
-      = angleFromAtan(focusY - (focusBBox.y.mid() + m_lookAtObject->m_state.location.position.Y), distToFocused);
+      = angleFromAtan(lookAtHeight - (focusBBox.y.mid() + m_lookAtObject->m_state.location.position.Y), distToFocused);
     eyeRotX /= 2;
 
     if(abs(eyeRotY) < 50_deg && abs(eyeRotX) < 85_deg)
@@ -488,21 +491,21 @@ std::unordered_set<const world::Portal*> CameraController::update()
   m_lookAt.room = focusedObject->m_state.location.room;
   if(m_mode == CameraMode::FreeLook || m_mode == CameraMode::Combat)
   {
-    focusY -= core::QuarterSectorSize;
-    if(m_isCompletelyFixed)
+    lookAtHeight -= core::QuarterSectorSize;
+    if(m_wasFixedMode)
     {
-      m_lookAt.position.Y = focusY;
-      m_smoothness = 1_frame;
+      m_lookAt.position.Y = lookAtHeight;
+      m_smoothingFactor = 1_frame;
     }
     else
     {
-      m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4;
+      m_lookAt.position.Y += (lookAtHeight - m_lookAt.position.Y) / 4;
       if(m_mode == CameraMode::FreeLook)
-        m_smoothness = 4_frame;
+        m_smoothingFactor = 4_frame;
       else
-        m_smoothness = 8_frame;
+        m_smoothingFactor = 8_frame;
     }
-    m_isCompletelyFixed = false;
+    m_wasFixedMode = false;
     if(m_mode == CameraMode::FreeLook)
       handleFreeLook();
     else
@@ -519,17 +522,17 @@ std::unordered_set<const world::Portal*> CameraController::update()
       m_lookAt.position += util::pitch(midZ, focusedObject->m_state.rotation.Y);
     }
 
-    if(m_isCompletelyFixed == isCompletelyFixed)
+    if(m_wasFixedMode == isInFixedMode)
     {
-      m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4;
-      m_isCompletelyFixed = false;
+      m_lookAt.position.Y += (lookAtHeight - m_lookAt.position.Y) / 4;
+      m_wasFixedMode = false;
     }
     else
     {
       // switching between fixed cameras, so we're not doing any smoothing
-      m_smoothness = 1_frame;
-      m_lookAt.position.Y = focusY;
-      m_isCompletelyFixed = true;
+      m_smoothingFactor = 1_frame;
+      m_lookAt.position.Y = lookAtHeight;
+      m_wasFixedMode = true;
     }
 
     m_lookAt.room = focusedObject->m_state.location.room;
@@ -544,9 +547,9 @@ std::unordered_set<const world::Portal*> CameraController::update()
       handleFixedCamera();
   }
 
-  m_isCompletelyFixed = isCompletelyFixed;
+  m_wasFixedMode = isInFixedMode;
   m_currentFixedCameraId = m_fixedCameraId;
-  if(m_mode != CameraMode::HeavyFixedPosition || m_camOverrideTimeout < 0_frame)
+  if(m_mode != CameraMode::HeavyFixedPosition || m_overrideTimeout < 0_frame)
   {
     m_modifier = CameraModifier::None;
     m_mode = CameraMode::Chase;
@@ -556,8 +559,6 @@ std::unordered_set<const world::Portal*> CameraController::update()
     m_fixedCameraId = -1;
   }
   HeightInfo::skipSteepSlants = false;
-
-  return tracePortals();
 }
 
 void CameraController::handleFixedCamera()
@@ -568,21 +569,21 @@ void CameraController::handleFixedCamera()
   auto [success, goal] = raycastLineOfSight(m_lookAt, camera.position, m_world->getObjectManager());
   if(!success)
   {
-    moveIntoBox(goal, core::QuarterSectorSize);
+    clampToVerticalBounds(goal, core::QuarterSectorSize);
   }
 
-  m_isCompletelyFixed = true;
-  updatePosition(goal, m_smoothness);
+  m_wasFixedMode = true;
+  updatePosition(goal, m_smoothingFactor);
 
-  if(m_camOverrideTimeout != 0_frame)
+  if(m_overrideTimeout != 0_frame)
   {
-    m_camOverrideTimeout -= 1_frame;
-    if(m_camOverrideTimeout == 0_frame)
-      m_camOverrideTimeout = -1_frame;
+    m_overrideTimeout -= 1_frame;
+    if(m_overrideTimeout == 0_frame)
+      m_overrideTimeout = -1_frame;
   }
 }
 
-core::Length CameraController::moveIntoBox(Location& goal, const core::Length& margin) const
+core::Length CameraController::clampToVerticalBounds(Location& goal, const core::Length& margin) const
 {
   const auto sector = goal.updateRoom();
   if(sector->box == nullptr)
@@ -594,12 +595,12 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   {
     if(const auto narrowed = sector->box->zInterval.narrowed(margin);
        goal.position.Z < narrowed.min
-       && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
+       && isCollidingWithFloorOrCeiling(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
     {
       goal.position.Z = narrowed.min;
     }
     else if(goal.position.Z > narrowed.max
-            && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, margin), m_world->getObjectManager()))
+            && isCollidingWithFloorOrCeiling(goal.moved(0_len, 0_len, margin), m_world->getObjectManager()))
     {
       goal.position.Z = narrowed.max;
     }
@@ -608,12 +609,12 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   {
     if(const auto narrowed = sector->box->xInterval.narrowed(margin);
        goal.position.X < narrowed.min
-       && isVerticallyOutsideRoom(goal.moved(-margin, 0_len, 0_len), m_world->getObjectManager()))
+       && isCollidingWithFloorOrCeiling(goal.moved(-margin, 0_len, 0_len), m_world->getObjectManager()))
     {
       goal.position.X = narrowed.min;
     }
     else if(goal.position.X > narrowed.max
-            && isVerticallyOutsideRoom(goal.moved(margin, 0_len, 0_len), m_world->getObjectManager()))
+            && isCollidingWithFloorOrCeiling(goal.moved(margin, 0_len, 0_len), m_world->getObjectManager()))
     {
       goal.position.X = narrowed.max;
     }
@@ -632,9 +633,9 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
     return 0_len;
 }
 
-void CameraController::updatePosition(const Location& goal, const core::Frame& smoothFactor)
+void CameraController::updatePosition(const Location& goal, const core::Frame& smoothingFactor)
 {
-  m_location.position += (goal.position - m_location.position) / smoothFactor * 1_frame;
+  m_location.position += (goal.position - m_location.position) / smoothingFactor * 1_frame;
   m_location.room = goal.room;
   HeightInfo::skipSteepSlants = false;
   auto sector = m_location.updateRoom();
@@ -655,18 +656,19 @@ void CameraController::updatePosition(const Location& goal, const core::Frame& s
     floor = ceiling = (floor + ceiling) / 2;
   }
 
-  if(m_bounce < 0_len)
+  if(m_shakeAmplitude < 0_len)
   {
-    const core::TRVec tmp{util::rand15s(m_bounce), util::rand15s(m_bounce), util::rand15s(m_bounce)};
+    const core::TRVec tmp{
+      util::rand15s(m_shakeAmplitude), util::rand15s(m_shakeAmplitude), util::rand15s(m_shakeAmplitude)};
     m_location.position += tmp;
     m_lookAt.position += tmp;
-    m_bounce += 5_len;
+    m_shakeAmplitude += 5_len;
   }
-  else if(m_bounce > 0_len)
+  else if(m_shakeAmplitude > 0_len)
   {
-    m_location.position.Y += m_bounce;
-    m_lookAt.position.Y += m_bounce;
-    m_bounce = 0_len;
+    m_location.position.Y += m_shakeAmplitude;
+    m_lookAt.position.Y += m_shakeAmplitude;
+    m_shakeAmplitude = 0_len;
   }
 
   if(m_location.position.Y > floor)
@@ -675,13 +677,6 @@ void CameraController::updatePosition(const Location& goal, const core::Frame& s
     m_location.position.Y = ceiling;
 
   m_location.updateRoom();
-
-  if(m_location.position.X != m_lookAt.position.X || m_location.position.Z != m_lookAt.position.Z)
-  {
-    // only apply lookAt if we won't get NaN values because of parallel up and look axes
-    const auto m = lookAt(m_location.position.toRenderSystem(), m_lookAt.position.toRenderSystem(), {0, 1, 0});
-    m_camera->setViewMatrix(m);
-  }
 }
 
 void CameraController::chaseObject(const objects::Object& object)
@@ -711,7 +706,7 @@ void CameraController::chaseObject(const objects::Object& object)
     },
     m_world->getObjectManager());
 
-  updatePosition(goal, m_isCompletelyFixed ? m_smoothness : 12_frame);
+  updatePosition(goal, m_wasFixedMode ? m_smoothingFactor : 12_frame);
 }
 
 void CameraController::handleFreeLook()
@@ -727,12 +722,12 @@ void CameraController::handleFreeLook()
   m_distance = core::DefaultCameraLaraDistance;
   m_lookAt.position += util::pitch(util::sin(-1_sectors / 2, m_rotationAroundLara.X), lara.m_state.rotation.Y);
 
-  if(isVerticallyOutsideRoom(m_lookAt, m_world->getObjectManager()))
+  if(isCollidingWithFloorOrCeiling(m_lookAt, m_world->getObjectManager()))
   {
     m_lookAt.position.X = lara.m_state.location.position.X;
     m_lookAt.position.Z = lara.m_state.location.position.Z;
   }
-  m_lookAt.position.Y += moveIntoBox(m_lookAt, core::CameraWallDistance);
+  m_lookAt.position.Y += clampToVerticalBounds(m_lookAt, core::CameraWallDistance);
 
   const auto goal = clampBox(m_lookAt,
                              m_lookAt.position
@@ -742,10 +737,10 @@ void CameraController::handleFreeLook()
                              &freeLookClamp,
                              m_world->getObjectManager());
 
-  m_lookAt.position.X = originalLookAt.X + (m_lookAt.position.X - originalLookAt.X) / m_smoothness * 1_frame;
-  m_lookAt.position.Z = originalLookAt.Z + (m_lookAt.position.Z - originalLookAt.Z) / m_smoothness * 1_frame;
+  m_lookAt.position.X = originalLookAt.X + (m_lookAt.position.X - originalLookAt.X) / m_smoothingFactor * 1_frame;
+  m_lookAt.position.Z = originalLookAt.Z + (m_lookAt.position.Z - originalLookAt.Z) / m_smoothingFactor * 1_frame;
 
-  updatePosition(goal, m_smoothness);
+  updatePosition(goal, m_smoothingFactor);
 }
 
 void CameraController::handleEnemy()
@@ -782,29 +777,48 @@ void CameraController::handleEnemy()
       clampToCorners(distSq, a, b, c, d, e, f, g, h);
     },
     m_world->getObjectManager());
-  updatePosition(eye, m_smoothness);
+  updatePosition(eye, m_smoothingFactor);
 }
 
-std::unordered_set<const world::Portal*> CameraController::updateCinematic(const world::CinematicFrame& frame,
-                                                                           const bool ingame)
+bool CameraController::tickCinematic(const std::vector<world::CinematicFrame>& frames, const bool inGameCamera)
 {
-  const core::TRVec basePos = ingame ? m_cinematicPos : m_location.position;
-  const auto yRotOffset = ingame ? m_cinematicRot.Y : 0_deg;
-  const core::TRVec newLookAt = basePos + util::pitch(frame.lookAt, m_eyeRotation.Y + yRotOffset);
-  const core::TRVec newPos = basePos + util::pitch(frame.position, m_eyeRotation.Y + yRotOffset);
+  if(m_cinematicFrame.get<size_t>() >= frames.size() - 1)
+    return false;
 
-  if(ingame)
+  m_cinematicFrame += 1_frame;
+
+  const auto& frame = frames[m_cinematicFrame.get<size_t>()];
+
+  m_previousLookAt = m_lookAt;
+  if(inGameCamera)
+    m_lookAt.position = m_cinematicPos + util::pitch(frame.lookAt, m_cinematicBaseRotation.Y + m_cinematicRot.Y);
+  else
+    m_lookAt.position = m_cinematicPos + util::pitch(frame.lookAt, m_cinematicBaseRotation.Y);
+  m_lookAt.updateRoom();
+
+  m_previousLocation = m_location;
+  if(inGameCamera)
+    m_location.position = m_cinematicPos + util::pitch(frame.position, m_cinematicBaseRotation.Y + m_cinematicRot.Y);
+  else
+    m_location.position = m_cinematicPos + util::pitch(frame.position, m_cinematicBaseRotation.Y);
+  m_location.updateRoom();
+
+  m_previousCinematicRoll = std::exchange(m_cinematicRoll, frame.rotZ);
+  m_previousCinematicFov = std::exchange(m_cinematicFov, frame.fov);
+
+  if(m_cinematicFrame == 1_frame)
   {
-    m_lookAt.position = newLookAt;
-    m_location.position = newPos;
-    m_location.updateRoom();
+    m_previousLookAt = m_lookAt;
+    m_previousLocation = m_location;
+    m_previousCinematicRoll = m_cinematicRoll;
+    m_previousCinematicFov = m_cinematicFov;
   }
 
-  auto m = lookAt(newPos.toRenderSystem(), newLookAt.toRenderSystem(), {0, 1, 0});
-  m = rotate(m, frame.rotZ, -glm::vec3{m[2]});
-  m_camera->setViewMatrix(m);
-  m_camera->setFieldOfView(frame.fov);
+  return true;
+}
 
+std::unordered_set<const world::Portal*> CameraController::getWaterEntryPortals() const
+{
   // portal tracing doesn't work here because we always render each room.
   // assuming "sane" room layout here without overlapping rooms.
   std::unordered_set<const world::Portal*> result;
@@ -825,11 +839,13 @@ std::unordered_set<const world::Portal*> CameraController::updateCinematic(const
 CameraController::CameraController(const gsl_lite::not_null<world::World*>& world,
                                    gslu::nn_shared<render::scene::Camera> camera,
                                    bool /*noLaraTag*/)
-    : Listener{gsl_lite::not_null{world->getPresenter().getSoundEngine().get()}}
+    : Listener{gsl_lite::not_null{world->getEngine().getPresenter().getSoundEngine().get().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
     , m_location{gsl_lite::not_null{world->getRooms().data()}}
+    , m_previousLocation{gsl_lite::not_null{world->getRooms().data()}}
     , m_lookAt{gsl_lite::not_null{world->getRooms().data()}}
+    , m_previousLookAt{gsl_lite::not_null{world->getRooms().data()}}
 {
 }
 
@@ -839,17 +855,17 @@ void CameraController::serialize(const serialization::Serializer<world::World>& 
       S_NV("lookAt", m_lookAt),
       S_NV("mode", m_mode),
       S_NV("modifier", m_modifier),
-      S_NV("completelyFixed", m_isCompletelyFixed),
+      S_NV("wasFixedMode", m_wasFixedMode),
       S_NV("lookAtObject", serialization::ObjectReference{std::cref(m_lookAtObject)}),
       S_NV("previousLookAtObject", serialization::ObjectReference{std::cref(m_previousLookAtObject)}),
-      S_NV("bounce", m_bounce),
+      S_NV("shakeAmplitude", m_shakeAmplitude),
       S_NV("distance", m_distance),
-      S_NV("eyeRotation", m_eyeRotation),
+      S_NV("cinematicBaseRotation", m_cinematicBaseRotation),
       S_NV("rotationAroundLara", m_rotationAroundLara),
-      S_NV("smoothness", m_smoothness),
+      S_NV("smoothingFactor", m_smoothingFactor),
       S_NV("fixedCameraId", m_fixedCameraId),
       S_NV("currentFixedCameraId", m_currentFixedCameraId),
-      S_NV("camOverrideTimeout", m_camOverrideTimeout),
+      S_NV("overrideTimeout", m_overrideTimeout),
       S_NV("cinematicFrame", m_cinematicFrame),
       S_NV("cinematicPos", m_cinematicPos),
       S_NV("cinematicRot", m_cinematicRot));
@@ -857,24 +873,33 @@ void CameraController::serialize(const serialization::Serializer<world::World>& 
 
 void CameraController::deserialize(const serialization::Deserializer<world::World>& ser)
 {
+  // TODO CE-378 remove member name migration
   ser(S_NV("location", m_location),
       S_NV("lookAt", m_lookAt),
       S_NV("mode", m_mode),
       S_NV("modifier", m_modifier),
-      S_NV("completelyFixed", m_isCompletelyFixed),
+      S_ANV("wasFixedMode", "completelyFixed", m_wasFixedMode),
       S_NV("lookAtObject", serialization::ObjectReference{std::ref(m_lookAtObject)}),
       S_NV("previousLookAtObject", serialization::ObjectReference{std::ref(m_previousLookAtObject)}),
-      S_NV("bounce", m_bounce),
+      S_ANV("shakeAmplitude", "bounce", m_shakeAmplitude),
       S_NV("distance", m_distance),
-      S_NV("eyeRotation", m_eyeRotation),
+      S_ANV("cinematicBaseRotation", "eyeRotation", m_cinematicBaseRotation),
       S_NV("rotationAroundLara", m_rotationAroundLara),
-      S_NV("smoothness", m_smoothness),
+      S_ANV("smoothingFactor", "smoothness", m_smoothingFactor),
       S_NV("fixedCameraId", m_fixedCameraId),
       S_NV("currentFixedCameraId", m_currentFixedCameraId),
-      S_NV("camOverrideTimeout", m_camOverrideTimeout),
+      S_ANV("overrideTimeout", "camOverrideTimeout", m_overrideTimeout),
       S_NV("cinematicFrame", m_cinematicFrame),
       S_NV("cinematicPos", m_cinematicPos),
       S_NV("cinematicRot", m_cinematicRot));
+}
+
+void CameraController::startCinematic(const core::TRVec& pos, const core::TRRotation& rot)
+{
+  m_mode = CameraMode::Cinematic;
+  m_cinematicFrame = 0_frame;
+  m_cinematicPos = pos;
+  m_cinematicRot = rot;
 }
 
 glm::vec3 CameraController::getPosition() const
@@ -890,5 +915,45 @@ glm::vec3 CameraController::getFrontVector() const
 glm::vec3 CameraController::getUpVector() const
 {
   return m_camera->getUpVector();
+}
+
+void CameraController::interpolateCameraTransform(const float interTickFactor)
+{
+  std::optional<core::Radians> roll{};
+  core::Radians fov{};
+
+  if(m_mode == CameraMode::Cinematic)
+  {
+    roll = lerp(m_previousCinematicRoll, m_cinematicRoll, interTickFactor);
+    fov = lerp(m_previousCinematicFov, m_cinematicFov, interTickFactor);
+  }
+  else
+  {
+    fov = m_camera->getFieldOfViewY();
+  }
+
+  fixCameraJumpInterpolation();
+
+  auto m = lookAt(
+    glm::mix(m_previousLocation.position.toRenderSystem(), m_location.position.toRenderSystem(), interTickFactor),
+    glm::mix(m_previousLookAt.position.toRenderSystem(), m_lookAt.position.toRenderSystem(), interTickFactor),
+    core::RenderAxisUp);
+  if(roll.has_value())
+  {
+    m = rotate(m, roll.value().get<float>(), -glm::vec3{m[2]});
+  }
+  m_camera->setViewMatrix(m);
+  m_camera->setFieldOfView(fov);
+}
+
+void CameraController::fixCameraJumpInterpolation()
+{
+  static constexpr auto JumpThreshold = 256_len;
+  if(length(m_location.position - m_previousLocation.position) >= JumpThreshold
+     || length(m_lookAt.position - m_previousLookAt.position) >= JumpThreshold)
+  {
+    m_previousLocation.position = m_location.position;
+    m_previousLookAt.position = m_lookAt.position;
+  }
 }
 } // namespace engine

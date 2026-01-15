@@ -45,7 +45,7 @@ public:
     m_state.current_anim_state = 3_as;
   }
 
-  void update() override;
+  void updateLogic() override;
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;

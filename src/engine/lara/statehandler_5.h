@@ -22,8 +22,7 @@ public:
   {
     setGoalAnimState(LaraStateId::Stop);
 
-    switch(const auto& inputHandler = getWorld().getPresenter().getInputHandler();
-           inputHandler.getInputState().xMovement)
+    switch(getWorld().getPresenter().getInputHandler().getInputState().xMovement)
     {
     case hid::AxisMovement::Right:
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::RunBackTurnSpeed);

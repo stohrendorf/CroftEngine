@@ -72,8 +72,9 @@ BOOST_AUTO_TEST_CASE(test_string_empty_null_missing)
   };
 
   test_deserialization("config:\n  val: ''", "");
-  test_deserialization("config:\n  val: ~", "");
-  test_deserialization("config:\n  val: null", "");
+  test_deserialization("config:\n  val: ~", "~");
+  test_deserialization("config:\n  val: null", "null");
+  test_deserialization("config:\n  val: !!null ~", "");
 }
 
 BOOST_AUTO_TEST_CASE(test_is_null_logic)
@@ -97,10 +98,10 @@ BOOST_AUTO_TEST_CASE(test_is_null_logic)
                         "YAML val: \"" << yaml << "\", Expected isNull: " << expected << ", Got: " << result);
   };
 
-  check_is_null("~", true);
-  check_is_null("null", true);
-  check_is_null("!!null", true);
-  check_is_null("", true); // Empty value
+  check_is_null("~", false);
+  check_is_null("null", false);
+  check_is_null("!!null ~", true);
+  check_is_null("", false);
   check_is_null("''", false);
   check_is_null("\"\"", false);
   check_is_null("{}", false);

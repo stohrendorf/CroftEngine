@@ -46,6 +46,6 @@ public:
 
   void collide(CollisionInfo& info) override;
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

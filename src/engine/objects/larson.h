@@ -21,6 +21,6 @@ class Larson final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(Larson)
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

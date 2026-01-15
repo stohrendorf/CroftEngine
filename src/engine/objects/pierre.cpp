@@ -30,7 +30,7 @@
 
 namespace engine::objects
 {
-void Pierre::update()
+void Pierre::updateLogic()
 {
   if(getWorld().getPierre() == nullptr)
   {

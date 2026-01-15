@@ -7,7 +7,6 @@
 #include <boost/algorithm/string/replace.hpp> // IWYU pragma: keep
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
-#include <c4/substr.hpp>
 #include <concepts>
 #include <cstdint>
 #include <functional>
@@ -21,6 +20,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 
 // #define SERIALIZATION_TRACE
 
@@ -117,6 +117,7 @@ private:
 
     gsl_Ensures(node.is_map());
   }
+
 #ifdef SERIALIZATION_TRACE
   std::string getQualifiedKey() const
   {
@@ -138,6 +139,15 @@ private:
     return result;
   }
 #endif
+
+  [[nodiscard]]
+  bool hasChild(const std::string_view& name) const requires(Loading)
+  {
+    ensureIsMap();
+    auto childNode = node.find_child(c4::csubstr(name.data(), name.size()));
+    return childNode.readable() && childNode.type() != ryml::NOTYPE;
+  }
+
   std::optional<BaseSerializer> createMapMemberSerializer(const std::string_view& name, const bool required) const
   {
     ensureIsMap();
@@ -177,7 +187,10 @@ private:
   {
     try
     {
-      access::dispatch(data, ser);
+      if constexpr(Loading)
+        access::dispatchDeserialize(data, ser);
+      else
+        access::dispatchSerialize(data, ser);
     }
     catch(Exception&)
     {
@@ -253,6 +266,30 @@ public:
     if constexpr(sizeof...(tail) > 0)
       (*this)(std::forward<Ts>(tail)...);
     return *this;
+  }
+
+  template<typename T, typename... Ts>
+  const BaseSerializer&
+    operator()(const std::pair<std::string_view, std::string_view>& headNames, T&& headData, Ts&&... tail) const
+  {
+    (*this)(headNames, std::forward<T>(headData));
+    if constexpr(sizeof...(tail) > 0)
+      (*this)(std::forward<Ts>(tail)...);
+    return *this;
+  }
+
+  template<typename T>
+  const BaseSerializer& operator()(const std::pair<std::string_view, std::string_view>& names, T&& data) const
+  {
+    ensureIsMap();
+    if(hasChild(names.first))
+    {
+      return (*this)(names.first, std::forward<T>(data));
+    }
+    else
+    {
+      return (*this)(names.second, std::forward<T>(data));
+    }
   }
 
   template<typename T>
@@ -359,8 +396,7 @@ public:
     return BaseSerializer{otherNode, context, m_lazyQueue};
   }
 
-  template<bool LazyLoading = Loading>
-  requires(!LazyLoading) [[nodiscard]] Serializer<TContext> newChild() const
+  [[nodiscard]] Serializer<TContext> newChild() const requires(!Loading)
   {
     return withNode(node.append_child());
   }
@@ -387,15 +423,13 @@ public:
       m_tag = normalizedTag;
   }
 
-  template<bool LazyLoading = Loading>
-  requires(!LazyLoading) void setNull() const
+  void setNull() const requires(!Loading)
   {
     node.set_val("~");
     m_tag = "!!null";
   }
 
-  template<bool LazyLoading = Loading>
-  requires(LazyLoading) bool isNull() const
+  [[nodiscard]] bool isNull() const requires(Loading)
   {
     if(!node.readable())
       return false;
@@ -412,11 +446,7 @@ public:
     if(!node.has_val())
       return true;
 
-    if(node.is_val_quoted())
-      return false;
-
-    const std::string val = util::toString(node.val());
-    return val.empty() || val == "~" || val == "null" || val == "Null" || val == "NULL";
+    return false;
   }
 };
 
@@ -475,7 +505,7 @@ template<typename T, typename TContext>
 requires std::is_default_constructible_v<T> T createTrivial(const TypeId<T>&, const Deserializer<TContext>& ser)
 {
   T tmp{};
-  access::dispatch(tmp, ser);
+  access::dispatchDeserialize(tmp, ser);
   return tmp;
 }
 } // namespace detail

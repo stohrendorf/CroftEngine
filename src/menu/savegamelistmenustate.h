@@ -64,12 +64,12 @@ class SavegameListMenuState final : public ListDisplayMenuState
   std::map<size_t, engine::SavegameInfo> m_savegameInfos;
 
   void sortEntries();
-  [[nodiscard]] std::unique_ptr<MenuState>
-    onDefaultFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
-  [[nodiscard]] std::unique_ptr<MenuState>
-    onConfirmOverwriteFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
-  [[nodiscard]] std::unique_ptr<MenuState>
-    onCleanupFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
+  [[nodiscard]] std::unique_ptr<MenuState> onDefaultTick(engine::world::World& world, MenuDisplay& display);
+  [[nodiscard]] std::unique_ptr<MenuState> onConfirmOverwriteTick(engine::world::World& world, MenuDisplay& display);
+  [[nodiscard]] std::unique_ptr<MenuState> onCleanupTick(engine::world::World& world, MenuDisplay& display);
+  void onDefaultDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
+  void onConfirmOverwriteDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
+  void onCleanupDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
   void selectMostRecentSlot();
   void selectFirstFreeOrOldestSlot();
 
@@ -86,6 +86,7 @@ public:
 
   std::unique_ptr<MenuState> onSelected(size_t selectedIdx, engine::world::World& world, MenuDisplay& display) override;
   std::unique_ptr<MenuState> onAborted() override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

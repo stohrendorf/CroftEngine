@@ -165,10 +165,10 @@ private:
   std::vector<gsl_lite::not_null<const Mesh*>> initAnimatedModels(const loader::file::level::Level& level);
   void initStaticMeshes(const loader::file::level::Level& level,
                         const std::vector<gsl_lite::not_null<const Mesh*>>& meshesDirect,
-                        const Engine& engine);
+                        Engine& engine);
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void initTextures(Engine& engine, const loader::file::level::Level& level);
-  void initSpriteMeshes(const Engine& engine);
+  void initSpriteMeshes(Engine& engine);
 
   std::array<gl::SRGBA8, 256> m_palette;
 

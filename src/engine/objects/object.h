@@ -50,6 +50,11 @@ namespace render::scene
 class Node;
 }
 
+namespace hid
+{
+class InputHandler;
+}
+
 namespace engine::objects
 {
 struct InteractionLimits
@@ -102,13 +107,16 @@ public:
 
   virtual ~Object() = default;
 
-  virtual void update() = 0;
+  virtual void updateLogic() = 0;
 
   virtual std::shared_ptr<render::scene::Node> getNode() const = 0;
 
   void setCurrentRoom(const gsl_lite::not_null<const world::Room*>& newRoom);
 
-  void applyTransform();
+  void applyLogicTransform();
+  void interpolateTransform(float interTickFactor);
+
+  virtual void updatePrediction();
 
   void rotate(const core::RotationSpeed& dx, const core::RotationSpeed& dy, const core::RotationSpeed& dz) noexcept
   {

@@ -27,8 +27,8 @@ struct MenuObject
 {
   std::string name;
   engine::TR1ItemId type{-1};
-  core::Frame lastMeshAnimFrame;
-  core::Frame openFrame;
+  core::MenuFrame lastMeshAnimFrame;
+  core::MenuFrame openFrame;
   core::Angle selectedBaseRotationX;
   core::Angle selectedRotationX;
   core::Angle selectedRotationY;
@@ -36,11 +36,11 @@ struct MenuObject
   std::bitset<32> defaultMeshRenderMask{0xffffffffull};
   std::bitset<32> meshRenderMask{0xffffffffull};
 
-  core::Frame meshAnimFrame{0_frame};
-  core::Frame goalFrame{0_frame};
-  core::Frame animDirection{1_frame};
-  core::Frame animStretch{1_frame};
-  core::Frame animStretchCounter{0_frame};
+  core::MenuFrame meshAnimFrame{0_mframe};
+  core::MenuFrame goalFrame{0_mframe};
+  core::MenuFrame animDirection{1_mframe};
+  core::MenuFrame animStretch{1_mframe};
+  core::MenuFrame animStretchCounter{0_mframe};
   core::Angle baseRotationX{0_deg};
   core::Angle rotationX{0_deg};
   core::Angle rotationY{0_deg};
@@ -49,10 +49,10 @@ struct MenuObject
   mutable core::Angle compassNeedleRotationMomentum = 0_deg;
 
   std::shared_ptr<engine::SkeletalModelNode> node{nullptr};
-  void initModel(const engine::world::World& world,
+  void initModel(engine::world::World& world,
                  const gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>& lights);
 
-  bool animate();
+  bool tick();
 
   void updateMeshRenderMask();
   void draw(const engine::world::World& world,

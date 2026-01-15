@@ -13,12 +13,6 @@
 
 namespace qs
 {
-namespace detail
-{
-template<typename A, typename B>
-concept NotSame = !std::is_same_v<A, B>;
-}
-
 template<typename... Units>
 struct product_unit
 {
@@ -203,7 +197,7 @@ constexpr auto operator*(const quantity<fraction_unit<std::tuple<Units1Top...>, 
 
 // product_unit / unit
 template<typename Type1, typename Type2, typename... Units1, typename Unit2>
-requires detail::NotSame<product_unit<Units1...>, Unit2> constexpr auto
+requires(!std::is_same_v<product_unit<Units1...>, Unit2>) constexpr auto
   operator/(const quantity<product_unit<Units1...>, Type1>& a,
             const quantity<Unit2, Type2>& b) noexcept(noexcept(a.get() / b.get()))
 {
@@ -213,7 +207,7 @@ requires detail::NotSame<product_unit<Units1...>, Unit2> constexpr auto
 
 // product_unit / product_unit
 template<typename Type1, typename Type2, typename... Units1, typename... Units2>
-requires detail::NotSame<std::tuple<Units1...>, std::tuple<Units2...>> constexpr auto
+requires(!std::is_same_v<std::tuple<Units1...>, std::tuple<Units2...>>) constexpr auto
   operator/(const quantity<product_unit<Units1...>, Type1>& a,
             const quantity<product_unit<Units2...>, Type2>& b) noexcept(noexcept(a.get() / b.get()))
 {
@@ -244,7 +238,7 @@ constexpr auto operator/(const quantity<Unit1, Type1>& a,
 
 // unit / product_unit
 template<typename Type1, typename Type2, typename Unit1, typename... Units2>
-requires detail::NotSame<Unit1, product_unit<Units2...>> constexpr auto
+requires(!std::is_same_v<Unit1, product_unit<Units2...>>) constexpr auto
   operator/(const quantity<Unit1, Type1>& a,
             const quantity<product_unit<Units2...>, Type2>& b) noexcept(noexcept(a.get() / b.get()))
 {

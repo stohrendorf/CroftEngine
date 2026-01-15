@@ -27,7 +27,7 @@
 
 namespace engine::objects
 {
-void SwordOfDamocles::update()
+void SwordOfDamocles::updateLogic()
 {
   if(m_state.falling)
   {
@@ -64,7 +64,7 @@ void SwordOfDamocles::update()
     }
   }
 
-  applyTransform();
+  applyLogicTransform();
 }
 
 void SwordOfDamocles::collide(CollisionInfo& collisionInfo)

@@ -27,27 +27,29 @@ ClosePassportMenuState::ClosePassportMenuState(const std::shared_ptr<MenuRingTra
   const auto localFrame = passport.goalFrame - passport.openFrame;
   if(const auto page = localFrame / PassportMenuState::FramesPerPage; page == PassportMenuState::ExitGamePage)
   {
-    passport.goalFrame = passport.lastMeshAnimFrame - 1_frame;
-    passport.animDirection = 1_frame;
+    passport.goalFrame = passport.lastMeshAnimFrame - 1_mframe;
+    passport.animDirection = 1_mframe;
   }
   else
   {
-    passport.goalFrame = 0_frame;
-    passport.animDirection = -1_frame;
+    passport.goalFrame = 0_mframe;
+    passport.animDirection = -1_mframe;
   }
 }
 
-std::unique_ptr<MenuState>
-  ClosePassportMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> ClosePassportMenuState::tick(engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
   return create<FinishItemAnimationMenuState>(create<SetItemTypeMenuState>(
     engine::TR1ItemId::PassportClosed, create<ResetItemTransformMenuState>(std::move(m_next))));
 }
 
-void ClosePassportMenuState::handleObject(ui::Ui& /*ui*/,
-                                          engine::world::World& /*world*/,
-                                          MenuDisplay& /*display*/,
-                                          MenuObject& /*object*/)
+void ClosePassportMenuState::constructUi(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+{
+}
+
+void ClosePassportMenuState::handleObjectTick(engine::world::World& /*world*/,
+                                              MenuDisplay& /*display*/,
+                                              MenuObject& /*object*/)
 {
 }
 } // namespace menu

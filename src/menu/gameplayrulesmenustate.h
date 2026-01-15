@@ -47,7 +47,8 @@ public:
                                   std::unique_ptr<MenuState> previous,
                                   const engine::GameplayRules& rules);
 
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
   ~GameplayRulesMenuState() override;
 };
 } // namespace menu

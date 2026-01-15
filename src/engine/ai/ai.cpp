@@ -105,8 +105,8 @@ std::optional<Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
   return std::nullopt;
 }
 
-std::optional<Mood> getNewMood(
-  const EnemyLocation& enemyLocation, const CreatureInfo& creatureInfo,
+std::optional<Mood> getNewMood(const EnemyLocation& enemyLocation,
+                               const CreatureInfo& creatureInfo,
                                const bool isHit,
                                const bool violent,
                                const bool hasTargetBox)

@@ -15,10 +15,9 @@
 
 namespace menu
 {
-void ResetItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
-                                               engine::world::World& /*world*/,
-                                               MenuDisplay& display,
-                                               MenuObject& object)
+void ResetItemTransformMenuState::handleObjectTick(engine::world::World& /*world*/,
+                                                   MenuDisplay& display,
+                                                   MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
@@ -32,16 +31,19 @@ void ResetItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
   }
 }
 
-std::unique_ptr<MenuState>
-  ResetItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> ResetItemTransformMenuState::tick(engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
-  if(m_duration != 0_frame)
+  if(m_duration != 0_tick)
   {
-    m_duration -= 1_frame;
+    m_duration -= 1_tick;
     return nullptr;
   }
 
   return std::move(m_next);
+}
+
+void ResetItemTransformMenuState::constructUi(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+{
 }
 
 void ResetItemTransformMenuState::begin(engine::world::World& world)

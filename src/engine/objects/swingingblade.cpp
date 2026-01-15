@@ -25,7 +25,7 @@
 
 namespace engine::objects
 {
-void SwingingBlade::update()
+void SwingingBlade::updateLogic()
 {
   if(!m_state.updateActivationTimeout())
   {
@@ -50,10 +50,11 @@ void SwingingBlade::update()
       getWorld().getObjectManager().getLara().m_state.location.position.X + util::rand15s(128_len),
       getWorld().getObjectManager().getLara().m_state.location.position.Y - util::rand15(745_len),
       getWorld().getObjectManager().getLara().m_state.location.position.Z + util::rand15s(128_len)};
-    const auto fx = createBloodSplat(getWorld(),
-                               Location{m_state.location.room, splatPos},
-                               getWorld().getObjectManager().getLara().m_state.speed,
-                               getWorld().getObjectManager().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
+    const auto fx
+      = createBloodSplat(getWorld(),
+                         Location{m_state.location.room, splatPos},
+                         getWorld().getObjectManager().getLara().m_state.speed,
+                         getWorld().getObjectManager().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
     getWorld().getObjectManager().registerParticle(fx);
   }
 
@@ -62,7 +63,7 @@ void SwingingBlade::update()
   m_state.floor
     = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
-  ModelObject::update();
+  advanceFrame();
 }
 
 void SwingingBlade::collide(CollisionInfo& collisionInfo)

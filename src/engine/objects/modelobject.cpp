@@ -53,7 +53,7 @@ ModelObject::ModelObject(const std::string& name,
   m_lighting.bind(*m_skeleton, *world);
 }
 
-void ModelObject::update()
+void ModelObject::advanceFrame()
 {
   const auto endOfAnim = m_skeleton->advanceFrame(m_state);
 
@@ -75,6 +75,7 @@ void ModelObject::update()
         moveLocal(core::TRVec{core::Length{static_cast<core::Length::type>(cmd[0])},
                               core::Length{static_cast<core::Length::type>(cmd[1])},
                               core::Length{static_cast<core::Length::type>(cmd[2])}});
+        m_skeleton->resetSmoothing();
         cmd += 3;
         break;
       case AnimCommandOpcode::StartFalling:
@@ -171,9 +172,8 @@ void ModelObject::applyMovement(const bool forLara)
     setCurrentRoom(m_state.location.room);
   }
 
-  applyTransform();
-
-  m_skeleton->updatePose();
+  m_skeleton->calculatePoseMatrices(true);
+  applyLogicTransform();
 }
 
 core::BoundingBox ModelObject::getBoundingBox() const
@@ -275,11 +275,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     {
       lara.playSoundEffect(TR1SoundEffect::LaraOof);
     }
-    lara.hit_frame += 1_frame;
-    if(lara.hit_frame > 34_frame)
-    {
-      lara.hit_frame = 34_frame;
-    }
+    lara.hit_frame = std::min(lara.hit_frame + 1_frame, core::HitAnimationLastFrame);
   }
   collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
   collisionInfo.validCeilingHeightMin = 0_len;
@@ -366,13 +362,6 @@ void ModelObject::deserialize(const serialization::Deserializer<world::World>& s
   m_lighting.bind(*m_skeleton, *ser.context);
 }
 
-std::shared_ptr<ModelObject> ModelObject::create(serialization::Deserializer<world::World>& ser)
-{
-  auto result = std::make_shared<ModelObject>(ser.context, Location::create(ser["@location"]));
-  result->deserialize(ser);
-  return result;
-}
-
 void ModelObject::collideWithLara(CollisionInfo& collisionInfo, const bool push)
 {
   const auto& lara = getWorld().getObjectManager().getLara();
@@ -412,12 +401,6 @@ ModelObject::~ModelObject()
 std::shared_ptr<render::scene::Node> ModelObject::getNode() const
 {
   return m_skeleton;
-}
-
-std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Deserializer<world::World>& ser)
-{
-  return ModelObject::create(ser);
 }
 
 void NullRenderModelObject::serialize(const serialization::Serializer<world::World>& ser) const

@@ -140,7 +140,7 @@ void Crocodile::updateInWaterDead()
 
     loadObjectInfo(true);
   }
-  ModelObject::update();
+  advanceFrame();
   const auto sector = m_state.location.updateRoom();
   m_state.floor
     = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
@@ -291,11 +291,11 @@ void Crocodile::updateOnLand()
   }
   else
   {
-    ModelObject::update();
+    advanceFrame();
   }
 }
 
-void Crocodile::update()
+void Crocodile::updateLogic()
 {
   activateAi();
 

@@ -13,6 +13,11 @@
 #include <stdexcept>
 #include <string>
 
+namespace hid
+{
+class InputHandler;
+}
+
 namespace engine::world
 {
 class World;
@@ -106,7 +111,10 @@ public:
     m_inventory.erase(id);
   }
 
-  bool tryUse(objects::LaraObject& lara, TR1ItemId id, const GameplayRules& gameplayRules);
+  bool tryUse(objects::LaraObject& lara,
+              TR1ItemId id,
+              const GameplayRules& gameplayRules,
+              const hid::InputHandler& inputHandler);
 
   [[nodiscard]] Ammo& getAmmo(const WeaponType weaponType)
   {

@@ -31,7 +31,7 @@ void Sprite::draw(Ui& ui, const engine::Presenter& /*presenter*/) const
   ui.draw(m_sprite, m_position);
 }
 
-void Sprite::update(const bool hasFocus)
+void Sprite::tick(const bool hasFocus)
 {
   constexpr int FadeSpeed = 30;
   const auto delta = hasFocus ? FadeSpeed : -FadeSpeed;

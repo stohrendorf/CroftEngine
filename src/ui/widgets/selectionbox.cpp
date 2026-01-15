@@ -17,7 +17,8 @@
 
 namespace ui::widgets
 {
-SelectionBox::SelectionBox(const std::string& message, const std::vector<std::string>& options,
+SelectionBox::SelectionBox(const std::string& message,
+                           const std::vector<std::string>& options,
                            const size_t initialSelection)
     : m_container{std::make_shared<GridBox>()}
     , m_selected{initialSelection}
@@ -81,10 +82,10 @@ void SelectionBox::draw(Ui& ui, const engine::Presenter& presenter) const
   m_container->draw(ui, presenter);
 }
 
-void SelectionBox::update(const bool hasFocus)
+void SelectionBox::tick(const bool hasFocus)
 {
   for(size_t i = 0; i < m_options.size(); ++i)
-    m_options[i]->update(hasFocus && m_selected == i);
+    m_options[i]->tick(hasFocus && m_selected == i);
 }
 
 void SelectionBox::setPosition(const glm::ivec2& position)

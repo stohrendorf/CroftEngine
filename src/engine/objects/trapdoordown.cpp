@@ -46,7 +46,7 @@ void TrapDoorDown::deserialize(const serialization::Deserializer<world::World>& 
   getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
 }
 
-void TrapDoorDown::update()
+void TrapDoorDown::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {
@@ -59,7 +59,7 @@ void TrapDoorDown::update()
       m_state.goal_anim_state = 0_as;
   }
 
-  ModelObject::update();
+  advanceFrame();
 }
 
 void TrapDoorDown::patchFloor(const core::TRVec& pos, core::Length& y)

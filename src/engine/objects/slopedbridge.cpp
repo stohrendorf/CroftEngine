@@ -16,4 +16,14 @@ void SlopedBridge::deserialize(const serialization::Deserializer<world::World>& 
   ModelObject::deserialize(ser);
   ser(S_NV("flatness", m_flatness));
 }
+
+void BridgeSlope1::updateLogic()
+{
+  advanceFrame();
+}
+
+void BridgeSlope2::updateLogic()
+{
+  advanceFrame();
+}
 } // namespace engine::objects

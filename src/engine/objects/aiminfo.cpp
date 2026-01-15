@@ -2,6 +2,7 @@
 
 #include "core/angle.h"
 #include "core/units.h"
+#include "engine/engine.h"
 #include "engine/items_tr1.h"
 #include "engine/objects/objectstate.h"
 #include "engine/presenter.h"
@@ -53,10 +54,9 @@ void AimInfo::deserialize(const serialization::Deserializer<world::World>& ser)
   weaponAnimData = reinterpret_cast<const loader::file::AnimFrame*>(ptr);
 }
 
-void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon)
+void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon, const hid::InputHandler& inputHandler)
 {
-  if(!aiming
-     && (lara.aimAt != nullptr || !lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)))
+  if(!aiming && (lara.aimAt != nullptr || !inputHandler.hasAction(hid::Action::Action)))
   {
     if(frame >= TwoWeaponsRecoilAnimStart)
     {
@@ -75,7 +75,7 @@ void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon)
   {
     frame += 1_frame;
   }
-  else if(frame == TwoWeaponsAiming && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  else if(frame == TwoWeaponsAiming && inputHandler.hasAction(hid::Action::Action))
   {
     core::TRRotationXY aimAngle;
     aimAngle.X = aimRotation.X;
@@ -97,7 +97,7 @@ void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon)
   }
 }
 
-void AimInfo::updateAnimShotgunAiming(LaraObject& lara)
+void AimInfo::updateAnimShotgunAiming(LaraObject& lara, const hid::InputHandler& inputHandler)
 {
   if(frame >= ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
   {
@@ -112,7 +112,7 @@ void AimInfo::updateAnimShotgunAiming(LaraObject& lara)
   }
   else if(frame == ShotgunReadyToShoot)
   {
-    if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+    if(inputHandler.hasAction(hid::Action::Action))
     {
       lara.tryShootShotgun();
       frame += 1_frame;
@@ -147,16 +147,16 @@ void AimInfo::updateAnimShotgunAiming(LaraObject& lara)
   }
 }
 
-void AimInfo::updateAnimShotgun(LaraObject& lara)
+void AimInfo::updateAnimShotgun(LaraObject& lara, const hid::InputHandler& inputHandler)
 {
   if(aiming)
   {
-    updateAnimShotgunAiming(lara);
+    updateAnimShotgunAiming(lara, inputHandler);
 
     return;
   }
 
-  if(frame == ShotgunIdle && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  if(frame == ShotgunIdle && inputHandler.hasAction(hid::Action::Action))
   {
     frame += 1_frame;
     return;
@@ -166,7 +166,7 @@ void AimInfo::updateAnimShotgun(LaraObject& lara)
   {
     if(frame == ShotgunIdleToAimAnimEnd)
     {
-      if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+      if(inputHandler.hasAction(hid::Action::Action))
       {
         frame = ShotgunReadyToShoot;
       }
@@ -182,7 +182,7 @@ void AimInfo::updateAnimShotgun(LaraObject& lara)
   }
   else if(frame == ShotgunReadyToShoot)
   {
-    if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+    if(inputHandler.hasAction(hid::Action::Action))
     {
       lara.tryShootShotgun();
       frame += 1_frame;

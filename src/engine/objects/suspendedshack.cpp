@@ -17,7 +17,7 @@
 
 namespace engine::objects
 {
-void SuspendedShack::update()
+void SuspendedShack::updateLogic()
 {
   if(m_state.activationState.isFullyActivated())
   {
@@ -43,7 +43,7 @@ void SuspendedShack::update()
     kill();
   }
 
-  ModelObject::update();
+  advanceFrame();
 }
 
 void SuspendedShack::collide(CollisionInfo& collisionInfo)

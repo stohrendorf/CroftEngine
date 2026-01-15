@@ -22,15 +22,15 @@ CutsceneActor::CutsceneActor(const std::string& name,
   m_state.rotation.Y = 0_deg;
 }
 
-void CutsceneActor::update()
+void CutsceneActor::updateLogic()
 {
-  m_state.rotation.Y = getWorld().getCameraController().getEyeRotation().Y;
-  m_state.location.position = getWorld().getCameraController().getTRLocation().position;
-  ModelObject::update();
+  m_state.rotation.Y = getWorld().getCameraController().getCinematicBaseRotation().Y;
+  m_state.location.position = getWorld().getCameraController().getCinematicPos();
+  advanceFrame();
 }
 
-void CutsceneActor4::update()
+void CutsceneActor4::updateLogic()
 {
-  ModelObject::update(); // NOLINT(bugprone-parent-virtual-call)
+  advanceFrame();
 }
 } // namespace engine::objects

@@ -23,7 +23,7 @@
 #include <memory>
 #include <utility>
 
-void engine::objects::DartGun::update()
+void engine::objects::DartGun::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {
@@ -39,7 +39,7 @@ void engine::objects::DartGun::update()
 
   if(m_state.current_anim_state != 1_as || getSkeleton()->getLocalFrame() != 0_frame)
   {
-    ModelObject::update();
+    advanceFrame();
     return;
   }
 
@@ -76,5 +76,5 @@ void engine::objects::DartGun::update()
   getWorld().getObjectManager().registerParticle(std::move(particle));
 
   playSoundEffect(TR1SoundEffect::DartgunShoot);
-  ModelObject::update();
+  advanceFrame();
 }

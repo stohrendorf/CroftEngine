@@ -56,9 +56,9 @@ void GroupBox::setPosition(const glm::ivec2& position)
   m_position = position;
 }
 
-void GroupBox::update(const bool hasFocus)
+void GroupBox::tick(const bool hasFocus)
 {
-  m_widget->update(hasFocus);
+  m_widget->tick(hasFocus);
 }
 
 glm::ivec2 GroupBox::getSize() const

@@ -126,21 +126,27 @@ struct TransitionCase
 struct Transitions
 {
   core::AnimStateId stateId{uint16_t{0}};
-  uint16_t transitionCaseCount{}; // number of ranges (seems to always be 1..5)
-  core::ContainerIndex<uint16_t, engine::world::TransitionCase> firstTransitionCase;
-  // Offset into AnimDispatches[]
 
-  /// \brief reads an animation state change.
+  /// @brief number of ranges (seems to always be 1..5)
+  uint16_t transitionCaseCount{};
+
+  /// @brief Offset into AnimDispatches[]
+  core::ContainerIndex<uint16_t, engine::world::TransitionCase> firstTransitionCase;
+
+  /// @brief reads an animation state change.
   static std::unique_ptr<Transitions> read(io::SDLReader& reader);
 };
 
 struct Animation
 {
+  /// @brief byte offset into Frames[] (divide by 2 for Frames[i])
   core::ContainerOffset<uint32_t, int16_t> poseDataOffset;
-  // byte offset into Frames[] (divide by 2 for Frames[i])
 
-  core::Frame segmentLength = 0_frame; // Slowdown factor of this animation
-  uint8_t poseDataSize{};              // number of bit16's in Frames[] used by this animation
+  /// @brief Slowdown factor of this animation
+  core::Frame segmentLength = 0_frame;
+
+  /// @brief number of bit16's in Frames[] used by this animation
+  uint8_t poseDataSize{};
   core::AnimStateId state_id = 0_as;
 
   core::Speed speed;
@@ -149,15 +155,24 @@ struct Animation
   core::Speed lateralSpeed;               // new in TR4 -->
   core::Acceleration lateralAcceleration; // lateral speed and acceleration.
 
-  core::Frame firstFrame = 0_frame; // first frame in this animation
-  core::Frame lastFrame = 0_frame;  // last frame in this animation (numframes = (End - Start) + 1)
+  /// @brief first frame in this animation
+  core::Frame firstFrame = 0_frame;
+
+  /// @brief last frame in this animation (numframes = (End - Start) + 1)
+  core::Frame lastFrame = 0_frame;
   uint16_t nextAnimationIndex{};
   core::Frame nextFrame = 0_frame;
 
   uint16_t transitionsCount{};
-  core::ContainerIndex<uint16_t, engine::world::Transitions> transitionsIndex; // offset into StateChanges[]
-  uint16_t animCommandCount{};                                                 // How many of them to use.
-  core::ContainerIndex<uint16_t, int16_t> animCommandIndex;                    // offset into AnimCommand[]
+
+  /// @brief offset into StateChanges[]
+  core::ContainerIndex<uint16_t, engine::world::Transitions> transitionsIndex;
+
+  /// @brief How many of them to use.
+  uint16_t animCommandCount{};
+
+  /// @brief offset into AnimCommand[]
+  core::ContainerIndex<uint16_t, int16_t> animCommandIndex;
 
   static std::unique_ptr<Animation> readTr1(io::SDLReader& reader);
   static std::unique_ptr<Animation> readTr4(io::SDLReader& reader);
@@ -189,16 +204,21 @@ static_assert(sizeof(BoneTreeEntry) == 16, "BoneTreeEntry must be of size 16");
 struct SkeletalModelType
 {
   core::TypeId type{uint16_t{0}};
+  /// @brief number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
   int16_t nMeshes = 0;
-  // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
-  core::ContainerIndex<uint16_t,
-                       gsl_lite::not_null<const engine::world::Mesh*>,
-                       gslu::nn_shared<render::scene::Mesh>>
-    mesh_base_index;                                  // starting mesh (offset into MeshPointers[])
-  core::ContainerIndex<uint32_t, int32_t> bone_index; // offset into MeshTree[]
+
+  /// @brief starting mesh (offset into MeshPointers[])
+  core::ContainerIndex<uint16_t, gsl_lite::not_null<const engine::world::Mesh*>, gslu::nn_shared<render::scene::Mesh>>
+    mesh_base_index;
+
+  /// @brief offset into MeshTree[]
+  core::ContainerIndex<uint32_t, int32_t> bone_index;
+
+  /// @brief byte offset into Frames[] (divide by 2 for Frames[i])
   core::ContainerOffset<uint32_t, int16_t> pose_data_offset;
-  // byte offset into Frames[] (divide by 2 for Frames[i])
-  core::ContainerIndex<uint16_t, engine::world::Animation> animation_index; // offset into Animations[]
+
+  /// @brief offset into Animations[]
+  core::ContainerIndex<uint16_t, engine::world::Animation> animation_index;
 
   gsl_lite::span<const BoneTreeEntry> boneTree;
 

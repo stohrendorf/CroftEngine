@@ -22,7 +22,7 @@
 
 namespace engine::objects
 {
-void Cowboy::update()
+void Cowboy::updateLogic()
 {
   activateAi();
 

@@ -41,6 +41,6 @@ public:
   {
   }
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

@@ -32,7 +32,7 @@ public:
 
   void setSize(const glm::ivec2& size) override;
 
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
 
   void fitToContent() override;
 

@@ -4,6 +4,8 @@
 
 #include <chrono>
 #include <cstddef>
+#include <glm/trigonometric.hpp>
+#include <glm/vec3.hpp>
 #include <gsl-lite/gsl-lite.hpp>
 
 namespace core
@@ -44,6 +46,8 @@ static_assert(DamageFallSpeedThreshold < DeadlyFallSpeedThreshold, "Constants wr
 constexpr auto MaxGrabbableGradient = 60_len;
 
 constexpr auto FrameRate = 30_frame / 1_sec;
+constexpr auto MenuFrameRate = 60_mframe / 1_sec;
+constexpr auto LogicRate = 30_tick / 1_sec;
 constexpr auto TimePerFrame
   = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1}) / FrameRate.get();
 
@@ -82,9 +86,18 @@ constexpr auto DiveRotationSpeedZ = 3_deg / 1_frame;
 
 constexpr auto FreeLookHeadTurnSpeed = 2_deg / 1_frame;
 
+constexpr auto HitAnimationLastFrame = 34_frame;
+
 constexpr size_t SavegameSlots = 99;
 
-constexpr Length operator""_sectors(unsigned long long value) noexcept
+inline const auto DefaultFov = Radians{glm::radians(60.0f)};
+constexpr float DefaultNearPlane = 20.0f;
+constexpr float DefaultFarPlane = 20480.0f;
+constexpr Frame DefaultHealthBarTimeout = FrameRate * 1_sec * 4 / 3;
+
+constexpr auto AnimFramesPerTick = 1_frame / 1_tick;
+
+[[nodiscard]] constexpr Length operator""_sectors(unsigned long long value) noexcept
 {
   return gsl_lite::narrow_cast<Length::type>(value) * SectorSize;
 }
@@ -106,6 +119,9 @@ constexpr Length operator""_sectors(unsigned long long value) noexcept
 {
   return sectorOf(l) * 1_sectors;
 }
+
+inline const auto RenderAxisRight = glm::vec3{1, 0, 0};
+inline const auto RenderAxisUp = glm::vec3{0, 1, 0};
 } // namespace core
 
 using core::operator""_sectors;

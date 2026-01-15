@@ -192,7 +192,7 @@ private:
 
   [[nodiscard]] std::pair<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>>
     buildMesh(const loader::file::Room& srcRoom,
-              const Engine& engine,
+              Engine& engine,
               WorldGeometry& worldGeometry,
               render::TextureAnimator& textureAnimator);
 };

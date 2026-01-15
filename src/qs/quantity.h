@@ -178,4 +178,11 @@ constexpr quantity<Unit, Type> abs(const quantity<Unit, Type>& v) noexcept(noexc
   else
     return v;
 }
+
+template<typename Unit, typename Type>
+[[nodiscard]] constexpr quantity<Unit, Type>
+  lerp(const quantity<Unit, Type>& a, const quantity<Unit, Type>& b, const float alpha)
+{
+  return quantity<Unit, Type>{static_cast<Type>(a.get() * (1 - alpha) + b.get() * alpha)};
+}
 } // namespace qs

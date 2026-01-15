@@ -10,6 +10,7 @@
 #include "objects/objectfactory.h"
 #include "objects/objectstate.h"
 #include "objects/pickupobject.h"
+#include "particle.h"
 #include "particlecollection.h"
 #include "render/scene/node.h"
 #include "serialization/map.h"
@@ -17,6 +18,7 @@
 #include "serialization/objectreference.h" // IWYU pragma: keep
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
+#include "skeletalmodelnode.h"
 #include "world/room.h"
 #include "world/sprite.h"
 #include "world/world.h"
@@ -149,7 +151,7 @@ std::shared_ptr<objects::Object> ObjectManager::getObject(const ObjectId id) con
   return it->second.get();
 }
 
-void ObjectManager::update(world::World& world, const bool godMode)
+void ObjectManager::updateLogic(world::World& world, const bool godMode)
 {
   for(const auto& object : m_dynamicObjects)
   {
@@ -163,12 +165,17 @@ void ObjectManager::update(world::World& world, const bool godMode)
     object->updateLighting();
   }
 
-  // need to work on a copy because update() may modify the collection
+  // need to work on a copy because updateLogic() may modify the collection
   for(const auto activeObjects = m_activeObjects; const auto& object : activeObjects)
   {
     if(object.get() == m_lara) // Lara is special and needs to be updated last
       continue;
-    object->update();
+    object->updateLogic();
+    if(const auto modelObject = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
+       modelObject != nullptr && modelObject->getSkeleton() != nullptr)
+    {
+      modelObject->getSkeleton()->updateSmoothMatrices();
+    }
   }
 
   m_particles.update(world);
@@ -181,7 +188,8 @@ void ObjectManager::update(world::World& world, const bool godMode)
   {
     if(godMode && !m_lara->isDead())
       m_lara->m_state.health = core::LaraHealth;
-    m_lara->update();
+    m_lara->updateLogic();
+    m_lara->getSkeleton()->updateSmoothMatrices();
     m_lara->updateLighting();
   }
 
@@ -250,6 +258,23 @@ void ObjectManager::deactivate(const objects::Object* object)
      it != m_activeObjects.end())
   {
     m_activeObjects.erase(it);
+  }
+}
+void ObjectManager::interpolateTransforms(const float interTickFactor)
+{
+  for(const auto& object : m_objects | std::views::values)
+  {
+    object->interpolateTransform(interTickFactor);
+  }
+
+  for(const auto& object : m_dynamicObjects)
+  {
+    object->interpolateTransform(interTickFactor);
+  }
+
+  for(const auto& particle : m_particles)
+  {
+    particle->interpolateTransform(interTickFactor);
   }
 }
 

@@ -8,7 +8,7 @@ struct CinematicFrame
 {
   core::TRVec lookAt;
   core::TRVec position;
-  float fov;
-  float rotZ;
+  core::Radians fov;
+  core::Radians rotZ;
 };
 } // namespace engine::world

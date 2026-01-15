@@ -38,6 +38,6 @@ public:
        const loader::file::Item& item,
        const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

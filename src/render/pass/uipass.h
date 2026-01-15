@@ -26,7 +26,7 @@ public:
                   const glm::ivec2& renderViewport,
                   const glm::ivec2& displayViewport);
 
-  void render(const std::function<void()>& doRender);
+  void renderToFramebuffer(const std::function<void()>& doRender);
 
   [[nodiscard]] const auto& getColorBuffer() const
   {

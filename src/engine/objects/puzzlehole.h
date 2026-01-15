@@ -38,6 +38,8 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 
+  void updateLogic() override;
+
 private:
   void swapPuzzleState();
   void initMesh();

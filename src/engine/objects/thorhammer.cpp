@@ -71,7 +71,7 @@ ThorHammerHandle::ThorHammerHandle(const gsl_lite::not_null<world::World*>& worl
 {
 }
 
-void ThorHammerHandle::update()
+void ThorHammerHandle::updateLogic()
 {
   switch(m_state.current_anim_state.get())
   {
@@ -158,7 +158,7 @@ void ThorHammerHandle::update()
   default:
     break;
   }
-  ModelObject::update();
+  advanceFrame();
 
   // sync anim
   const auto animIdx
@@ -218,6 +218,11 @@ void ThorHammerBlock::deserialize(const serialization::Deserializer<world::World
 {
   ModelObject::deserialize(ser);
   getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void ThorHammerBlock::updateLogic()
+{
+  advanceFrame();
 }
 
 ThorHammerBlock::ThorHammerBlock(const std::string& name,

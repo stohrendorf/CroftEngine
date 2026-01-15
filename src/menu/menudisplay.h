@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/items_tr1.h"
+#include "menuresult.h"
 #include "menuringtransform.h"
 #include "ui/text.h"
 
@@ -55,19 +56,6 @@ struct MenuObject;
 struct MenuRing;
 class MenuState;
 
-enum class MenuResult : uint8_t
-{
-  None,
-  Closed,
-  ExitToTitle,
-  ExitGame,
-  NewGame,
-  RestartLevel,
-  LaraHome,
-  RequestLoad,
-  RequestLevel
-};
-
 enum class SaveGamePageMode : uint8_t
 {
   Skip,
@@ -94,9 +82,11 @@ struct MenuDisplay
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;
 
-  void renderObjects(ui::Ui& ui, engine::world::World& world);
-  void update(ui::Ui& ui, engine::world::World& world);
-  void renderRenderedObjects(const engine::world::World& world);
+  void renderObjectsToFramebuffer(engine::world::World& world);
+  void tick(engine::world::World& world);
+  void constructUi(ui::Ui& ui, engine::world::World& world);
+  void constructNavigationHints(ui::Ui& ui, const engine::world::World& world) const;
+  void renderFramebuffer(const engine::world::World& world);
   MenuResult result = MenuResult::None;
   std::optional<size_t> requestLoad;
   size_t requestLevelSequenceIndex = 0;
@@ -105,7 +95,7 @@ struct MenuDisplay
   size_t currentRingIndex = 0;
   bool passOpen = false;
   static bool doOptions(engine::world::World& world, MenuObject& object);
-  static void drawMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object);
+  static void constructMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object);
 
   [[nodiscard]] MenuRing& getCurrentRing()
   {
@@ -125,9 +115,9 @@ struct MenuDisplay
   }
 
 private:
-  [[nodiscard]] std::vector<MenuObject> getOptionRingObjects(const engine::world::World& world, bool withHomePolaroid);
-  [[nodiscard]] std::vector<MenuObject> getMainRingObjects(const engine::world::World& world);
-  [[nodiscard]] std::vector<MenuObject> getKeysRingObjects(const engine::world::World& world);
+  [[nodiscard]] std::vector<MenuObject> getOptionRingObjects(engine::world::World& world, bool withHomePolaroid) const;
+  [[nodiscard]] std::vector<MenuObject> getMainRingObjects(engine::world::World& world) const;
+  [[nodiscard]] std::vector<MenuObject> getKeysRingObjects(engine::world::World& world) const;
 
   ui::Text m_upArrow;
   ui::Text m_downArrow;

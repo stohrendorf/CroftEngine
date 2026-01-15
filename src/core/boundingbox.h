@@ -28,10 +28,10 @@ struct BoundingBox
   {
   }
 
-  explicit BoundingBox(const BoundingBox& a, const BoundingBox& b, const float bias)
-      : x{lerp(a.x.min, b.x.min, bias), lerp(a.x.max, b.x.max, bias)}
-      , y{lerp(a.y.min, b.y.min, bias), lerp(a.y.max, b.y.max, bias)}
-      , z{lerp(a.z.min, b.z.min, bias), lerp(a.z.max, b.z.max, bias)}
+  explicit BoundingBox(const BoundingBox& a, const BoundingBox& b, const float alpha)
+      : x{lerp(a.x.min, b.x.min, alpha), lerp(a.x.max, b.x.max, alpha)}
+      , y{lerp(a.y.min, b.y.min, alpha), lerp(a.y.max, b.y.max, alpha)}
+      , z{lerp(a.z.min, b.z.min, alpha), lerp(a.z.max, b.z.max, alpha)}
   {
   }
 

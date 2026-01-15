@@ -35,20 +35,21 @@ class PassportMenuState : public MenuState
   std::optional<std::unique_ptr<MenuState>> showLoadGamePage(engine::world::World& world, MenuDisplay& display);
   std::optional<std::unique_ptr<MenuState>> showSaveGamePage(engine::world::World& world, MenuDisplay& display);
   void showExitGamePage(engine::world::World& world, MenuDisplay& display, bool returnToTitle);
-  void prevPage(const core::Frame& minFrame, MenuObject& passport, engine::world::World& world);
+  void prevPage(const core::MenuFrame& minFrame, MenuObject& passport, engine::world::World& world);
   void nextPage(MenuObject& passport, engine::world::World& world);
 
 public:
   static constexpr int LoadGamePage = 0;
   static constexpr int SaveGamePage = 1;
   static constexpr int ExitGamePage = 2;
-  static constexpr auto FramesPerPage = 5_frame;
+  static constexpr auto FramesPerPage = 5_mframe;
 
   explicit PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                              bool allowExit,
                              SaveGamePageMode saveGamePageMode);
 
-  void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  void handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

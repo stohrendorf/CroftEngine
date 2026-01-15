@@ -51,6 +51,17 @@ void BufferParameter::bindBoneTransformBuffer(const std::function<bool()>& smoot
   };
 }
 
+void BufferParameter::bindNextBoneTransformBuffer(const std::function<bool()>& smooth)
+{
+  m_bufferBinder = [smooth](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
+  {
+    if(const auto* mo = dynamic_cast<const engine::SkeletalModelNode*>(node))
+      ssb.bind(mo->getNextMeshMatricesBuffer(smooth));
+    else if(const auto* go = dynamic_cast<const engine::ghosting::GhostModel*>(node))
+      ssb.bind(go->getMeshMatricesBuffer());
+  };
+}
+
 gl::ShaderStorageBlock* BufferParameter::findShaderStorageBlock(ShaderProgram& shaderProgram) const
 {
   if(const auto block = shaderProgram.findShaderStorageBlock(getName()))

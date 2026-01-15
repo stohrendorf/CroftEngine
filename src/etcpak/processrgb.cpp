@@ -355,7 +355,6 @@ std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerH
   // process top/bottom, then left/right
   for(size_t i = 0; i < avgPerHalfRgba.size(); i++)
   {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto& avg = avgPerHalfRgba[i];
 
     const auto t31 = avg * IVec16{31} + IVec16{128};

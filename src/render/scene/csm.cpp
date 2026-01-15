@@ -197,9 +197,9 @@ void CSM::updateCamera(const Camera& camera)
     const auto nc = position + forward * cascadeSplits[cascadeIterator];
     const auto fc = position + forward * cascadeSplits[cascadeIterator + 1];
 
-    const auto Hnear = glm::tan(camera.getFieldOfViewY() / 2) * cascadeSplits[cascadeIterator];
+    const auto Hnear = glm::tan(camera.getFieldOfViewY().get<>() / 2) * cascadeSplits[cascadeIterator];
     const auto Wnear = Hnear * camera.getAspectRatio();
-    const auto Hfar = glm::tan(camera.getFieldOfViewY() / 2) * cascadeSplits[cascadeIterator + 1];
+    const auto Hfar = glm::tan(camera.getFieldOfViewY().get<>() / 2) * cascadeSplits[cascadeIterator + 1];
     const auto Wfar = Hfar * camera.getAspectRatio();
 
     // frustum corners are in world space

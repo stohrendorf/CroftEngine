@@ -17,6 +17,7 @@
 #include "qs/quantity.h"
 #include "render/material/materialmanager.h"
 #include "render/scene/node.h"
+#include "render/scene/scenegraph.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
 #include "throttler.h"
@@ -71,55 +72,74 @@ GhostManager::~GhostManager()
   std::filesystem::remove(m_writerPath, ec);
 }
 
-bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
+void GhostManager::askGhostSave(Presenter& presenter, world::World& world)
 {
   const auto msgBox = std::make_shared<ui::widgets::MessageBox>(
     /* translators: TR charmap encoding */ _("Save recorded ghost?"));
   msgBox->fitToContent();
   msgBox->setConfirmed(false);
 
-  Throttler throttler;
+  world.getEngine().getThrottler().reset();
   while(true)
   {
-    throttler.wait();
-
     if(presenter.shouldClose())
     {
-      return false;
+      return;
     }
 
-    if(!presenter.preFrame())
+    if(!presenter.beginFrame())
     {
       continue;
     }
 
-    if(presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
-       || presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+    world.getEngine().getThrottler().tick();
+
+    if(world.getEngine().getThrottler().isTimeForLogic())
     {
-      msgBox->toggleConfirmed();
+      presenter.getInputHandler().update();
+
+      if(presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
+         || presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+      {
+        msgBox->toggleConfirmed();
+      }
     }
 
-    ui::Ui ui{
-      presenter.getMaterialManager()->getUi(), world.getWorldGeometry().getPalette(), presenter.getUiViewport()};
+    ui::Ui ui{presenter.getRenderSystem().getMaterialManager().getUi(),
+              world.getWorldGeometry().getPalette(),
+              presenter.getUiViewport()};
 
     msgBox->setPosition({(ui.getSize().x - msgBox->getSize().x) / 2, (ui.getSize().y - msgBox->getSize().y) / 2});
-    msgBox->update(true);
-    msgBox->draw(ui, presenter);
+    if(world.getEngine().getThrottler().isTimeForLogic())
     {
-      const auto portals = world.getCameraController().update();
-      if(const auto lara = world.getObjectManager().getLaraPtr())
-        lara->m_state.location.room->node->setVisible(true);
-      presenter.renderWorld(world.getRooms(), world.getCameraController(), portals, world);
+      msgBox->tick(true);
     }
-    presenter.renderScreenOverlay();
-    presenter.renderUi(ui, 1.0f);
-    presenter.updateSoundEngine();
+    msgBox->draw(ui, presenter);
+    if(world.getEngine().getThrottler().isTimeForLogic())
+    {
+      world.getCameraController().updateGameLogic(true);
+    }
+    if(const auto lara = world.getObjectManager().getLaraPtr())
+      lara->m_state.location.room->node->setVisible(true);
+    presenter.renderWorldGeometryFramebuffers(
+      world.getRooms(), world.getCameraController(), world.getCameraController().traceWaterSurfacePortals(), world);
+    presenter.renderUiToBackbuffer(ui, 1.0f);
+    if(world.getEngine().getThrottler().isTimeForLogic())
+    {
+      presenter.updateSoundEngine();
+    }
     presenter.swapBuffers();
+
+    if(!world.getEngine().getThrottler().isTimeForLogic())
+    {
+      continue;
+    }
+
     if(!presenter.getInputHandler().hasDebouncedAction(hid::Action::Action))
       continue;
 
     if(!msgBox->isConfirmed())
-      return true;
+      return;
 
     m_reader.reset();
     m_writer.reset();
@@ -163,7 +183,7 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
 
     addFile(m_readerPath);
     addFile(ymlFilepath);
-    return true;
+    return;
   }
 }
 

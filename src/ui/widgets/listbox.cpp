@@ -35,11 +35,11 @@ void ListBox::draw(Ui& ui, const engine::Presenter& presenter) const
   }
   gsl_Assert(first < last);
 
-  static constexpr auto outerCorner = gl::SRGBA8{0, 0, 0, 0};
-  static constexpr auto center = gl::SRGBA8{128, 64, 64, DefaultBackgroundAlpha};
-  static constexpr auto innerCorner = gl::SRGBA8{128, 64, 0, DefaultBackgroundAlpha};
-  static constexpr auto innerCenter = gl::SRGBA8{255, 255, 255, 255};
-  static constexpr auto scrollIndicatorBottom = BackgroundGouraud{
+  static const auto outerCorner = gl::SRGBA8{0, 0, 0, 0};
+  static const auto center = gl::SRGBA8{128, 64, 64, DefaultBackgroundAlpha};
+  static const auto innerCorner = gl::SRGBA8{128, 64, 0, DefaultBackgroundAlpha};
+  static const auto innerCenter = gl::SRGBA8{255, 255, 255, 255};
+  static const auto scrollIndicatorBottom = BackgroundGouraud{
     BoxGouraud{
       outerCorner,
       outerCorner,
@@ -100,10 +100,10 @@ void ListBox::setPosition(const glm::ivec2& position)
   m_position = position;
 }
 
-void ListBox::update(const bool hasFocus)
+void ListBox::tick(const bool hasFocus)
 {
   for(size_t i = 0; i < m_widgets.size(); ++i)
-    m_widgets[i]->update(hasFocus && m_selected == i);
+    m_widgets[i]->tick(hasFocus && m_selected == i);
 }
 
 glm::ivec2 ListBox::getSize() const

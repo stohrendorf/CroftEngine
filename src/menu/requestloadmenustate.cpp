@@ -8,18 +8,20 @@ namespace menu
 {
 class MenuState;
 
-void RequestLoadMenuState::handleObject(ui::Ui& /*ui*/,
-                                        engine::world::World& /*world*/,
-                                        MenuDisplay& /*display*/,
-                                        MenuObject& /*object*/)
+void RequestLoadMenuState::handleObjectTick(engine::world::World& /*world*/,
+                                            MenuDisplay& /*display*/,
+                                            MenuObject& /*object*/)
 {
 }
 
-std::unique_ptr<MenuState>
-  RequestLoadMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState> RequestLoadMenuState::tick(engine::world::World& /*world*/, MenuDisplay& display)
 {
   display.requestLoad = m_slot;
   display.result = MenuResult::RequestLoad;
   return nullptr;
+}
+
+void RequestLoadMenuState::constructUi(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+{
 }
 } // namespace menu

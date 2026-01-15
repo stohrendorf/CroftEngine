@@ -5,6 +5,7 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "engine/engine.h"
 #include "engine/inventory.h"
 #include "engine/items_tr1.h"
 #include "engine/lighting.h"
@@ -94,7 +95,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     do
     {
       lara.setGoalAnimState(loader::file::LaraStateId::InsertPuzzle);
-      lara.advanceFrame();
+      lara.advanceLaraFrame();
     } while(lara.getCurrentAnimState() != loader::file::LaraStateId::InsertPuzzle);
 
     lara.setGoalAnimState(loader::file::LaraStateId::Stop);
@@ -106,6 +107,11 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
   {
     swapPuzzleState();
   }
+}
+
+void PuzzleHole::updateLogic()
+{
+  advanceFrame();
 }
 
 void PuzzleHole::initMesh()
@@ -125,7 +131,7 @@ void PuzzleHole::initMesh()
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton, getWorld());
 
-  ModelObject::update();
+  advanceFrame();
 }
 
 void PuzzleHole::swapPuzzleState()

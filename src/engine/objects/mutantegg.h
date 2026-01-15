@@ -43,7 +43,7 @@ public:
             loader::file::Item item,
             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 
-  void update() override;
+  void updateLogic() override;
 
   void collide(CollisionInfo& info) override;
 

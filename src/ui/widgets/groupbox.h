@@ -35,7 +35,7 @@ public:
 
   void setPosition(const glm::ivec2& position) override;
   void setSize(const glm::ivec2& size) override;
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void fitToContent() override;
 
   void setTitle(const std::string& title);

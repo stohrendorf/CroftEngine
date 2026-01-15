@@ -6,6 +6,7 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "engine/engine.h"
 #include "engine/inventory.h"
 #include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
@@ -77,7 +78,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
       do
       {
-        getWorld().getObjectManager().getLara().advanceFrame();
+        getWorld().getObjectManager().getLara().advanceLaraFrame();
       } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
     }
@@ -108,7 +109,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
         do
         {
-          getWorld().getObjectManager().getLara().advanceFrame();
+          getWorld().getObjectManager().getLara().advanceLaraFrame();
         } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
         getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
         getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);

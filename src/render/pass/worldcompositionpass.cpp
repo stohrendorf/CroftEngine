@@ -70,6 +70,7 @@ WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialMa
     , m_bloomPass{std::make_shared<BloomPass<5, gl::SRGB8>>(materialManager, m_colorBufferHandle)}
     , m_fbBloom{gl::FrameBufferBuilder()
                   .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_bloomedBuffer)
+                  .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, geometryPass->getDepthBuffer())
                   .build("composition-fb-bloom")}
     , m_bloom{renderSettings.bloom}
 {

@@ -247,7 +247,7 @@ LaraStateId AbstractStateHandler::getCurrentAnimState() const
 void AbstractStateHandler::setAnimation(const AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
   m_lara->setAnimation(anim, firstFrame);
-  m_lara->drawRoutine();
+  m_lara->updateLogicPose();
 }
 
 const world::World& AbstractStateHandler::getWorld() const
@@ -397,7 +397,7 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
     setGoalAnimState(LaraStateId::JumpUp);
     setCurrentAnimState(LaraStateId::Stop);
     setFallSpeedOverride(-(sqrt(-2 * core::Gravity * (climbHeight + 800_len)) + 3_spd));
-    m_lara->advanceFrame();
+    m_lara->advanceLaraFrame();
   }
   else
   {
@@ -780,6 +780,6 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 
 void AbstractStateHandler::laraAdvanceFrame()
 {
-  m_lara->advanceFrame();
+  m_lara->advanceLaraFrame();
 }
 } // namespace engine::lara

@@ -31,32 +31,28 @@ struct alignas(Alignment) Pixel
 
   static_assert(_Channels > 0, "Pixel must contain at least one channel");
 
-  using Self = Pixel;
-
-  using Type = T;
-
   static constexpr auto Channels = _Channels;
   static constexpr api::PixelFormat PixelFormat = _PixelFormat;
   static constexpr api::SizedInternalFormat SizedInternalFormat = _SizedInternalFormat;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   static constexpr bool Premultiplied = _Premultiplied;
-  using Vec = glm::vec<Channels, Type>;
+  using Vec = glm::vec<Channels, T>;
 
   Vec channels;
 
   explicit constexpr Pixel() noexcept
-      : Pixel{Type{}}
+      : Pixel{T{}}
   {
   }
 
-  explicit constexpr Pixel(Type scalar) noexcept
+  explicit constexpr Pixel(T scalar) noexcept
       : channels{scalar}
   {
   }
 
   template<typename... U>
-  constexpr Pixel(Type value0, Type value1, U... tail) noexcept
-      : channels{value0, value1, static_cast<Type>(tail)...}
+  constexpr Pixel(T value0, T value1, U... tail) noexcept
+      : channels{value0, value1, static_cast<T>(tail)...}
   {
     static_assert(sizeof...(U) + 2 == _Channels, "Invalid constructor call");
   }
@@ -66,24 +62,24 @@ struct alignas(Alignment) Pixel
   {
   }
 
-  constexpr bool operator==(const Self& rhs) const
+  constexpr bool operator==(const Pixel& rhs) const
   {
     return channels == rhs.channels;
   }
 
-  constexpr bool operator!=(const Self& rhs) const
+  constexpr bool operator!=(const Pixel& rhs) const
   {
     return !(*this == rhs);
   }
 
   template<typename U>
-  Self operator*(U rhs) const
+  Pixel operator*(U rhs) const
   {
-    Self tmp = *this;
+    Pixel tmp = *this;
     std::transform(&channels[0],
                    &channels[0] + _Channels,
                    &tmp.channels[0],
-                   [rhs](Type v)
+                   [rhs](T v)
                    {
                      return v * rhs;
                    });
@@ -105,20 +101,20 @@ template<typename T,
 Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>
   imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
        const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs,
-       U bias,
+       U alpha,
        // NOLINT(*-easily-swappable-parameters)
        U biasMax = std::numeric_limits<U>::max()) requires(std::is_unsigned_v<T> == std::is_unsigned_v<U>)
 {
-  if(bias >= biasMax)
+  if(alpha >= biasMax)
     return rhs;
-  else if(bias <= 0)
+  else if(alpha <= 0)
     return lhs;
 
-  const auto invBias = biasMax - bias;
+  const auto invBias = biasMax - alpha;
   auto tmp = lhs;
   for(glm::length_t i = 0; i < _Channels; ++i)
   {
-    tmp.channels[i] = static_cast<T>(lhs.channels[i] * invBias / biasMax + rhs.channels[i] * bias / biasMax);
+    tmp.channels[i] = static_cast<T>(lhs.channels[i] * invBias / biasMax + rhs.channels[i] * alpha / biasMax);
   }
   return tmp;
 }
@@ -189,7 +185,7 @@ constexpr float premultiply(const float value, const float alpha) noexcept
 }
 } // namespace detail
 
-constexpr PremultipliedSRGBA8 premultiply(const SRGBA8& color)
+inline PremultipliedSRGBA8 premultiply(const SRGBA8& color)
 {
   return PremultipliedSRGBA8{
     detail::premultiply(color.channels[0], color.channels[3]),
@@ -199,7 +195,7 @@ constexpr PremultipliedSRGBA8 premultiply(const SRGBA8& color)
   };
 }
 
-constexpr glm::vec4 premultiply(const glm::vec4& color)
+inline glm::vec4 premultiply(const glm::vec4& color)
 {
   return glm::vec4{
     detail::premultiply(color[0], color[3]),
@@ -215,8 +211,6 @@ struct ScalarDepth final
   static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<api::core::Half, T>,
                 "Pixel may only have channels of integral types");
 
-  using Type = T;
-
   static constexpr auto PixelFormat = api::PixelFormat::DepthComponent;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   static constexpr auto InternalFormat = DepthInternalFormat<T>;
@@ -226,12 +220,12 @@ struct ScalarDepth final
   {
   }
 
-  explicit constexpr ScalarDepth(Type value) noexcept
+  explicit constexpr ScalarDepth(T value) noexcept
       : value{value}
   {
   }
 
-  Type value;
+  T value;
 };
 
 using ScalarDepth32F = ScalarDepth<float>;

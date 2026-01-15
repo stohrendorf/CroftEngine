@@ -44,7 +44,7 @@ void Label::setSize(const glm::ivec2& size)
   m_size = size;
 }
 
-void Label::update(const bool hasFocus)
+void Label::tick(const bool hasFocus)
 {
   constexpr int FadeSpeed = 30;
   const auto delta = hasFocus ? FadeSpeed : -FadeSpeed;

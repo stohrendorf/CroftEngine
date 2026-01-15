@@ -14,15 +14,14 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState>
-  SwitchRingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState> SwitchRingMenuState::tick(engine::world::World& /*world*/, MenuDisplay& display)
 {
   if(m_duration != Duration)
   {
-    m_duration += 1_frame;
+    m_duration += 1_tick;
     m_ringTransform->radius -= m_radiusSpeed;
     m_ringTransform->cameraPos.Z = MenuRingTransform::CameraZPosOffset + m_ringTransform->radius;
-    m_ringTransform->ringRotation -= 180_deg / Duration * 1_frame;
+    m_ringTransform->ringRotation -= 180_deg / Duration * 1_tick;
     m_ringTransform->cameraRotX = exactScale(m_targetCameraRotX, m_duration, Duration);
     return nullptr;
   }
@@ -34,10 +33,11 @@ std::unique_ptr<MenuState>
   return create<InflateRingMenuState>(false);
 }
 
-void SwitchRingMenuState::handleObject(ui::Ui& /*ui*/,
-                                       engine::world::World& world,
-                                       MenuDisplay& display,
-                                       MenuObject& object)
+void SwitchRingMenuState::constructUi(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+{
+}
+
+void SwitchRingMenuState::handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
@@ -60,7 +60,7 @@ SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform
 
 void SwitchRingMenuState::begin(engine::world::World& /*world*/)
 {
-  m_radiusSpeed = m_ringTransform->radius / Duration * 1_frame;
+  m_radiusSpeed = m_ringTransform->radius / Duration * 1_tick;
   m_targetCameraRotX = m_down ? -MenuRingTransform::CameraSwitchRingXRot : MenuRingTransform::CameraSwitchRingXRot;
 }
 } // namespace menu

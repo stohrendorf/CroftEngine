@@ -26,7 +26,7 @@ public:
     if(alternateLara == nullptr)
       return;
 
-    static constexpr gl::SRGBA8 GoldColor{255, 192, 64, 255};
+    static const gl::SRGBA8 GoldColor{255, 192, 64, 255};
     const auto skeleton = getLara().getSkeleton();
     switch(skeleton->getLocalFrame().get())
     {

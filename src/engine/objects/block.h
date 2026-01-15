@@ -44,7 +44,7 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 
-  void update() override;
+  void updateLogic() override;
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;

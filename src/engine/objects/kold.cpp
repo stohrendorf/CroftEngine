@@ -20,7 +20,7 @@
 
 namespace engine::objects
 {
-void Kold::update()
+void Kold::updateLogic()
 {
   activateAi();
 

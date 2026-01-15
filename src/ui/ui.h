@@ -28,6 +28,9 @@ namespace ui
 {
 struct BoxGouraud;
 
+/**
+ * @brief Collects UI primitives to be rendered later.
+ */
 class Ui final
 {
 public:

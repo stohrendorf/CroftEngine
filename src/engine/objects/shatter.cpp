@@ -18,6 +18,7 @@
 #include "engine/world/world.h"
 #include "modelobject.h"
 #include "objectstate.h"
+#include "render/material/materialmanager.h"
 #include "render/rendersettings.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "render/scene/node.h"
@@ -38,7 +39,7 @@ namespace engine::objects
 {
 bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const core::Length& damageRadius)
 {
-  object.getSkeleton()->updatePose();
+  object.getSkeleton()->calculatePoseMatrices(true);
   const bool isTorsoBoss = object.m_state.type == TR1ItemId::TorsoBoss;
 
   const auto modelSourceType
@@ -66,7 +67,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
       Location{object.m_state.location.room, core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),
       compositor.toMesh(
-        *object.getWorld().getPresenter().getMaterialManager(),
+        object.getWorld().getEngine().getPresenter().getRenderSystem().getMaterialManager(),
         false,
         true,
         [&settings = object.getWorld().getEngine().getEngineConfig()]

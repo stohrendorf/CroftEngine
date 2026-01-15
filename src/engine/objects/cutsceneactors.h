@@ -38,7 +38,7 @@ public:
                 const loader::file::Item& item,
                 const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 
-  void update() override;
+  void updateLogic() override;
 };
 
 class CutsceneActor1 final : public CutsceneActor
@@ -112,6 +112,6 @@ public:
   {
   }
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

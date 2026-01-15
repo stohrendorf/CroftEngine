@@ -15,14 +15,14 @@ void ProgressBar::draw(Ui& ui, const engine::Presenter& /*presenter*/) const
   static constexpr int InnerOffset = OutlineBorderWidth + 1;
 
   const auto innerSize = gsl_lite::narrow_cast<int>(gsl_lite::narrow_cast<float>(getSize().x - 2 * InnerOffset)
-                                              * std::clamp(m_value, 0.0f, 1.0f));
+                                                    * std::clamp(m_value, 0.0f, 1.0f));
   ui.drawOutlineBox(m_position - glm::ivec2{0, FontHeight - 1}, getSize());
   ui.drawBox(m_position + glm::ivec2{InnerOffset, InnerOffset - FontHeight + 1},
              glm::ivec2{innerSize + 1, getSize().y - 2 * InnerOffset + 1},
              15);
 }
 
-void ProgressBar::update(bool /*hasFocus*/)
+void ProgressBar::tick(bool /*hasFocus*/)
 {
 }
 

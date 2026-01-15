@@ -11,6 +11,7 @@
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/inventory.h"
+#include "engine/levelloopresult.h"
 #include "engine/location.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/modelobject.h"
@@ -32,7 +33,7 @@
 #include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/renderer.h"
+#include "render/scene/scenegraph.h"
 #include "scriptengine.h"
 #include "util.h"
 #include "util/fsutil.h"
@@ -131,9 +132,9 @@ std::unique_ptr<loader::file::level::Level> loadLevel(const gsl_lite::not_null<E
 }
 } // namespace
 
-std::pair<RunResult, std::optional<size_t>> Video::run(const gsl_lite::not_null<Engine*>& engine,
-                                                       const std::shared_ptr<Player>& /*player*/,
-                                                       const std::shared_ptr<Player>& /*levelStartPlayer*/)
+std::pair<LevelLoopResult, std::optional<size_t>> Video::run(const gsl_lite::not_null<Engine*>& engine,
+                                                             const std::shared_ptr<Player>& /*player*/,
+                                                             const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
   engine->getPresenter().getSoundEngine()->reset();
   for(const auto& path : m_paths)
@@ -144,7 +145,7 @@ std::pair<RunResult, std::optional<size_t>> Video::run(const gsl_lite::not_null<
       break;
     }
   }
-  return {RunResult::NextLevel, std::nullopt};
+  return {LevelLoopResult::NextLevel, std::nullopt};
 }
 
 std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
@@ -160,9 +161,9 @@ std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const std::files
   return m_paths;
 }
 
-std::pair<RunResult, std::optional<size_t>> Cutscene::run(const gsl_lite::not_null<Engine*>& engine,
-                                                          const std::shared_ptr<Player>& player,
-                                                          const std::shared_ptr<Player>& levelStartPlayer)
+std::pair<LevelLoopResult, std::optional<size_t>> Cutscene::run(const gsl_lite::not_null<Engine*>& engine,
+                                                                const std::shared_ptr<Player>& player,
+                                                                const std::shared_ptr<Player>& levelStartPlayer)
 {
   engine->getPresenter().getSoundEngine()->reset();
   const auto world
@@ -178,13 +179,13 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(const gsl_lite::not_nu
                                      nullptr,
                                      std::filesystem::path{});
 
-  world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRLocation().position;
   if(m_cameraPosX.has_value())
     pos.X = *m_cameraPosX;
   if(m_cameraPosZ.has_value())
     pos.Z = *m_cameraPosZ;
-
+  world->getCameraController().startCinematic(pos, {0_deg, m_cameraRot, 0_deg});
+  world->getCameraController().setCinematicBaseRotation(0_deg, m_cameraRot);
   world->getCameraController().setPosition(pos);
 
   if(m_flipRooms)
@@ -207,7 +208,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(const gsl_lite::not_nu
     }
   }
 
-  return engine->run(*world, true, false);
+  return engine->runCutscene(*world);
 }
 
 std::vector<std::filesystem::path> Cutscene::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
@@ -264,13 +265,15 @@ std::unique_ptr<world::World> Level::loadWorld(const gsl_lite::not_null<Engine*>
     for(const auto b : {false, true})
     {
       engine->getPresenter()
+        .getRenderSystem()
         .getMaterialManager()
-        ->getWorldComposition(a, b)
+        .getWorldComposition(a, b)
         ->getUniform("u_waterColor")
         ->set(m_waterColor);
       engine->getPresenter()
+        .getRenderSystem()
         .getMaterialManager()
-        ->getWorldComposition(a, b)
+        .getWorldComposition(a, b)
         ->getUniform("u_waterDensity")
         ->set(m_waterDensity);
     }
@@ -284,9 +287,9 @@ bool Level::isLevel(const std::filesystem::path& path) const
   return util::preferredEqual(std::filesystem::path(m_name), path);
 }
 
-std::pair<RunResult, std::optional<size_t>> Level::run(const gsl_lite::not_null<Engine*>& engine,
-                                                       const std::shared_ptr<Player>& player,
-                                                       const std::shared_ptr<Player>& levelStartPlayer)
+std::pair<LevelLoopResult, std::optional<size_t>> Level::run(const gsl_lite::not_null<Engine*>& engine,
+                                                             const std::shared_ptr<Player>& player,
+                                                             const std::shared_ptr<Player>& levelStartPlayer)
 {
   if(m_alternativeSplashscreen.has_value()
      && std::filesystem::is_regular_file(
@@ -304,15 +307,15 @@ std::pair<RunResult, std::optional<size_t>> Level::run(const gsl_lite::not_null<
     player->laraHealth = core::LaraHealth;
 
   const auto world = loadWorld(engine, player, levelStartPlayer, false);
-  const auto result = engine->run(*world, false, m_allowSave);
+  const auto result = engine->runLevel(*world, m_allowSave);
   engine->getPresenter().clearSplashImageTextureOverride();
   return result;
 }
 
-std::pair<RunResult, std::optional<size_t>> Level::runFromSave(const gsl_lite::not_null<Engine*>& engine,
-                                                               const std::optional<size_t>& slot,
-                                                               const std::shared_ptr<Player>& player,
-                                                               const std::shared_ptr<Player>& levelStartPlayer)
+std::pair<LevelLoopResult, std::optional<size_t>> Level::runFromSave(const gsl_lite::not_null<Engine*>& engine,
+                                                                     const std::optional<size_t>& slot,
+                                                                     const std::shared_ptr<Player>& player,
+                                                                     const std::shared_ptr<Player>& levelStartPlayer)
 {
   gsl_Expects(m_allowSave);
 
@@ -327,7 +330,7 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(const gsl_lite::n
   player->getInventory().clear();
   const auto world = loadWorld(engine, player, levelStartPlayer, true);
   world->load(slot);
-  const auto result = engine->run(*world, false, m_allowSave);
+  const auto result = engine->runLevel(*world, m_allowSave);
   engine->getPresenter().clearSplashImageTextureOverride();
   return result;
 }
@@ -344,9 +347,9 @@ std::filesystem::path Level::getFilepath() const
   return std::filesystem::path{m_name};
 }
 
-std::pair<RunResult, std::optional<size_t>> TitleMenu::run(const gsl_lite::not_null<Engine*>& engine,
-                                                           const std::shared_ptr<Player>& player,
-                                                           const std::shared_ptr<Player>& levelStartPlayer)
+std::pair<LevelLoopResult, std::optional<size_t>> TitleMenu::run(const gsl_lite::not_null<Engine*>& engine,
+                                                                 const std::shared_ptr<Player>& player,
+                                                                 const std::shared_ptr<Player>& levelStartPlayer)
 {
   engine->getPresenter().getSoundEngine()->reset();
   player->getInventory().clear();
@@ -391,12 +394,10 @@ SplashScreen::SplashScreen(std::string path,
 
 SplashScreen::~SplashScreen() = default;
 
-std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::not_null<Engine*>& engine,
-                                                              const std::shared_ptr<Player>& /*player*/,
-                                                              const std::shared_ptr<Player>& /*levelStartPlayer*/)
+std::pair<LevelLoopResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::not_null<Engine*>& engine,
+                                                                    const std::shared_ptr<Player>& /*player*/,
+                                                                    const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
-  Throttler throttler{};
-
   glm::ivec2 size{-1, -1};
   auto image = gsl_lite::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(findCaseInsensitivePath(engine->getAssetDataPath(), m_path))}.toTexture(
@@ -405,6 +406,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::no
   std::shared_ptr<render::scene::Mesh> mesh;
 
   auto& presenter = engine->getPresenter();
+  engine->getThrottler().reset();
   float alpha = 0;
   auto updateSize = [this, &size, &presenter, &mesh, &image, &alpha]
   {
@@ -422,7 +424,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::no
     const auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
     mesh = render::scene::createScreenQuad(sourceOffset,
                                            scaledSourceSize,
-                                           presenter.getMaterialManager()->getBackdrop(true),
+                                           presenter.getRenderSystem().getMaterialManager().getBackdrop(true),
                                            render::scene::Translucency::Opaque,
                                            m_path.string());
     mesh->bind("u_input",
@@ -437,10 +439,15 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::no
                });
   };
 
-  auto renderFrame = [&presenter, &updateSize, &mesh, &throttler]() -> bool
+  auto renderFrame = [&presenter, &updateSize, &mesh, &throttler = engine->getThrottler()]() -> bool
   {
-    if(!presenter.preFrame() || presenter.shouldClose())
+    if(!presenter.beginFrame() || presenter.shouldClose())
       return false;
+
+    if(throttler.isTimeForLogic())
+    {
+      presenter.getInputHandler().update();
+    }
 
     if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Menu))
       return false;
@@ -449,17 +456,19 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::no
     gsl_Assert(mesh != nullptr);
 
     mesh->getRenderState().setViewport(presenter.getDisplayViewport());
-    presenter.withBackbuffer(
+    presenter.inBackbuffer(
       [&mesh]
       {
         render::scene::RenderContext context{
           render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
         mesh->render(nullptr, context);
       });
-    presenter.updateSoundEngine();
+    if(throttler.isTimeForLogic())
+    {
+      presenter.updateSoundEngine();
+    }
     presenter.swapBuffers();
 
-    throttler.wait();
     return true;
   };
 
@@ -472,7 +481,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::no
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds{m_fadeInDurationSeconds}).count());
     alpha = std::clamp(1 - time / duration, 0.0f, 1.0f);
     if(!renderFrame())
-      return {RunResult::NextLevel, std::nullopt};
+      return {LevelLoopResult::NextLevel, std::nullopt};
   }
 
   alpha = 1;
@@ -481,7 +490,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::no
       std::chrono::high_resolution_clock::now() < end;)
   {
     if(!renderFrame())
-      return {RunResult::NextLevel, std::nullopt};
+      return {LevelLoopResult::NextLevel, std::nullopt};
   }
 
   for(const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_fadeOutDurationSeconds};
@@ -493,10 +502,10 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl_lite::no
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds{m_fadeOutDurationSeconds}).count());
     alpha = std::clamp(time / duration, 0.0f, 1.0f);
     if(!renderFrame())
-      return {RunResult::NextLevel, std::nullopt};
+      return {LevelLoopResult::NextLevel, std::nullopt};
   }
 
-  return {RunResult::NextLevel, std::nullopt};
+  return {LevelLoopResult::NextLevel, std::nullopt};
 }
 
 std::vector<std::filesystem::path> SplashScreen::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
@@ -506,22 +515,23 @@ std::vector<std::filesystem::path> SplashScreen::getFilepathsIfInvalid(const std
   return {std::filesystem::path{m_path}};
 }
 
-std::pair<RunResult, std::optional<size_t>> LevelSequenceItem::runFromSave(const gsl_lite::not_null<Engine*>&,
-                                                                           const std::optional<size_t>&,
-                                                                           const std::shared_ptr<Player>&,
-                                                                           const std::shared_ptr<Player>&)
+std::pair<LevelLoopResult, std::optional<size_t>> LevelSequenceItem::runFromSave(const gsl_lite::not_null<Engine*>&,
+                                                                                 const std::optional<size_t>&,
+                                                                                 const std::shared_ptr<Player>&,
+                                                                                 const std::shared_ptr<Player>&)
 {
   BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
 }
 
-std::pair<RunResult, std::optional<size_t>> ModifyInventory::run(const gsl_lite::not_null<Engine*>& /*engine*/,
-                                                                 const std::shared_ptr<Player>& player,
-                                                                 const std::shared_ptr<Player>& /*levelStartPlayer*/
-)
+std::pair<LevelLoopResult, std::optional<size_t>>
+  ModifyInventory::run(const gsl_lite::not_null<Engine*>& /*engine*/,
+                       const std::shared_ptr<Player>& player,
+                       const std::shared_ptr<Player>& /*levelStartPlayer*/
+  )
 {
   apply(player);
-  return {RunResult::NextLevel, std::nullopt};
+  return {LevelLoopResult::NextLevel, std::nullopt};
 }
 
 void ModifyInventory::apply(const std::shared_ptr<Player>& player)
@@ -609,9 +619,10 @@ std::filesystem::path TrackInfo::getFirstValidAlternative(const std::filesystem:
   BOOST_THROW_EXCEPTION(std::runtime_error("no valid alternative found"));
 }
 
-std::pair<RunResult, std::optional<size_t>> PlayAudioSlot::run(const gsl_lite::not_null<Engine*>& engine,
-                                                               const std::shared_ptr<Player>& /*player*/,
-                                                               const std::shared_ptr<Player>& /*levelStartPlayer*/)
+std::pair<LevelLoopResult, std::optional<size_t>>
+  PlayAudioSlot::run(const gsl_lite::not_null<Engine*>& engine,
+                     const std::shared_ptr<Player>& /*player*/,
+                     const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
   const gsl_lite::not_null trackInfo{engine->getScriptEngine().getGameflow().getTracks().at(m_track)};
   engine->getPresenter().getSoundEngine()->freeSlot(m_slot);
@@ -621,23 +632,24 @@ std::pair<RunResult, std::optional<size_t>> PlayAudioSlot::run(const gsl_lite::n
   engine->getPresenter().getSoundEngine()->setSlotStream(
     m_slot, stream, trackInfo->getFirstValidAlternative(engine->getAssetDataPath()));
   stream->play();
-  return {RunResult::NextLevel, std::nullopt};
+  return {LevelLoopResult::NextLevel, std::nullopt};
 }
 
-std::pair<RunResult, std::optional<size_t>> StopAudioSlot::run(const gsl_lite::not_null<Engine*>& engine,
-                                                               const std::shared_ptr<Player>& /*player*/,
-                                                               const std::shared_ptr<Player>& /*levelStartPlayer*/)
+std::pair<LevelLoopResult, std::optional<size_t>>
+  StopAudioSlot::run(const gsl_lite::not_null<Engine*>& engine,
+                     const std::shared_ptr<Player>& /*player*/,
+                     const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
   engine->getPresenter().getSoundEngine()->freeSlot(m_slot);
-  return {RunResult::NextLevel, std::nullopt};
+  return {LevelLoopResult::NextLevel, std::nullopt};
 }
 
-std::pair<RunResult, std::optional<size_t>> ResetSoundEngine::run(const gsl_lite::not_null<Engine*>& engine,
-                                                                  const std::shared_ptr<Player>& /*player*/,
-                                                                  const std::shared_ptr<Player>&
-                                                                  /*levelStartPlayer*/)
+std::pair<LevelLoopResult, std::optional<size_t>> ResetSoundEngine::run(const gsl_lite::not_null<Engine*>& engine,
+                                                                        const std::shared_ptr<Player>& /*player*/,
+                                                                        const std::shared_ptr<Player>&
+                                                                        /*levelStartPlayer*/)
 {
   engine->getPresenter().getSoundEngine()->reset();
-  return {RunResult::NextLevel, std::nullopt};
+  return {LevelLoopResult::NextLevel, std::nullopt};
 }
 } // namespace engine::script

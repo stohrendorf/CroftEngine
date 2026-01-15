@@ -14,10 +14,9 @@ namespace menu
 {
 class MenuState;
 
-void ApplyItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
-                                               engine::world::World& /*world*/,
-                                               MenuDisplay& display,
-                                               MenuObject& object)
+void ApplyItemTransformMenuState::handleObjectTick(engine::world::World& /*world*/,
+                                                   MenuDisplay& display,
+                                                   MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
   {
@@ -43,15 +42,18 @@ void ApplyItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
   }
 }
 
-std::unique_ptr<MenuState>
-  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> ApplyItemTransformMenuState::tick(engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
   if(m_duration != Duration)
   {
-    m_duration += 1_frame;
+    m_duration += 1_tick;
     return nullptr;
   }
 
   return create<SelectedMenuState>();
+}
+
+void ApplyItemTransformMenuState::constructUi(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+{
 }
 } // namespace menu

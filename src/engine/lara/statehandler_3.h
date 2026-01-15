@@ -74,12 +74,13 @@ public:
       return;
     }
 
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(applyLandingDamage())
     {
       setGoalAnimState(LaraStateId::Death);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
-            || getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+    else if(inputHandler.getInputState().zMovement != hid::AxisMovement::Forward
+            || inputHandler.hasAction(hid::Action::Walk))
     {
       setGoalAnimState(LaraStateId::Stop);
     }

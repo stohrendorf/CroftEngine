@@ -13,7 +13,7 @@
 
 namespace engine::objects
 {
-void Bat::update()
+void Bat::updateLogic()
 {
   activateAi();
 

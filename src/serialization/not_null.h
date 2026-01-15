@@ -10,16 +10,16 @@ namespace serialization
 {
 template<typename T, typename TContext>
 auto create(const TypeId<gsl_lite::not_null<T>>&, const Deserializer<TContext>& ser)
-  -> std::remove_reference_t<decltype(access::dispatch<T>(ser), std::declval<gsl_lite::not_null<T>>())>
+  -> std::remove_reference_t<decltype(access::dispatchCreate<T>(ser), std::declval<gsl_lite::not_null<T>>())>
 {
-  return gsl_lite::not_null<T>{access::dispatch<T>(ser)};
+  return gsl_lite::not_null<T>{access::dispatchCreate<T>(ser)};
 }
 
 template<typename T, typename TContext>
 void serialize(const gsl_lite::not_null<T>& data, const Serializer<TContext>& ser)
 {
   auto tmp = data.get();
-  access::dispatch(tmp, ser);
+  access::dispatchSerialize(tmp, ser);
 }
 
 template<typename T, typename TContext>

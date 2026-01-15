@@ -26,9 +26,9 @@ struct MenuRingTransform;
 
 class RotateLeftRightMenuState final : public MenuState
 {
-  static constexpr core::Frame Duration = 24_frame / 2;
+  static constexpr core::Tick Duration = 24_tick / 2;
   size_t m_targetObject{0};
-  core::Frame m_duration{Duration};
+  core::Tick m_duration{Duration};
   // cppcheck-suppress syntaxError
   core::RotationSpeed m_rotSpeed;
   std::unique_ptr<MenuState> m_prev;
@@ -39,7 +39,8 @@ public:
                                     const MenuRing& ring,
                                     std::unique_ptr<MenuState>&& prev);
 
-  void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  void handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

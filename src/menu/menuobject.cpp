@@ -47,8 +47,9 @@ class Mesh;
 
 namespace menu
 {
-bool MenuObject::animate()
+bool MenuObject::tick()
 {
+  // menu runs internally at 60 ticks per second
   for(int i = 0; i < 2; ++i)
   {
     if(meshAnimFrame == goalFrame)
@@ -57,9 +58,9 @@ bool MenuObject::animate()
       return false;
     }
 
-    if(animStretchCounter != 0_frame)
+    if(animStretchCounter != 0_mframe)
     {
-      animStretchCounter -= 1_frame;
+      animStretchCounter -= 1_mframe;
     }
     else
     {
@@ -67,11 +68,11 @@ bool MenuObject::animate()
       meshAnimFrame += animDirection;
       if(meshAnimFrame >= lastMeshAnimFrame)
       {
-        meshAnimFrame = 0_frame;
+        meshAnimFrame = 0_mframe;
       }
-      else if(meshAnimFrame < 0_frame)
+      else if(meshAnimFrame < 0_mframe)
       {
-        meshAnimFrame = lastMeshAnimFrame - 1_frame;
+        meshAnimFrame = lastMeshAnimFrame - 1_mframe;
       }
     }
     updateMeshRenderMask();
@@ -95,32 +96,32 @@ void MenuObject::updateMeshRenderMask()
 
   if(type == engine::TR1ItemId::PassportOpening)
   {
-    if(meshAnimFrame <= 14_frame)
+    if(meshAnimFrame <= 14_mframe)
     {
       setMask(0x57);
     }
-    else if(meshAnimFrame <= 18_frame)
+    else if(meshAnimFrame <= 18_mframe)
     {
       setMask(0x5f);
     }
-    else if(meshAnimFrame == 19_frame)
+    else if(meshAnimFrame == 19_mframe)
     {
       setMask(0x5b);
     }
-    else if(meshAnimFrame <= 23_frame)
+    else if(meshAnimFrame <= 23_mframe)
     {
       setMask(0x7b);
     }
-    else if(meshAnimFrame <= 28_frame)
+    else if(meshAnimFrame <= 28_mframe)
     {
       setMask(0x3b);
     }
-    else if(meshAnimFrame == 29_frame)
+    else if(meshAnimFrame == 29_mframe)
     {
       setMask(0x13);
     }
   }
-  else if(type == engine::TR1ItemId::Compass && (meshAnimFrame == 0_frame || meshAnimFrame >= 18_frame))
+  else if(type == engine::TR1ItemId::Compass && (meshAnimFrame == 0_mframe || meshAnimFrame >= 18_mframe))
   {
     setMask(defaultMeshRenderMask.to_ulong());
   }
@@ -130,7 +131,7 @@ void MenuObject::updateMeshRenderMask()
   }
 }
 
-void MenuObject::initModel(const engine::world::World& world,
+void MenuObject::initModel(engine::world::World& world,
                            const gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>& lights)
 {
   const auto& obj = world.getWorldGeometry().findAnimatedModelForType(type);
@@ -159,6 +160,7 @@ void MenuObject::draw(const engine::world::World& world,
                       const MenuRingTransform& ringTransform,
                       const core::Angle& ringItemAngle) const
 {
+  // TODO separate tick logic from rendering
   const glm::mat4 nodeMatrix
     = ringTransform.getModelMatrix() * core::TRRotation{0_deg, ringItemAngle, 0_deg}.toMatrix()
       * glm::translate(glm::mat4{1.0f}, core::TRVec{ringTransform.radius, 0_len, 0_len}.toRenderSystem())
@@ -175,7 +177,7 @@ void MenuObject::draw(const engine::world::World& world,
   {
     node->setLocalMatrix(nodeMatrix);
     auto animState{0_as};
-    node->setAnimation(animState, gsl_lite::not_null{&obj->animations[0]}, meshAnimFrame);
+    node->setAnimation(animState, gsl_lite::not_null{&obj->animations[0]}, meshAnimFrame * 1_frame / 1_mframe);
 
     if(type == engine::TR1ItemId::Compass)
     {
@@ -187,7 +189,7 @@ void MenuObject::draw(const engine::world::World& world,
       node->patchBone(1, core::TRRotation{0_deg, compassNeedleRotation, 0_deg}.toMatrix());
     }
 
-    node->updatePose();
+    node->calculatePoseMatrices(false);
 
     for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
     {

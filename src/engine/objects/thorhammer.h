@@ -45,6 +45,8 @@ public:
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
+
+  void updateLogic() override;
 };
 
 class ThorHammerHandle final : public ModelObject
@@ -58,7 +60,7 @@ public:
                    loader::file::Item item,
                    const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 
-  void update() override;
+  void updateLogic() override;
 
   void collide(CollisionInfo& info) override;
 

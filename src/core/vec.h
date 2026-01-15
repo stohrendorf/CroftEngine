@@ -52,5 +52,10 @@ void deserialize(TRVec& v, const serialization::Deserializer<engine::world::Worl
   return sectorOf(a) == sectorOf(b);
 }
 
+[[nodiscard]] constexpr TRVec lerp(const TRVec& a, const TRVec& b, const float alpha)
+{
+  return TRVec{lerp(a.X, b.X, alpha), lerp(a.Y, b.Y, alpha), lerp(a.Z, b.Z, alpha)};
+}
+
 extern std::ostream& operator<<(std::ostream& stream, const TRVec& rhs);
 } // namespace core

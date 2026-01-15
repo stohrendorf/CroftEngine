@@ -73,9 +73,9 @@ public:
     m_label.setSize(size);
   }
 
-  void update(const bool hasFocus) override
+  void tick(const bool hasFocus) override
   {
-    m_label.update(hasFocus);
+    m_label.tick(hasFocus);
   }
 
   void draw(Ui& ui, const engine::Presenter& presenter) const override

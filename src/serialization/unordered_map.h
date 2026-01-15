@@ -30,7 +30,7 @@ void deserialize(std::unordered_map<T, U>& data, const Deserializer<TContext>& s
     gsl_Assert(element.is_map());
     gsl_Assert(element.num_children() == 2);
     auto elemSer = ser.withNode(element);
-    data.emplace(access::dispatch<T>(elemSer["key"]), access::dispatch<U>(elemSer["value"]));
+    data.emplace(access::dispatchCreate<T>(elemSer["key"]), access::dispatchCreate<U>(elemSer["value"]));
   }
 }
 } // namespace serialization

@@ -4,7 +4,7 @@
 #include "material.h"
 #include "render/scene/csm.h"
 #include "render/scene/node.h"
-#include "render/scene/renderer.h"
+#include "render/scene/scenegraph.h"
 #include "shadercache.h"
 #include "spritematerialmode.h"
 #include "uniformparameter.h"
@@ -73,7 +73,7 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
 
   if(mode != SpriteMaterialMode::InstancedBillboard)
     m->getUniformBlock("Transform")->bindTransformBuffer();
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -108,6 +108,14 @@ gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(const bool skeletal,
   m->getRenderState().setCullFaceSide(gl::api::TriangleFace::Front);
   if(const auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer(smooth);
+  if(const auto buffer = m->tryGetBuffer("NextBoneTransform"))
+    buffer->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"))
+    uniform->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(m_interTickFactorProvider());
+      });
 
   return m;
 }
@@ -118,9 +126,17 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(const bool skeletal, con
   m->getRenderState().setDepthTest(true);
   m->getRenderState().setDepthWrite(true);
   m->getUniformBlock("Transform")->bindTransformBuffer();
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   if(const auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer(smooth);
+  if(const auto buffer = m->tryGetBuffer("NextBoneTransform"))
+    buffer->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"))
+    uniform->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(m_interTickFactorProvider());
+      });
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -151,7 +167,15 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(const bool inWater,
   m->getUniformBlock("Transform")->bindTransformBuffer();
   if(const auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer(smooth);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  if(const auto buffer = m->tryGetBuffer("NextBoneTransform"))
+    buffer->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"))
+    uniform->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(m_interTickFactorProvider());
+      });
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniformBlock("CSM")->bind(
     [this](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::UniformBlock& ub)
     {
@@ -195,7 +219,16 @@ gslu::nn_shared<Material> MaterialManager::getGhost(const std::function<bool()>&
   auto m = gsl_lite::make_shared<Material>(m_shaderCache->getGhost());
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getBuffer("BoneTransform")->bindBoneTransformBuffer(smooth);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getBuffer("NextBoneTransform")->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"); uniform != nullptr)
+  {
+    uniform->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(m_interTickFactorProvider());
+      });
+  }
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m_ghost = m;
   return m;
 }
@@ -210,7 +243,7 @@ gslu::nn_shared<Material> MaterialManager::getWaterSurface()
   m_waterSurface->getRenderState().setBlend(0, false);
   m_waterSurface->getRenderState().setBlend(1, false);
 
-  m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   bindNoiseAndTime(*m_waterSurface);
 
   bindNoiseAndTime(*m_waterSurface);
@@ -225,14 +258,19 @@ gslu::nn_shared<Material> MaterialManager::getLightning()
 
   m_lightning = std::make_shared<Material>(m_shaderCache->getLightning());
   m_lightning->getUniformBlock("Transform")->bindTransformBuffer();
-  m_lightning->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m_lightning->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
 
   return gsl_lite::not_null{m_lightning};
 }
 
-MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer)
+MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache,
+                                 gslu::nn_shared<scene::Camera> camera,
+                                 std::function<float()> interTickFactorProvider,
+                                 std::function<std::chrono::high_resolution_clock::time_point()> gameTimeProvider)
     : m_shaderCache{std::move(shaderCache)}
-    , m_renderer{std::move(renderer)}
+    , m_camera{std::move(camera)}
+    , m_interTickFactorProvider{std::move(interTickFactorProvider)}
+    , m_gameTimeProvider{std::move(gameTimeProvider)}
 {
   static constexpr size_t NoiseTextureSize = 128;
   std::vector<gl::RGBA8> noiseData;
@@ -283,7 +321,7 @@ gslu::nn_shared<Material> MaterialManager::getUi()
     {
       uniform.set(gsl_lite::not_null{m_geometryTexturesHandle});
     });
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   configureForScreenSpaceEffect(*m, true);
   m_ui = m;
   return gsl_lite::not_null{m_ui};
@@ -299,7 +337,7 @@ gslu::nn_shared<Material> MaterialManager::getFlat(bool withAlpha, bool invertY,
   m->getRenderState().setBlend(0, withAlpha);
   m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
   if(const auto uniformBlock = m->tryGetUniformBlock("Camera"))
-    uniformBlock->bindCameraBuffer(m_renderer->getCamera());
+    uniformBlock->bindCameraBuffer(m_camera);
   configureForScreenSpaceEffect(*m, withAlpha);
   m_flat.emplace(key, m);
   return m;
@@ -311,7 +349,7 @@ gslu::nn_shared<Material> MaterialManager::getBackdrop(bool withAlphaMultiplier)
     return it->second;
 
   auto m = gsl_lite::make_shared<Material>(m_shaderCache->getBackdrop(withAlphaMultiplier));
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   configureForScreenSpaceEffect(*m, withAlphaMultiplier);
   m_backdrop.emplace(withAlphaMultiplier, m);
   return m;
@@ -403,7 +441,7 @@ gslu::nn_shared<Material> MaterialManager::getLensDistortion()
     return gsl_lite::not_null{m_lensDistortion};
 
   auto m = gsl_lite::make_shared<Material>(m_shaderCache->getLensDistortion());
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
 
   m_lensDistortion = m;
   return m;
@@ -571,7 +609,7 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   m->getRenderState().setDepthTest(true);
   m->getRenderState().setDepthFunction(gl::api::DepthFunction::Lequal);
   m->getRenderState().setDepthWrite(false);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniformBlock("Transform")->bindTransformBuffer();
   bindNoiseAndTime(*m);
   m_dustParticle = m;
@@ -591,7 +629,7 @@ gslu::nn_shared<Material> MaterialManager::getGhostName()
   renderState.setDepthTest(true);
   // TODO this seems wrong, need to verify
   renderState.setDepthWrite(false);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m_ghostName = m;
   return m;
@@ -635,9 +673,9 @@ void MaterialManager::bindNoiseAndTime(const Material& m) const
   if(const auto uniform = m.tryGetUniform("u_time"); uniform != nullptr)
   {
     uniform->bind(
-      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
-        const auto now = renderer->getGameTime();
+        const auto now = m_gameTimeProvider();
         const auto duration
           = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(now.time_since_epoch());
         uniform.set(duration.count());

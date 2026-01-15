@@ -23,7 +23,7 @@
 
 namespace engine::ghosting
 {
-void GhostModel::apply(const world::World& world, const GhostFrame& frame)
+void GhostModel::apply(world::World& world, const GhostFrame& frame)
 {
   setLocalMatrix(frame.modelMatrix);
   m_roomId = frame.roomId;
@@ -47,7 +47,7 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
   else
   {
     const auto mesh = compositor.toMesh(
-      *world.getPresenter().getMaterialManager(),
+      world.getEngine().getPresenter().getRenderSystem().getMaterialManager(),
       true,
       false,
       [&engine = world.getEngine()]
@@ -60,7 +60,7 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
       },
       getName());
-    const auto m = world.getPresenter().getMaterialManager()->getGhost(
+    const auto m = world.getEngine().getPresenter().getRenderSystem().getMaterialManager().getGhost(
       [&engine = world.getEngine()]
       {
         return engine.getEngineConfig()->animSmoothing;
