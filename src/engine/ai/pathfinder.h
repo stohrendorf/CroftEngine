@@ -123,15 +123,15 @@ private:
   void resetBoxes(const world::World& world, const gsl_lite::not_null<const world::Box*>& box);
 
   /**
-* Does a limited expansion of the path graph and propagates reachability information.
-*/
-  void expandNodes(const world::World& world);
+   * Does a limited expansion of the path graph and propagates reachability information.
+   */
+  void expandPathGraph(const world::World& world);
 
   void setReachable(const gsl_lite::not_null<const world::Box*>& box, bool reachable);
-  void updateDistance(const gsl_lite::not_null<const world::Box*>& currentBox,
-                      const gsl_lite::not_null<const world::Box*>& predecessorBox);
-  bool updateEdge(const gsl_lite::not_null<const world::Box*>& currentBox,
-                  const gsl_lite::not_null<const world::Box*>& predecessorBox);
+  void updateDistance(const gsl_lite::not_null<const world::Box*>& current,
+                      const gsl_lite::not_null<const world::Box*>& neighbor);
+  bool updateEdge(const gsl_lite::not_null<const world::Box*>& current,
+                  const gsl_lite::not_null<const world::Box*>& neighbor);
 
   std::vector<gsl_lite::not_null<const world::Box*>> m_boxes;
   std::deque<gsl_lite::not_null<const world::Box*>> m_expansions;
