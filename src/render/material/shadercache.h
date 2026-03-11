@@ -107,6 +107,11 @@ public:
     return get("flat.vert", "fx_crt_v1.frag");
   }
 
+  [[nodiscard]] auto getCRTV2()
+  {
+    return get("flat.vert", "fx_crt_v2.frag");
+  }
+
   [[nodiscard]] auto getBrightnessContrast(const int8_t brightness, const int8_t contrast)
   {
     return get("flat.vert",

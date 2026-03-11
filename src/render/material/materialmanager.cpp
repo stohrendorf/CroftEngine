@@ -389,6 +389,17 @@ gslu::nn_shared<Material> MaterialManager::getCRTV1()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getCRTV2()
+{
+  if(m_crtV2 != nullptr)
+    return gsl_lite::not_null{m_crtV2};
+
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getCRTV2());
+  configureForScreenSpaceEffect(*m, false);
+  m_crtV2 = m;
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getBrightnessContrast(int8_t brightness, int8_t contrast)
 {
   const std::tuple key{brightness, contrast};

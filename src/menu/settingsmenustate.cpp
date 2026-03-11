@@ -78,7 +78,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
         engine.getEngineConfig()->renderSettings.crtVersion = value;
         engine.applySettings();
       },
-      std::vector<uint8_t>{0, 1});
+      std::vector<uint8_t>{0, 1, 2});
     listBox->addSetting(
       gslu::nn_shared<ui::widgets::Widget>{tmp},
       [&engine]

@@ -284,6 +284,9 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
     case 1:
       addEffect("crt1", materialManager.getCRTV1());
       break;
+    case 2:
+      addEffect("crt1", materialManager.getCRTV2());
+      break;
     default:
       BOOST_THROW_EXCEPTION(std::out_of_range("invalid crt version"));
     }
