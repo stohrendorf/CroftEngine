@@ -12,7 +12,7 @@
 #include <boost/throw_exception.hpp>
 #include <chrono>
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -78,8 +78,7 @@ void StreamVoice::update()
   while(processed-- > 0)
   {
     const auto buffer = m_streamSource->unqueueBuffer();
-    auto it = std::find(m_buffers.begin(), m_buffers.end(), buffer);
-    if(it == m_buffers.end())
+    if(auto it = std::ranges::find(m_buffers, buffer); it == m_buffers.end())
     {
       BOOST_LOG_TRIVIAL(error) << "Got unexpected buffer ID #" << static_cast<ALuint>(*buffer);
       continue;

@@ -7,7 +7,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <gl/program.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 
 namespace render::material

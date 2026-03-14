@@ -16,7 +16,7 @@ class FadeVolumeCallback final
 public:
   using FinalCallback = std::function<void()>;
 
-  explicit FadeVolumeCallback(ALfloat to,
+  explicit FadeVolumeCallback(const ALfloat to,
                               const std::chrono::high_resolution_clock::duration& duration,
                               const gslu::nn_shared<Voice>& voice,
                               FinalCallback finalCallback)
@@ -28,9 +28,9 @@ public:
   {
   }
 
-  bool operator()(const std::chrono::high_resolution_clock::duration& t)
+  bool operator()(const std::chrono::high_resolution_clock::duration& t) const
   {
-    auto voice = m_voice.lock();
+    const auto voice = m_voice.lock();
     if(voice == nullptr)
     {
       if(static_cast<bool>(m_finalCallback))

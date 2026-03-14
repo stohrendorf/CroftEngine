@@ -53,7 +53,7 @@ public:
 
   void seek(const std::chrono::milliseconds& position);
 
-  [[nodiscard]] audio::Clock::duration getDuration() const;
+  [[nodiscard]] Clock::duration getDuration() const;
 
   [[nodiscard]] int getChannels() const noexcept;
 

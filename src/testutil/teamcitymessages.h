@@ -34,28 +34,29 @@ class TeamcityMessages
   std::ostream* m_out;
 
 public:
-  static const bool StdErr = true;
-  static const bool StdOut = false;
+  static constexpr bool StdErr = true;
+  static constexpr bool StdOut = false;
 
   TeamcityMessages();
 
   void setOutput(std::ostream&);
 
-  void suiteStarted(const std::string& name, const std::string& flowid = {});
-  void suiteFinished(const std::string& name, const std::string& flowid = {});
+  void suiteStarted(const std::string& name, const std::string& flowId = {}) const;
+  void suiteFinished(const std::string& name, const std::string& flowId = {}) const;
 
-  void testStarted(const std::string& name, const std::string& flowid = {}, bool captureStandardOutput = false);
-  void testFinished(const std::string& name, const std::string& flowid = {});
-  void testFinished(const std::string& name, unsigned long durationMs, const std::string& flowid = {});
+  void testStarted(const std::string& name, const std::string& flowId = {}, bool captureStandardOutput = false) const;
+  void testFinished(const std::string& name, const std::string& flowId = {}) const;
+  void testFinished(const std::string& name, unsigned long durationMs, const std::string& flowId = {}) const;
 
   void testFailed(const std::string& name,
                   const std::string& message,
                   const std::string& details,
-                  const std::string& flowid = {});
-  void testIgnored(const std::string& name, const std::string& message, const std::string& flowid = {});
+                  const std::string& flowId = {}) const;
+  void testIgnored(const std::string& name, const std::string& message, const std::string& flowId = {}) const;
 
-  void
-    testOutput(const std::string& name, const std::string& output, const std::string& flowid, bool isStdErr = StdOut);
+  void testOutput(const std::string& name,
+                  const std::string& output,
+                  const std::string& flowId,
+                  bool isStdError = StdOut) const;
 };
-
 } // namespace jetbrains::teamcity

@@ -21,6 +21,6 @@ class Bat final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(Bat)
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

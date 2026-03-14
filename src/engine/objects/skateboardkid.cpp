@@ -24,7 +24,7 @@
 #include "util/helpers.h"
 
 #include <algorithm>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -32,26 +32,26 @@
 
 namespace engine::objects
 {
-SkateboardKid::SkateboardKid(const gsl::not_null<world::World*>& world, const Location& location)
+SkateboardKid::SkateboardKid(const gsl_lite::not_null<world::World*>& world, const Location& location)
     : AIAgent{world, location}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
         "skateboard",
         world,
-        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard).get()},
+        gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard).get()},
         true)}
 {
 }
 
 SkateboardKid::SkateboardKid(const std::string& name,
-                             const gsl::not_null<world::World*>& world,
-                             const gsl::not_null<const world::Room*>& room,
+                             const gsl_lite::not_null<world::World*>& world,
+                             const gsl_lite::not_null<const world::Room*>& room,
                              const loader::file::Item& item,
-                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : AIAgent{name, world, room, item, animatedModel}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
         "skateboard",
         world,
-        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard).get()},
+        gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard).get()},
         true)}
 {
   m_state.current_anim_state = 2_as;
@@ -59,14 +59,14 @@ SkateboardKid::SkateboardKid(const std::string& name,
   m_lighting.bind(*m_skateboard, *world);
 }
 
-void SkateboardKid::update()
+void SkateboardKid::updateLogic()
 {
   // FIXME this is done somewhere else in the original engine, so this should be replaced with an "Expects" instead of
   //       initializing it here.
   initCreatureInfo();
 
-  core::Angle headRot = 0_deg;
-  core::Angle turn = 0_deg;
+  auto headRot = 0_deg;
+  auto turn = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
@@ -150,8 +150,8 @@ void SkateboardKid::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations[13]});
+    getSkeleton()->setAnim(gsl_lite::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations[13]});
     m_state.current_anim_state = 5_as;
     getWorld().createPickup(TR1ItemId::UzisSprite, m_state.location.room, m_state.location.position);
   }
@@ -166,9 +166,9 @@ void SkateboardKid::update()
   const auto& skateboardAnim
     = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard)->animations[animIdx];
   const auto animFrame = skateboardAnim.firstFrame + getSkeleton()->getLocalFrame();
-  m_skateboard->setAnim(gsl::not_null{&skateboardAnim}, std::min(skateboardAnim.lastFrame, animFrame));
-  m_skateboard->updatePose();
-  setParent(gsl::not_null{m_skateboard}, getNode());
+  m_skateboard->setAnim(gsl_lite::not_null{&skateboardAnim}, std::min(skateboardAnim.lastFrame, animFrame));
+  m_skateboard->calculatePoseMatrices(true);
+  setParent(gsl_lite::not_null{m_skateboard}, getNode());
 }
 
 void SkateboardKid::serialize(const serialization::Serializer<world::World>& ser) const

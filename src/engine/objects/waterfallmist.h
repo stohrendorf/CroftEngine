@@ -2,7 +2,7 @@
 
 #include "modelobject.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string>
 
 namespace engine
@@ -27,20 +27,20 @@ namespace engine::objects
 class WaterfallMist final : public NullRenderModelObject
 {
 public:
-  WaterfallMist(const gsl::not_null<world::World*>& world, const Location& location)
+  WaterfallMist(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : NullRenderModelObject{world, location}
   {
   }
 
   WaterfallMist(const std::string& name,
-                const gsl::not_null<world::World*>& world,
-                const gsl::not_null<const world::Room*>& room,
+                const gsl_lite::not_null<world::World*>& world,
+                const gsl_lite::not_null<const world::Room*>& room,
                 const loader::file::Item& item,
-                const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
       : NullRenderModelObject{name, world, room, item, true, animatedModel}
   {
   }
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

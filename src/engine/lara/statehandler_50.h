@@ -9,7 +9,7 @@
 #include "engine/world/skeletalmodeltype.h"
 
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::lara
@@ -17,7 +17,7 @@ namespace engine::lara
 class StateHandler_50 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_50(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_50(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::UseMidas}
   {
   }
@@ -55,8 +55,8 @@ public:
       p.X += util::rand15s(r);
       p.Y += util::rand15s(r);
       p.Z += util::rand15s(r);
-      auto fx = gsl::make_shared<SparkleParticle>(Location{world.getObjectManager().getLara().m_state.location.room, p},
-                                                  world);
+      const auto fx = gsl_lite::make_shared<SparkleParticle>(
+        Location{world.getObjectManager().getLara().m_state.location.room, p}, world);
       world.getObjectManager().registerParticle(fx);
     }
   }

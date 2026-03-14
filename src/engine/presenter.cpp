@@ -12,23 +12,24 @@
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
 #include "particlecollection.h"
+#include "paths.h"
 #include "qs/qs.h"
 #include "render/material/material.h"
 #include "render/material/materialgroup.h"
 #include "render/material/materialmanager.h"
 #include "render/material/rendermode.h"
-#include "render/material/shadercache.h"
 #include "render/material/uniformparameter.h"
 #include "render/pass/config.h"
 #include "render/renderpipeline.h"
 #include "render/rendersettings.h"
+#include "render/rendersystem.h"
 #include "render/scene/camera.h"
 #include "render/scene/csm.h"
 #include "render/scene/mesh.h"
 #include "render/scene/node.h"
 #include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/renderer.h"
+#include "render/scene/scenegraph.h"
 #include "render/scene/screenoverlay.h"
 #include "render/scene/translucency.h"
 #include "render/scene/visitor.h"
@@ -63,13 +64,14 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <iterator>
 #include <limits>
 #include <memory>
 #include <optional>
+#include <thread>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -97,12 +99,11 @@ void prefillDepthBuffer(const engine::CameraController& cameraController, const 
     if(room.node->isVisible())
       renderRooms.emplace_back(&room);
   }
-  std::sort(renderRooms.begin(),
-            renderRooms.end(),
-            [](const engine::world::Room* a, const engine::world::Room* b)
-            {
-              return a->node->getRenderOrder() > b->node->getRenderOrder();
-            });
+  std::ranges::sort(renderRooms,
+                    [](const engine::world::Room* a, const engine::world::Room* b)
+                    {
+                      return a->node->getRenderOrder() > b->node->getRenderOrder();
+                    });
 
   for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
   {
@@ -137,22 +138,24 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   util::ensureFileExists(path);
 
-  auto mesh = render::scene::createScreenQuad(
-    m_materialManager->getFlat(false, true, true), render::scene::Translucency::Opaque, "video");
+  const auto mesh = render::scene::createScreenQuad(
+    m_renderSystem->getMaterialManager().getFlat(false, true, true), render::scene::Translucency::Opaque, "video");
 
-  auto colorBuffer = gsl::make_shared<gl::Texture2D<gl::SRGB8>>(getRenderViewport(), "ui-color");
-  auto fb = gl::FrameBufferBuilder()
-              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
-              .build("video-fb");
+  const auto colorBuffer = gsl_lite::make_shared<gl::Texture2D<gl::SRGB8>>(getRenderViewport(), "ui-color");
+  const auto fb = gl::FrameBufferBuilder()
+                    .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
+                    .build("video-fb");
 
   video::play(path,
               m_soundEngine->getDevice(),
               [&](const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>& textureHandle)
               {
-                if(!preFrame())
+                if(!beginFrame())
                   return true;
 
-                m_renderer->getCamera()->setViewport(getRenderViewport());
+                m_inputHandler->update();
+
+                m_renderSystem->getCamera()->setViewport(getRenderViewport());
                 mesh->bind("u_input",
                            [&textureHandle](const render::scene::Node* /*node*/,
                                             const render::scene::Mesh& /*mesh*/,
@@ -163,7 +166,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
                 mesh->getMaterialGroup()
                   .get(render::material::RenderMode::FullOpaque)
                   ->getUniformBlock("Camera")
-                  ->bindCameraBuffer(m_renderer->getCamera());
+                  ->bindCameraBuffer(m_renderSystem->getCamera());
                 mesh->getRenderState().setViewport(getRenderViewport());
 
                 GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::UniformBarrierBit
@@ -175,70 +178,31 @@ void Presenter::playVideo(const std::filesystem::path& path)
                   mesh->render(nullptr, context);
                 }
                 updateSoundEngine();
-                fb->blit(*m_renderPipeline->getBackbuffer());
+                fb->blit(*m_renderSystem->getRenderPipeline().getBackbuffer());
                 swapBuffers();
                 return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
               });
 }
 
-void Presenter::renderWorld(const std::vector<world::Room>& rooms,
-                            const CameraController& cameraController,
-                            const std::unordered_set<const world::Portal*>& waterEntryPortals,
-                            const engine::world::World& world)
+void Presenter::renderWorldGeometryFramebuffers(const std::vector<world::Room>& visibleRooms,
+                                                const CameraController& cameraController,
+                                                const std::unordered_set<const world::Portal*>& waterSurfacePortals,
+                                                const world::World& world)
 {
-  m_renderPipeline->updateCamera(m_renderer->getCamera());
+  m_renderSystem->getRenderPipeline().updateCameraData(m_renderSystem->getCamera());
 
-  {
-    SOGLB_DEBUGGROUP("csm-pass");
-    gl::RenderState::resetWantedState();
-    gl::RenderState::getWantedState().setDepthClamp(true);
-    m_csm->updateCamera(*m_renderer->getCamera());
+  renderCsmBuffers(visibleRooms);
 
-    for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+  m_renderSystem->getRenderPipeline().renderGeometryFrameBuffer(
+    [this, &world, &cameraController, &visibleRooms]
     {
-      m_csm->setActiveSplit(i);
-      m_csm->renderToActiveDepthBuffer(
-        [&rooms](const gl::RenderState& fbRenderState, const glm::mat4& vpMatrix)
-        {
-          gl::RenderState::getWantedState() = fbRenderState;
+      prefillDepthBuffer(cameraController, visibleRooms);
+      renderGeometry(world, visibleRooms);
+    },
+    cameraController.getCamera()->getFarPlane());
 
-          for(const auto translucencySelector :
-              {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
-          {
-            render::scene::RenderContext context{
-              render::material::RenderMode::CSMDepthOnly, vpMatrix, translucencySelector};
-            render::scene::Visitor visitor{gsl::not_null{&context}, false};
-            for(const auto& room : rooms)
-            {
-              if(!room.node->isVisible())
-                continue;
-
-              for(const auto& child : room.node->getChildren())
-              {
-                visitor.visit(*child);
-              }
-            }
-            visitor.render(glm::vec3{0.0f, 0.0f, std::numeric_limits<float>::lowest()});
-          }
-        });
-    }
-
-    m_csm->renderSquareBuffers();
-    m_csm->renderBlurBuffers();
-  }
-
-  {
-    m_renderPipeline->renderGeometryFrameBuffer(
-      [this, &world, &cameraController, &rooms]()
-      {
-        prefillDepthBuffer(cameraController, rooms);
-        renderGeometry(world, rooms);
-      },
-      cameraController.getCamera()->getFarPlane());
-  }
-
-  m_renderPipeline->renderPortalFrameBuffer(
-    [&cameraController, &waterEntryPortals](const gl::RenderState& fbRenderState)
+  m_renderSystem->getRenderPipeline().renderPortalFrameBuffer(
+    [&cameraController, &waterSurfacePortals](const gl::RenderState& fbRenderState)
     {
       gl::RenderState::resetWantedState();
 
@@ -250,7 +214,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
                                              translucencySelector};
 
         context.pushState(fbRenderState);
-        for(const auto& portal : waterEntryPortals)
+        for(const auto& portal : waterSurfacePortals)
         {
           portal->mesh->render(nullptr, context);
         }
@@ -258,8 +222,48 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
       }
     });
 
-  m_renderPipeline->worldCompositionPass(rooms, cameraController.getCurrentRoom()->isWaterRoom);
+  m_renderSystem->getRenderPipeline().renderWorldCompositionPassToBackbuffer(
+    visibleRooms, cameraController.getCurrentRoom()->isWaterRoom);
   m_screenOverlay.reset();
+}
+
+void Presenter::renderCsmBuffers(const std::vector<world::Room>& visibleRooms)
+{
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().setDepthClamp(true);
+  m_renderSystem->getCSM().updateCamera(*m_renderSystem->getCamera());
+
+  for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+  {
+    m_renderSystem->getCSM().setActiveSplit(i);
+    m_renderSystem->getCSM().renderToActiveDepthBuffer(
+      [&visibleRooms](const gl::RenderState& fbRenderState, const glm::mat4& vpMatrix)
+      {
+        gl::RenderState::getWantedState() = fbRenderState;
+
+        for(const auto translucencySelector :
+            {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
+        {
+          render::scene::RenderContext context{
+            render::material::RenderMode::CSMDepthOnly, vpMatrix, translucencySelector};
+          render::scene::Visitor visitor{gsl_lite::not_null{&context}, false};
+          for(const auto& room : visibleRooms)
+          {
+            if(!room.node->isVisible())
+              continue;
+
+            for(const auto& child : room.node->getChildren())
+            {
+              visitor.visit(*child);
+            }
+          }
+          visitor.render(glm::vec3{0.0f, 0.0f, std::numeric_limits<float>::lowest()});
+        }
+      });
+  }
+
+  m_renderSystem->getCSM().renderSquareBuffers();
+  m_renderSystem->getCSM().renderBlurBuffers();
 }
 
 namespace
@@ -283,14 +287,14 @@ gl::SRGBA8 getBarColor(float x, const std::array<gl::SRGBA8, BarColors>& barColo
   return gl::imix(a, b, static_cast<uint8_t>(glm::mod(x, 1.0f) * 256));
 }
 
-void drawBar(ui::Ui& ui,
-             const glm::ivec2& xy0,
-             const int p,
-             // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-             const gl::SRGBA8& black,
-             const gl::SRGBA8& border1,
-             const gl::SRGBA8& border2,
-             const std::array<gl::SRGBA8, BarColors>& barColors)
+void constructBar(ui::Ui& ui,
+                  const glm::ivec2& xy0,
+                  const int p,
+                  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+                  const gl::SRGBA8& black,
+                  const gl::SRGBA8& border1,
+                  const gl::SRGBA8& border2,
+                  const std::array<gl::SRGBA8, BarColors>& barColors)
 {
   ui.drawBox(xy0 + glm::ivec2{-1, -1}, {BarWidth + 3, BarHeight + 2}, black);
   ui.drawHLine(xy0 + glm::ivec2{-2, BarHeight + 1}, BarWidth + 4, border1);
@@ -306,30 +310,30 @@ void drawBar(ui::Ui& ui,
 }
 } // namespace
 
-void Presenter::drawBars(ui::Ui& ui,
-                         const std::array<gl::SRGBA8, 256>& palette,
-                         const ObjectManager& objectManager,
-                         bool pulse)
+void Presenter::constructBars(ui::Ui& ui,
+                              const std::array<gl::SRGBA8, 256>& palette,
+                              const ObjectManager& objectManager,
+                              const bool pulse)
 {
   if(objectManager.getLara().isInWater())
   {
-    drawBar(ui,
-            {ui.getSize().x - BarWidth - 10, 8},
-            std::clamp(objectManager.getLara().getAir() * BarWidth / core::LaraAir, 0, BarWidth),
-            palette[0],
-            palette[17],
-            palette[19],
-            {
-              palette[32],
-              palette[41],
-              palette[32],
-              palette[19],
-              palette[21],
-            });
+    constructBar(ui,
+                 {ui.getSize().x - BarWidth - 10, 8},
+                 std::clamp(objectManager.getLara().getAir() * BarWidth / core::LaraAir, 0, BarWidth),
+                 palette[0],
+                 palette[17],
+                 palette[19],
+                 {
+                   palette[32],
+                   palette[41],
+                   palette[32],
+                   palette[19],
+                   palette[21],
+                 });
   }
 
   if(objectManager.getLara().getHandStatus() == objects::HandStatus::Combat || objectManager.getLara().isDead())
-    m_healthBarTimeout = DefaultHealthBarTimeout;
+    m_healthBarTimeout = core::DefaultHealthBarTimeout;
 
   {
     const auto laraHealth = std::max(0_hp, objectManager.getLara().m_state.health);
@@ -340,26 +344,26 @@ void Presenter::drawBars(ui::Ui& ui,
       newHealth = std::min(m_drawnHealth + HealthChangeDeltaPerFrame, laraHealth);
 
     if(std::exchange(m_drawnHealth, newHealth) != laraHealth)
-      m_healthBarTimeout = DefaultHealthBarTimeout;
+      m_healthBarTimeout = core::DefaultHealthBarTimeout;
   }
 
   m_healthBarTimeout -= 1_frame;
 
   if(pulse)
   {
-    if(m_drawnHealth > HealthPulseMaxHealth && m_healthBarTimeout <= -DefaultHealthBarTimeout)
+    if(m_drawnHealth > HealthPulseMaxHealth && m_healthBarTimeout <= -core::DefaultHealthBarTimeout)
       return;
   }
   else
   {
-    if(m_healthBarTimeout <= -DefaultHealthBarTimeout)
+    if(m_healthBarTimeout <= -core::DefaultHealthBarTimeout)
       return;
   }
 
   uint8_t alpha = 255;
   if(m_healthBarTimeout < 0_frame)
   {
-    alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
+    alpha = gsl_lite::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
   }
 
   if(pulse && m_drawnHealth <= HealthPulseMaxHealth)
@@ -385,25 +389,25 @@ void Presenter::drawBars(ui::Ui& ui,
     alpha = glm::mix(alpha, PulseTargetAlpha, currentPulseEffectStrength);
   }
 
-  static const auto withAlpha = [](gl::SRGBA8 color, uint8_t alpha)
+  static const auto withAlpha = [](gl::SRGBA8 color, const uint8_t alpha)
   {
     color.channels.a = alpha;
     return color;
   };
 
-  drawBar(ui,
-          {8, 8},
-          std::clamp(m_drawnHealth * BarWidth / core::LaraHealth, 0, BarWidth),
-          withAlpha(palette[0], alpha),
-          withAlpha(palette[17], alpha),
-          withAlpha(palette[19], alpha),
-          {
-            withAlpha(palette[8], alpha),
-            withAlpha(palette[11], alpha),
-            withAlpha(palette[8], alpha),
-            withAlpha(palette[6], alpha),
-            withAlpha(palette[24], alpha),
-          });
+  constructBar(ui,
+               {8, 8},
+               std::clamp(m_drawnHealth * BarWidth / core::LaraHealth, 0, BarWidth),
+               withAlpha(palette[0], alpha),
+               withAlpha(palette[17], alpha),
+               withAlpha(palette[19], alpha),
+               {
+                 withAlpha(palette[8], alpha),
+                 withAlpha(palette[11], alpha),
+                 withAlpha(palette[8], alpha),
+                 withAlpha(palette[6], alpha),
+                 withAlpha(palette[24], alpha),
+               });
 }
 
 namespace
@@ -412,13 +416,12 @@ std::vector<std::filesystem::path> getIconPaths(const std::filesystem::path& bas
 {
   std::vector<std::filesystem::path> result;
   result.reserve(sizes.size());
-  std::transform(sizes.begin(),
-                 sizes.end(),
-                 std::back_inserter(result),
-                 [&base](const auto& size)
-                 {
-                   return util::ensureFileExists(base / ("logo_" + std::to_string(size) + ".png"));
-                 });
+  std::ranges::transform(sizes,
+                         std::back_inserter(result),
+                         [&base](const auto& size)
+                         {
+                           return util::ensureFileExists(base / ("logo_" + std::to_string(size) + ".png"));
+                         });
   return result;
 }
 } // namespace
@@ -426,27 +429,27 @@ std::vector<std::filesystem::path> getIconPaths(const std::filesystem::path& bas
 Presenter::Presenter(const std::filesystem::path& engineDataPath,
                      const glm::ivec2& resolution,
                      const render::RenderSettings& renderSettings,
-                     const bool borderlessFullscreen)
-    : m_window{std::make_shared<gl::Window>(
+                     const bool borderlessFullscreen,
+                     std::function<float()> interTickFactorProvider)
+    : m_window{gsl_lite::make_shared<gl::Window>(
         getIconPaths(engineDataPath, {24, 32, 64, 128, 256, 512}), resolution, borderlessFullscreen)}
-    , m_soundEngine{std::make_shared<audio::SoundEngine>()}
-    , m_renderer{std::make_shared<render::scene::Renderer>(
-        gsl::make_shared<render::scene::Camera>(DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
-    , m_splashImageTexture{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
+    , m_soundEngine{gsl_lite::make_shared<audio::SoundEngine>()}
+    , m_sceneGraph{gsl_lite::make_shared<render::scene::SceneGraph>(gsl_lite::make_shared<render::scene::Camera>(
+        core::DefaultFov, getRenderViewport(), core::DefaultNearPlane, core::DefaultFarPlane))}
+    , m_splashImageTexture{gsl_lite::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
-        gsl::make_unique<gl::Sampler>("splash" + gl::SamplerSuffix))}
-    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "SteinAntik-Bold.ttf"))}
-    , m_ghostNameFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "Roboto-Regular.ttf"))}
-    , m_inputHandler{std::make_unique<hid::InputHandler>(m_window, engineDataPath / "gamecontrollerdb.txt")}
-    , m_shaderCache{std::make_shared<render::material::ShaderCache>(engineDataPath / "shaders")}
-    , m_materialManager{std::make_unique<render::material::MaterialManager>(m_shaderCache, m_renderer)}
-    , m_csm{std::make_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager)}
-    , m_renderPipeline{std::make_unique<render::RenderPipeline>(
-        *m_materialManager, getRenderViewport(), getUiViewport(), getDisplayViewport())}
+        gsl_lite::make_unique<gl::Sampler>("splash" + gl::SamplerSuffix))}
+    , m_trTTFFont{gsl_lite::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "SteinAntik-Bold.ttf"))}
+    , m_ghostNameFont{gsl_lite::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "Roboto-Regular.ttf"))}
+    , m_inputHandler{gsl_lite::make_unique<hid::InputHandler>(m_window, engineDataPath / "gamecontrollerdb.txt")}
+    , m_renderSystem{gsl_lite::make_unique<render::RenderSystem>(engineDataPath,
+                                                                 getRenderViewport(),
+                                                                 getUiViewport(),
+                                                                 getDisplayViewport(),
+                                                                 renderSettings,
+                                                                 std::move(interTickFactorProvider))}
 {
   gl::RenderState::reset();
-
-  m_materialManager->setCSM(gsl::not_null{m_csm});
   scaleSplashImage();
   drawLoadingScreen(_("Booting"));
 }
@@ -464,17 +467,17 @@ void Presenter::scaleSplashImage()
 
   const auto scaledSourceSize = sourceSize * splashScale;
   const auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
-  auto mesh = render::scene::createScreenQuad(sourceOffset,
-                                              scaledSourceSize,
-                                              m_materialManager->getBackdrop(false),
-                                              render::scene::Translucency::Opaque,
-                                              "backdrop");
+  const auto mesh = render::scene::createScreenQuad(sourceOffset,
+                                                    scaledSourceSize,
+                                                    m_renderSystem->getMaterialManager().getBackdrop(false),
+                                                    render::scene::Translucency::Opaque,
+                                                    "backdrop");
   if(m_splashImageTextureOverride != nullptr)
     m_splashImageMeshOverride = mesh;
   else
     m_splashImageMesh = mesh;
   mesh->bind("u_input",
-             [srcTexture = gsl::not_null{srcTexture}](
+             [srcTexture = gsl_lite::not_null{srcTexture}](
                const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
                uniform.set(srcTexture);
@@ -483,7 +486,7 @@ void Presenter::scaleSplashImage()
 
 void Presenter::drawLoadingScreen(const std::string& state)
 {
-  if(!preFrame())
+  if(!beginFrame())
     return;
 
   if(m_screenOverlay == nullptr)
@@ -491,7 +494,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
   if(m_screenOverlay->getImage()->getSize() != getDisplayViewport())
   {
-    m_screenOverlay->init(*m_materialManager, getDisplayViewport());
+    m_screenOverlay->init(m_renderSystem->getMaterialManager(), getDisplayViewport());
     scaleSplashImage();
   }
 
@@ -502,11 +505,11 @@ void Presenter::drawLoadingScreen(const std::string& state)
                         gl::PremultipliedSRGBA8{255, 255, 255, 255},
                         StatusLineFontSize);
 
-  m_renderer->getCamera()->setViewport(getDisplayViewport());
+  m_renderSystem->getCamera()->setViewport(getDisplayViewport());
   getSplashImageMeshOrOverride()->getRenderState().setViewport(getDisplayViewport());
 
-  m_renderPipeline->withBackbuffer(
-    [this]()
+  m_renderSystem->getRenderPipeline().withBackbuffer(
+    [this]
     {
       {
         render::scene::RenderContext context{
@@ -526,30 +529,32 @@ void Presenter::drawLoadingScreen(const std::string& state)
   swapBuffers();
 }
 
-bool Presenter::preFrame()
+bool Presenter::beginFrame()
 {
   m_window->updateWindowSize();
   if(m_window->isMinimized())
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds{100});
     return false;
+  }
 
-  m_renderer->getCamera()->setViewport(getRenderViewport());
-  m_renderPipeline->resize(*m_materialManager, getRenderViewport(), getUiViewport(), getDisplayViewport());
+  m_renderSystem->getCamera()->setViewport(getRenderViewport());
+  m_renderSystem->getRenderPipeline().resize(
+    m_renderSystem->getMaterialManager(), getRenderViewport(), getUiViewport(), getDisplayViewport());
   if(m_screenOverlay != nullptr)
   {
     if(m_screenOverlay->getImage()->getSize() != getDisplayViewport())
     {
-      m_screenOverlay->init(*m_materialManager, getDisplayViewport());
+      m_screenOverlay->init(m_renderSystem->getMaterialManager(), getDisplayViewport());
     }
 
     m_screenOverlay->getImage()->fill({0, 0, 0, 0});
   }
 
-  m_inputHandler->update();
-
-  m_renderer->clear(
+  m_renderSystem->getSceneGraph().clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
-  m_renderPipeline->resetBackbuffer();
+  m_renderSystem->getRenderPipeline().resetBackbuffer();
 
   m_renderSettingsChanged = false;
 
@@ -568,14 +573,14 @@ void Presenter::setTrFont(std::unique_ptr<ui::TRFont>&& font) noexcept
 
 void Presenter::swapBuffers()
 {
-  m_renderPipeline->renderBackbufferEffects();
+  m_renderSystem->getRenderPipeline().renderBackbufferEffects();
   m_window->swapBuffers();
 }
 
 void Presenter::clear()
 {
-  m_renderer->resetRootNode();
-  m_renderer->getCamera()->setFieldOfView(DefaultFov);
+  m_renderSystem->getSceneGraph().resetRootNode();
+  m_renderSystem->getCamera()->setFieldOfView(core::DefaultFov);
 }
 
 void Presenter::debounceInput()
@@ -588,18 +593,8 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
 {
   m_renderResolutionDivisor = renderSettings.renderResolutionDivisorActive ? renderSettings.renderResolutionDivisor : 1;
   m_uiScale = renderSettings.uiScaleActive ? renderSettings.uiScaleMultiplier : 1;
-  m_renderer->getCamera()->setViewport(getRenderViewport());
   setFullscreen(renderSettings.fullscreen);
-  if(m_csm->getResolution() != renderSettings.getCSMResolution())
-  {
-    m_csm = gsl::make_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager);
-    m_materialManager->setCSM(m_csm);
-  }
-  m_renderPipeline->apply(renderSettings, *m_materialManager);
-  m_materialManager->setFiltering(renderSettings.bilinearFiltering,
-                                  !renderSettings.anisotropyActive
-                                    ? std::nullopt
-                                    : std::optional{gsl::narrow<float>(renderSettings.anisotropyLevel)});
+  m_renderSystem->apply(renderSettings, getRenderViewport(), getUiViewport(), getDisplayViewport());
   m_soundEngine->setListenerGain(audioSettings.globalVolume);
   m_renderSettingsChanged = true;
 }
@@ -609,7 +604,7 @@ gl::CImgWrapper Presenter::takeScreenshot() const
   const auto vp = getDisplayViewport();
 
   std::vector<uint8_t> pixels;
-  pixels.resize(gsl::narrow<size_t>(vp.x) * gsl::narrow<size_t>(vp.y) * 4u);
+  pixels.resize(gsl_lite::narrow<size_t>(vp.x) * gsl_lite::narrow<size_t>(vp.y) * 4u);
   GL_ASSERT(
     gl::api::readPixel(0, 0, vp.x, vp.y, gl::api::PixelFormat::Rgba, gl::api::PixelType::UnsignedByte, pixels.data()));
 
@@ -618,29 +613,33 @@ gl::CImgWrapper Presenter::takeScreenshot() const
   return img;
 }
 
-void Presenter::renderScreenOverlay()
+void Presenter::renderScreenOverlayToBackbuffer()
 {
   if(m_screenOverlay == nullptr)
     return;
 
   SOGLB_DEBUGGROUP("screen-overlay-pass");
-  gl::RenderState::resetWantedState();
-  m_renderer->getCamera()->setViewport(getDisplayViewport());
-  gl::RenderState::getWantedState().setViewport(getDisplayViewport());
-  render::scene::RenderContext context{
-    render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
-  m_screenOverlay->render(nullptr, context);
+  m_renderSystem->getRenderPipeline().withBackbuffer(
+    [this]
+    {
+      gl::RenderState::resetWantedState();
+      m_renderSystem->getCamera()->setViewport(getDisplayViewport());
+      gl::RenderState::getWantedState().setViewport(getDisplayViewport());
+      render::scene::RenderContext context{
+        render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
+      m_screenOverlay->render(nullptr, context);
+    });
 }
 
-void Presenter::renderUi(ui::Ui& ui, float alpha)
+void Presenter::renderUiToBackbuffer(ui::Ui& ui, const float alpha)
 {
-  m_renderPipeline->renderUiFrameBuffer(
-    [this, &ui]()
+  m_renderSystem->getRenderPipeline().renderUiIntoFramebuffer(
+    [this, &ui]
     {
-      m_renderer->getCamera()->setViewport(getUiViewport());
+      m_renderSystem->getCamera()->setViewport(getUiViewport());
       ui.render();
     });
-  m_renderPipeline->renderUiFrameBuffer(alpha);
+  m_renderSystem->getRenderPipeline().renderUiFrameBufferToBackbuffer(alpha);
 }
 
 void Presenter::disableScreenOverlay() noexcept
@@ -665,16 +664,16 @@ glm::ivec2 Presenter::getUiViewport() const
   return m_window->getViewport() / static_cast<int>(m_uiScale);
 }
 
-void Presenter::withBackbuffer(const std::function<void()>& doRender)
+void Presenter::inBackbuffer(const std::function<void()>& doRender)
 {
-  m_renderPipeline->withBackbuffer(doRender);
+  m_renderSystem->getRenderPipeline().withBackbuffer(doRender);
 }
 
 void Presenter::setSplashImageTextureOverride(const std::filesystem::path& imagePath)
 {
   m_splashImageTextureOverride = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(imagePath)}.toTexture("splash-override"),
-    gsl::make_unique<gl::Sampler>("splash-override" + gl::SamplerSuffix));
+    gsl_lite::make_unique<gl::Sampler>("splash-override" + gl::SamplerSuffix));
   scaleSplashImage();
 }
 
@@ -684,9 +683,9 @@ void Presenter::clearSplashImageTextureOverride() noexcept
   m_splashImageMeshOverride.reset();
 }
 
-void Presenter::renderGeometry(const engine::world::World& world, const std::vector<world::Room>& rooms)
+void Presenter::renderGeometry(const world::World& world, const std::vector<world::Room>& rooms)
 {
-  m_renderer->render();
+  m_renderSystem->getSceneGraph().render();
   for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
   {
     render::scene::RenderContext context{translucencySelector == render::scene::Translucency::Opaque

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/magic.h"
+
 #include <cstdint>
 #include <gl/buffer.h>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -33,6 +35,7 @@ struct CameraMatrices
   float farPlane = 1;
   float _pad = 0;
 };
+
 static_assert(sizeof(CameraMatrices) % 16 == 0);
 
 class Camera final
@@ -41,7 +44,7 @@ class Camera final
 
 public:
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  Camera(float fieldOfView, const glm::vec2& viewport, float nearPlane, float farPlane)
+  Camera(const core::Radians& fieldOfView, const glm::vec2& viewport, const float nearPlane, const float farPlane)
       : m_fieldOfView{fieldOfView}
       , m_matricesBuffer{"camera-matrices-ubo", gl::api::BufferUsage::DynamicDraw, m_matrices}
   {
@@ -61,7 +64,7 @@ public:
 
   ~Camera() = default;
 
-  void setFieldOfView(float fieldOfView) noexcept
+  void setFieldOfView(const core::Radians& fieldOfView) noexcept
   {
     m_fieldOfView = fieldOfView;
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
@@ -74,6 +77,7 @@ public:
     return m_matrices.aspectRatio;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void setViewport(const glm::vec2& viewport)
   {
     if(glm::vec2{m_matrices.viewport} == viewport)
@@ -101,6 +105,7 @@ public:
     return m_matrices.view;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void setViewMatrix(const glm::mat4& m) noexcept
   {
     m_matrices.view = m;
@@ -117,8 +122,8 @@ public:
   {
     if(m_dirty.is_set(CameraMatrices::DirtyFlag::Projection))
     {
-      m_matrices.projection
-        = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
+      m_matrices.projection = glm::perspective(
+        m_fieldOfView.get<float>(), m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
       m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
       m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
     }
@@ -157,12 +162,12 @@ public:
 
   [[nodiscard]] glm::vec3 getUpVector() const
   {
-    return getRotatedVector(glm::vec3{0, 1, 0});
+    return getRotatedVector(core::RenderAxisUp);
   }
 
   [[nodiscard]] glm::vec3 getRightVector() const
   {
-    return getRotatedVector(glm::vec3{1, 0, 0});
+    return getRotatedVector(core::RenderAxisRight);
   }
 
   [[nodiscard]] auto getFieldOfViewY() const noexcept
@@ -188,7 +193,7 @@ public:
   }
 
 private:
-  float m_fieldOfView;
+  core::Radians m_fieldOfView;
 
   mutable type_safe::flag_set<CameraMatrices::DirtyFlag> m_dirty;
   mutable CameraMatrices m_matrices{};

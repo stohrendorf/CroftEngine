@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <bitset>
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -25,10 +25,10 @@
 namespace engine::objects
 {
 Mummy::Mummy(const std::string& name,
-             const gsl::not_null<world::World*>& world,
-             const gsl::not_null<const world::Room*>& room,
+             const gsl_lite::not_null<world::World*>& world,
+             const gsl_lite::not_null<const world::Room*>& room,
              const loader::file::Item& item,
-             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   for(const size_t idx : {11, 12, 13, 14})
@@ -36,7 +36,7 @@ Mummy::Mummy(const std::string& name,
   getSkeleton()->rebuildMesh();
 }
 
-void Mummy::update()
+void Mummy::updateLogic()
 {
   if(m_state.current_anim_state == 1_as)
   {
@@ -53,7 +53,7 @@ void Mummy::update()
     }
   }
 
-  ModelObject::update();
+  advanceFrame();
 
   if(m_state.triggerState == TriggerState::Deactivated)
   {

@@ -16,7 +16,7 @@
 #include <bitset>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -45,10 +45,10 @@ class AIAgent : public ModelObject
 {
 public:
   AIAgent(const std::string& name,
-          const gsl::not_null<world::World*>& world,
-          const gsl::not_null<const world::Room*>& room,
+          const gsl_lite::not_null<world::World*>& world,
+          const gsl_lite::not_null<const world::Room*>& room,
           const loader::file::Item& item,
-          const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
+          const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 
   void collide(CollisionInfo& collisionInfo) override;
 
@@ -67,7 +67,7 @@ public:
   [[nodiscard]] bool isInsideZoneButNotInBox(uint32_t zoneId, const world::Box& targetBox) const;
 
 protected:
-  AIAgent(const gsl::not_null<world::World*>& world, const Location& location)
+  AIAgent(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }
@@ -94,7 +94,7 @@ protected:
 
   bool canShootAtLara(const ai::EnemyLocation& enemyLocation) const;
 
-  bool tryShootAtLara(engine::objects::ModelObject& object,
+  bool tryShootAtLara(ModelObject& object,
                       const core::Area& distance,
                       const core::TRVec& bonePos,
                       size_t boneIndex,
@@ -110,7 +110,7 @@ protected:
     return m_state.touch_bits.any();
   }
 
-  bool touched(unsigned long bits) const noexcept
+  bool touched(const unsigned long bits) const noexcept
   {
     return (m_state.touch_bits.to_ulong() & bits) != 0;
   }
@@ -193,10 +193,10 @@ protected:
 private:
   bool anyMovingEnabledObjectInReach() const;
   void finalWalkingAnimation();
-  void finalFlyingAnimation(const gsl::not_null<const world::Sector*>& currentSector,
+  void finalFlyingAnimation(const gsl_lite::not_null<const world::Sector*>& currentSector,
                             const core::BoundingBox& bbox,
                             const Location& oldLocation);
-  [[nodiscard]] gsl::not_null<const world::Sector*>
+  [[nodiscard]] gsl_lite::not_null<const world::Sector*>
     fixInvalidPosition(const core::TRVec& oldPosition, const world::Box& oldBox, const core::BoundingBox& bbox);
 
   core::Length m_collisionRadius = 0_len;
@@ -204,19 +204,18 @@ private:
   std::unique_ptr<ai::CreatureInfo> m_creatureInfo;
 };
 
-#define AIAGENT_DEFAULT_CONSTRUCTORS(CLASS)                                  \
-  CLASS(const gsl::not_null<world::World*>& world, const Location& location) \
-      : AIAgent{world, location}                                             \
-  {                                                                          \
-  }                                                                          \
-                                                                             \
-  CLASS(const std::string& name,                                             \
-        const gsl::not_null<world::World*>& world,                           \
-        const gsl::not_null<const world::Room*>& room,                       \
-        const loader::file::Item& item,                                      \
-        const gsl::not_null<const world::SkeletalModelType*>& animatedModel) \
-      : AIAgent{name, world, room, item, animatedModel}                      \
-  {                                                                          \
+#define AIAGENT_DEFAULT_CONSTRUCTORS(CLASS)                                       \
+  CLASS(const gsl_lite::not_null<world::World*>& world, const Location& location) \
+      : AIAgent{world, location}                                                  \
+  {                                                                               \
+  }                                                                               \
+                                                                                  \
+  CLASS(const std::string& name,                                                  \
+        const gsl_lite::not_null<world::World*>& world,                           \
+        const gsl_lite::not_null<const world::Room*>& room,                       \
+        const loader::file::Item& item,                                           \
+        const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel) \
+      : AIAgent{name, world, room, item, animatedModel}                           \
+  {                                                                               \
   }
-
 } // namespace engine::objects

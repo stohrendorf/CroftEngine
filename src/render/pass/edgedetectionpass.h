@@ -26,7 +26,7 @@ public:
                              const glm::ivec2& viewport,
                              const gslu::nn_shared<GeometryPass>& geometryPass);
 
-  void render();
+  void render() const;
 
   [[nodiscard]] const auto& getTexture() const
   {

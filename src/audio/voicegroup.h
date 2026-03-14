@@ -11,12 +11,11 @@ class Voice;
 
 class VoiceGroup final
 {
-private:
   ALfloat m_gain;
   std::vector<std::weak_ptr<Voice>> m_voices;
 
 public:
-  explicit VoiceGroup(ALfloat gain = 1.0f)
+  explicit VoiceGroup(const ALfloat gain = 1.0f)
       : m_gain{gain}
   {
   }

@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <fstream>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iosfwd>
 #include <istream>
 #include <memory>
@@ -38,7 +38,7 @@ void writeMatrix(std::ostream& s, const glm::mat4& m)
       {
         BOOST_ASSERT(m[x][y] >= -1.0f);
         BOOST_ASSERT(m[x][y] <= 1.0f);
-        auto scaled = gsl::narrow_cast<int16_t>(m[x][y] * MatrixRotationScale);
+        auto scaled = gsl_lite::narrow_cast<int16_t>(m[x][y] * MatrixRotationScale);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         s.write(reinterpret_cast<const char*>(&scaled), sizeof(scaled));
       }
@@ -78,7 +78,7 @@ void writeMatrix(std::ostream& s, const glm::mat4& m)
 
 void GhostFrame::write(std::ostream& s) const
 {
-  const auto size = gsl::narrow<uint8_t>(bones.size());
+  const auto size = gsl_lite::narrow<uint8_t>(bones.size());
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   s.write(reinterpret_cast<const char*>(&size), sizeof(size));
   for(const auto& bone : bones)
@@ -116,6 +116,7 @@ GhostDataWriter::GhostDataWriter(const std::filesystem::path& path)
 
 GhostDataWriter::~GhostDataWriter() = default;
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void GhostDataWriter::append(const GhostFrame& frame)
 {
   frame.write(*m_file);
@@ -135,6 +136,7 @@ GhostDataReader::GhostDataReader(const std::filesystem::path& path)
 
 GhostDataReader::~GhostDataReader() = default;
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 GhostFrame GhostDataReader::read()
 {
   GhostFrame result;

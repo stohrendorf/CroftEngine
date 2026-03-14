@@ -1,5 +1,3 @@
-layout(early_fragment_tests) in;
-
 layout(location=0) out vec4 out_color;
 layout(location=0) uniform vec3 u_baseColor;
 
@@ -11,5 +9,9 @@ in DustFSInterface {
 
 void main()
 {
-    out_color = vec4(toLinear(u_baseColor)*fs.alpha, fs.alpha);
+    vec2 coord = gl_PointCoord - vec2(0.5);
+    if (dot(coord, coord) > 0.25) {
+        discard;
+    }
+    out_color = vec4(toLinear(u_baseColor) * fs.alpha, fs.alpha);
 }

@@ -22,8 +22,7 @@ public:
 
   [[nodiscard]] Clock::duration getDuration() const noexcept
   {
-    return Clock::duration((m_frameCount * Clock::duration::period::den)
-                           / (m_sampleRate * Clock::duration::period::num));
+    return Clock::duration(m_frameCount * Clock::duration::period::den / (m_sampleRate * Clock::duration::period::num));
   }
 
 private:

@@ -4,7 +4,7 @@
 #include <archive_entry.h>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <string>
 #include <vector>
@@ -26,14 +26,14 @@ WriteOnlyXzArchive::~WriteOnlyXzArchive()
 
 void WriteOnlyXzArchive::addFile(const std::filesystem::path& srcPath, const std::filesystem::path& archivePath)
 {
-  gsl::not_null entry{archive_entry_new()};
-  const auto freeEntry = gsl::finally(
-    [&entry]()
+  gsl_lite::not_null entry{archive_entry_new()};
+  const auto freeEntry = gsl_lite::finally(
+    [&entry]
     {
       archive_entry_free(entry.get());
     });
   archive_entry_copy_pathname(entry, archivePath.filename().string().c_str());
-  archive_entry_set_size(entry, gsl::narrow<la_int64_t>(std::filesystem::file_size(srcPath)));
+  archive_entry_set_size(entry, gsl_lite::narrow<la_int64_t>(std::filesystem::file_size(srcPath)));
   archive_entry_set_filetype(entry, AE_IFREG);
   archive_entry_set_perm(entry, 0644);
   gsl_Assert(archive_write_header(m_archive.get(), entry) == ARCHIVE_OK);
@@ -42,9 +42,8 @@ void WriteOnlyXzArchive::addFile(const std::filesystem::path& srcPath, const std
   buffer.resize(1024);
   std::ifstream f{srcPath, std::ios::in | std::ios::binary};
   gsl_Assert(f.is_open());
-  while(f.read(buffer.data(), gsl::narrow<std::streamsize>(buffer.size())).gcount() > 0)
+  while(f.read(buffer.data(), gsl_lite::narrow<std::streamsize>(buffer.size())).gcount() > 0)
   {
-    ;
     gsl_Assert(archive_write_data(m_archive.get(), buffer.data(), f.gcount()) == f.gcount());
   }
 }

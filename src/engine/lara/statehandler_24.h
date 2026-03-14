@@ -5,14 +5,14 @@
 #include "engine/collisioninfo.h"
 #include "hid/actions.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_24 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_24(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_24(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::SlideForward}
   {
   }

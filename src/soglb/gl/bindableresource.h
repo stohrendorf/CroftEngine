@@ -18,8 +18,8 @@ class BindableResource : public Resource<_Identifier>
 public:
   using Resource<_Identifier>::Identifier;
   using Resource<_Identifier>::getHandle;
-  using Allocator = typename Resource<_Identifier>::Allocator;
-  using Deleter = typename Resource<_Identifier>::Deleter;
+  using Allocator = Resource<_Identifier>::Allocator;
+  using Deleter = Resource<_Identifier>::Deleter;
 
   void bind() const
   {
@@ -44,7 +44,7 @@ protected:
     BOOST_ASSERT(static_cast<bool>(m_binder));
   }
 
-  virtual ~BindableResource()
+  ~BindableResource() override
   {
     if(getHandle() != 0)
       unbind();

@@ -29,7 +29,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <istream>
 #include <iterator>
 #include <memory>
@@ -108,7 +108,7 @@ struct HauntedCoopClient::ClientImpl
     std::vector<std::string> socketParts;
     boost::algorithm::split(socketParts,
                             m_networkConfig.socket,
-                            [](char c)
+                            [](const char c)
                             {
                               return c == ':';
                             });
@@ -165,29 +165,26 @@ struct HauntedCoopClient::ClientImpl
     if(!m_loggedIn || !m_socket.is_open())
       return;
 
+    const std::lock_guard guard{m_sendMutex};
+    m_sendBuffer.clear();
+
+    data.emplace_back(m_networkConfig.color.at(0));
+    data.emplace_back(m_networkConfig.color.at(1));
+    data.emplace_back(m_networkConfig.color.at(2));
+    io::writePascal(data, m_networkConfig.username);
+    writeUpdateState(m_sendBuffer, data);
+
+    ++m_fullSyncCounter;
+    if(m_fullSyncCounter >= 30 * 5)
     {
-      const std::lock_guard guard{m_sendMutex};
-      m_sendBuffer.clear();
+      m_fullSyncCounter = 0;
+      write_query_state(m_sendBuffer);
+    }
 
-      data.emplace_back(m_networkConfig.color.at(0));
-      data.emplace_back(m_networkConfig.color.at(1));
-      data.emplace_back(m_networkConfig.color.at(2));
-      io::writePascal(data, m_networkConfig.username);
-      writeUpdateState(m_sendBuffer, data);
-
-      ++m_fullSyncCounter;
-      if(m_fullSyncCounter >= 30 * 5)
-      {
-        m_fullSyncCounter = 0;
-        write_query_state(m_sendBuffer);
-      }
-
-      if(!send())
-      {
-        BOOST_LOG_TRIVIAL(error) << "send state failed";
-        m_loggedIn = false;
-        return;
-      }
+    if(!send())
+    {
+      BOOST_LOG_TRIVIAL(error) << "send state failed";
+      m_loggedIn = false;
     }
   }
 
@@ -402,7 +399,8 @@ private:
   std::string m_levelId;
 
   using ContinueWithReadFn = void (ClientImpl::*)();
-  void continueWithRead(size_t n, ContinueWithReadFn fn)
+
+  void continueWithRead(const size_t n, ContinueWithReadFn fn)
   {
     if(!m_socket.is_open())
       return;
@@ -410,7 +408,7 @@ private:
     m_recvBuffer.resize(n);
     boost::asio::async_read(m_socket,
                             boost::asio::buffer(m_recvBuffer),
-                            [this, fn](const boost::system::error_code& err, std::size_t bytesTransferred)
+                            [this, fn](const boost::system::error_code& err, const std::size_t bytesTransferred)
                             {
                               if(err)
                               {
@@ -435,7 +433,7 @@ HauntedCoopClient::HauntedCoopClient(const std::string& gameflowId, const std::s
 {
 }
 
-void HauntedCoopClient::sendState(const PeerData& data)
+void HauntedCoopClient::sendState(const PeerData& data) const
 {
   impl->sendState(data);
 }
@@ -472,14 +470,14 @@ void io::writePascal(std::vector<uint8_t>& msg, const std::string& s)
 {
   msg.reserve(msg.size() + s.length());
   msg.emplace_back(static_cast<uint8_t>(s.length()));
-  std::copy(s.begin(), s.end(), std::back_inserter(msg));
+  std::ranges::copy(s, std::back_inserter(msg));
 }
 
 void io::writePascal(std::vector<uint8_t>& msg, const std::vector<uint8_t>& s)
 {
-  writeLE<uint16_t>(msg, gsl::narrow<uint16_t>(s.size()));
+  writeLE<uint16_t>(msg, gsl_lite::narrow<uint16_t>(s.size()));
   msg.reserve(msg.size() + s.size());
-  std::copy(s.begin(), s.end(), std::back_inserter(msg));
+  std::ranges::copy(s, std::back_inserter(msg));
 }
 
 std::string io::readPascalString(const uint8_t* msg)
@@ -496,8 +494,8 @@ std::string io::readPascalString(std::istream& stream)
   gsl_Assert(stream.gcount() == sizeof(length));
   std::vector<char> buffer;
   buffer.resize(length);
-  stream.read(buffer.data(), gsl::narrow<std::streamsize>(buffer.size()));
-  gsl_Assert(gsl::narrow<size_t>(stream.gcount()) == buffer.size());
+  stream.read(buffer.data(), gsl_lite::narrow<std::streamsize>(buffer.size()));
+  gsl_Assert(gsl_lite::narrow<size_t>(stream.gcount()) == buffer.size());
   return std::string{buffer.data(), buffer.size()};
 }
 } // namespace network

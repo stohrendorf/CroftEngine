@@ -29,7 +29,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
@@ -46,10 +46,10 @@ constexpr auto Settle = 3_as;
 } // namespace
 
 ThorHammerHandle::ThorHammerHandle(const std::string& name,
-                                   const gsl::not_null<world::World*>& world,
-                                   const gsl::not_null<const world::Room*>& room,
+                                   const gsl_lite::not_null<world::World*>& world,
+                                   const gsl_lite::not_null<const world::Room*>& room,
                                    loader::file::Item item,
-                                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                                   const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   item.type = TR1ItemId::ThorHammerBlock;
@@ -58,20 +58,20 @@ ThorHammerHandle::ThorHammerHandle(const std::string& name,
     world,
     room,
     item,
-    gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::ThorHammerBlock).get()});
-  getWorld().getObjectManager().registerObject(gsl::not_null{m_block});
+    gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::ThorHammerBlock).get()});
+  getWorld().getObjectManager().registerObject(gsl_lite::not_null{m_block});
   m_block->activate();
   m_block->m_state.triggerState = TriggerState::Active;
 
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const Location& location)
+ThorHammerHandle::ThorHammerHandle(const gsl_lite::not_null<world::World*>& world, const Location& location)
     : ModelObject{world, location}
 {
 }
 
-void ThorHammerHandle::update()
+void ThorHammerHandle::updateLogic()
 {
   switch(m_state.current_anim_state.get())
   {
@@ -103,8 +103,8 @@ void ThorHammerHandle::update()
 
       if(auto& lara = getWorld().getObjectManager().getLara(); !lara.isDead())
       {
-        core::TRVec& laraPos = lara.m_state.location.position;
-        if(pos.X - 520_len < laraPos.X && pos.X + 520_len > laraPos.X && pos.Z - 520_len < laraPos.Z
+        if(core::TRVec& laraPos = lara.m_state.location.position;
+           pos.X - 520_len < laraPos.X && pos.X + 520_len > laraPos.X && pos.Z - 520_len < laraPos.Z
            && pos.Z + 520_len > laraPos.Z)
         {
           lara.m_state.health = core::DeadHealth;
@@ -158,14 +158,14 @@ void ThorHammerHandle::update()
   default:
     break;
   }
-  ModelObject::update();
+  advanceFrame();
 
   // sync anim
   const auto animIdx
     = std::distance(&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::ThorHammerHandle)->animations[0],
                     getSkeleton()->getAnim());
   m_block->getSkeleton()->replaceAnim(
-    gsl::not_null{
+    gsl_lite::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx]},
     getSkeleton()->getLocalFrame());
   m_block->m_state.current_anim_state = m_state.current_anim_state;
@@ -220,11 +220,16 @@ void ThorHammerBlock::deserialize(const serialization::Deserializer<world::World
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
+void ThorHammerBlock::updateLogic()
+{
+  advanceFrame();
+}
+
 ThorHammerBlock::ThorHammerBlock(const std::string& name,
-                                 const gsl::not_null<world::World*>& world,
-                                 const gsl::not_null<const world::Room*>& room,
+                                 const gsl_lite::not_null<world::World*>& world,
+                                 const gsl_lite::not_null<const world::Room*>& room,
                                  const loader::file::Item& item,
-                                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                                 const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   getSkeleton()->getRenderState().setScissorTest(false);

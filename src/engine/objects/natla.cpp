@@ -25,28 +25,28 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 
 namespace engine::objects
 {
-void Natla::update()
+void Natla::updateLogic()
 {
-  static constexpr const core::TRVec bulletEmissionPos{5_len, 220_len, 7_len};
-  static constexpr const size_t bulletEmissionBoneIdx = 4;
+  static constexpr core::TRVec bulletEmissionPos{5_len, 220_len, 7_len};
+  static constexpr size_t bulletEmissionBoneIdx = 4;
 
   activateAi();
 
-  static const constexpr auto AimDispatch = 1_as;
-  static const constexpr auto AimFlying = 2_as;
-  static const constexpr auto Running = 3_as;
-  static const constexpr auto AimWalking = 4_as;
-  static const constexpr auto Injured = 5_as;
-  static const constexpr auto Shoot = 6_as;
-  static const constexpr auto Falling = 7_as;
-  static const constexpr auto Standing = 8_as;
-  static const constexpr auto Dying = 9_as;
+  static constexpr auto AimDispatch = 1_as;
+  static constexpr auto AimFlying = 2_as;
+  static constexpr auto Running = 3_as;
+  static constexpr auto AimWalking = 4_as;
+  static constexpr auto Injured = 5_as;
+  static constexpr auto Shoot = 6_as;
+  static constexpr auto Falling = 7_as;
+  static constexpr auto Standing = 8_as;
+  static constexpr auto Dying = 9_as;
 
   auto tiltRot = 0_deg;
   auto turn = 0_deg;
@@ -111,7 +111,7 @@ void Natla::update()
 
       if(m_flyTime >= 1_sec * core::FrameRate)
       {
-        auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantGrenade);
+        const auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantGrenade);
         headRot = particle->angle.X;
         getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::MutantShootingBullet,
                                                     particle->location.position.toRenderSystem());
@@ -169,7 +169,7 @@ void Natla::update()
       tiltRot = turn;
       if(m_flyTime >= 1_sec * core::FrameRate * 2 / 3)
       {
-        auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantBullet);
+        const auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantBullet);
         headRot = particle->angle.X;
         getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::MutantShootingBullet,
                                                     particle->location.position.toRenderSystem());
@@ -214,7 +214,7 @@ void Natla::update()
 
       if(m_flyTime >= 1_sec * core::FrameRate * 2 / 3)
       {
-        auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantBullet);
+        const auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantBullet);
         headRot = particle->angle.X;
         getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::MutantShootingBullet,
                                                     particle->location.position.toRenderSystem());

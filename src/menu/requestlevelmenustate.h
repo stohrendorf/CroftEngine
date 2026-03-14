@@ -23,17 +23,18 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
 
-class RequestLevelMenuState : public MenuState
+class RequestLevelMenuState final : public MenuState
 {
 public:
-  explicit RequestLevelMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, size_t sequenceIndex)
+  explicit RequestLevelMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, const size_t sequenceIndex)
       : MenuState{ringTransform}
       , m_sequenceIndex{sequenceIndex}
   {
   }
 
-  void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  void handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 
 private:
   size_t m_sequenceIndex;

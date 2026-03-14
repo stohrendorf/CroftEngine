@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
 #include <tuple>
@@ -15,15 +15,14 @@ namespace render::scene
 {
 Node::~Node()
 {
-  if(auto p = m_parent.lock())
+  if(const auto p = m_parent.lock())
   {
     auto& children = p->m_children;
-    const auto it = std::find_if(children.begin(),
-                                 children.end(),
-                                 [this](const gslu::nn_shared<Node>& node)
-                                 {
-                                   return node.get().get() == this;
-                                 });
+    const auto it = std::ranges::find_if(children,
+                                         [this](const gslu::nn_shared<Node>& node)
+                                         {
+                                           return node.get().get() == this;
+                                         });
     if(it != children.end())
       children.erase(it);
   }
@@ -54,7 +53,7 @@ void Node::accept(Visitor& visitor) const
 
   if(m_renderable != nullptr)
   {
-    visitor.add(gsl::not_null{this});
+    visitor.add(gsl_lite::not_null{this});
   }
 
   for(const auto& child : m_children)

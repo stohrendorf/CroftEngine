@@ -34,7 +34,7 @@
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -62,7 +62,38 @@ RenderPipeline::RenderPipeline(material::MaterialManager& materialManager,
   resize(materialManager, renderViewport, uiViewport, displayViewport, true);
 }
 
-void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>& rooms, const bool inWater)
+void RenderPipeline::renderDust(const std::vector<engine::world::Room>& rooms)
+{
+  SOGLB_DEBUGGROUP("dust");
+
+  const auto fb = m_worldCompositionPass->getFramebuffer();
+  fb->bind();
+  scene::RenderContext context{material::RenderMode::FullNonOpaque, std::nullopt, scene::Translucency::NonOpaque};
+  context.pushState(fb->getRenderState());
+
+  for(const auto& room : rooms)
+  {
+    if(!room.node->isVisible() || room.dust == nullptr)
+      continue;
+
+    SOGLB_DEBUGGROUP(room.node->getName() + ":dust");
+    auto state = context.getCurrentState();
+    state.setScissorTest(true);
+    const auto [x, y] = room.node->getCombinedScissors();
+    state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
+    context.pushState(state);
+
+    scene::Visitor visitor{gsl_lite::not_null{&context}};
+    room.dust->accept(visitor);
+    visitor.render(std::nullopt);
+
+    context.popState();
+  }
+  fb->unbind();
+}
+
+void RenderPipeline::renderWorldCompositionPassToBackbuffer(const std::vector<engine::world::Room>& rooms,
+                                                            const bool inWater)
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
@@ -83,32 +114,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
   m_worldCompositionPass->render(inWater);
 
-  {
-    SOGLB_DEBUGGROUP("dust");
-
-    m_worldCompositionPass->getFramebuffer()->bind();
-    render::scene::RenderContext context{
-      render::material::RenderMode::FullNonOpaque, std::nullopt, scene::Translucency::NonOpaque};
-    for(const auto& room : rooms)
-    {
-      if(!room.node->isVisible() || room.dust == nullptr)
-        continue;
-
-      SOGLB_DEBUGGROUP(room.node->getName() + ":dust");
-      auto state = context.getCurrentState();
-      state.setScissorTest(true);
-      const auto [x, y] = room.node->getCombinedScissors();
-      state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
-      context.pushState(state);
-
-      render::scene::Visitor visitor{gsl::not_null{&context}};
-      room.dust->accept(visitor);
-      visitor.render(std::nullopt);
-
-      context.popState();
-    }
-    m_worldCompositionPass->getFramebuffer()->unbind();
-  }
+  renderDust(rooms);
 
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
   for(const auto& effect : m_effects)
@@ -123,7 +129,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   finalOutput->blit(*m_backbuffer);
 }
 
-void RenderPipeline::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
+void RenderPipeline::updateCameraData(const gslu::nn_shared<scene::Camera>& camera)
 {
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
   m_worldCompositionPass->updateCamera(camera);
@@ -142,7 +148,7 @@ void RenderPipeline::resize(material::MaterialManager& materialManager,
                             const glm::ivec2& renderViewport,
                             const glm::ivec2& uiViewport,
                             const glm::ivec2& displayViewport,
-                            bool force)
+                            const bool force)
 {
   if(!force && m_renderSize == renderViewport && m_uiSize == uiViewport && m_displaySize == displayViewport)
   {
@@ -154,16 +160,20 @@ void RenderPipeline::resize(material::MaterialManager& materialManager,
   m_displaySize = displayViewport;
 
   m_geometryPass = std::make_shared<pass::GeometryPass>(m_renderSize);
-  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, gsl::not_null{m_geometryPass}, m_renderSize);
-  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize / 4, gsl::not_null{m_geometryPass});
-  m_edgePass = std::make_shared<pass::EdgeDetectionPass>(materialManager, m_renderSize, gsl::not_null{m_geometryPass});
-  m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
-    materialManager, m_renderSettings, m_renderSize, gsl::not_null{m_geometryPass}, gsl::not_null{m_portalPass});
+  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, gsl_lite::not_null{m_geometryPass}, m_renderSize);
+  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize / 4, gsl_lite::not_null{m_geometryPass});
+  m_edgePass
+    = std::make_shared<pass::EdgeDetectionPass>(materialManager, m_renderSize, gsl_lite::not_null{m_geometryPass});
+  m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(materialManager,
+                                                                        m_renderSettings,
+                                                                        m_renderSize,
+                                                                        gsl_lite::not_null{m_geometryPass},
+                                                                        gsl_lite::not_null{m_portalPass});
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_uiSize, m_displaySize);
 
   m_backbufferTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
-    gsl::make_shared<gl::Texture2D<gl::SRGB8>>(m_displaySize, "backbuffer-texture"),
-    gsl::make_unique<gl::Sampler>("backbuffer" + gl::SamplerSuffix));
+    gsl_lite::make_shared<gl::Texture2D<gl::SRGB8>>(m_displaySize, "backbuffer-texture"),
+    gsl_lite::make_unique<gl::Sampler>("backbuffer" + gl::SamplerSuffix));
   m_backbuffer = gl::FrameBufferBuilder{}
                    .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_backbufferTextureHandle->getTexture())
                    .build("backbuffer");
@@ -179,7 +189,7 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
   auto fxSource = m_worldCompositionPass->getColorBuffer();
   auto addEffect = [this, &fxSource](const std::string& name, const gslu::nn_shared<material::Material>& material)
   {
-    auto fx = std::make_shared<pass::EffectPass<gl::SRGB8>>(gsl::not_null{this}, "fx:" + name, material, fxSource);
+    auto fx = std::make_shared<pass::EffectPass<gl::SRGB8>>(gsl_lite::not_null{this}, "fx:" + name, material, fxSource);
     m_effects.emplace_back(fx);
     fxSource = fx->getOutput();
     return fx;
@@ -187,7 +197,7 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
 
   if(m_renderSettings.hbao || m_renderSettings.edges)
   {
-    auto fx = addEffect("masking", materialManager.getMasking(m_renderSettings.hbao, m_renderSettings.edges));
+    const auto fx = addEffect("masking", materialManager.getMasking(m_renderSettings.hbao, m_renderSettings.edges));
     if(m_renderSettings.hbao)
     {
       BOOST_ASSERT(m_hbaoPass != nullptr);
@@ -216,7 +226,7 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
   addEffect("underwater-movement", materialManager.getUnderwaterMovement());
 
   {
-    auto fx = addEffect("reflective", materialManager.getReflective());
+    const auto fx = addEffect("reflective", materialManager.getReflective());
     BOOST_ASSERT(m_geometryPass != nullptr);
     fx->bind("u_normal",
              [texture = m_geometryPass->getNormalBuffer()](
@@ -249,14 +259,16 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
     addEffect("filmGrain", materialManager.getFilmGrain());
   }
 }
+
 void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialManager)
 {
   m_backbufferEffects.clear();
 
-  auto fxSource = gsl::not_null{m_backbufferTextureHandle};
+  auto fxSource = gsl_lite::not_null{m_backbufferTextureHandle};
   auto addEffect = [this, &fxSource](const std::string& name, const gslu::nn_shared<material::Material>& material)
   {
-    auto fx = std::make_shared<pass::EffectPass<gl::SRGB8>>(gsl::not_null{this}, "postfx:" + name, material, fxSource);
+    auto fx
+      = std::make_shared<pass::EffectPass<gl::SRGB8>>(gsl_lite::not_null{this}, "postfx:" + name, material, fxSource);
     m_backbufferEffects.emplace_back(fx);
     fxSource = fx->getOutput();
     return fx;
@@ -272,6 +284,9 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
     case 1:
       addEffect("crt1", materialManager.getCRTV1());
       break;
+    case 2:
+      addEffect("crt1", materialManager.getCRTV2());
+      break;
     default:
       BOOST_THROW_EXCEPTION(std::out_of_range("invalid crt version"));
     }
@@ -282,8 +297,8 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
   {
     addEffect("brightness-contrast",
               materialManager.getBrightnessContrast(
-                m_renderSettings.brightnessEnabled ? m_renderSettings.brightness : int8_t(0),
-                m_renderSettings.contrastEnabled ? m_renderSettings.contrast : int8_t(0)));
+                m_renderSettings.brightnessEnabled ? m_renderSettings.brightness : static_cast<int8_t>(0),
+                m_renderSettings.contrastEnabled ? m_renderSettings.contrast : static_cast<int8_t>(0)));
   }
 }
 
@@ -292,17 +307,17 @@ void RenderPipeline::renderPortalFrameBuffer(const std::function<void(const gl::
   BOOST_ASSERT(m_portalPass != nullptr);
   m_portalPass->render(doRender);
 
-  if constexpr(render::pass::FlushPasses)
+  if constexpr(pass::FlushPasses)
     GL_ASSERT(gl::api::finish());
 }
 
-void RenderPipeline::renderUiFrameBuffer(const std::function<void()>& doRender)
+void RenderPipeline::renderUiIntoFramebuffer(const std::function<void()>& doRender)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
-  m_uiPass->render(doRender);
+  m_uiPass->renderToFramebuffer(doRender);
 }
 
-void RenderPipeline::renderGeometryFrameBuffer(const std::function<void()>& doRender, float farPlane)
+void RenderPipeline::renderGeometryFrameBuffer(const std::function<void()>& doRender, const float farPlane)
 {
   SOGLB_DEBUGGROUP("geometry-pass");
   BOOST_ASSERT(m_geometryPass != nullptr);
@@ -313,11 +328,11 @@ void RenderPipeline::renderGeometryFrameBuffer(const std::function<void()>& doRe
   m_geometryPass->getNormalBuffer()->getTexture()->clear(gl::RGB16F{gl::api::core::Half{}});
   m_geometryPass->render(doRender);
 
-  if constexpr(render::pass::FlushPasses)
+  if constexpr(pass::FlushPasses)
     GL_ASSERT(gl::api::finish());
 }
 
-void RenderPipeline::renderUiFrameBuffer(float alpha)
+void RenderPipeline::renderUiFrameBufferToBackbuffer(const float alpha)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
   m_backbuffer->bind();

@@ -1,3 +1,4 @@
+#include <ranges>
 #ifdef __clang__
 #  pragma clang diagnostic push
 #  pragma ide diagnostic ignored "misc-include-cleaner"
@@ -27,7 +28,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/log/trivial.hpp>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <QColorDialog>
 #include <QDesktopServices>
@@ -55,23 +56,22 @@ namespace launcher
 {
 namespace
 {
-const char* const LanguageConfigKey = "launcher-language";
-const char* const GameflowConfigKey = "launcher-gameflow";
-#ifdef CE_GITHUB_API_KEY
-const char* const LastUpdateCheck = "launcher-updatecheck";
+const auto LanguageConfigKey = "launcher-language";
+const auto GameflowConfigKey = "launcher-gameflow";
+#ifdef _WIN32
+const auto LastUpdateCheck = "launcher-updatecheck";
 #endif
-const char* const LastCheckedVersion = "launcher-updateversion";
-const int IdRole = Qt::UserRole + 1;
-const int AuthorRole = Qt::UserRole + 2;
-const int UrlsRole = Qt::UserRole + 3;
-const int DownloadSoundtrackRole = Qt::UserRole + 4;
+const auto LastCheckedVersion = "launcher-updateversion";
+constexpr int IdRole = Qt::UserRole + 1;
+constexpr int AuthorRole = Qt::UserRole + 2;
+constexpr int UrlsRole = Qt::UserRole + 3;
+constexpr int DownloadSoundtrackRole = Qt::UserRole + 4;
 
-const std::vector<gsl::czstring> DirsToCopy{"FMV", "DATA", "Music", "pictures"};
+const std::vector DirsToCopy{"FMV", "DATA", "Music", "pictures"};
 
 void extractImage(const std::filesystem::path& cueFile, const std::filesystem::path& targetDir)
 {
-  auto img = std::make_unique<image::DiscImage>(cueFile);
-  for(const auto& [path, span] : image::getFiles(*img))
+  for(const auto img = std::make_unique<image::DiscImage>(cueFile); const auto& [path, span] : image::getFiles(*img))
   {
     gsl_Assert(!path.empty());
     const auto root = *path.begin();
@@ -85,7 +85,7 @@ void extractImage(const std::filesystem::path& cueFile, const std::filesystem::p
     std::filesystem::create_directories(targetDir / path.parent_path());
     const auto data = image::readFile(*img, span);
     std::ofstream tmp{targetDir / path, std::ios::binary | std::ios::trunc};
-    tmp.write(reinterpret_cast<const char*>(data.data()), gsl::narrow<std::streamsize>(data.size()));
+    tmp.write(reinterpret_cast<const char*>(data.data()), gsl_lite::narrow<std::streamsize>(data.size()));
   }
 }
 
@@ -100,7 +100,7 @@ std::optional<std::filesystem::path> readRegistryPath(const std::wstring& path, 
   }
 
   std::array<WCHAR, 512> szBuffer{};
-  auto dwBufferSize = gsl::narrow<DWORD>(szBuffer.size());
+  auto dwBufferSize = gsl_lite::narrow<DWORD>(szBuffer.size());
   DWORD type = REG_NONE;
   const auto nError
     = RegQueryValueExW(subKey, key.c_str(), nullptr, &type, reinterpret_cast<PBYTE>(szBuffer.data()), &dwBufferSize);
@@ -131,7 +131,7 @@ MainWindow::MainWindow(QWidget* parent)
     const auto language = settings.value(LanguageConfigKey, QVariant{QString{"en_GB"}}).toString();
 
     ui->languages->setModel(&m_languages);
-    m_languages.insertRows(0, gsl::narrow<int>(getSupportedLanguages().size()));
+    m_languages.insertRows(0, gsl_lite::narrow<int>(getSupportedLanguages().size()));
     int i = 0;
     for(const auto& [languageId, languageName] : getSupportedLanguages())
     {
@@ -165,11 +165,11 @@ MainWindow::MainWindow(QWidget* parent)
 
       serialization::YAMLDocument<true> doc{it->path() / "meta.yml"};
       gameflow::Meta meta{};
-      doc.deserialize("meta", gsl::not_null{&meta}, meta);
+      doc.deserialize("meta", gsl_lite::not_null{&meta}, meta);
       metas.emplace_back(it->path().stem().string(), meta);
     }
 
-    m_gameflows.insertRows(0, gsl::narrow<int>(metas.size()));
+    m_gameflows.insertRows(0, gsl_lite::narrow<int>(metas.size()));
     int i = 0;
     for(const auto& [gameflowId, gameflowMeta] : metas)
     {
@@ -193,8 +193,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     for(i = 0; i < m_gameflows.rowCount(); ++i)
     {
-      const auto index = m_gameflows.index(i, 0);
-      if(gameflow == m_gameflows.data(index, IdRole).toString())
+      if(const auto index = m_gameflows.index(i, 0); gameflow == m_gameflows.data(index, IdRole).toString())
       {
         ui->gameflows->setCurrentIndex(index);
         onGameflowSelected(index);
@@ -203,7 +202,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
   }
 
-#ifdef CE_GITHUB_API_KEY
+#ifdef _WIN32
   if(const auto lastCheck = settings.value(LastUpdateCheck);
      lastCheck.isValid() && lastCheck.toDate().addDays(7) >= QDate::currentDate())
   {
@@ -219,8 +218,6 @@ MainWindow::MainWindow(QWidget* parent)
     QNetworkRequest request{QUrl{"https://api.github.com/repos/stohrendorf/CroftEngine/releases"}};
     request.setRawHeader(QByteArray::fromStdString("Accept"), QByteArray::fromStdString("application/vnd.github+json"));
     request.setRawHeader(QByteArray::fromStdString("X-GitHub-Api-Version"), QByteArray::fromStdString("2022-11-28"));
-    request.setRawHeader(QByteArray::fromStdString("Authorization"),
-                         QByteArray::fromStdString(std::string{"Bearer "} + CE_GITHUB_API_KEY));
     m_releasesNetworkAccessManager.get(request);
   }
 #endif
@@ -317,6 +314,7 @@ MainWindow::~MainWindow()
 }
 
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
+// ReSharper disable once CppMemberFunctionMayBeStatic
 void MainWindow::onOpenDataLocationClicked()
 {
   // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
@@ -331,10 +329,10 @@ void MainWindow::onImportClicked()
   {
     const auto downloadSoundtrack = ui->gameflows->currentIndex().data(DownloadSoundtrackRole).toBool();
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    const auto userDataDir = findUserDataDir().value();
-    if(downloadSoundtrack && !std::filesystem::is_regular_file(userDataDir / "data" / gameflowId / "AUDIO" / "002.ogg"))
+    if(const auto userDataDir = findUserDataDir().value();
+       downloadSoundtrack && !std::filesystem::is_regular_file(userDataDir / "data" / gameflowId / "AUDIO" / "002.ogg"))
     {
-      auto downloader = new DownloadProgress(
+      const auto downloader = new DownloadProgress(
         QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"}, userDataDir / "data" / "tracks.zip", this);
       connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
       downloader->show();
@@ -394,15 +392,14 @@ void MainWindow::onImportClicked()
       std::map<std::filesystem::path, std::vector<std::filesystem::path>> candidates;
       for(const auto& dir : archiveDirs)
       {
-        const auto stem = QString::fromUtf8(dir.stem().string().c_str()).toLower();
-        if(stem != "data")
+        if(const auto stem = QString::fromUtf8(dir.stem().string().c_str()).toLower(); stem != "data")
           continue;
 
         BOOST_LOG_TRIVIAL(debug) << "candidate path " << dir;
         candidates[dir.parent_path()].emplace_back(dir);
       }
       bool foundSuspect = false;
-      for(const auto& [base, full] : candidates)
+      for(const auto& base : candidates | std::views::keys)
       {
         BOOST_LOG_TRIVIAL(debug) << "suspect path " << base;
         if(foundSuspect)
@@ -614,12 +611,11 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
     std::vector<std::filesystem::path> paths;
     for(const auto& [entryId, entryContent] : root.childs)
     {
-      if(std::any_of(entryId.begin(),
-                     entryId.end(),
-                     [](auto c)
-                     {
-                       return c < '0' || c > '9';
-                     }))
+      if(std::ranges::any_of(entryId,
+                             [](auto c)
+                             {
+                               return c < '0' || c > '9';
+                             }))
       {
         BOOST_LOG_TRIVIAL(debug) << "Invalid library folder entry key";
         continue;
@@ -765,13 +761,13 @@ bool MainWindow::importBaseGameData()
 void MainWindow::copyDir(const QString& srcPath,
                          const std::filesystem::path& targetDir,
                          const std::string& subDirName,
-                         bool overwriteExisting)
+                         const bool overwriteExisting)
 {
   // TODO subDirName is case-sensitive here, must be changed to be not case-sensitive
   std::filesystem::create_directories(targetDir / subDirName);
 
-  const auto srcSubPath = srcPath + QDir::separator() + subDirName.c_str();
-  for(const auto& fileName : QDir{srcSubPath}.entryList(QDir::Files))
+  for(const auto srcSubPath = srcPath + QDir::separator() + subDirName.c_str();
+      const auto& fileName : QDir{srcSubPath}.entryList(QDir::Files))
   {
     const auto srcFilename = srcSubPath + QDir::separator() + fileName;
     const auto dstFilename = QString((targetDir / subDirName).string().c_str()) + QDir::separator() + fileName;
@@ -819,7 +815,8 @@ void MainWindow::onMigrateClicked()
        "already existing files, the data will be lost."));
   const auto overwriteBtn = askDataOverwrite.addButton(tr("Overwrite"), QMessageBox::ButtonRole::YesRole);
   const auto keepBtn = askDataOverwrite.addButton(tr("Don't overwrite"), QMessageBox::ButtonRole::NoRole);
-  /*const auto abortBtn = */ askDataOverwrite.addButton("Abort", QMessageBox::ButtonRole::RejectRole);
+  /*const auto abortBtn = */
+  askDataOverwrite.addButton("Abort", QMessageBox::ButtonRole::RejectRole);
   askDataOverwrite.setDefaultButton(QMessageBox::StandardButton::No);
   askDataOverwrite.setIcon(QMessageBox::Icon::Question);
 
@@ -844,8 +841,7 @@ void MainWindow::onMigrateClicked()
   for(const auto& subDir : {"saves", "ghosts", "screenshots"})
     copyDir(QFileInfo{fileName}.path(), userDataDir, subDir, overwrite);
 
-  const auto newConfig = userDataDir / "config.yaml";
-  if(overwrite || !std::filesystem::is_regular_file(newConfig))
+  if(const auto newConfig = userDataDir / "config.yaml"; overwrite || !std::filesystem::is_regular_file(newConfig))
   {
     if(std::filesystem::is_regular_file(newConfig))
       std::filesystem::remove(newConfig);
@@ -908,8 +904,8 @@ void MainWindow::resetConfig()
 
 void MainWindow::onSelectGlidosClicked()
 {
-  const auto userDataPath = findUserDataDir();
-  if(!userDataPath.has_value() || !std::filesystem::is_regular_file(*userDataPath / "config.yaml"))
+  if(const auto userDataPath = findUserDataDir();
+     !userDataPath.has_value() || !std::filesystem::is_regular_file(*userDataPath / "config.yaml"))
   {
     QMessageBox::warning(
       this, tr("Not Configured"), tr("To be able to configure a texture pack, you need to start the engine once."));
@@ -925,7 +921,8 @@ void MainWindow::onSelectGlidosClicked()
          "file, use the first option. If your texture pack contains a series of folders which are made of 32 numbers "
          "and letters, use the second one."));
     const auto useEquiv = askPackType.addButton("equiv.txt", QMessageBox::ButtonRole::AcceptRole);
-    /*const auto useFolders = */ askPackType.addButton(tr("Folders"), QMessageBox::ButtonRole::AcceptRole);
+    /*const auto useFolders = */
+    askPackType.addButton(tr("Folders"), QMessageBox::ButtonRole::AcceptRole);
     askPackType.setIcon(QMessageBox::Icon::Question);
     askPackType.exec();
     if(askPackType.clickedButton() == useEquiv)
@@ -959,7 +956,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
   const auto userDataPath = findUserDataDir();
   gsl_Assert(userDataPath.has_value());
 
-  std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+  std::string oldLocale = gsl_lite::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
   setlocale(LC_NUMERIC, "C");
 
   std::string buffer;
@@ -972,7 +969,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
     file.seekg(0, std::ios::beg);
 
     buffer.resize(size);
-    file.read(buffer.data(), gsl::narrow<std::streamsize>(size));
+    file.read(buffer.data(), gsl_lite::narrow<std::streamsize>(size));
   }
 
   setlocale(LC_NUMERIC, oldLocale.c_str());
@@ -1002,7 +999,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
     }
   }
 
-  oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+  oldLocale = gsl_lite::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
   setlocale(LC_NUMERIC, "C");
 
   {
@@ -1030,14 +1027,14 @@ void MainWindow::onLaunchClicked()
   const auto languageIdData = languageId.toUtf8();
   const auto gameflowIdData = gameflowId.toUtf8();
   const bool borderlessFullscreen = ui->cbBorderlessFullscreen->checkState();
-  m_launchRequest = {std::string{languageIdData.data(), gsl::narrow<size_t>(languageIdData.size())},
-                     std::string{gameflowIdData.data(), gsl::narrow<size_t>(gameflowIdData.size())},
+  m_launchRequest = {std::string{languageIdData.data(), gsl_lite::narrow<size_t>(languageIdData.size())},
+                     std::string{gameflowIdData.data(), gsl_lite::narrow<size_t>(gameflowIdData.size())},
                      borderlessFullscreen};
 
   NetworkConfig cfg{};
-  cfg.color = {gsl::narrow_cast<uint8_t>(m_ghostColor.red()),
-               gsl::narrow_cast<uint8_t>(m_ghostColor.green()),
-               gsl::narrow_cast<uint8_t>(m_ghostColor.blue())};
+  cfg.color = {gsl_lite::narrow_cast<uint8_t>(m_ghostColor.red()),
+               gsl_lite::narrow_cast<uint8_t>(m_ghostColor.green()),
+               gsl_lite::narrow_cast<uint8_t>(m_ghostColor.blue())};
   cfg.socket = ui->serverSocket->text().toStdString();
   cfg.username = ui->username->text().toStdString();
   cfg.authToken = ui->authToken->text().toStdString();
@@ -1061,7 +1058,7 @@ void MainWindow::onGameflowSelected(const QModelIndex& index)
 
   // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
   m_importButton = new QPushButton(tr("Import Data"), this);
-  QObject::connect(m_importButton, &QPushButton::clicked, this, &MainWindow::onImportClicked);
+  connect(m_importButton, &QPushButton::clicked, this, &MainWindow::onImportClicked);
 
   // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
   ui->gameflowMeta->addWidget(new QLabel(tr("By %1").arg(m_gameflows.data(index, AuthorRole).toString())));
@@ -1069,7 +1066,7 @@ void MainWindow::onGameflowSelected(const QModelIndex& index)
   for(const auto& url : m_gameflows.data(index, UrlsRole).toStringList())
   {
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    auto lbl = new QLabel();
+    const auto lbl = new QLabel();
     lbl->setText(QString("<a href=\"%1\">%1</a>").arg(url));
     lbl->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
     lbl->setOpenExternalLinks(true);
@@ -1095,9 +1092,9 @@ void MainWindow::onChooseColorClicked()
 
 void MainWindow::onTestConnectionClicked()
 {
-  const QUrl url{"coop://" + ui->serverSocket->text()};
-  if(!url.isValid() || url.hasFragment() || url.hasQuery() || !url.path().isEmpty() || url.port() == -1
-     || url.scheme() != "coop" || !url.userInfo().isEmpty())
+  if(const QUrl url{"coop://" + ui->serverSocket->text()}; !url.isValid() || url.hasFragment() || url.hasQuery()
+                                                           || !url.path().isEmpty() || url.port() == -1
+                                                           || url.scheme() != "coop" || !url.userInfo().isEmpty())
   {
     QMessageBox::warning(this,
                          tr("Invalid Connection Settings"),
@@ -1148,11 +1145,10 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
     return;
   }
 
-  auto releasesData = reply->readAll();
+  const auto releasesData = reply->readAll();
   reply->deleteLater();
 
-  serialization::YAMLDocument<true> doc{releasesData.toStdString()};
-  for(const auto& release : doc.getRoot().children())
+  for(serialization::YAMLDocument<true> doc{releasesData.toStdString()}; const auto& release : doc.getRoot().children())
   {
     auto preview = release.find_child(c4::csubstr("prerelease"));
     if(!preview.readable() || !(preview.type() & ryml::VAL))
@@ -1169,8 +1165,7 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
       continue;
     }
 
-    auto draft = release.find_child(c4::csubstr("draft"));
-    if(!draft.readable() || !(preview.type() & ryml::VAL))
+    if(auto draft = release.find_child(c4::csubstr("draft")); !draft.readable() || !(preview.type() & ryml::VAL))
     {
       BOOST_LOG_TRIVIAL(warning) << "Could not get draft from release";
       continue;
@@ -1204,10 +1199,11 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
   }
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void MainWindow::updateUpdateBar()
 {
   const QSettings settings;
-  auto version = settings.value(LastCheckedVersion);
+  const auto version = settings.value(LastCheckedVersion);
   if(!version.isValid() || version.toString() == "v" CE_VERSION)
   {
     ui->lblUpdateNotification->hide();

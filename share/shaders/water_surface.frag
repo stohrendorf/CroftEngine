@@ -11,9 +11,6 @@ layout(location=1) out float out_position;
 #define ROT_2D(a) \
     mat2(cos(a), -sin(a), sin(a), cos(a))
 
-float fbm(in vec2 st) {
-    return 0.25 * noise(st * 0.0064) + 0.5;
-}
 
 const float TimeMult = 0.0002;
 const float TexScale = 2048;
@@ -24,25 +21,25 @@ float bumpTex(in vec2 uv, in float time) {
     vec2 coords1 = rot1 * uv + time*vec2(0.1, -0.3)*TimeMult;
     vec2 coords2 = rot2 * uv - time*vec2(0.1, 0.2)*TimeMult;
 
-    float wave1 = fbm(coords1*vec2(30.0, 20.0)) * 0.5;
-    float wave2 = fbm(coords2*vec2(30.0, 20.0)) * 0.5;
+    // 0.25 * noise(st * 0.0064) + 0.5
+    const vec2 scale = vec2(30.0, 20.0) * 0.0064;
+    float wave1 = (noise(coords1 * scale) + 0.5) * 0.125;
+    float wave2 = (noise(coords2 * scale) + 0.5) * 0.125;
     float x = wave1 + wave2;
     return x*x;
 }
-
 
 float bumpFunc(in vec2 st, in float time){
     return bumpTex(st + vec2(bumpTex(st, time)*0.11, 0), time);
 }
 
 vec2 bumpMap(in vec2 st, in float time){
-    const float eps = 2./TexScale;
-    vec2 ff = vec2(
-    bumpFunc(st-vec2(eps, 0), time),
-    bumpFunc(st-vec2(0, eps), time)
-    );
+    const float eps = 2.0 / TexScale;
+    float f0 = bumpFunc(st, time);
+    float fx = bumpFunc(st - vec2(eps, 0), time);
+    float fy = bumpFunc(st - vec2(0, eps), time);
 
-    return (ff-vec2(bumpFunc(st, time)))/eps*0.13;
+    return (vec2(fx, fy) - f0) / eps * 0.13;
 }
 
 void main()

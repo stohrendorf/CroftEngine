@@ -72,7 +72,7 @@ void TR3Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SkeletalModelType::readTr1(m_reader);
-      if(m_animatedModels.find(m->type) != m_animatedModels.end())
+      if(m_animatedModels.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_animatedModels[m->type] = std::move(m);
@@ -88,7 +88,7 @@ void TR3Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SpriteSequence::read(m_reader);
-      if(m_spriteSequences.find(m->type) != m_spriteSequences.end())
+      if(m_spriteSequences.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_spriteSequences[m->type] = std::move(m);
@@ -140,8 +140,7 @@ void TR3Level::loadFileData()
   // In TR3, samples are stored in separate file called MAIN.SFX.
   // If there is no such files, no samples are loaded.
 
-  const io::SDLReader newsrc{m_sfxPath};
-  if(!newsrc.isOpen())
+  if(const io::SDLReader newsrc{m_sfxPath}; !newsrc.isOpen())
   {
     BOOST_LOG_TRIVIAL(warning) << "TR3 Level: failed to open '" << m_sfxPath << "', no samples loaded.";
   }

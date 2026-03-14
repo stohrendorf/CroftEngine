@@ -4,7 +4,7 @@
 #include "serialization/serialization_fwd.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <list>
 #include <map>
@@ -119,19 +119,23 @@ public:
   std::shared_ptr<objects::Object> find(const objects::Object* object, bool includeDynamicObjects = false) const;
   void createObjects(world::World& world, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
+
   [[nodiscard]] auto getObjectCounter() const noexcept
   {
     return m_objectCounter;
   }
-  void update(world::World& world, bool godMode);
+
+  void updateLogic(world::World& world, bool godMode);
 
   void replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world);
 
   void serialize(const serialization::Serializer<world::World>& ser) const;
   void deserialize(const serialization::Deserializer<world::World>& ser);
 
-  void activate(const engine::objects::Object* object);
+  void activate(const objects::Object* object);
 
-  void deactivate(const engine::objects::Object* object);
+  void deactivate(const objects::Object* object);
+
+  void interpolateTransforms(float interTickFactor);
 };
 } // namespace engine

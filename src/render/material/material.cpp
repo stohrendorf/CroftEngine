@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <gl/program.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <utility>
@@ -74,12 +74,11 @@ void Material::bind(const scene::Node* node, const scene::Mesh& mesh) const
 
 std::shared_ptr<UniformParameter> Material::tryGetUniform(const std::string& name) const
 {
-  auto it = std::find_if(m_uniforms.begin(),
-                         m_uniforms.end(),
-                         [&name](const auto& param)
-                         {
-                           return param->getName() == name;
-                         });
+  const auto it = std::ranges::find_if(m_uniforms,
+                                       [&name](const auto& param)
+                                       {
+                                         return param->getName() == name;
+                                       });
   if(it != m_uniforms.end())
     return *it;
 
@@ -93,12 +92,11 @@ std::shared_ptr<UniformParameter> Material::tryGetUniform(const std::string& nam
 
 std::shared_ptr<UniformBlockParameter> Material::tryGetUniformBlock(const std::string& name) const
 {
-  auto it = std::find_if(m_uniformBlocks.begin(),
-                         m_uniformBlocks.end(),
-                         [&name](const auto& param)
-                         {
-                           return param->getName() == name;
-                         });
+  const auto it = std::ranges::find_if(m_uniformBlocks,
+                                       [&name](const auto& param)
+                                       {
+                                         return param->getName() == name;
+                                       });
   if(it != m_uniformBlocks.end())
     return *it;
 
@@ -111,12 +109,11 @@ std::shared_ptr<UniformBlockParameter> Material::tryGetUniformBlock(const std::s
 
 std::shared_ptr<BufferParameter> Material::tryGetBuffer(const std::string& name) const
 {
-  auto it = std::find_if(m_buffers.begin(),
-                         m_buffers.end(),
-                         [&name](const auto& param)
-                         {
-                           return param->getName() == name;
-                         });
+  const auto it = std::ranges::find_if(m_buffers,
+                                       [&name](const auto& param)
+                                       {
+                                         return param->getName() == name;
+                                       });
   if(it != m_buffers.end())
     return *it;
 

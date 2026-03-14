@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <gl/renderstate.h>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 #include <stack>
 
@@ -16,9 +16,9 @@ enum class Translucency : uint8_t;
 class RenderContext final
 {
 public:
-  explicit RenderContext(material::RenderMode renderMode,
+  explicit RenderContext(const material::RenderMode renderMode,
                          const std::optional<glm::mat4>& viewProjection,
-                         Translucency translucencySelector)
+                         const Translucency translucencySelector)
       : m_renderMode{renderMode}
       , m_viewProjection{viewProjection}
       , m_translucencySelector{translucencySelector}

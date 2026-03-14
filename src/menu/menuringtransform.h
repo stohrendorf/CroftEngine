@@ -12,13 +12,13 @@ namespace menu
 {
 struct MenuRingTransform
 {
-  static const constexpr core::Length CameraZPosOffset = 598_len;
-  static const constexpr core::Length IdleCameraYPosOffset = -240_len;
-  static const constexpr core::Length IdleCameraZPosOffset = 688_len;
-  static const constexpr core::Length CameraBackpackZPos = 3000_len; // original value: 896
-  static const constexpr core::Angle CameraBackpackXRot = 90_deg;
-  static const constexpr core::Angle CameraSwitchRingXRot = 45_deg;
-  static const constexpr core::Length RingOffScreenCameraPosY = 1536_len;
+  static constexpr auto CameraZPosOffset = 598_len;
+  static constexpr core::Length IdleCameraYPosOffset = -240_len;
+  static constexpr auto IdleCameraZPosOffset = 688_len;
+  static constexpr auto CameraBackpackZPos = 3000_len; // original value: 896
+  static constexpr auto CameraBackpackXRot = 90_deg;
+  static constexpr auto CameraSwitchRingXRot = 45_deg;
+  static constexpr auto RingOffScreenCameraPosY = 1536_len;
 
   core::Length radius{0_len};
   core::Angle cameraRotX{CameraBackpackXRot};
@@ -33,8 +33,8 @@ struct MenuRingTransform
   [[nodiscard]] glm::mat4 getView() const
   {
     return glm::lookAt(
-             cameraPos.toRenderSystem(), core::TRVec{0_len, cameraPos.Y, radius}.toRenderSystem(), glm::vec3{0, 1, 0})
-           * glm::eulerAngleX(core::toRad(-cameraRotX));
+             cameraPos.toRenderSystem(), core::TRVec{0_len, cameraPos.Y, radius}.toRenderSystem(), core::RenderAxisUp)
+           * glm::eulerAngleX(core::toRad(-cameraRotX).get<>());
   }
 };
 } // namespace menu

@@ -55,9 +55,9 @@ struct BackgroundGouraud
   }
 };
 
-constexpr gl::SRGBA8 UiBackdropCenterColor{0, 128, 0, DefaultBackgroundAlpha};
-constexpr gl::SRGBA8 UiBackdropOuterColor{0, 0, 0, DefaultBackgroundAlpha};
-constexpr BackgroundGouraud UiBackdrop{
+inline const gl::SRGBA8 UiBackdropCenterColor{0, 128, 0, DefaultBackgroundAlpha};
+inline const gl::SRGBA8 UiBackdropOuterColor{0, 0, 0, DefaultBackgroundAlpha};
+inline const BackgroundGouraud UiBackdrop{
   BoxGouraud{UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropCenterColor, UiBackdropOuterColor},
   BoxGouraud{UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropCenterColor},
   BoxGouraud{UiBackdropCenterColor, UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropOuterColor},

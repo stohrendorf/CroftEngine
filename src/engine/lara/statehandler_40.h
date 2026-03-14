@@ -5,14 +5,14 @@
 #include "core/units.h"
 #include "engine/collisioninfo.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_40 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_40(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_40(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::SwitchDown}
   {
   }

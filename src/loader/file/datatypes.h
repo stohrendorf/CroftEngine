@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <vector>
 
@@ -39,7 +39,7 @@ constexpr uint16_t AtlasIdMask = 0x0FFF;
 
 struct Portal
 {
-  core::RoomId16 adjoining_room{uint16_t(0)}; ///< \brief which room this portal leads to.
+  core::RoomId16 adjoining_room{static_cast<uint16_t>(0)}; ///< \brief which room this portal leads to.
   core::TRVec normal;
   //! Vertices in world space
   std::array<core::TRVec, 4> vertices;
@@ -50,16 +50,17 @@ struct Portal
 struct Sector
 {
   /**
-     * @brief Index into FloorData[]
-     *
-     * @note If this is 0, no floor data is attached to this sector.
-     */
+* @brief Index into FloorData[]
+*
+* @note If this is 0, no floor data is attached to this sector.
+*/
   core::ContainerIndex<uint16_t, engine::floordata::FloorDataValue> floorDataIndex;
 
-  core::BoxId boxIndex{int16_t(-1)};              //!< Index into Boxes[]/Zones[] (-1 if none)
-  core::RoomId8 roomIndexBelow{uint8_t(-1)};      //!< The number of the room below this one (255 if none)
-  core::Length floorHeight = core::InvalidHeight; //!< Absolute height of floor (multiply by 256 for world coordinates)
-  core::RoomId8 roomIndexAbove{uint8_t(-1)};      //!< The number of the room above this one (255 if none)
+  core::BoxId boxIndex{static_cast<int16_t>(-1)};         //!< Index into Boxes[]/Zones[] (-1 if none)
+  core::RoomId8 roomIndexBelow{static_cast<uint8_t>(-1)}; //!< The number of the room below this one (255 if none)
+  core::Length floorHeight = core::InvalidHeight;
+  //!< Absolute height of floor (multiply by 256 for world coordinates)
+  core::RoomId8 roomIndexAbove{static_cast<uint8_t>(-1)}; //!< The number of the room above this one (255 if none)
   core::Length ceilingHeight
     = core::InvalidHeight; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
@@ -120,10 +121,10 @@ struct Light
   }
 
   /** \brief reads a room light definition.
-      *
-      * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
-      * intensity2 and fade2 are introduced in TR2 and are set to darkness and fade1 for TR1.
-      */
+*
+* darkness gets converted, so it matches the 0-32768 range introduced in TR3.
+* intensity2 and fade2 are introduced in TR2 and are set to darkness and fade1 for TR1.
+*/
   static Light readTr1(io::SDLReader& reader);
 
   static Light readTr2(io::SDLReader& reader);
@@ -139,15 +140,15 @@ struct SpriteInstance
 {
   DECLARE_ID(VertexId, uint16_t);
 
-  VertexId vertex{uint16_t(0)}; // offset into vertex list
-  core::SpriteInstanceId id{uint16_t(0)};
+  VertexId vertex{static_cast<uint16_t>(0)}; // offset into vertex list
+  core::SpriteInstanceId id{static_cast<uint16_t>(0)};
 
   /// \brief reads a room sprite definition.
   static SpriteInstance read(io::SDLReader& reader);
 };
 
 /** \brief Room layer (TR5).
-  */
+*/
 struct Layer
 {
   uint16_t num_vertices;
@@ -192,12 +193,12 @@ struct RoomVertex
   glm::vec4 color{0.0f};
 
   /** \brief reads a room vertex definition.
-      *
-      * lighting1 gets converted, so it matches the 0-32768 range introduced in TR3.
-      * lighting2 is introduced in TR2 and is set to lighting1 for TR1.
-      * attributes is introduced in TR2 and is set 0 for TR1.
-      * All other values are introduced in TR5 and get set to appropriate values.
-      */
+*
+* lighting1 gets converted, so it matches the 0-32768 range introduced in TR3.
+* lighting2 is introduced in TR2 and is set to lighting1 for TR1.
+* attributes is introduced in TR2 and is set 0 for TR1.
+* All other values are introduced in TR5 and get set to appropriate values.
+*/
   static RoomVertex readTr1(io::SDLReader& reader);
 
   static RoomVertex readTr2(io::SDLReader& reader);
@@ -241,7 +242,8 @@ struct Room
 
   static constexpr uint16_t TR_ROOM_FLAG_WIND = 0x0020;
 
-  static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2 = 0x0040; ///< @FIXME: Find what it means!!! Always set by Dxtre3d.
+  static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2 = 0x0040;
+  ///< @FIXME: Find what it means!!! Always set by Dxtre3d.
   static constexpr uint16_t TR_ROOM_FLAG_NO_LENSFLARE = 0x0080; // In TR4-5. Was quicksand in TR3.
   static constexpr uint16_t TR_ROOM_FLAG_MIST = 0x0100;
   static constexpr uint16_t TR1_ROOM_FLAG_SKYBOX = 0x0100;
@@ -269,9 +271,9 @@ struct Room
   int16_t intensity2{};      // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
   int16_t lightMode{};       // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
   std::vector<Light> lights; // [NumLights] list of point lights
-  std::vector<RoomStaticMesh> staticMeshes;     // [NumStaticMeshes]list of static meshes
-  core::RoomIdI16 alternateRoom{int16_t(-1)};   // number of the room that this room can alternate
-  core::RoomGroupId alternateGroup{uint8_t(0)}; // number of group which is used to switch alternate rooms
+  std::vector<RoomStaticMesh> staticMeshes;                  // [NumStaticMeshes]list of static meshes
+  core::RoomIdI16 alternateRoom{static_cast<int16_t>(-1)};   // number of the room that this room can alternate
+  core::RoomGroupId alternateGroup{static_cast<uint8_t>(0)}; // number of group which is used to switch alternate rooms
   // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
   uint16_t flags{};
@@ -320,12 +322,12 @@ struct Room
   uint32_t unknown_r6{};
 
   /** \brief reads a room definition.
-      *
-      * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
-      * intensity2 is introduced in TR2 and is set to darkness for TR1.
-      * light_mode is only in TR2 and is set 0 for TR1.
-      * light_color is only in TR3-4 and gets set appropriately.
-      */
+*
+* darkness gets converted, so it matches the 0-32768 range introduced in TR3.
+* intensity2 is introduced in TR2 and is set to darkness for TR1.
+* light_mode is only in TR2 and is set 0 for TR1.
+* light_color is only in TR3-4 and gets set appropriately.
+*/
   static std::unique_ptr<Room> readTr1(io::SDLReader& reader);
 
   static std::unique_ptr<Room> readTr2(io::SDLReader& reader);
@@ -338,13 +340,13 @@ struct Room
 
   [[nodiscard]] constexpr size_t getTotalSectors() const
   {
-    return gsl::narrow_cast<size_t>(sectorCountX) * gsl::narrow_cast<size_t>(sectorCountZ);
+    return gsl_lite::narrow_cast<size_t>(sectorCountX) * gsl_lite::narrow_cast<size_t>(sectorCountZ);
   }
 };
 
 struct Sprite
 {
-  core::AtlasId atlas_id{uint16_t(0)};
+  core::AtlasId atlas_id{static_cast<uint16_t>(0)};
 
   UVCoordinates uv0;
   UVCoordinates uv1;
@@ -358,9 +360,9 @@ struct Sprite
 
 struct SpriteSequence
 {
-  core::TypeId type{uint16_t(0)}; // Item identifier (matched in Items[])
-  int16_t length = 0;             // negative of "how many sprites are in this sequence"
-  uint16_t offset = 0;            // where (in sprite texture list) this sequence starts
+  core::TypeId type{static_cast<uint16_t>(0)}; // Item identifier (matched in Items[])
+  int16_t length = 0;                          // negative of "how many sprites are in this sequence"
+  uint16_t offset = 0;                         // where (in sprite texture list) this sequence starts
 
   static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader);
   static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader);
@@ -440,7 +442,7 @@ struct FlybyCamera
 
 struct AIObject
 {
-  core::ItemId object_id{uint16_t(0)}; // the objectID from the AI object (AI_FOLLOW is 402)
+  core::ItemId object_id{static_cast<uint16_t>(0)}; // the objectID from the AI object (AI_FOLLOW is 402)
   uint16_t room{};
   int32_t x{};
   int32_t y{};

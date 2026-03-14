@@ -14,4 +14,4 @@ dl_unpack(
 
 add_library( glm::glm INTERFACE IMPORTED )
 target_include_directories( glm::glm SYSTEM BEFORE INTERFACE "${EXTERNAL_SRC_ROOT}/glm-${_glm_version}" )
-target_compile_definitions( glm::glm INTERFACE -DGLM_ENABLE_EXPERIMENTAL )
+target_compile_definitions( glm::glm INTERFACE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_SSE42 -DGLM_FORCE_CXX${CMAKE_CXX_STANDARD} )

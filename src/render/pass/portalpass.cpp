@@ -13,7 +13,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
 #include <memory>
@@ -33,15 +33,15 @@ PortalPass::PortalPass(material::MaterialManager& materialManager,
     , m_positionBuffer{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "portal-position")}
     , m_positionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>>(
         m_positionBuffer,
-        gsl::make_unique<gl::Sampler>("portal-position" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>("portal-position" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
     , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-perturb")}
     , m_perturbBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(
         m_perturbBuffer,
-        gsl::make_unique<gl::Sampler>("portal-perturb" + gl::SamplerSuffix) | set(gl::api::TextureMinFilter::Linear)
-          | set(gl::api::TextureMagFilter::Linear))}
+        gsl_lite::make_unique<gl::Sampler>("portal-perturb" + gl::SamplerSuffix)
+          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_blur{"perturb", materialManager, 4, true}
     , m_fb{gl::FrameBufferBuilder()
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_perturbBuffer)
@@ -49,7 +49,7 @@ PortalPass::PortalPass(material::MaterialManager& materialManager,
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, m_geometryPass->getDepthBuffer())
              .build("portal-fb")}
 {
-  m_blur.setInput(gsl::not_null{m_perturbBufferHandle});
+  m_blur.setInput(gsl_lite::not_null{m_perturbBufferHandle});
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

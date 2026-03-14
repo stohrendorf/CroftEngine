@@ -23,11 +23,12 @@
 #include <cstddef>
 #include <filesystem>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <iterator>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -47,16 +48,15 @@ void SoundEngine::update()
     if(emitter != nullptr)
       pos = emitter->getPosition();
 
-    for(auto& [id, voices] : idsAndVoices)
+    for(auto& voices : idsAndVoices | std::views::values)
     {
       auto old = std::move(voices);
-      std::copy_if(old.begin(),
-                   old.end(),
-                   std::back_inserter(voices),
-                   [](const auto& v)
-                   {
-                     return !v.expired();
-                   });
+      std::ranges::copy_if(old,
+                           std::back_inserter(voices),
+                           [](const auto& v)
+                           {
+                             return !v.expired();
+                           });
 
       if(emitter == nullptr)
         continue;
@@ -72,7 +72,7 @@ void SoundEngine::update()
   }
 }
 
-std::vector<gslu::nn_shared<Voice>> SoundEngine::getVoicesForBuffer(Emitter* emitter, size_t buffer) const
+std::vector<gslu::nn_shared<Voice>> SoundEngine::getVoicesForBuffer(Emitter* emitter, const size_t buffer) const
 {
   const auto it1 = m_voices.find(emitter);
   if(it1 == m_voices.end())
@@ -90,9 +90,9 @@ std::vector<gslu::nn_shared<Voice>> SoundEngine::getVoicesForBuffer(Emitter* emi
   return result;
 }
 
-bool SoundEngine::stopBuffer(size_t bufferId, const Emitter* emitter)
+bool SoundEngine::stopBuffer(const size_t bufferId, const Emitter* emitter)
 {
-  auto buffersVoicesIt = m_voices.find(emitter);
+  const auto buffersVoicesIt = m_voices.find(emitter);
   if(buffersVoicesIt == m_voices.end())
     return false;
 
@@ -115,10 +115,13 @@ bool SoundEngine::stopBuffer(size_t bufferId, const Emitter* emitter)
   return any;
 }
 
-gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(
-  const gslu::nn_shared<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
+gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(const gslu::nn_shared<BufferHandle>& buffer,
+                                                     const size_t bufferId,
+                                                     const ALfloat pitch,
+                                                     const ALfloat volume,
+                                                     Emitter* emitter)
 {
-  auto voice = gsl::make_shared<BufferVoice>(buffer);
+  auto voice = gsl_lite::make_shared<BufferVoice>(buffer);
   voice->setPitch(pitch);
   voice->setLocalGain(volume);
   if(emitter != nullptr)
@@ -137,7 +140,7 @@ void SoundEngine::dropEmitter(const Emitter* emitter)
   if(it == m_voices.end())
     return;
 
-  for(const auto& [id, voices] : it->second)
+  for(const auto& voices : it->second | std::views::values)
     for(const auto& voice : voices)
       if(const auto locked = voice.lock())
         locked->stop();
@@ -146,7 +149,7 @@ void SoundEngine::dropEmitter(const Emitter* emitter)
 }
 
 SoundEngine::SoundEngine()
-    : m_device{gsl::make_unique<Device>()}
+    : m_device{gsl_lite::make_unique<Device>()}
 {
 }
 
@@ -164,8 +167,11 @@ SoundEngine::~SoundEngine()
     listener->m_engine = nullptr;
 }
 
-gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(
-  const gslu::nn_shared<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
+gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(const gslu::nn_shared<BufferHandle>& buffer,
+                                                     const size_t bufferId,
+                                                     const ALfloat pitch,
+                                                     const ALfloat volume,
+                                                     const glm::vec3& pos)
 {
   auto voice = playBuffer(buffer, bufferId, pitch, volume, nullptr);
   voice->setPosition(pos);
@@ -175,7 +181,7 @@ gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(
 void SoundEngine::reset()
 {
   BOOST_LOG_TRIVIAL(debug) << "Resetting sound engine";
-  for(const auto& [streamId, slotStream] : m_slots)
+  for(const auto& slotStream : m_slots | std::views::values)
     m_device->removeStream(slotStream.stream);
   m_slots.clear();
   m_device->reset();
@@ -185,22 +191,22 @@ void SoundEngine::reset()
   m_listeners.clear();
 }
 
-void SoundEngine::setListenerGain(float gain)
+void SoundEngine::setListenerGain(const float gain)
 {
   m_device->setListenerGain(gain);
 }
 
 void SoundEngine::setSlotStream(size_t slot,
-                                const gsl::shared_ptr<StreamVoice>& stream,
+                                const gsl_lite::shared_ptr<StreamVoice>& stream,
                                 const std::filesystem::path& absolutePath)
 {
   m_slots.erase(slot);
   m_slots.emplace(slot, SlotStream{stream, absolutePath});
 }
 
-std::shared_ptr<StreamVoice> SoundEngine::tryGetStream(size_t slot)
+std::shared_ptr<StreamVoice> SoundEngine::tryGetStream(const size_t slot)
 {
-  if(auto slotIt = m_slots.find(slot); slotIt != m_slots.end())
+  if(const auto slotIt = m_slots.find(slot); slotIt != m_slots.end())
   {
     return slotIt->second.stream.lock();
   }
@@ -208,7 +214,7 @@ std::shared_ptr<StreamVoice> SoundEngine::tryGetStream(size_t slot)
   return nullptr;
 }
 
-void SoundEngine::freeSlot(size_t slot) noexcept
+void SoundEngine::freeSlot(const size_t slot) noexcept
 {
   m_slots.erase(slot);
 }
@@ -219,8 +225,7 @@ void SoundEngine::serializeStreams(const serialization::Serializer<engine::world
   std::map<size_t, std::filesystem::path> names;
   std::map<size_t, bool> looping;
 
-  auto tmp = std::exchange(m_slots, {});
-  for(const auto& [slot, slotStream] : tmp)
+  for(auto tmp = std::exchange(m_slots, {}); const auto& [slot, slotStream] : tmp)
   {
     if(auto stream = slotStream.stream.lock(); stream != nullptr && !stream->isStopped())
     {
@@ -243,7 +248,7 @@ void SoundEngine::deserializeStreams(const serialization::Deserializer<engine::w
   std::map<size_t, std::filesystem::path> names;
   std::map<size_t, bool> looping;
 
-  for(const auto& [slot, slotStream] : m_slots)
+  for(const auto& slotStream : m_slots | std::views::values)
     m_device->removeStream(slotStream.stream);
   m_slots.clear();
 

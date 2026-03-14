@@ -15,7 +15,7 @@ void serialize(std::unordered_set<T>& data, const Serializer<TContext>& ser)
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access<T, false>::dispatch(element, tmp);
+    access::dispatchSerialize(element, tmp);
   }
 }
 
@@ -27,7 +27,7 @@ void deserialize(std::unordered_set<T>& data, const Deserializer<TContext>& ser)
   data.reserve(ser.node.num_children());
   for(const auto& element : ser.node.children())
   {
-    data.emplace(access<T, true>::dispatch(ser.withNode(element)));
+    data.emplace(access::dispatchCreate<T>(ser.withNode(element)));
   }
 }
 } // namespace serialization

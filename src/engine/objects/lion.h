@@ -21,6 +21,6 @@ class Lion final : public AIAgent
 public:
   AIAGENT_DEFAULT_CONSTRUCTORS(Lion)
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

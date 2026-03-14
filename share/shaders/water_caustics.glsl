@@ -8,22 +8,18 @@ float voronoi(in vec3 p)
 
     const float Offset = 0.5;
     float m_dist = 1.0 - Offset;
-    vec3 time = vec3(TimeSeconds * 5);
+    float time_val = TimeSeconds * 5.0;
 
-    for (float fy = -1; fy <= 1; fy += 1.0) {
-        for (float fx = -1; fx <= 1; fx += 1.0) {
-            for (float fz = -1; fz <= 1; fz += 1.0) {
-                vec3 neighbor = vec3(fx, fy, fz);
-                // Random position from current + neighbor place in the grid
+    vec3 start = step(0.5, f_st) - 1.0;
+
+    for (int y = 0; y <= 1; y++) {
+        for (int x = 0; x <= 1; x++) {
+            for (int z = 0; z <= 1; z++) {
+                vec3 neighbor = start + vec3(float(x), float(y), float(z));
                 vec3 point = snoise3(i_st + neighbor);
-
-                // Animate the point
-                point = sin(point*6.2831 + time) * 0.5 + 0.5;
-
-                // Vector between the sample and the point
+                point = sin(point * 6.2831853 + time_val) * 0.5 + 0.5;
                 vec3 diff = neighbor + point - f_st;
-                float dist = dot(diff, diff);
-                m_dist = min(m_dist, dist);
+                m_dist = min(m_dist, dot(diff, diff));
             }
         }
     }

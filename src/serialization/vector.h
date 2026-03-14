@@ -4,7 +4,7 @@
 #include "serialization.h"
 
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <vector>
 
 namespace serialization
@@ -17,7 +17,7 @@ void serialize(const std::vector<T>& data, const Serializer<TContext>& ser)
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access<T, false>::dispatch(element, tmp);
+    access::dispatchSerialize(element, tmp);
   }
 }
 
@@ -33,7 +33,7 @@ void deserialize(std::vector<T>& data, const Deserializer<TContext>& ser)
                  std::back_inserter(data),
                  [&ser](const ryml::ConstNodeRef& element)
                  {
-                   return access<T, true>::dispatch(ser.withNode(element));
+                   return access::dispatchCreate<T>(ser.withNode(element));
                  });
 }
 
@@ -41,6 +41,7 @@ template<typename T>
 struct DeserializingFrozenVector
 {
   std::reference_wrapper<std::vector<T>> vec;
+
   explicit DeserializingFrozenVector(std::reference_wrapper<std::vector<T>>&& vec)
       : vec{std::move(vec)}
   {
@@ -53,7 +54,7 @@ struct DeserializingFrozenVector
     auto it = vec.get().begin();
     for(const auto& element : ser.node.children())
     {
-      access<T, true>::dispatch(*it++, ser.withNode(element));
+      access::dispatchDeserialize(*it++, ser.withNode(element));
     }
   }
 };
@@ -62,6 +63,7 @@ template<typename T>
 struct SerializingFrozenVector
 {
   std::reference_wrapper<const std::vector<T>> vec;
+
   explicit SerializingFrozenVector(std::reference_wrapper<const std::vector<T>>&& vec)
       : vec{std::move(vec)}
   {
@@ -74,7 +76,7 @@ struct SerializingFrozenVector
     for(auto& element : vec.get())
     {
       const auto tmp = ser.newChild();
-      access<T, false>::dispatch(element, tmp);
+      access::dispatchSerialize(element, tmp);
     }
   }
 };

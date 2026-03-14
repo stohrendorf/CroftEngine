@@ -26,7 +26,7 @@ struct Converter final
   glm::ivec2 size;
   SwsContext* context;
   std::array<uint8_t*, 4> dstVideoData{nullptr};
-  std::array<int, 4> dstVideoLinesize{0};
+  std::array<int, 4> dstVideoLinesize{};
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> textureHandle;
 
   explicit Converter(const glm::ivec2& size, AVPixelFormat srcFormat);

@@ -31,32 +31,28 @@ struct alignas(Alignment) Pixel
 
   static_assert(_Channels > 0, "Pixel must contain at least one channel");
 
-  using Self = Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>;
-
-  using Type = T;
-
   static constexpr auto Channels = _Channels;
   static constexpr api::PixelFormat PixelFormat = _PixelFormat;
   static constexpr api::SizedInternalFormat SizedInternalFormat = _SizedInternalFormat;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   static constexpr bool Premultiplied = _Premultiplied;
-  using Vec = glm::vec<Channels, Type, glm::qualifier::defaultp>;
+  using Vec = glm::vec<Channels, T>;
 
   Vec channels;
 
   explicit constexpr Pixel() noexcept
-      : Pixel{Type{}}
+      : Pixel{T{}}
   {
   }
 
-  explicit constexpr Pixel(Type scalar) noexcept
+  explicit constexpr Pixel(T scalar) noexcept
       : channels{scalar}
   {
   }
 
   template<typename... U>
-  constexpr Pixel(Type value0, Type value1, U... tail) noexcept
-      : channels{value0, value1, static_cast<Type>(tail)...}
+  constexpr Pixel(T value0, T value1, U... tail) noexcept
+      : channels{value0, value1, static_cast<T>(tail)...}
   {
     static_assert(sizeof...(U) + 2 == _Channels, "Invalid constructor call");
   }
@@ -66,24 +62,24 @@ struct alignas(Alignment) Pixel
   {
   }
 
-  constexpr bool operator==(const Self& rhs) const
+  constexpr bool operator==(const Pixel& rhs) const
   {
     return channels == rhs.channels;
   }
 
-  constexpr bool operator!=(const Self& rhs) const
+  constexpr bool operator!=(const Pixel& rhs) const
   {
     return !(*this == rhs);
   }
 
   template<typename U>
-  Self operator*(U rhs) const
+  Pixel operator*(U rhs) const
   {
-    Self tmp = *this;
+    Pixel tmp = *this;
     std::transform(&channels[0],
                    &channels[0] + _Channels,
                    &tmp.channels[0],
-                   [rhs](Type v)
+                   [rhs](T v)
                    {
                      return v * rhs;
                    });
@@ -102,23 +98,23 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          bool _Premultiplied,
          size_t Alignment>
-auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
-          const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs,
-          U bias, // NOLINT(*-easily-swappable-parameters)
-          U biasMax = std::numeric_limits<U>::max())
-  -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>, // lgtm [cpp/comparison-of-identical-expressions]
-                      Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>>
+Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>
+  imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
+       const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs,
+       U alpha,
+       // NOLINT(*-easily-swappable-parameters)
+       U biasMax = std::numeric_limits<U>::max()) requires(std::is_unsigned_v<T> == std::is_unsigned_v<U>)
 {
-  if(bias >= biasMax)
+  if(alpha >= biasMax)
     return rhs;
-  else if(bias <= 0)
+  else if(alpha <= 0)
     return lhs;
 
-  const auto invBias = biasMax - bias;
+  const auto invBias = biasMax - alpha;
   auto tmp = lhs;
   for(glm::length_t i = 0; i < _Channels; ++i)
   {
-    tmp.channels[i] = static_cast<T>(lhs.channels[i] * invBias / biasMax + rhs.channels[i] * bias / biasMax);
+    tmp.channels[i] = static_cast<T>(lhs.channels[i] * invBias / biasMax + rhs.channels[i] * alpha / biasMax);
   }
   return tmp;
 }
@@ -137,6 +133,12 @@ Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>
 {
   return imix(lhs, rhs, rhs.channels[3]);
 }
+
+template<typename T>
+using RGBA = Pixel<T, 4, api::PixelFormat::Rgba, RgbaSizedInternalFormat<T>, false, 4>;
+using RGBA8 = RGBA<uint8_t>;
+using RGBA16F = RGBA<api::core::Half>;
+using RGBA32F = RGBA<float>;
 
 template<typename T>
 using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, false, 4>;
@@ -177,13 +179,13 @@ constexpr T premultiply(T value, T alpha) noexcept
   return value * alpha / std::numeric_limits<T>::max();
 }
 
-constexpr float premultiply(float value, float alpha) noexcept
+constexpr float premultiply(const float value, const float alpha) noexcept
 {
   return value * alpha;
 }
 } // namespace detail
 
-constexpr PremultipliedSRGBA8 premultiply(const SRGBA8& color)
+inline PremultipliedSRGBA8 premultiply(const SRGBA8& color)
 {
   return PremultipliedSRGBA8{
     detail::premultiply(color.channels[0], color.channels[3]),
@@ -193,7 +195,7 @@ constexpr PremultipliedSRGBA8 premultiply(const SRGBA8& color)
   };
 }
 
-constexpr glm::vec4 premultiply(const glm::vec4& color)
+inline glm::vec4 premultiply(const glm::vec4& color)
 {
   return glm::vec4{
     detail::premultiply(color[0], color[3]),
@@ -209,9 +211,7 @@ struct ScalarDepth final
   static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<api::core::Half, T>,
                 "Pixel may only have channels of integral types");
 
-  using Type = T;
-
-  static constexpr api::PixelFormat PixelFormat = api::PixelFormat::DepthComponent;
+  static constexpr auto PixelFormat = api::PixelFormat::DepthComponent;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   static constexpr auto InternalFormat = DepthInternalFormat<T>;
 
@@ -220,12 +220,12 @@ struct ScalarDepth final
   {
   }
 
-  explicit constexpr ScalarDepth(Type value) noexcept
+  explicit constexpr ScalarDepth(T value) noexcept
       : value{value}
   {
   }
 
-  Type value;
+  T value;
 };
 
 using ScalarDepth32F = ScalarDepth<float>;

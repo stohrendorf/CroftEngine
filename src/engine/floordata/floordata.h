@@ -9,7 +9,7 @@
 #include <bitset>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 
 namespace engine::world
@@ -34,13 +34,13 @@ struct FloorDataChunk
 
   static FloorDataChunkType extractType(const FloorDataValue& data) noexcept
   {
-    return gsl::narrow_cast<FloorDataChunkType>(data.get() & 0xffu);
+    return gsl_lite::narrow_cast<FloorDataChunkType>(data.get() & 0xffu);
   }
 
 private:
   static SequenceCondition extractSequenceCondition(const FloorDataValue& data) noexcept
   {
-    return gsl::narrow_cast<SequenceCondition>((data.get() & 0x3f00u) >> 8u);
+    return gsl_lite::narrow_cast<SequenceCondition>((data.get() & 0x3f00u) >> 8u);
   }
 
   static constexpr bool extractIsLast(const FloorDataValue& data)
@@ -67,8 +67,8 @@ public:
       , m_locked{(fd.get() & Locked) != 0}
       , m_activationSet{extractActivationSet(fd)}
   {
-    const auto timeout = core::Seconds{gsl::narrow_cast<core::Seconds::type>(fd.get() & TimeoutMask)};
-    if(timeout.get() == 1)
+    if(const auto timeout = core::Seconds{gsl_lite::narrow_cast<core::Seconds::type>(fd.get() & TimeoutMask)};
+       timeout.get() == 1)
       m_timeout = 1_frame;
     else
       m_timeout = timeout * core::FrameRate;
@@ -192,7 +192,7 @@ private:
 
   static constexpr uint16_t extractParameter(const FloorDataValue& data)
   {
-    return gsl::narrow_cast<uint16_t>(data.get() & 0x03ffu);
+    return gsl_lite::narrow_cast<uint16_t>(data.get() & 0x03ffu);
   }
 
   static constexpr bool extractIsLast(const FloorDataValue& data)

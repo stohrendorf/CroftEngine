@@ -19,7 +19,9 @@
 
 #include <memory>
 
-void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
+namespace engine::objects
+{
+void TeethSpikes::collide(CollisionInfo& collisionInfo)
 {
   if(!getWorld().getObjectManager().getLara().isDead()
      && isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius)
@@ -57,7 +59,7 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
     if(getWorld().getObjectManager().getLara().isDead())
     {
       getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
-        gsl::not_null{&getWorld().getWorldGeometry().getAnimation(loader::file::AnimationId::SPIKED)});
+        gsl_lite::not_null{&getWorld().getWorldGeometry().getAnimation(loader::file::AnimationId::SPIKED)});
       getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::Death);
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Death);
       getWorld().getObjectManager().getLara().m_state.falling = false;
@@ -65,3 +67,9 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
     }
   }
 }
+
+void TeethSpikes::updateLogic()
+{
+  advanceFrame();
+}
+} // namespace engine::objects

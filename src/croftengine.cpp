@@ -1,5 +1,6 @@
 #include "cpuinfo_x86.h"
 #include "engine/engine.h"
+#include "engine/levelloopresult.h"
 #include "engine/player.h"
 #include "engine/script/reflection.h"
 #include "engine/script/scriptengine.h"
@@ -17,7 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -34,8 +35,7 @@
 
 namespace
 {
-
-const gsl::czstring logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
+const auto logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
 
 using sink_t = boost::log::sinks::synchronous_sink<boost::log::sinks::text_file_backend>;
 boost::shared_ptr<sink_t> logFileSink;
@@ -89,7 +89,7 @@ bool initCrashReporting()
       BOOST_LOG_TRIVIAL(fatal) << stackTraceEntry;
     });
   chillout.setCrashCallback(
-    [&chillout]()
+    [&chillout]
     {
       BOOST_LOG_TRIVIAL(fatal) << "Croft engine has crashed";
       chillout.backtrace();
@@ -134,7 +134,7 @@ void dumpCpuInfo()
   BOOST_LOG_TRIVIAL(info) << "CPU features: " << flags.str();
 }
 
-void runGame(const std::string& localeOverride, const std::string& gameflowId, bool borderlessFullscreen)
+void runGame(const std::string& localeOverride, const std::string& gameflowId, const bool borderlessFullscreen)
 {
   engine::Engine engine{findUserDataDir().value(),
                         findEngineDataDir().value(),
@@ -175,7 +175,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
 
   while(true)
   {
-    std::pair<engine::RunResult, std::optional<size_t>> runResult;
+    std::pair<engine::LevelLoopResult, std::optional<size_t>> runResult;
     switch(mode)
     {
     case Mode::Boot:
@@ -193,7 +193,8 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
       gsl_Assert(!doLoad);
       player = std::make_shared<engine::Player>();
       for(const auto& item : gameflow.getLaraHome())
-        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer); // cppcheck-suppress useStlAlgorithm
+        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
+      // cppcheck-suppress useStlAlgorithm
       break;
     case Mode::Game:
       if(doLoad)
@@ -201,7 +202,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
         player = std::make_shared<engine::Player>();
         levelStartPlayer = std::make_shared<engine::Player>();
         runResult = engine.runLevelSequenceItemFromSave(
-          *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player, levelStartPlayer);
+          *gsl_lite::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player, levelStartPlayer);
       }
       else
       {
@@ -215,7 +216,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
         levelStartPlayer = std::make_shared<engine::Player>(*player);
 
         runResult = engine.runLevelSequenceItem(
-          *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player, levelStartPlayer);
+          *gsl_lite::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player, levelStartPlayer);
       }
       break;
     }
@@ -226,32 +227,33 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
     switch(mode)
     {
     case Mode::Boot:
-      if(runResult.first == engine::RunResult::ExitGame)
+      if(runResult.first == engine::LevelLoopResult::ExitGame)
         return;
       mode = Mode::Title;
       break;
     case Mode::Title:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitGame:
+      case engine::LevelLoopResult::ExitGame:
         return;
-      case engine::RunResult::NextLevel:
+      case engine::LevelLoopResult::NextLevel:
         levelSequenceIndex = 0;
         mode = Mode::Game;
         levelStartPlayer.reset();
         break;
-      case engine::RunResult::TitleLevel:
+      case engine::LevelLoopResult::TitleLevel:
+        engine.resetGameplayRules();
         mode = Mode::Title;
         break;
-      case engine::RunResult::LaraHomeLevel:
+      case engine::LevelLoopResult::LaraHomeLevel:
         mode = Mode::Gym;
         break;
-      case engine::RunResult::RequestLoad:
+      case engine::LevelLoopResult::RequestLoad:
         processLoadRequest(runResult.second);
         break;
-      case engine::RunResult::RestartLevel:
+      case engine::LevelLoopResult::RestartLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
-      case engine::RunResult::RequestLevel:
+      case engine::LevelLoopResult::RequestLevel:
       {
         gsl_Assert(runResult.second.has_value());
 
@@ -279,30 +281,31 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
     case Mode::Gym:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitGame:
+      case engine::LevelLoopResult::ExitGame:
         return;
-      case engine::RunResult::NextLevel:
-      case engine::RunResult::TitleLevel:
+      case engine::LevelLoopResult::NextLevel:
+      case engine::LevelLoopResult::TitleLevel:
+        engine.resetGameplayRules();
         mode = Mode::Title;
         break;
-      case engine::RunResult::LaraHomeLevel:
+      case engine::LevelLoopResult::LaraHomeLevel:
         mode = Mode::Gym;
         break;
-      case engine::RunResult::RequestLoad:
+      case engine::LevelLoopResult::RequestLoad:
         processLoadRequest(runResult.second);
         break;
-      case engine::RunResult::RestartLevel:
+      case engine::LevelLoopResult::RestartLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
-      case engine::RunResult::RequestLevel:
+      case engine::LevelLoopResult::RequestLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level selection request while running title menu"));
       }
       break;
     case Mode::Game:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitGame:
+      case engine::LevelLoopResult::ExitGame:
         return;
-      case engine::RunResult::NextLevel:
+      case engine::LevelLoopResult::NextLevel:
         ++levelSequenceIndex;
         if(levelSequenceIndex >= gameflow.getLevelSequence().size())
         {
@@ -315,20 +318,21 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
           player->accumulateStats();
         }
         break;
-      case engine::RunResult::TitleLevel:
+      case engine::LevelLoopResult::TitleLevel:
+        engine.resetGameplayRules();
         mode = Mode::Title;
         break;
-      case engine::RunResult::LaraHomeLevel:
+      case engine::LevelLoopResult::LaraHomeLevel:
         mode = Mode::Gym;
         break;
-      case engine::RunResult::RequestLoad:
+      case engine::LevelLoopResult::RequestLoad:
         processLoadRequest(runResult.second);
         break;
-      case engine::RunResult::RestartLevel:
+      case engine::LevelLoopResult::RestartLevel:
         BOOST_ASSERT(levelStartPlayer != nullptr);
         player = std::make_shared<engine::Player>(*levelStartPlayer);
         break;
-      case engine::RunResult::RequestLevel:
+      case engine::LevelLoopResult::RequestLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level selection request while in game"));
       }
       break;
@@ -338,7 +342,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
 } // namespace
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
-int main(int argc, char** argv)
+int main(const int argc, char** argv)
 {
   const bool crashReportInitSuccess = initCrashReporting();
   boost::log::add_common_attributes();

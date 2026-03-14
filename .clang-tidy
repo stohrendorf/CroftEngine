@@ -85,6 +85,7 @@ Checks: >
   -readability-simplify-boolean-expr,
   -readability-uppercase-literal-suffix,
   -zircon-*,
+  -*-pro-bounds-avoid-unchecked-container-access,
   google-default-arguments,
   google-explicit-constructor,
   google-runtime-operator

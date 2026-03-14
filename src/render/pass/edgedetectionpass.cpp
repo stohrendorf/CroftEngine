@@ -19,7 +19,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -40,7 +40,7 @@ EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
     , m_edgeBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "edge")}
     , m_edgeBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_edgeBuffer,
-        gsl::make_unique<gl::Sampler>("edge" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>("edge" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
@@ -52,7 +52,7 @@ EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
     , m_dilationBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "dilation")}
     , m_dilationBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_dilationBuffer,
-        gsl::make_unique<gl::Sampler>("dilation" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>("dilation" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
@@ -61,32 +61,29 @@ EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
                      .build("dilation-fb")}
 {
   m_edgeRenderMesh->bind("u_normals",
-                         [buffer = geometryPass->getNormalBuffer()](const render::scene::Node* /*node*/,
-                                                                    const render::scene::Mesh& /*mesh*/,
-                                                                    gl::Uniform& uniform)
+                         [buffer = geometryPass->getNormalBuffer()](
+                           const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                          {
                            uniform.set(buffer);
                          });
   m_edgeRenderMesh->bind("u_depth",
-                         [buffer = geometryPass->getDepthBufferHandle()](const render::scene::Node* /*node*/,
-                                                                         const render::scene::Mesh& /*mesh*/,
-                                                                         gl::Uniform& uniform)
+                         [buffer = geometryPass->getDepthBufferHandle()](
+                           const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                          {
                            uniform.set(buffer);
                          });
   m_edgeRenderMesh->getRenderState().merge(m_edgeFb->getRenderState());
 
-  m_dilationRenderMesh->bind("u_edges",
-                             [buffer = m_edgeBufferHandle](const render::scene::Node* /*node*/,
-                                                           const render::scene::Mesh& /*mesh*/,
-                                                           gl::Uniform& uniform)
-                             {
-                               uniform.set(buffer);
-                             });
+  m_dilationRenderMesh->bind(
+    "u_edges",
+    [buffer = m_edgeBufferHandle](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      uniform.set(buffer);
+    });
   m_dilationRenderMesh->getRenderState().merge(m_dilationFb->getRenderState());
 }
 
-void EdgeDetectionPass::render()
+void EdgeDetectionPass::render() const
 {
   SOGLB_DEBUGGROUP("edge-pass");
 

@@ -5,7 +5,7 @@
 #include "qs/quantity.h"
 
 #include <boost/log/trivial.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace loader::file
@@ -49,12 +49,13 @@ std::unique_ptr<Animation> Animation::read(io::SDLReader& reader, const bool wit
   animation->poseDataSize = reader.readU8();
   animation->state_id = core::AnimStateId{reader.readU16()};
 
-  animation->speed = core::Speed{gsl::narrow_cast<core::Speed::type>(reader.readI32())};
-  animation->acceleration = core::Acceleration{gsl::narrow_cast<core::Acceleration::type>(reader.readI32())};
+  animation->speed = core::Speed{gsl_lite::narrow_cast<core::Speed::type>(reader.readI32())};
+  animation->acceleration = core::Acceleration{gsl_lite::narrow_cast<core::Acceleration::type>(reader.readI32())};
   if(withLateral)
   {
-    animation->lateralSpeed = core::Speed{gsl::narrow_cast<core::Speed::type>(reader.readI32())};
-    animation->lateralAcceleration = core::Acceleration{gsl::narrow_cast<core::Acceleration::type>(reader.readI32())};
+    animation->lateralSpeed = core::Speed{gsl_lite::narrow_cast<core::Speed::type>(reader.readI32())};
+    animation->lateralAcceleration
+      = core::Acceleration{gsl_lite::narrow_cast<core::Acceleration::type>(reader.readI32())};
   }
 
   animation->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
@@ -72,7 +73,7 @@ std::unique_ptr<Animation> Animation::read(io::SDLReader& reader, const bool wit
 std::unique_ptr<SkeletalModelType> SkeletalModelType::readTr1(io::SDLReader& reader)
 {
   auto moveable = std::make_unique<SkeletalModelType>();
-  moveable->type = gsl::narrow_cast<core::TypeId::type>(reader.readU32());
+  moveable->type = gsl_lite::narrow_cast<core::TypeId::type>(reader.readU32());
   moveable->nMeshes = reader.readI16();
   moveable->mesh_base_index = reader.readU16();
   moveable->bone_index = reader.readU32();

@@ -11,7 +11,7 @@
 #include "world/sector.h"
 
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <ostream>
 
@@ -32,10 +32,10 @@ Location Location::create(const serialization::Deserializer<world::World>& ser)
   const world::Room* room = nullptr;
   core::TRVec position{};
   ser(S_NV_VECTOR_ELEMENT("room", std::cref(ser.context->getRooms()), std::ref(room)), S_NV("position", position));
-  return Location{gsl::not_null{room}, position};
+  return Location{gsl_lite::not_null{room}, position};
 }
 
-gsl::not_null<const world::Sector*> Location::updateRoom()
+gsl_lite::not_null<const world::Sector*> Location::updateRoom()
 {
   const world::Sector* sector;
   while(true)
@@ -47,7 +47,7 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
       break;
     }
 
-    room = gsl::not_null{sector->boundaryRoom};
+    room = gsl_lite::not_null{sector->boundaryRoom};
   }
 
   // go up/down until we are in the room that contains our coordinates
@@ -56,7 +56,7 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
   {
     while(position.Y >= sector->floorHeight && sector->roomBelow != nullptr)
     {
-      room = gsl::not_null{sector->roomBelow};
+      room = gsl_lite::not_null{sector->roomBelow};
       sector = room->getSectorByAbsolutePosition(position);
       gsl_Assert(sector != nullptr);
     }
@@ -65,13 +65,13 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
   {
     while(position.Y < sector->ceilingHeight && sector->roomAbove != nullptr)
     {
-      room = gsl::not_null{sector->roomAbove};
+      room = gsl_lite::not_null{sector->roomAbove};
       sector = room->getSectorByAbsolutePosition(position);
       gsl_Assert(sector != nullptr);
     }
   }
 
-  return gsl::not_null{sector};
+  return gsl_lite::not_null{sector};
 }
 
 bool Location::isValid() const

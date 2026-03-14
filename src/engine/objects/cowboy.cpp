@@ -17,18 +17,18 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects
 {
-void Cowboy::update()
+void Cowboy::updateLogic()
 {
   activateAi();
 
-  core::Angle tiltRot = 0_deg;
-  core::Angle turn = 0_deg;
-  core::Angle headRot = 0_deg;
+  auto tiltRot = 0_deg;
+  auto turn = 0_deg;
+  auto headRot = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
@@ -110,7 +110,7 @@ void Cowboy::update()
         }
         else
         {
-          auto p = emitParticle({-2_len, 200_len, 40_len}, 8, &createMuzzleFlash);
+          const auto p = emitParticle({-2_len, 200_len, 40_len}, 8, &createMuzzleFlash);
           p->angle.Y += headRot;
         }
       }
@@ -127,7 +127,7 @@ void Cowboy::update()
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
     getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Cowboy)->animations[7]});
+      gsl_lite::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Cowboy)->animations[7]});
     m_state.current_anim_state = 5_as;
     getWorld().createPickup(TR1ItemId::MagnumsSprite, m_state.location.room, m_state.location.position);
   }

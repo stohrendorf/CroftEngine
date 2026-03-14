@@ -38,7 +38,7 @@
 #include <ctime>
 #include <filesystem>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -68,12 +68,12 @@ class SavegameListMenuState::CleanupWidget final : public ui::widgets::Widget
 {
 public:
   explicit CleanupWidget(const std::optional<std::string>& slotDate)
-      : ui::widgets::Widget{}
+      : Widget{}
       , m_referenceDate{slotDate}
   {
     createList();
-    m_container = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Clean Up Saves"),
-                                                          gsl::not_null{m_list});
+    m_container = std::make_shared<ui::widgets::GroupBox>(
+      /* translators: TR charmap encoding */ _("Clean Up Saves"), gsl_lite::not_null{m_list});
     fitToContent();
   }
 
@@ -109,12 +109,12 @@ public:
     m_container->setSize(size);
   }
 
-  void update(bool hasFocus) override
+  void tick(const bool hasFocus) override
   {
-    m_container->update(hasFocus);
+    m_container->tick(hasFocus);
   }
 
-  void fitToContent() final
+  void fitToContent() override
   {
     m_container->fitToContent();
   }
@@ -137,44 +137,44 @@ public:
 private:
   void createList()
   {
-    m_list = gsl::make_shared<ui::widgets::ListBox>();
+    m_list = gsl_lite::make_shared<ui::widgets::ListBox>();
     if(m_referenceDate.has_value())
     {
       m_actionPerListItem.emplace_back(CleanupAction::Current);
-      m_list->append(
-        gsl::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Clear Selected Slot")));
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
+        /* translators: TR charmap encoding */ _("Clear Selected Slot")));
 
       m_actionPerListItem.emplace_back(CleanupAction::BeforeDate);
-      m_list->append(gsl::make_shared<ui::widgets::Label>(
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
         /* translators: TR charmap encoding */ _("Clear Slots Before %1%", *m_referenceDate)));
 
       m_actionPerListItem.emplace_back(CleanupAction::AllOther);
-      m_list->append(gsl::make_shared<ui::widgets::Label>(
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
         /* translators: TR charmap encoding */ _("Clear All Other Slots")));
 
       m_actionPerListItem.emplace_back(CleanupAction::AllOtherForLevel);
-      m_list->append(gsl::make_shared<ui::widgets::Label>(
+      m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
         /* translators: TR charmap encoding */ _("Clear All Other Level Slots")));
     }
 
     m_actionPerListItem.emplace_back(CleanupAction::AllExceptNewestPerLevel);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Clear All Slots, Keep Most Recent Level Slots, and Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::Compact);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::OrderByDateAndCompact);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Order by Date and Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::OrderByDateLevelAndCompact);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Group by Level, Order by Date, and Compact")));
 
     m_actionPerListItem.emplace_back(CleanupAction::Cancel);
-    m_list->append(gsl::make_shared<ui::widgets::Label>(
+    m_list->append(gsl_lite::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Cancel")));
 
     m_list->fitToContent();
@@ -220,9 +220,9 @@ public:
     m_label.setSize(size);
   }
 
-  void update(bool hasFocus) override
+  void tick(const bool hasFocus) override
   {
-    m_label.update(hasFocus);
+    m_label.tick(hasFocus);
   }
 
   void fitToContent() override
@@ -261,7 +261,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
                                              std::unique_ptr<MenuState> previous,
                                              const std::string& heading,
                                              const engine::world::World& world,
-                                             bool loading)
+                                             const bool loading)
     : ListDisplayMenuState{ringTransform, heading, 10}
     , m_previous{std::move(previous)}
     , m_loading{loading}
@@ -279,9 +279,14 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
 }
 
 std::unique_ptr<MenuState>
-  SavegameListMenuState::onSelected(size_t selectedIdx, engine::world::World& world, MenuDisplay& display)
+  SavegameListMenuState::onSelected(const size_t selectedIdx, engine::world::World& world, MenuDisplay& display)
 {
-  if(m_loading && world.getEngine().getGameplayRules().noMeds)
+  if(m_loading
+     && world
+
+          .getEngine()
+          .getGameplayRules()
+          .noMeds)
   {
     world.getObjectManager().getLara().playSoundEffect(engine::TR1SoundEffect::LaraNo);
     return nullptr;
@@ -322,20 +327,39 @@ std::unique_ptr<MenuState> SavegameListMenuState::onAborted()
   return std::move(m_previous);
 }
 
-std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SavegameListMenuState::tick(engine::world::World& world, MenuDisplay& display)
 {
   if(m_overwriteConfirmation == nullptr && m_cleanupWidget == nullptr)
   {
-    return onDefaultFrame(ui, world, display);
+    return onDefaultTick(world, display);
   }
-
-  if(m_overwriteConfirmation != nullptr)
+  else if(m_overwriteConfirmation != nullptr)
   {
-    return onConfirmOverwriteFrame(ui, world, display);
+    return onConfirmOverwriteTick(world, display);
   }
   else if(m_cleanupWidget != nullptr)
   {
-    return onCleanupFrame(ui, world, display);
+    return onCleanupTick(world, display);
+  }
+  else
+  {
+    BOOST_THROW_EXCEPTION(std::runtime_error("invalid savegame list menu state"));
+  }
+}
+
+void SavegameListMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  if(m_overwriteConfirmation == nullptr && m_cleanupWidget == nullptr)
+  {
+    onDefaultDraw(ui, world, display);
+  }
+  else if(m_overwriteConfirmation != nullptr)
+  {
+    onConfirmOverwriteDraw(ui, world, display);
+  }
+  else if(m_cleanupWidget != nullptr)
+  {
+    onCleanupDraw(ui, world, display);
   }
   else
   {
@@ -347,49 +371,47 @@ void SavegameListMenuState::sortEntries()
 {
   clear();
 
-  std::sort(m_entries.begin(),
-            m_entries.end(),
-            [this](const auto& lhs, const auto& rhs)
-            {
-              const auto& lhsT = lhs->getTime();
-              const auto& rhsT = rhs->getTime();
-              switch(m_ordering)
-              {
-              case Ordering::Slot:
-                break;
-              case Ordering::DateAsc:
-                if(!lhsT.has_value() && !rhsT.has_value())
-                  break;
-                else if(lhsT.has_value() && !rhsT.has_value())
-                  return true;
-                else if(!lhsT.has_value() && rhsT.has_value())
-                  return false;
-                else if(*lhsT != *rhsT)
-                  return *lhsT < *rhsT;
-                break;
-              case Ordering::DateDesc:
-                if(!lhsT.has_value() && !rhsT.has_value())
-                  break;
-                else if(lhsT.has_value() && !rhsT.has_value())
-                  return true;
-                else if(!lhsT.has_value() && rhsT.has_value())
-                  return false;
-                else if(*lhsT != *rhsT)
-                  return *lhsT > *rhsT;
-                break;
-              }
+  std::ranges::sort(m_entries,
+                    [this](const auto& lhs, const auto& rhs)
+                    {
+                      const auto& lhsT = lhs->getTime();
+                      const auto& rhsT = rhs->getTime();
+                      switch(m_ordering)
+                      {
+                      case Ordering::Slot:
+                        break;
+                      case Ordering::DateAsc:
+                        if(!lhsT.has_value() && !rhsT.has_value())
+                          break;
+                        else if(lhsT.has_value() && !rhsT.has_value())
+                          return true;
+                        else if(!lhsT.has_value() && rhsT.has_value())
+                          return false;
+                        else if(*lhsT != *rhsT)
+                          return *lhsT < *rhsT;
+                        break;
+                      case Ordering::DateDesc:
+                        if(!lhsT.has_value() && !rhsT.has_value())
+                          break;
+                        else if(lhsT.has_value() && !rhsT.has_value())
+                          return true;
+                        else if(!lhsT.has_value() && rhsT.has_value())
+                          return false;
+                        else if(*lhsT != *rhsT)
+                          return *lhsT > *rhsT;
+                        break;
+                      }
 
-              return lhs->getSlot() < rhs->getSlot();
-            });
+                      return lhs->getSlot() < rhs->getSlot();
+                    });
 
   for(const auto& entry : m_entries)
     append(entry);
 }
 
-std::unique_ptr<MenuState>
-  SavegameListMenuState::onDefaultFrame(ui::Ui& ui, engine::world::World& world, menu::MenuDisplay& display)
+std::unique_ptr<MenuState> SavegameListMenuState::onDefaultTick(engine::world::World& world, MenuDisplay& display)
 {
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
   {
     switch(m_ordering)
     {
@@ -405,7 +427,7 @@ std::unique_ptr<MenuState>
     }
     sortEntries();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
   {
     switch(m_ordering)
     {
@@ -421,12 +443,11 @@ std::unique_ptr<MenuState>
     }
     sortEntries();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::SecondaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::SecondaryInteraction))
   {
     const auto slot = m_entries.at(getListBox()->getSelected())->getSlot();
     if(!slot.has_value())
     {
-      draw(ui, world, display);
       // don't allow management using the quicksave slot
       return nullptr;
     }
@@ -437,30 +458,29 @@ std::unique_ptr<MenuState>
       saveTime = util::toSavegameTime(it->second.saveTime, world.getEngine().getLocale());
     }
     m_cleanupWidget = std::make_shared<CleanupWidget>(saveTime);
-    draw(ui, world, display);
     return nullptr;
   }
 
-  return ListDisplayMenuState::onFrame(ui, world, display);
+  return ListDisplayMenuState::tick(world, display);
 }
 
-std::unique_ptr<MenuState>
-  SavegameListMenuState::onConfirmOverwriteFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+void SavegameListMenuState::onDefaultDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  draw(ui, world, display);
-  m_overwriteConfirmation->fitToContent();
-  m_overwriteConfirmation->setPosition({(ui.getSize().x - m_overwriteConfirmation->getSize().x) / 2,
-                                        ui.getSize().y - m_overwriteConfirmation->getSize().y - 90});
+  ListDisplayMenuState::constructUi(ui, world, display);
+}
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
-     || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+std::unique_ptr<MenuState> SavegameListMenuState::onConfirmOverwriteTick(engine::world::World& world,
+                                                                         MenuDisplay& display)
+{
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
+     || world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
   {
     m_overwriteConfirmation->toggleConfirmed();
   }
-  else if(world.getPresenter().getInputHandler().hasAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasAction(hid::Action::PrimaryInteraction))
   {
     const auto justConfirmed
-      = world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction);
+      = world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction);
     if(justConfirmed && !m_overwriteConfirmation->isConfirmed())
     {
       m_overwriteConfirmation.reset();
@@ -488,37 +508,34 @@ std::unique_ptr<MenuState>
     m_confirmOverwritePressedSince = std::chrono::steady_clock::now();
   }
 
-  m_overwriteConfirmation->update(true);
-  m_overwriteConfirmation->draw(ui, world.getPresenter());
+  m_overwriteConfirmation->tick(true);
   return nullptr;
 }
 
-std::unique_ptr<MenuState>
-  SavegameListMenuState::onCleanupFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+void SavegameListMenuState::onConfirmOverwriteDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  draw(ui, world, display);
-  m_cleanupWidget->fitToContent();
-  m_cleanupWidget->setPosition(
-    {(ui.getSize().x - m_cleanupWidget->getSize().x) / 2, ui.getSize().y - m_cleanupWidget->getSize().y - 90});
-  m_cleanupWidget->draw(ui, world.getPresenter());
+  constructUi(ui, world, display);
+  m_overwriteConfirmation->fitToContent();
+  m_overwriteConfirmation->setPosition({(ui.getSize().x - m_overwriteConfirmation->getSize().x) / 2,
+                                        ui.getSize().y - m_overwriteConfirmation->getSize().y - 90});
+  m_overwriteConfirmation->draw(ui, world.getEngine().getPresenter());
+}
 
+std::unique_ptr<MenuState> SavegameListMenuState::onCleanupTick(engine::world::World& world, MenuDisplay& /*display*/)
+{
   if(m_cleanupConfirmation != nullptr)
   {
-    m_cleanupConfirmation->fitToContent();
-    m_cleanupConfirmation->setPosition({(ui.getSize().x - m_cleanupConfirmation->getSize().x) / 2,
-                                        ui.getSize().y - m_cleanupConfirmation->getSize().y - 90});
-    m_cleanupConfirmation->update(true);
-    m_cleanupConfirmation->draw(ui, world.getPresenter());
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+    m_cleanupConfirmation->tick(true);
+    if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
     {
       m_cleanupConfirmation.reset();
     }
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
-            || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+    else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
+            || world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
     {
       m_cleanupConfirmation->toggleConfirmed();
     }
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+    else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
     {
       if(!m_cleanupConfirmation->isConfirmed())
       {
@@ -534,28 +551,47 @@ std::unique_ptr<MenuState>
     return nullptr;
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     m_cleanupWidget.reset();
     return nullptr;
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuUp))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuUp))
   {
     m_cleanupWidget->prevEntry();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))
   {
     m_cleanupWidget->nextEntry();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     initCleanupConfirmation();
     return nullptr;
   }
 
-  m_cleanupWidget->update(true);
-  m_cleanupWidget->draw(ui, world.getPresenter());
+  m_cleanupWidget->tick(true);
   return nullptr;
+}
+
+void SavegameListMenuState::onCleanupDraw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  constructUi(ui, world, display);
+  m_cleanupWidget->fitToContent();
+  m_cleanupWidget->setPosition(
+    {(ui.getSize().x - m_cleanupWidget->getSize().x) / 2, ui.getSize().y - m_cleanupWidget->getSize().y - 90});
+  m_cleanupWidget->draw(ui, world.getEngine().getPresenter());
+
+  if(m_cleanupConfirmation != nullptr)
+  {
+    m_cleanupConfirmation->fitToContent();
+    m_cleanupConfirmation->setPosition({(ui.getSize().x - m_cleanupConfirmation->getSize().x) / 2,
+                                        ui.getSize().y - m_cleanupConfirmation->getSize().y - 90});
+    m_cleanupConfirmation->tick(true);
+    m_cleanupConfirmation->draw(ui, world.getEngine().getPresenter());
+  }
+
+  m_cleanupWidget->draw(ui, world.getEngine().getPresenter());
 }
 
 void SavegameListMenuState::selectMostRecentSlot()
@@ -620,12 +656,11 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     std::string levelTitle;
     if(slot.has_value())
     {
-      const auto titlesIt = std::find_if(levelFilepathsTitles.cbegin(),
-                                         levelFilepathsTitles.cend(),
-                                         [&info](const auto& entry)
-                                         {
-                                           return util::preferredEqual(entry.first, info.meta.filename);
-                                         });
+      const auto titlesIt = std::ranges::find_if(levelFilepathsTitles,
+                                                 [&info](const auto& entry)
+                                                 {
+                                                   return util::preferredEqual(entry.first, info.meta.filename);
+                                                 });
       gsl_Assert(titlesIt != levelFilepathsTitles.cend());
       auto titleIt = titlesIt->second.find(world.getEngine().getLocaleWithoutEncoding());
       if(titleIt == titlesIt->second.end())
@@ -639,10 +674,11 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     {
       levelTitle = /* translators: TR charmap encoding */ pgettext("SavegameTitle", "Quicksave");
     }
-    const auto title = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
+    const auto title = (boost::format(
+                          /* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
                         % timeStr % levelTitle)
                          .str();
-    const auto entry = gsl::make_shared<SavegameEntry>(slot, title, levelTitle, info.saveTime);
+    const auto entry = gsl_lite::make_shared<SavegameEntry>(slot, title, levelTitle, info.saveTime);
     append(entry);
     m_entries.emplace_back(entry);
   };
@@ -653,7 +689,7 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
   }
   else
   {
-    const auto entry = gsl::make_shared<SavegameEntry>(
+    const auto entry = gsl_lite::make_shared<SavegameEntry>(
       std::nullopt,
       /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- NO QUICKSAVE"),
       std::string{},
@@ -671,7 +707,7 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     }
     else
     {
-      auto label = gsl::make_shared<SavegameEntry>(
+      auto label = gsl_lite::make_shared<SavegameEntry>(
         slot,
         /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- EMPTY SLOT %1%", slot + 1),
         std::string{},
@@ -752,12 +788,12 @@ void SavegameListMenuState::initCleanupConfirmation()
       MaxTextWidth));
     break;
   case CleanupAction::OrderByDateLevelAndCompact:
-    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
-      ui::breakLines(/* translators: TR charmap encoding */ _("Order by Level and Date and Compact All Slots?\n\n"
-                                                              "This will order your saves by level,"
-                                                              " then by date, and move all slots"
-                                                              " to the start of the list."),
-                     MaxTextWidth));
+    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(ui::breakLines(
+      /* translators: TR charmap encoding */ _("Order by Level and Date and Compact All Slots?\n\n"
+                                               "This will order your saves by level,"
+                                               " then by date, and move all slots"
+                                               " to the start of the list."),
+      MaxTextWidth));
     break;
   case CleanupAction::Cancel:
     m_cleanupWidget.reset();

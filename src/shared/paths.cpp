@@ -3,7 +3,7 @@
 #include <boost/log/trivial.hpp>
 #include <cstdlib>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 
 std::filesystem::path getExpectedSysUserDataDir()

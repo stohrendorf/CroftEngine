@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <gl/glassert.h>
 #include <gl/resource.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string_view>
 #include <utility>
 
@@ -21,6 +21,7 @@ protected:
   }
 
 public:
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void generateMipmaps()
   {
     GL_ASSERT(gl::api::generateTextureMipmap(getHandle()));
@@ -50,7 +51,7 @@ public:
   static constexpr auto Target = _Target;
   using Pixel = _PixelT;
 
-  TextureImpl<_Target, _PixelT>& clear(const _PixelT& pixel, int level = 0)
+  TextureImpl& clear(const _PixelT& pixel, const int level = 0)
   {
     GL_ASSERT(api::clearTexImage(getHandle(), level, Pixel::PixelFormat, Pixel::PixelType, &pixel));
     return *this;

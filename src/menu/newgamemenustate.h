@@ -7,7 +7,7 @@
 
 namespace menu
 {
-class NewGameMenuState : public ListDisplayMenuState
+class NewGameMenuState final : public ListDisplayMenuState
 {
 public:
   explicit NewGameMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

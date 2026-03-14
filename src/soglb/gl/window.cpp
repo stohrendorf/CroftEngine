@@ -10,7 +10,7 @@
 #include <boost/throw_exception.hpp>
 #include <filesystem>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <mutex>
 #include <stdexcept>
@@ -22,18 +22,19 @@ namespace gl
 namespace
 {
 std::mutex focusStatesMutex;
+
 auto& getFocusStates()
 {
   static std::unordered_map<GLFWwindow*, bool> focusStates;
   return focusStates;
 }
 
-void glErrorCallback(const int err, const gsl::czstring msg)
+void glErrorCallback(const int err, const gsl_lite::czstring msg)
 {
   BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
 }
 
-void windowFocusCallback(GLFWwindow* window, int focused)
+void windowFocusCallback(GLFWwindow* window, const int focused)
 {
   const std::lock_guard guard{focusStatesMutex};
   getFocusStates()[window] = focused == GLFW_TRUE;
@@ -59,7 +60,7 @@ void terminateGlfw()
 
 Window::Window(const std::vector<std::filesystem::path>& logoPaths,
                const glm::ivec2& windowSize,
-               bool borderlessFullscreen)
+               const bool borderlessFullscreen)
     : m_windowPos{0, 0}
     , m_windowSize{windowSize}
 {
@@ -102,29 +103,27 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths,
 
   {
     std::vector<CImgWrapper> imgWrappers;
-    std::transform(logoPaths.begin(),
-                   logoPaths.end(),
-                   std::back_inserter(imgWrappers),
-                   [](const std::filesystem::path& p)
-                   {
-                     auto tmp = CImgWrapper{p};
-                     tmp.interleave();
-                     return tmp;
-                   });
+    std::ranges::transform(logoPaths,
+                           std::back_inserter(imgWrappers),
+                           [](const std::filesystem::path& p)
+                           {
+                             auto tmp = CImgWrapper{p};
+                             tmp.interleave();
+                             return tmp;
+                           });
     std::vector<GLFWimage> glfwImages;
-    std::transform(imgWrappers.begin(),
-                   imgWrappers.end(),
-                   std::back_inserter(glfwImages),
-                   [](const CImgWrapper& srcImg)
-                   {
-                     GLFWimage img;
-                     img.width = srcImg.width();
-                     img.height = srcImg.height();
-                     img.pixels
-                       = const_cast<unsigned char*>(srcImg.data()); // NOLINT(cppcoreguidelines-pro-type-const-cast)
-                     return img;
-                   });
-    glfwSetWindowIcon(m_window, gsl::narrow<int>(glfwImages.size()), glfwImages.data());
+    std::ranges::transform(imgWrappers,
+                           std::back_inserter(glfwImages),
+                           [](const CImgWrapper& srcImg)
+                           {
+                             GLFWimage img;
+                             img.width = srcImg.width();
+                             img.height = srcImg.height();
+                             img.pixels = const_cast<unsigned char*>(
+                               srcImg.data()); // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                             return img;
+                           });
+    glfwSetWindowIcon(m_window, gsl_lite::narrow<int>(glfwImages.size()), glfwImages.data());
   }
 
   glfwMakeContextCurrent(m_window);
@@ -231,7 +230,7 @@ Window::~Window()
 bool Window::hasFocus() const
 {
   const std::lock_guard guard{focusStatesMutex};
-  auto it = getFocusStates().find(m_window);
+  const auto it = getFocusStates().find(m_window);
   return it != getFocusStates().end() && it->second;
 }
 } // namespace gl

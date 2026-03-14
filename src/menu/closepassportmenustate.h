@@ -20,9 +20,8 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
 
-class ClosePassportMenuState : public MenuState
+class ClosePassportMenuState final : public MenuState
 {
-private:
   std::unique_ptr<MenuState> m_next;
 
 public:
@@ -30,7 +29,8 @@ public:
                                   MenuObject& passport,
                                   std::unique_ptr<MenuState>&& next);
 
-  void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  void handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

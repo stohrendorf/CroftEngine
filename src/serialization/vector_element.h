@@ -3,7 +3,7 @@
 #include "serialization.h"
 
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <vector>
 
 namespace serialization
@@ -11,10 +11,10 @@ namespace serialization
 template<typename T>
 struct VectorElement final
 {
-  VectorElement(const VectorElement<T>&) = delete;
-  VectorElement(VectorElement<T>&&) = delete;
-  void operator=(VectorElement<T>&&) = delete;
-  void operator=(const VectorElement<T>&) = delete;
+  VectorElement(const VectorElement&) = delete;
+  VectorElement(VectorElement&&) = delete;
+  void operator=(VectorElement&&) = delete;
+  void operator=(const VectorElement&) = delete;
 
   std::reference_wrapper<const std::vector<T>> vec;
   std::reference_wrapper<const T*> element;
@@ -77,23 +77,23 @@ struct VectorElement final
 template<typename T>
 struct DeserializingNotNullVectorElement final
 {
-  DeserializingNotNullVectorElement(const DeserializingNotNullVectorElement<T>&) = delete;
-  DeserializingNotNullVectorElement(DeserializingNotNullVectorElement<T>&&) = delete;
-  void operator=(DeserializingNotNullVectorElement<T>&&) = delete;
-  void operator=(const DeserializingNotNullVectorElement<T>&) = delete;
+  DeserializingNotNullVectorElement(const DeserializingNotNullVectorElement&) = delete;
+  DeserializingNotNullVectorElement(DeserializingNotNullVectorElement&&) = delete;
+  void operator=(DeserializingNotNullVectorElement&&) = delete;
+  void operator=(const DeserializingNotNullVectorElement&) = delete;
 
   std::reference_wrapper<std::vector<T>> vec;
-  std::reference_wrapper<gsl::not_null<const T*>> element;
+  std::reference_wrapper<gsl_lite::not_null<const T*>> element;
 
   explicit DeserializingNotNullVectorElement(std::reference_wrapper<std::vector<T>>&& vec,
-                                             std::reference_wrapper<gsl::not_null<T*>>&& element)
+                                             std::reference_wrapper<gsl_lite::not_null<T*>>&& element)
       : vec{std::move(vec)}
       , element{std::move(element)}
   {
   }
 
   explicit DeserializingNotNullVectorElement(std::reference_wrapper<std::vector<T>>&& vec,
-                                             std::reference_wrapper<gsl::not_null<const T*>>&& element)
+                                             std::reference_wrapper<gsl_lite::not_null<const T*>>&& element)
       : vec{std::move(vec)}
       , element{std::move(element)}
   {
@@ -106,23 +106,23 @@ struct DeserializingNotNullVectorElement final
     ser.tag("element");
     std::ptrdiff_t n = 0;
     ser.node >> n;
-    element.get() = gsl::not_null{&vec.get().at(n)};
+    element.get() = gsl_lite::not_null{&vec.get().at(n)};
   }
 };
 
 template<typename T>
 struct SerializingNotNullVectorElement final
 {
-  SerializingNotNullVectorElement(const SerializingNotNullVectorElement<T>&) = delete;
-  SerializingNotNullVectorElement(SerializingNotNullVectorElement<T>&&) = delete;
-  void operator=(SerializingNotNullVectorElement<T>&&) = delete;
-  void operator=(const SerializingNotNullVectorElement<T>&) = delete;
+  SerializingNotNullVectorElement(const SerializingNotNullVectorElement&) = delete;
+  SerializingNotNullVectorElement(SerializingNotNullVectorElement&&) = delete;
+  void operator=(SerializingNotNullVectorElement&&) = delete;
+  void operator=(const SerializingNotNullVectorElement&) = delete;
 
   std::reference_wrapper<const std::vector<T>> vec;
-  std::reference_wrapper<const gsl::not_null<const T*>> element;
+  std::reference_wrapper<const gsl_lite::not_null<const T*>> element;
 
   explicit SerializingNotNullVectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
-                                           std::reference_wrapper<const gsl::not_null<const T*>>&& element)
+                                           std::reference_wrapper<const gsl_lite::not_null<const T*>>&& element)
       : vec{std::move(vec)}
       , element{std::move(element)}
   {

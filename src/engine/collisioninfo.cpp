@@ -23,7 +23,7 @@
 #include "world/world.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <set>
 #include <tuple>
 
@@ -49,8 +49,7 @@ namespace
 {
   auto result = bbox;
 
-  const auto axis = axisFromAngle(angle);
-  switch(axis)
+  switch(axisFromAngle(angle))
   {
   case core::Axis::Deg0:
     // nothing to do
@@ -80,14 +79,15 @@ namespace
   return min < max ? -min : max;
 }
 
-std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const world::Sector*> sector, const core::TRVec& position)
+std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl_lite::not_null<const world::Sector*> sector,
+                                             const core::TRVec& position)
 {
   while(sector->roomBelow != nullptr)
   {
-    sector = gsl::not_null{sector->roomBelow->getSectorByAbsolutePosition(position)};
+    sector = gsl_lite::not_null{sector->roomBelow->getSectorByAbsolutePosition(position)};
   }
 
-  static const auto zero = std::make_tuple(int8_t{0}, int8_t{0});
+  static constexpr auto zero = std::make_tuple(int8_t{0}, int8_t{0});
 
   if(position.Y + core::QuarterSectorSize * 2 < sector->floorHeight)
     return zero;
@@ -97,7 +97,8 @@ std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const world::Sector*>
     return zero;
 
   const auto fd = sector->floorData[1];
-  return std::make_tuple(gsl::narrow_cast<int8_t>(fd.get() & 0xffu), gsl::narrow_cast<int8_t>(fd.get() >> 8u));
+  return std::make_tuple(gsl_lite::narrow_cast<int8_t>(fd.get() & 0xffu),
+                         gsl_lite::narrow_cast<int8_t>(fd.get() >> 8u));
 }
 } // namespace
 
@@ -114,9 +115,9 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
   std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(
     currentSector, core::TRVec{laraPos.X, world.getObjectManager().getLara().m_state.location.position.Y, laraPos.Z});
 
-  core::Length frontX = 0_len, frontZ = 0_len;
-  core::Length frontLeftX = 0_len, frontLeftZ = 0_len;
-  core::Length frontRightX = 0_len, frontRightZ = 0_len;
+  auto frontX = 0_len, frontZ = 0_len;
+  auto frontLeftX = 0_len, frontLeftZ = 0_len;
+  auto frontRightX = 0_len, frontRightZ = 0_len;
 
   switch(facingAxis)
   {
@@ -276,12 +277,12 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
   }
 }
 
-std::set<gsl::not_null<const world::Room*>> CollisionInfo::collectTouchingRooms(const core::TRVec& position,
-                                                                                const core::Length& radius,
-                                                                                const core::Length& height,
-                                                                                const world::World& world)
+std::set<gsl_lite::not_null<const world::Room*>> CollisionInfo::collectTouchingRooms(const core::TRVec& position,
+                                                                                     const core::Length& radius,
+                                                                                     const core::Length& height,
+                                                                                     const world::World& world)
 {
-  std::set<gsl::not_null<const world::Room*>> result;
+  std::set<gsl_lite::not_null<const world::Room*>> result;
   auto room = world.getObjectManager().getLara().m_state.location.room;
   result.emplace(room);
 

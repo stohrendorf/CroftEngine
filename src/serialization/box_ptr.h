@@ -5,7 +5,7 @@
 #include "serialization.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <optional>
 
@@ -17,7 +17,7 @@ inline std::optional<uint32_t> ptrSave(const engine::world::Box* box, const Seri
     return std::nullopt;
 
   ser.tag("box");
-  return gsl::narrow<uint32_t>(std::distance(&ser.context->getBoxes().at(0), box));
+  return gsl_lite::narrow<uint32_t>(std::distance(&ser.context->getBoxes().at(0), box));
 }
 
 inline std::optional<uint32_t> ptrSave(engine::world::Box* box, const Serializer<engine::world::World>& ser)
@@ -26,7 +26,7 @@ inline std::optional<uint32_t> ptrSave(engine::world::Box* box, const Serializer
 }
 
 inline const engine::world::Box* ptrLoad(const TypeId<const engine::world::Box*>&,
-                                         std::optional<uint32_t> idx,
+                                         const std::optional<uint32_t> idx,
                                          const Deserializer<engine::world::World>& ser)
 {
   if(!idx.has_value())
@@ -37,7 +37,7 @@ inline const engine::world::Box* ptrLoad(const TypeId<const engine::world::Box*>
 }
 
 inline engine::world::Box* ptrLoad(const TypeId<engine::world::Box*>&,
-                                   std::optional<uint32_t> idx,
+                                   const std::optional<uint32_t> idx,
                                    const Deserializer<engine::world::World>& ser)
 {
   return const_cast<engine::world::Box*>(ptrLoad(TypeId<const engine::world::Box*>{}, idx, ser));

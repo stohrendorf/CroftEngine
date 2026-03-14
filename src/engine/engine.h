@@ -3,6 +3,7 @@
 #include "gameplayrules.h"
 #include "script/scriptengine.h"
 #include "serialization/serialization_fwd.h"
+#include "throttler.h"
 #include "world/worldgeometry.h"
 
 #include <boost/assert.hpp>
@@ -11,7 +12,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -39,17 +40,7 @@ namespace engine
 class Player;
 class Presenter;
 struct EngineConfig;
-
-enum class RunResult : uint8_t
-{
-  NextLevel,
-  TitleLevel,
-  LaraHomeLevel,
-  ExitGame,
-  RequestLoad,
-  RequestLevel,
-  RestartLevel
-};
+enum class LevelLoopResult : uint8_t;
 
 struct SavegameMeta
 {
@@ -65,7 +56,7 @@ struct SavegameInfo
   std::filesystem::file_time_type saveTime;
 };
 
-inline std::string makeSavegameFilename(size_t n)
+inline std::string makeSavegameFilename(const size_t n)
 {
   return "save_" + std::to_string(n) + ".yaml";
 }
@@ -101,8 +92,9 @@ public:
     return *m_presenter;
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(world::World& world, bool isCutscene, bool allowSave);
-  std::pair<RunResult, std::optional<size_t>> runTitleMenu(world::World& world);
+  std::pair<LevelLoopResult, std::optional<size_t>> runLevel(world::World& world, bool allowSave);
+  std::pair<LevelLoopResult, std::optional<size_t>> runCutscene(world::World& world);
+  std::pair<LevelLoopResult, std::optional<size_t>> runTitleMenu(world::World& world);
 
   [[nodiscard]] const std::string& getLocale() const noexcept
   {
@@ -125,10 +117,11 @@ public:
     return m_engineDataPath;
   }
 
-  std::pair<RunResult, std::optional<size_t>> runLevelSequenceItem(script::LevelSequenceItem& item,
-                                                                   const std::shared_ptr<Player>& player,
-                                                                   const std::shared_ptr<Player>& levelStartPlayer);
-  std::pair<RunResult, std::optional<size_t>>
+  std::pair<LevelLoopResult, std::optional<size_t>>
+    runLevelSequenceItem(script::LevelSequenceItem& item,
+                         const std::shared_ptr<Player>& player,
+                         const std::shared_ptr<Player>& levelStartPlayer);
+  std::pair<LevelLoopResult, std::optional<size_t>>
     runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
                                  const std::optional<size_t>& slot,
                                  const std::shared_ptr<Player>& player,
@@ -157,7 +150,7 @@ public:
     m_worlds.emplace(world);
   }
 
-  void unregisterWorld(const gsl::not_null<world::World*>& world)
+  void unregisterWorld(const gsl_lite::not_null<world::World*>& world)
   {
     m_worlds.erase(world);
   }
@@ -204,17 +197,30 @@ public:
     m_gameplayRules = rules;
   }
 
-private:
-  void takeBugReport(world::World& world);
+  const auto& getThrottler() const noexcept
+  {
+    return m_throttler;
+  }
 
+  auto& getThrottler() noexcept
+  {
+    return m_throttler;
+  }
+
+  void resetGameplayRules()
+  {
+    m_gameplayRules = {};
+  }
+
+private:
   std::filesystem::path m_userDataPath;
   std::filesystem::path m_engineDataPath;
   std::string m_gameflowId;
   script::ScriptEngine m_scriptEngine;
   gslu::nn_shared<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
-  std::set<gsl::not_null<world::World*>> m_worlds;
-  std::chrono::steady_clock::time_point m_saveReminderSince;
+  std::set<gsl_lite::not_null<world::World*>> m_worlds;
+  std::chrono::steady_clock::time_point m_saveReminderNext;
   GameplayRules m_gameplayRules{};
 
   std::string m_locale;
@@ -223,5 +229,7 @@ private:
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
 
   std::pair<std::filesystem::path, std::shared_ptr<world::WorldGeometry>> m_worldGeometryCache;
+
+  Throttler m_throttler;
 };
 } // namespace engine

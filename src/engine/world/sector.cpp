@@ -21,7 +21,7 @@ namespace engine::world
 Sector::Sector(const loader::file::Sector& src,
                std::vector<Room>& rooms,
                const std::vector<Box>& boxes,
-               const engine::floordata::FloorData& newFloorData)
+               const floordata::FloorData& newFloorData)
     : box{src.boxIndex.get() >= 0 ? &boxes.at(src.boxIndex.get()) : nullptr}
     , floorHeight{src.floorHeight}
     , ceilingHeight{src.ceilingHeight}
@@ -34,7 +34,7 @@ Sector::Sector(const loader::file::Sector& src,
   {
     floorData = &src.floorDataIndex.from(newFloorData);
 
-    if(const auto boundaryRoomIndex = engine::floordata::getBoundaryRoom(floorData); boundaryRoomIndex.has_value())
+    if(const auto boundaryRoomIndex = floordata::getBoundaryRoom(floorData); boundaryRoomIndex.has_value())
     {
       boundaryRoom = &rooms.at(*boundaryRoomIndex);
     }

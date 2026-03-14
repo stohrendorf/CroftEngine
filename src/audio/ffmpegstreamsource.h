@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <istream>
 #include <memory>
 #include <utility>
@@ -23,10 +23,10 @@ namespace audio
 {
 class AudioStreamDecoder;
 
-class BasicFfmpegStreamSource : public audio::AbstractStreamSource
+class BasicFfmpegStreamSource : public AbstractStreamSource
 {
 public:
-  explicit BasicFfmpegStreamSource(AVFormatContext* fmtContext, const gsl::czstring& streamName);
+  explicit BasicFfmpegStreamSource(AVFormatContext* fmtContext, const gsl_lite::czstring& streamName);
   ~BasicFfmpegStreamSource() override;
 
   void fillQueues(bool looping);
@@ -40,7 +40,7 @@ public:
 
   void seek(const std::chrono::milliseconds& position) final;
 
-  [[nodiscard]] audio::Clock::duration getDuration() const final;
+  [[nodiscard]] Clock::duration getDuration() const final;
 
 protected:
   [[nodiscard]] auto getFmtContext() const noexcept
@@ -74,10 +74,10 @@ struct FfmpegMemoryStreamSourceScratchData
 
 struct FfmpegMemoryStreamSourceFileData
 {
-  gsl::span<const uint8_t> data;
+  gsl_lite::span<const uint8_t> data;
   size_t dataPosition = 0;
 
-  explicit FfmpegMemoryStreamSourceFileData(const gsl::span<const uint8_t>& data) noexcept
+  explicit FfmpegMemoryStreamSourceFileData(const gsl_lite::span<const uint8_t>& data) noexcept
       : data{data}
   {
   }
@@ -92,7 +92,9 @@ struct FfmpegMemoryStreamSourceSubFileData
   size_t dataEnd = 0;
   size_t dataPosition = 0;
 
-  explicit FfmpegMemoryStreamSourceSubFileData(std::unique_ptr<std::istream>&& istream, size_t start, size_t end)
+  explicit FfmpegMemoryStreamSourceSubFileData(std::unique_ptr<std::istream>&& istream,
+                                               const size_t start,
+                                               const size_t end)
       : istream{std::move(istream)}
       , dataStart{start}
       , dataEnd{end}
@@ -105,12 +107,12 @@ struct FfmpegMemoryStreamSourceSubFileData
 } // namespace detail
 
 class FfmpegMemoryStreamSource final
-    : private detail::FfmpegMemoryStreamSourceScratchData
-    , private detail::FfmpegMemoryStreamSourceFileData
+    : detail::FfmpegMemoryStreamSourceScratchData
+    , detail::FfmpegMemoryStreamSourceFileData
     , public BasicFfmpegStreamSource
 {
 public:
-  explicit FfmpegMemoryStreamSource(const gsl::span<const uint8_t>& data);
+  explicit FfmpegMemoryStreamSource(const gsl_lite::span<const uint8_t>& data);
   ~FfmpegMemoryStreamSource() override;
 
 private:
@@ -119,8 +121,8 @@ private:
 };
 
 class FfmpegSubStreamStreamSource
-    : private detail::FfmpegMemoryStreamSourceScratchData
-    , private detail::FfmpegMemoryStreamSourceSubFileData
+    : detail::FfmpegMemoryStreamSourceScratchData
+    , detail::FfmpegMemoryStreamSourceSubFileData
     , public BasicFfmpegStreamSource
 {
 public:

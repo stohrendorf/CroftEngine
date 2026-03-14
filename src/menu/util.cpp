@@ -1,6 +1,7 @@
 #include "util.h"
 
 #include "core/units.h"
+#include "engine/engine.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "hid/inputhandler.h"
@@ -28,9 +29,10 @@ void rotateForSelection(MenuObject& object)
   object.rotationY -= object.rotationY % Speed;
 }
 
-void idleRotation(engine::world::World& world, MenuObject& object, bool force)
+void idleRotation(engine::world::World& world, MenuObject& object, const bool force)
 {
-  if(force || world.getPresenter().getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Null)
+  if(force
+     || world.getEngine().getPresenter().getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Null)
   {
     object.rotationY += 256_au * 2;
   }

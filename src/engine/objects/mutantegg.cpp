@@ -30,7 +30,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -39,13 +39,13 @@
 namespace engine::objects
 {
 MutantEgg::MutantEgg(const std::string& name,
-                     const gsl::not_null<world::World*>& world,
-                     const gsl::not_null<const world::Room*>& room,
+                     const gsl_lite::not_null<world::World*>& world,
+                     const gsl_lite::not_null<const world::Room*>& room,
                      loader::file::Item item,
-                     const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                     const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
-  m_state.activationState = floordata::ActivationState(uint16_t(item.activationState & ~0x3e00u));
+  m_state.activationState = floordata::ActivationState(static_cast<uint16_t>(item.activationState & ~0x3e00u));
 
   switch((item.activationState & 0x3e00u) >> 9u)
   {
@@ -57,7 +57,7 @@ MutantEgg::MutantEgg(const std::string& name,
         world,
         room,
         item,
-        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
+        gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   case 2:
     item.type = TR1ItemId::CentaurMutant;
@@ -67,7 +67,7 @@ MutantEgg::MutantEgg(const std::string& name,
         world,
         room,
         item,
-        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(item.type).get()});
+        gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(item.type).get()});
     break;
   case 4:
     item.type = TR1ItemId::TorsoBoss;
@@ -77,7 +77,7 @@ MutantEgg::MutantEgg(const std::string& name,
         world,
         room,
         item,
-        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(item.type).get()});
+        gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(item.type).get()});
     break;
   case 8:
     item.type = TR1ItemId::WalkingMutant2;
@@ -87,7 +87,7 @@ MutantEgg::MutantEgg(const std::string& name,
         world,
         room,
         item,
-        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
+        gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   default:
     item.type = TR1ItemId::FlyingMutant;
@@ -97,7 +97,7 @@ MutantEgg::MutantEgg(const std::string& name,
         world,
         room,
         item,
-        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
+        gsl_lite::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   }
 
@@ -107,19 +107,20 @@ MutantEgg::MutantEgg(const std::string& name,
   }
   else
   {
-    getWorld().getObjectManager().registerObject(gsl::not_null{m_childObject});
+    getWorld().getObjectManager().registerObject(gsl_lite::not_null{m_childObject});
     m_childObject->m_state.triggerState = TriggerState::Invisible;
   }
 
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
   {
+    // ReSharper disable once CppRedundantParentheses
     getSkeleton()->setVisible(i, (0xff0001ffu >> i) & 1u);
   }
   getSkeleton()->rebuildMesh();
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-void MutantEgg::update()
+void MutantEgg::updateLogic()
 {
   if(m_state.goal_anim_state != 1_as)
   {
@@ -144,9 +145,9 @@ void MutantEgg::update()
         auto& childState = m_childObject->m_state;
         childState.location = m_state.location;
         childState.rotation.Y = m_state.rotation.Y;
-        addChild(gsl::not_null{m_state.location.room->node}, gsl::not_null{m_childObject->getNode()});
+        addChild(gsl_lite::not_null{m_state.location.room->node}, gsl_lite::not_null{m_childObject->getNode()});
 
-        m_childObject->applyTransform();
+        m_childObject->applyLogicTransform();
 
         childState.touch_bits.reset();
         m_childObject->initCreatureInfo();
@@ -156,7 +157,7 @@ void MutantEgg::update()
     }
   }
 
-  ModelObject::update();
+  advanceFrame();
 }
 
 void MutantEgg::collide(CollisionInfo& info)

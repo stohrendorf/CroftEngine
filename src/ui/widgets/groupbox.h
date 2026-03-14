@@ -24,7 +24,7 @@ class GroupBox : public Widget
 public:
   explicit GroupBox(const std::string& title, gslu::nn_shared<Widget> widget);
   ~GroupBox() override;
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   [[nodiscard]] glm::ivec2 getSize() const override;
 
@@ -35,7 +35,7 @@ public:
 
   void setPosition(const glm::ivec2& position) override;
   void setSize(const glm::ivec2& size) override;
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void fitToContent() override;
 
   void setTitle(const std::string& title);
@@ -48,7 +48,7 @@ public:
 private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};
-  gslu::nn_unique<ui::Text> m_title;
+  gslu::nn_unique<Text> m_title;
   gslu::nn_shared<Widget> m_widget;
 };
 } // namespace ui::widgets

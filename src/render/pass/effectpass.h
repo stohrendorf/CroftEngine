@@ -10,7 +10,7 @@
 #include <gl/glassert.h>
 #include <gl/sampler.h>
 #include <gl/soglb_fwd.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <string>
 
@@ -30,7 +30,7 @@ template<typename TPixel>
 class EffectPass final
 {
 public:
-  explicit EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
+  explicit EffectPass(gsl_lite::not_null<const RenderPipeline*> renderPipeline,
                       std::string name,
                       const gslu::nn_shared<material::Material>& material,
                       const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>& input)
@@ -39,7 +39,7 @@ public:
       , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size(), m_name + "-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-color" + gl::SamplerSuffix)
+          gsl_lite::make_unique<gl::Sampler>(m_name + "-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -57,7 +57,7 @@ public:
                   = std::move(renderPipeline)](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                  {
                    const auto now = renderPipeline->getLocalTime();
-                   uniform.set(gsl::narrow_cast<float>(now.count()));
+                   uniform.set(gsl_lite::narrow_cast<float>(now.count()));
                  });
 
     m_mesh->getRenderState().merge(m_fb->getRenderState());

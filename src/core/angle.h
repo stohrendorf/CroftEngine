@@ -10,7 +10,7 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <limits>
 #include <optional>
 
@@ -21,34 +21,34 @@ class World;
 
 namespace core
 {
-[[nodiscard]] inline Angle angleFromRad(const float r)
+[[nodiscard]] inline Angle toAngle(const Radians& r)
 {
-  return Angle{gsl::narrow_cast<Angle::type>(r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale)};
+  return Angle{gsl_lite::narrow_cast<Angle::type>(r.get<>() / 2 / glm::pi<float>() * FullRotation * AngleStorageScale)};
 }
 
 [[nodiscard]] inline Angle angleFromAtan(const float dx, const float dz)
 {
-  return angleFromRad(std::atan2(dx, dz));
+  return toAngle(Radians{std::atan2(dx, dz)});
 }
 
-[[nodiscard]] inline Angle angleFromDegrees(const float value) noexcept
+[[nodiscard]] inline Angle toAngle(const Degrees& value) noexcept
 {
-  return Angle{gsl::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation * AngleStorageScale))};
+  return Angle{gsl_lite::narrow_cast<Angle::type>(std::lround(value.get<>() / 360 * FullRotation * AngleStorageScale))};
 }
 
 [[nodiscard]] inline Angle angleFromAtan(const Length& dx, const Length& dz)
 {
-  return angleFromRad(std::atan2(dx.get<float>(), dz.get<float>()));
+  return toAngle(Radians{std::atan2(dx.get<float>(), dz.get<float>())});
 }
 
-[[nodiscard]] constexpr float toDegrees(const Angle& a) noexcept
+[[nodiscard]] constexpr Degrees toDegrees(const Angle& a) noexcept
 {
-  return a.get<float>() / AngleStorageScale * 360 / FullRotation;
+  return Degrees{a.get<float>() / AngleStorageScale * 360 / FullRotation};
 }
 
-[[nodiscard]] inline float toRad(const Angle& a) noexcept
+[[nodiscard]] inline Radians toRad(const Angle& a) noexcept
 {
-  return a.get<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation;
+  return Radians{a.get<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation};
 }
 
 [[nodiscard]] inline auto toAu(const Angle& a) noexcept
@@ -58,18 +58,17 @@ namespace core
 
 [[nodiscard]] inline float sin(const Angle& a) noexcept
 {
-  return std::sin(toRad(a));
+  return std::sin(toRad(a).get<>());
 }
 
 [[nodiscard]] inline float cos(const Angle& a) noexcept
 {
-  return std::cos(toRad(a));
+  return std::cos(toRad(a).get<>());
 }
 
 [[nodiscard]] inline Angle abs(const Angle& a) noexcept
 {
-  const auto tmp = Angle{std::abs(a.get())};
-  if(tmp >= 0_deg)
+  if(const auto tmp = Angle{std::abs(a.get())}; tmp >= 0_deg)
     return tmp;
 
   // abs(-180_deg) == -180_deg unfortunately
@@ -135,7 +134,7 @@ enum class Axis : uint8_t
 
 [[nodiscard]] inline std::optional<Angle> snapRotation(const Angle& angle, const Angle& margin)
 {
-  auto axis = axisFromAngle(angle, margin);
+  const auto axis = axisFromAngle(angle, margin);
   if(!axis)
     return {};
 
@@ -152,7 +151,7 @@ public:
   TRRotation() = default;
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  TRRotation(const Angle& x, const Angle& y, const Angle& z) noexcept
+  constexpr TRRotation(const Angle& x, const Angle& y, const Angle& z) noexcept
       : X{x}
       , Y{y}
       , Z{z}
@@ -161,12 +160,12 @@ public:
 
   [[nodiscard]] glm::vec3 toDegrees() const
   {
-    return {core::toDegrees(X), core::toDegrees(Y), core::toDegrees(Z)};
+    return {core::toDegrees(X).get<>(), core::toDegrees(Y).get<>(), core::toDegrees(Z).get<>()};
   }
 
   [[nodiscard]] glm::vec3 toRenderSystem() const
   {
-    return {toRad(X), -toRad(Y), -toRad(Z)};
+    return {toRad(X).get<>(), -toRad(Y).get<>(), -toRad(Z).get<>()};
   }
 
   [[nodiscard]] TRRotation operator-(const TRRotation& rhs) const noexcept
@@ -184,6 +183,25 @@ public:
   void serialize(const serialization::Serializer<engine::world::World>& ser) const;
   void deserialize(const serialization::Deserializer<engine::world::World>& ser);
 };
+
+[[nodiscard]] constexpr Angle lerp(const Angle& a, const Angle& b, const float alpha)
+{
+  constexpr auto halfCircle = static_cast<int64_t>(FullRotation) * AngleStorageScale / 2;
+  constexpr auto fullCircle = static_cast<int64_t>(FullRotation) * AngleStorageScale;
+
+  auto delta = static_cast<int64_t>(b.get() - a.get());
+  if(delta > halfCircle)
+    delta -= fullCircle;
+  else if(delta < -halfCircle)
+    delta += fullCircle;
+
+  return Angle{static_cast<Angle::type>(a.get() + delta * alpha)};
+}
+
+[[nodiscard]] constexpr TRRotation lerp(const TRRotation& a, const TRRotation& b, const float alpha)
+{
+  return TRRotation{lerp(a.X, b.X, alpha), lerp(a.Y, b.Y, alpha), lerp(a.Z, b.Z, alpha)};
+}
 
 [[nodiscard]] extern glm::mat4 fromPackedAngles(const uint8_t* angleData);
 

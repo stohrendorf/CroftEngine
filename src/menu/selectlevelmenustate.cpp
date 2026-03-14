@@ -13,7 +13,7 @@
 
 #include <boost/range/adaptor/indexed.hpp>
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 
@@ -27,7 +27,7 @@ SelectLevelMenuState::SelectLevelMenuState(const std::shared_ptr<MenuRingTransfo
 {
   auto appendLabel = [this](const std::string& title)
   {
-    append(gsl::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center));
+    append(gsl_lite::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center));
   };
 
   for(const auto& item :
@@ -55,7 +55,7 @@ std::unique_ptr<MenuState> SelectLevelMenuState::onAborted()
 }
 
 std::unique_ptr<MenuState>
-  SelectLevelMenuState::onSelected(size_t idx, engine::world::World& /*world*/, MenuDisplay& display)
+  SelectLevelMenuState::onSelected(const size_t idx, engine::world::World& /*world*/, MenuDisplay& display)
 {
   return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
                                         create<RequestLevelMenuState>(m_indices.at(idx)));

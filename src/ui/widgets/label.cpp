@@ -8,15 +8,15 @@
 #include <algorithm>
 #include <cstdint>
 #include <gl/pixel.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
 namespace ui::widgets
 {
-Label::Label(const std::string& text, Label::Alignment alignment)
-    : m_text{std::make_unique<ui::Text>(text)}
-    , m_size{0, ui::FontHeight}
+Label::Label(const std::string& text, const Alignment alignment)
+    : m_text{std::make_unique<Text>(text)}
+    , m_size{0, FontHeight}
     , m_alignment{alignment}
 {
   fitToContent();
@@ -44,14 +44,14 @@ void Label::setSize(const glm::ivec2& size)
   m_size = size;
 }
 
-void Label::update(bool hasFocus)
+void Label::tick(const bool hasFocus)
 {
   constexpr int FadeSpeed = 30;
   const auto delta = hasFocus ? FadeSpeed : -FadeSpeed;
-  m_selectionAlpha = gsl::narrow_cast<uint8_t>(std::clamp(m_selectionAlpha + delta, 0, 255));
+  m_selectionAlpha = gsl_lite::narrow_cast<uint8_t>(std::clamp(m_selectionAlpha + delta, 0, 255));
 }
 
-void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void Label::draw(Ui& ui, const engine::Presenter& presenter) const
 {
   if(m_selectionAlpha != 0)
   {
@@ -83,11 +83,11 @@ void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 
 void Label::fitToContent()
 {
-  m_size = {m_text->getWidth(), ui::FontHeight};
+  m_size = {m_text->getWidth(), FontHeight};
 }
 
 void Label::setText(const std::string& text)
 {
-  m_text = std::make_unique<ui::Text>(text);
+  m_text = std::make_unique<Text>(text);
 }
 } // namespace ui::widgets

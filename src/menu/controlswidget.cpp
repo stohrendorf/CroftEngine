@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <functional>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <numeric>
@@ -28,9 +28,9 @@ namespace menu
 {
 namespace
 {
-constexpr const size_t Columns = 3;
+constexpr size_t Columns = 3;
 
-constexpr const std::array<std::array<std::optional<hid::Action>, 5>, Columns> gameplayActions{{
+constexpr std::array<std::array<std::optional<hid::Action>, 5>, Columns> gameplayActions{{
   {
     hid::Action::Forward,
     hid::Action::Backward,
@@ -54,7 +54,7 @@ constexpr const std::array<std::array<std::optional<hid::Action>, 5>, Columns> g
   },
 }};
 
-constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> shortcutActions{{
+constexpr std::array<std::array<std::optional<hid::Action>, 4>, Columns> shortcutActions{{
   {
     hid::Action::DrawPistols,
     hid::Action::DrawShotgun,
@@ -75,7 +75,7 @@ constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> s
   },
 }};
 
-constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> menuActions{{
+constexpr std::array<std::array<std::optional<hid::Action>, 4>, Columns> menuActions{{
   {
     hid::Action::MenuUp,
     hid::Action::MenuDown,
@@ -106,7 +106,7 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
 {
   m_content->setExtents(1, 4);
 
-  auto gridBox = gsl::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  auto gridBox = gsl_lite::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * gameplayActions.size(), gameplayActions[0].size());
   gridBox->setSelected({1, 0});
   m_controlGroups.emplace_back(gridBox);
@@ -115,19 +115,20 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
     /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
   m_content->set(0, 1, groupBox);
 
-  gridBox = gsl::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  gridBox = gsl_lite::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * shortcutActions.size(), shortcutActions[0].size());
   m_controlGroups.emplace_back(gridBox);
 
-  groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
+  groupBox = std::make_shared<ui::widgets::GroupBox>(
+    /* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
   m_content->set(0, 2, groupBox);
 
-  gridBox = gsl::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  gridBox = gsl_lite::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * menuActions.size(), menuActions[0].size());
   m_controlGroups.emplace_back(gridBox);
 
-  groupBox
-    = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Menu Navigation"), gridBox);
+  groupBox = std::make_shared<ui::widgets::GroupBox>(
+    /* translators: TR charmap encoding */ _("Menu Navigation"), gridBox);
   m_content->set(0, 3, groupBox);
 
   m_content->setSelected({0, 1});
@@ -193,9 +194,9 @@ void ControlsWidget::setSize(const glm::ivec2& size)
   m_container->setSize(size);
 }
 
-void ControlsWidget::update(bool hasFocus)
+void ControlsWidget::tick(const bool hasFocus)
 {
-  m_container->update(hasFocus);
+  m_container->tick(hasFocus);
 }
 
 void ControlsWidget::draw(ui::Ui& ui, const engine::Presenter& presenter) const
@@ -212,8 +213,7 @@ void ControlsWidget::nextRow()
 {
   do
   {
-    const auto& currentGridBox = getCurrentGridBox();
-    if(!currentGridBox->nextRow())
+    if(const auto& currentGridBox = getCurrentGridBox(); !currentGridBox->nextRow())
     {
       if(!m_content->nextRow())
       {
@@ -230,8 +230,7 @@ void ControlsWidget::prevRow()
 {
   do
   {
-    const auto& currentGridBox = getCurrentGridBox();
-    if(!currentGridBox->prevRow())
+    if(const auto& currentGridBox = getCurrentGridBox(); !currentGridBox->prevRow())
     {
       if(!m_content->prevRow() || std::get<1>(m_content->getSelected()) == 0)
       {
@@ -250,8 +249,8 @@ void ControlsWidget::nextColumn()
 {
   do
   {
-    const auto& currentGridBox = getCurrentGridBox();
-    if(!currentGridBox->nextColumn() || !currentGridBox->nextColumn()) // cppcheck-suppress duplicateExpression
+    if(const auto& currentGridBox = getCurrentGridBox(); !currentGridBox->nextColumn() || !currentGridBox->nextColumn())
+    // cppcheck-suppress duplicateExpression
     {
       getCurrentGridBox()->setSelected({1, std::get<1>(currentGridBox->getSelected())});
     }
@@ -263,8 +262,8 @@ void ControlsWidget::prevColumn()
 {
   do
   {
-    const auto& currentGridBox = getCurrentGridBox();
-    if(!currentGridBox->prevColumn() || !currentGridBox->prevColumn()) // cppcheck-suppress duplicateExpression
+    if(const auto& currentGridBox = getCurrentGridBox(); !currentGridBox->prevColumn() || !currentGridBox->prevColumn())
+    // cppcheck-suppress duplicateExpression
     {
       getCurrentGridBox()->setSelected(
         {std::get<0>(currentGridBox->getExtents()) - 1, std::get<1>(currentGridBox->getSelected())});
@@ -274,7 +273,7 @@ void ControlsWidget::prevColumn()
 
 void ControlsWidget::updateBindings(
   const engine::NamedInputMappingConfig& mappingConfig,
-  const std::function<std::shared_ptr<ui::widgets::Widget>(
+  const std::function<std::shared_ptr<Widget>(
     const engine::InputMappingConfig&, const engine::InputMappingConfig&, hid::Action)>& factory)
 {
   m_container->setTitle(mappingConfig.name);
@@ -283,12 +282,13 @@ void ControlsWidget::updateBindings(
                  std::make_shared<ui::widgets::Label>(
                    /* translators: TR charmap encoding */ _("Controller Type: %1%", mappingConfig.controllerType)));
 
-  auto set = [&mappingConfig, &factory](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
+  auto set =
+    [&mappingConfig, &factory](ui::widgets::GridBox& gridBox, const size_t x0, const size_t y, const hid::Action action)
   {
     gridBox.set(
       x0, y, std::make_shared<ui::widgets::Label>(hid::getName(action), ui::widgets::Label::Alignment::Right));
 
-    auto widget = factory(mappingConfig.gameMappings, mappingConfig.menuMappings, action);
+    const auto widget = factory(mappingConfig.gameMappings, mappingConfig.menuMappings, action);
     widget->fitToContent();
     gridBox.set(x0 + 1, y, widget);
   };
@@ -298,8 +298,7 @@ void ControlsWidget::updateBindings(
     const auto& column = gameplayActions[x];
     for(size_t y = 0; y < column.size(); ++y)
     {
-      const auto& action = column[y];
-      if(action.has_value())
+      if(const auto& action = column[y]; action.has_value())
         set(*m_controlGroups[0], x * 2, y, *action);
     }
   }
@@ -309,8 +308,7 @@ void ControlsWidget::updateBindings(
     const auto& column = shortcutActions[x];
     for(size_t y = 0; y < column.size(); ++y)
     {
-      const auto& action = column[y];
-      if(action.has_value())
+      if(const auto& action = column[y]; action.has_value())
         set(*m_controlGroups[1], x * 2, y, *action);
     }
   }
@@ -320,8 +318,7 @@ void ControlsWidget::updateBindings(
     const auto& column = menuActions[x];
     for(size_t y = 0; y < column.size(); ++y)
     {
-      const auto& action = column[y];
-      if(action.has_value())
+      if(const auto& action = column[y]; action.has_value())
         set(*m_controlGroups[2], x * 2, y, *action);
     }
   }

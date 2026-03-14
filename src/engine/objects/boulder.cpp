@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <bitset>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -41,7 +41,7 @@ constexpr auto Stopped = 0_as;
 constexpr auto Rolling = 1_as;
 } // namespace
 
-void Boulder::update()
+void Boulder::updateLogic()
 {
   if(m_state.triggerState == TriggerState::Active)
   {
@@ -61,7 +61,7 @@ void Boulder::update()
       }
     }
     const auto oldPos = m_state.location.position;
-    ModelObject::update();
+    advanceFrame();
 
     auto sector = m_state.location.updateRoom();
     setCurrentRoom(m_state.location.room);
@@ -99,14 +99,14 @@ void Boulder::update()
     setCurrentRoom(m_location.room);
     getSkeleton()->setAnimation(
       m_state.current_anim_state,
-      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type)->animations[0]},
+      gsl_lite::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type)->animations[0]},
       0_frame);
     m_state.goal_anim_state = m_state.current_anim_state;
     m_state.required_anim_state = Stopped;
     deactivate();
   }
 
-  applyTransform();
+  applyLogicTransform();
 }
 
 void Boulder::collide(CollisionInfo& collisionInfo)
@@ -137,7 +137,7 @@ void Boulder::collide(CollisionInfo& collisionInfo)
     lara.setCurrentRoom(m_state.location.room);
     lara.setAnimation(loader::file::AnimationId::SQUASH_BOULDER);
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
-    getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
+    getWorld().getCameraController().setCinematicBaseRotation(-25_deg, 170_deg);
     lara.m_state.rotation.X = 0_deg;
     lara.m_state.rotation.Y = m_state.rotation.Y;
     lara.m_state.rotation.Z = 0_deg;
@@ -174,7 +174,7 @@ void Boulder::collide(CollisionInfo& collisionInfo)
   const auto z = lara.m_state.location.position.Z - m_state.location.position.Z;
   const auto xyz = std::max(1_sectors / 2, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
-  auto fx = createBloodSplat(
+  const auto fx = createBloodSplat(
     getWorld(),
     Location{m_state.location.room,
              core::TRVec{x * 1_sectors / 2 / xyz + m_state.location.position.X,
@@ -186,10 +186,10 @@ void Boulder::collide(CollisionInfo& collisionInfo)
 }
 
 Boulder::Boulder(const std::string& name,
-                 const gsl::not_null<world::World*>& world,
-                 const gsl::not_null<const world::Room*>& room,
+                 const gsl_lite::not_null<world::World*>& world,
+                 const gsl_lite::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
-                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                 const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
     , m_location{room, item.position}
 {

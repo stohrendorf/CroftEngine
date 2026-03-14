@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <functional>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <mutex>
@@ -44,10 +44,11 @@ public:
   }
 
   void removeStream(const gslu::nn_shared<StreamVoice>& stream);
+
   void removeStream(const std::weak_ptr<StreamVoice>& stream)
   {
     if(const auto locked = stream.lock())
-      removeStream(gsl::not_null{locked});
+      removeStream(gsl_lite::not_null{locked});
   }
 
   void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);

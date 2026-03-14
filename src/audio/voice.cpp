@@ -19,7 +19,7 @@ void Voice::setGroupGain(const ALfloat groupGain)
   updateGain();
 }
 
-void Voice::setGroupGainLogarithmic(ALfloat groupGain)
+void Voice::setGroupGainLogarithmic(const ALfloat groupGain)
 {
   setGroupGain(toLogarithmicVolumeExact(groupGain));
 }
@@ -30,7 +30,7 @@ void Voice::setLocalGain(const ALfloat localGain)
   updateGain();
 }
 
-void Voice::setLocalGainLogarithmic(ALfloat localGain)
+void Voice::setLocalGainLogarithmic(const ALfloat localGain)
 {
   setLocalGain(toLogarithmicVolumeExact(localGain));
 }
@@ -76,14 +76,14 @@ void Voice::stop()
   m_playStartTime.reset();
 }
 
-void Voice::setLooping(bool looping)
+void Voice::setLooping(const bool looping)
 {
   if(m_source != nullptr)
     m_source->setLooping(looping);
   m_looping = looping;
 }
 
-void Voice::setPitch(ALfloat pitch)
+void Voice::setPitch(const ALfloat pitch)
 {
   if(m_source != nullptr)
     m_source->setPitch(pitch);

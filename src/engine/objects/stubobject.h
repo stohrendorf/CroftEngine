@@ -8,5 +8,10 @@ class StubObject final : public ModelObject
 {
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(StubObject, false, false)
+
+  void updateLogic() override
+  {
+    advanceFrame();
+  }
 };
 } // namespace engine::objects

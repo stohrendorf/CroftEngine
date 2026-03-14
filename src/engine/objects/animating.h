@@ -30,6 +30,6 @@ class Animating final : public ModelObject
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(Animating, true, true)
 
-  void update() override;
+  void updateLogic() override;
 };
 } // namespace engine::objects

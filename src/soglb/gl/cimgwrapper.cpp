@@ -19,7 +19,7 @@
 #include <boost/assert.hpp>
 #include <CImg.h>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <utility>
 
@@ -48,6 +48,7 @@ struct PcxHeader
   uint16_t height;
   std::array<uint8_t, 54> _pad;
 };
+
 static_assert(sizeof(PcxHeader) == 128);
 } // namespace
 
@@ -184,11 +185,12 @@ const uint8_t* CImgWrapper::data() const
   return m_image->data();
 }
 
-void CImgWrapper::savePng(const std::string& filename, bool premultiply)
+void CImgWrapper::savePng(const std::string& filename, const bool premultiply)
 {
   deinterleave();
   if(!premultiply)
   {
+    // ReSharper disable once CppExpressionWithoutSideEffects
     m_image->save_png(filename.c_str(), 1);
     return;
   }
@@ -197,6 +199,7 @@ void CImgWrapper::savePng(const std::string& filename, bool premultiply)
   tmp->get_shared_channel(0).mul(tmp->get_shared_channel(3)) /= 255;
   tmp->get_shared_channel(1).mul(tmp->get_shared_channel(3)) /= 255;
   tmp->get_shared_channel(2).mul(tmp->get_shared_channel(3)) /= 255;
+  // ReSharper disable once CppExpressionWithoutSideEffects
   tmp->save_png(filename.c_str(), 1);
 }
 
@@ -233,7 +236,7 @@ CImgWrapper& CImgWrapper::operator=(CImgWrapper&& other) noexcept
   return *this;
 }
 
-void CImgWrapper::extendBorder(int margin)
+void CImgWrapper::extendBorder(const int margin)
 {
   gsl_Expects(margin >= 0);
   unshare();
@@ -251,9 +254,9 @@ void CImgWrapper::fromScreenshot()
   interleave();
 }
 
-gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> CImgWrapper::toTexture(const std::string_view& label)
+gslu::nn_shared<Texture2D<PremultipliedSRGBA8>> CImgWrapper::toTexture(const std::string_view& label)
 {
-  auto result = gsl::make_shared<gl::Texture2D<gl::PremultipliedSRGBA8>>(glm::ivec2{width(), height()}, label);
+  auto result = gsl_lite::make_shared<Texture2D<PremultipliedSRGBA8>>(glm::ivec2{width(), height()}, label);
   result->assign(asPremultipliedPixels());
   return result;
 }
@@ -261,29 +264,29 @@ gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> CImgWrapper::toTexture(c
 void CImgWrapper::premultiplyPixels()
 {
   interleave();
-  for(auto& px : gsl::make_span(const_cast<gl::SRGBA8*>(reinterpret_cast<const gl::SRGBA8*>(data())),
-                                gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height())))
+  for(auto& px : gsl_lite::make_span(const_cast<SRGBA8*>(reinterpret_cast<const SRGBA8*>(data())),
+                                     gsl_lite::narrow<size_t>(width()) * gsl_lite::narrow<size_t>(height())))
   {
     px.channels = premultiply(px).channels;
   }
 }
 
-gsl::span<const gl::SRGBA8> CImgWrapper::pixels()
+gsl_lite::span<const SRGBA8> CImgWrapper::pixels()
 {
-  static_assert(sizeof(gl::SRGBA8) == 4);
+  static_assert(sizeof(SRGBA8) == 4);
   interleave();
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  return gsl::make_span(reinterpret_cast<const gl::SRGBA8*>(data()),
-                        gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
+  return gsl_lite::make_span(reinterpret_cast<const SRGBA8*>(data()),
+                             gsl_lite::narrow<size_t>(width()) * gsl_lite::narrow<size_t>(height()));
 }
 
-gsl::span<const gl::PremultipliedSRGBA8> CImgWrapper::asPremultipliedPixels()
+gsl_lite::span<const PremultipliedSRGBA8> CImgWrapper::asPremultipliedPixels()
 {
-  static_assert(sizeof(gl::PremultipliedSRGBA8) == 4);
+  static_assert(sizeof(PremultipliedSRGBA8) == 4);
   interleave();
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  return gsl::make_span(reinterpret_cast<const gl::PremultipliedSRGBA8*>(data()),
-                        gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
+  return gsl_lite::make_span(reinterpret_cast<const PremultipliedSRGBA8*>(data()),
+                             gsl_lite::narrow<size_t>(width()) * gsl_lite::narrow<size_t>(height()));
 }
 
 std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::filesystem::path& filename)
@@ -317,7 +320,7 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
   stream.read(reinterpret_cast<char*>(&palette[0][0]), sizeof(Palette));
   gsl_Assert(stream.good());
 
-  auto readByte = [&stream]()
+  auto readByte = [&stream]
   {
     uint8_t tmp;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -345,7 +348,7 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
     gsl_Assert(repeat <= remainingPixels);
     while(repeat > 0)
     {
-      *px++ = gl::SRGBA8{(*c)[0], (*c)[1], (*c)[2], 255};
+      *px++ = SRGBA8{(*c)[0], (*c)[1], (*c)[2], 255};
       --remainingPixels;
       --repeat;
     }

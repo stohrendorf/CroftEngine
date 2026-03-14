@@ -4,6 +4,7 @@
 #include "core/genericvec.h"
 #include "core/id.h"
 #include "core/units.h"
+#include "engine/engine.h"
 #include "engine/objectmanager.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
@@ -44,7 +45,7 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
     return;
 
-  static const core::GenericVec<core::Speed> alignSpeed{0_spd, 0_spd, 108_spd};
+  static constexpr core::GenericVec alignSpeed{0_spd, 0_spd, 108_spd};
   if(!lara.alignTransform(alignSpeed, *this))
     return;
 
@@ -53,7 +54,7 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   do
   {
     lara.setGoalAnimState(loader::file::LaraStateId::SwitchDown);
-    lara.advanceFrame();
+    lara.advanceLaraFrame();
   } while(lara.getCurrentAnimState() != loader::file::LaraStateId::SwitchDown);
   lara.setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
   lara.setHandStatus(HandStatus::Grabbing);
@@ -69,6 +70,6 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   }
 
   activate();
-  ModelObject::update(); // NOLINT(bugprone-parent-virtual-call)
+  advanceFrame(); // NOLINT(bugprone-parent-virtual-call)
 }
 } // namespace engine::objects

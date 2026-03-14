@@ -16,19 +16,19 @@
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <vector>
 
 namespace engine::ghosting
 {
-void GhostModel::apply(const world::World& world, const GhostFrame& frame)
+void GhostModel::apply(world::World& world, const GhostFrame& frame)
 {
   setLocalMatrix(frame.modelMatrix);
   m_roomId = frame.roomId;
 
-  engine::world::RenderMeshDataCompositor compositor;
+  world::RenderMeshDataCompositor compositor;
   std::vector<glm::mat4> matrices;
   matrices.reserve(frame.bones.size());
   for(const auto& bone : frame.bones)
@@ -46,22 +46,22 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
   }
   else
   {
-    auto mesh = compositor.toMesh(
-      *world.getPresenter().getMaterialManager(),
+    const auto mesh = compositor.toMesh(
+      world.getEngine().getPresenter().getRenderSystem().getMaterialManager(),
       true,
       false,
-      [&engine = world.getEngine()]()
+      [&engine = world.getEngine()]
       {
         return engine.getEngineConfig()->animSmoothing;
       },
-      [&engine = world.getEngine()]()
+      [&engine = world.getEngine()]
       {
         const auto& settings = engine.getEngineConfig()->renderSettings;
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
       },
       getName());
-    const auto m = world.getPresenter().getMaterialManager()->getGhost(
-      [&engine = world.getEngine()]()
+    const auto m = world.getEngine().getPresenter().getRenderSystem().getMaterialManager().getGhost(
+      [&engine = world.getEngine()]
       {
         return engine.getEngineConfig()->animSmoothing;
       });

@@ -26,29 +26,28 @@ inline const char* N_(const char* message) noexcept
 
 template<typename... Args>
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-inline std::string _(const char* message, Args&&... args)
+std::string _(const char* message, Args&&... args)
 {
   return (boost::format(_(message)) % ... % std::forward<Args>(args)).str();
 }
 
-inline const char* P_(const char* singular, const char* plural, unsigned long n) noexcept
+inline const char* P_(const char* singular, const char* plural, const unsigned long n) noexcept
 {
   return ngettext(singular, plural, n);
 }
 
 template<typename... Args>
 // NOLINTNEXTLINE(*-easily-swappable-parameters)
-inline std::string P_(const char* singular, const char* plural, unsigned long n, Args&&... args)
+std::string P_(const char* singular, const char* plural, const unsigned long n, Args&&... args)
 {
   return (boost::format(P_(singular, plural, n)) % ... % std::forward<Args>(args)).str();
 }
 
 // NOLINTNEXTLINE(*-easily-swappable-parameters)
-inline const char* dcpgettext(const char* domain, const char* msg_ctxt, const char* msgid, int category)
+inline const char* dcpgettext(const char* domain, const char* msg_ctxt, const char* msgid, const int category)
 {
-  auto msg_ctxt_id = std::string{msg_ctxt} + '\004' + msgid;
-  const auto translation = dcgettext(domain, msg_ctxt_id.c_str(), category);
-  if(msg_ctxt_id == translation)
+  const auto msg_ctxt_id = std::string{msg_ctxt} + '\004' + msgid;
+  if(const auto translation = dcgettext(domain, msg_ctxt_id.c_str(), category); msg_ctxt_id == translation)
   {
     return msgid;
   }
@@ -70,7 +69,7 @@ inline const char* pgettext(const char* msg_ctxt, const char* msgid)
 
 template<typename... Args>
 // NOLINTNEXTLINE(*-easily-swappable-parameters)
-inline std::string pgettext(const char* msg_ctxt, const char* msgid, Args&&... args)
+std::string pgettext(const char* msg_ctxt, const char* msgid, Args&&... args)
 {
   return (boost::format(pgettext(msg_ctxt, msgid)) % ... % std::forward<Args>(args)).str();
 }
@@ -81,12 +80,12 @@ inline const char* dcnpgettext(
   const char* msg_ctxt,
   const char* msgid,
   const char* msgid_plural,
-  unsigned long n,
-  int category)
+  const unsigned long n,
+  const int category)
 {
   const auto msg_ctxt_id = std::string{msg_ctxt} + '\004' + msgid;
-  const auto translation = dcngettext(domain, msg_ctxt_id.c_str(), msgid_plural, n, category);
-  if(translation == msg_ctxt_id || std::strcmp(translation, msgid_plural) == 0)
+  if(const auto translation = dcngettext(domain, msg_ctxt_id.c_str(), msgid_plural, n, category);
+     translation == msg_ctxt_id || std::strcmp(translation, msgid_plural) == 0)
   {
     return n == 1 ? msgid : msgid_plural;
   }
@@ -96,13 +95,13 @@ inline const char* dcnpgettext(
   }
 }
 
-inline const char*
-  dnpgettext(const char* domain, const char* msg_ctxt, const char* msgid, const char* msgid_plural, unsigned long n)
+inline const char* dnpgettext(
+  const char* domain, const char* msg_ctxt, const char* msgid, const char* msgid_plural, const unsigned long n)
 {
   return dcnpgettext(domain, msg_ctxt, msgid, msgid_plural, n, LC_MESSAGES);
 }
 
-inline const char* npgettext(const char* msg_ctxt, const char* msgid, const char* msgid_plural, unsigned long n)
+inline const char* npgettext(const char* msg_ctxt, const char* msgid, const char* msgid_plural, const unsigned long n)
 {
   return dnpgettext(textdomain(nullptr), msg_ctxt, msgid, msgid_plural, n);
 }

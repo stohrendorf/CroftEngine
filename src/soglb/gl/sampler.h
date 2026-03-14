@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <string_view>
 
@@ -34,7 +34,7 @@ public:
 
     if(!label.empty())
       GL_ASSERT(api::objectLabel(
-        api::ObjectIdentifier::Sampler, m_handle, gsl::narrow<api::core::SizeType>(label.size()), label.data()));
+        api::ObjectIdentifier::Sampler, m_handle, gsl_lite::narrow<api::core::SizeType>(label.size()), label.data()));
   }
 
   ~Sampler()
@@ -99,8 +99,8 @@ private:
 } // namespace gl
 
 template<typename... Args>
-inline gslu::nn_unique<gl::Sampler> operator|(gslu::nn_unique<gl::Sampler>&& sampler,
-                                              const gl::detail::ArgsHolder<Args...>& setter)
+gslu::nn_unique<gl::Sampler> operator|(gslu::nn_unique<gl::Sampler>&& sampler,
+                                       const gl::detail::ArgsHolder<Args...>& setter)
 {
   std::apply(
     [&sampler](const Args&... args)

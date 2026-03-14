@@ -1,1 +1,2 @@
-CE-675 2.8 Remove doppelganger save migration
+CE-675 3.2 Remove doppelganger save migration
+CE-683 3.3 Remove CameraController save migrations

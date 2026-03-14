@@ -1,65 +1,33 @@
 #pragma once
 
-#include "serialization_fwd.h"
+#include "concepts.h"
 
-namespace serialization
+namespace serialization::access
 {
-template<typename T, bool Loading>
-struct access;
-
-template<typename T>
-struct access<T, false>
+template<typename T, typename TContext>
+requires Serializable<T, TContext> void dispatchSerialize(const T& data, const Serializer<TContext>& ser)
 {
-  template<typename TContext, typename T2>
-  static auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return data.serialize(ser);
-  }
+  if constexpr(MemberSerializable<T, TContext>)
+    data.serialize(ser);
+  else
+    serialize(data, ser);
+}
 
-  template<typename TContext, typename T2>
-  static auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return serialize(data, ser);
-  }
-};
-
-template<typename T>
-struct access<T, true>
+template<typename T, typename TContext>
+requires Deserializable<T, TContext> void dispatchDeserialize(T& data, const Deserializer<TContext>& ser)
 {
-  template<typename TContext, typename T2>
-  static auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(data.deserialize(ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return data.deserialize(ser);
-  }
+  if constexpr(MemberDeserializable<T, TContext>)
+    data.deserialize(ser);
+  else
+    deserialize(data, ser);
+}
 
-  template<typename TContext, typename T2>
-  static auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(deserialize(data, ser), void())
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
-    return deserialize(data, ser);
-  }
-
-  template<typename TContext, typename T2 = T>
-  static auto dispatch(const Deserializer<TContext>& ser) -> decltype(T2::create(ser))
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
+template<typename T, typename TContext>
+requires Creatable<T, TContext> T dispatchCreate(const Deserializer<TContext>& ser)
+{
+  if constexpr(MemberCreatable<T, TContext>)
     return T::create(ser);
-  }
-
-  template<typename TContext, typename T2 = T>
-  static auto dispatch(const Deserializer<TContext>& ser) -> decltype(create(TypeId<T2>{}, ser))
-  {
-    static_assert(
-      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
+  else
     return create(TypeId<T>{}, ser);
-  }
-};
-} // namespace serialization
+}
+} // namespace serialization::access

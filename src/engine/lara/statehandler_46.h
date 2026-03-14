@@ -4,14 +4,14 @@
 #include "core/units.h"
 #include "engine/collisioninfo.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_46 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_46(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_46(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::BoulderDeath}
   {
   }
@@ -19,7 +19,7 @@ public:
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
-    getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
+    getWorld().getCameraController().setCinematicBaseRotation(-25_deg, 170_deg);
   }
 
   void postprocessFrame(CollisionInfo& /*collisionInfo*/) override

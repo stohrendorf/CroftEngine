@@ -35,13 +35,13 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string>
 
 namespace engine::objects
@@ -55,7 +55,7 @@ bool canMoveTo(const world::Room& room,
                const core::Length& nextPathFloor,
                const core::TRVec& testPos)
 {
-  const auto testBox = Location{gsl::not_null{&room}, testPos}.updateRoom()->box;
+  const auto testBox = Location{gsl_lite::not_null{&room}, testPos}.updateRoom()->box;
   if(testBox == nullptr || !pathFinder.canVisit(*testBox, currentBox.blocked, currentBox.blockable))
   {
     return false;
@@ -99,8 +99,8 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
   if(abs(turnAngle) > 90_deg)
   {
     // the target is behind the current object, so we need a U-turn
-    const auto relativeSpeed = m_state.speed.cast<float>() * 90_deg / maxRotationSpeed;
-    if(util::square(dx) + util::square(dz) < util::square(relativeSpeed))
+    if(const auto relativeSpeed = m_state.speed.cast<float>() * 90_deg / maxRotationSpeed;
+       util::square(dx) + util::square(dz) < util::square(relativeSpeed))
     {
       maxRotationSpeed /= 2;
     }
@@ -114,7 +114,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
 
 bool AIAgent::anyMovingEnabledObjectInReach() const
 {
-  for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
+  for(const auto& object : getWorld().getObjectManager().getObjects() | std::views::values)
   {
     if(object.get().get() == this)
       break;
@@ -136,8 +136,8 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
   if(m_creatureInfo == nullptr)
     return;
 
-  const auto invariantCheck = gsl::finally(
-    [this]()
+  const auto invariantCheck = gsl_lite::finally(
+    [this]
     {
       gsl_Assert(m_state.location.isValid());
 
@@ -148,18 +148,18 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
   const auto& pathFinder = m_creatureInfo->pathFinder;
 
   const auto oldLocation = m_state.location;
-  const auto oldBox = gsl::not_null{oldLocation.getCurrentSector()->box};
+  const auto oldBox = gsl_lite::not_null{oldLocation.getCurrentSector()->box};
 
 #ifndef NDEBUG
-  const auto invariantCheck2 = gsl::finally(
-    [this, oldPos = m_state.location.position]()
+  const auto invariantCheck2 = gsl_lite::finally(
+    [this, oldPos = m_state.location.position]
     {
       gsl_Assert(abs(m_state.location.position.Y - oldPos.Y) < 2_sectors);
     });
 #endif
 
   // this can move the entity into an invalid position
-  ModelObject::update();
+  advanceFrame();
 
   // Moving to a different sector is basically a wall glitch, as the collision check always moves the entity away
   // from the sector boundaries if it detects a collision. As the max norm is always greater than or equal to the
@@ -192,7 +192,7 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
   gsl_Assert(currentSector->box != nullptr);
 
   core::Length nextPathFloor;
-  if(const auto& exitBox = pathFinder.getNextPathBox(gsl::not_null{currentSector->box}); exitBox != nullptr)
+  if(const auto& exitBox = pathFinder.getNextPathBox(gsl_lite::not_null{currentSector->box}); exitBox != nullptr)
   {
     nextPathFloor = exitBox->floor;
   }
@@ -220,7 +220,7 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
   {
     return canMoveTo(*m_state.location.room,
                      m_creatureInfo->pathFinder,
-                     *gsl::not_null{currentSector->box},
+                     *gsl_lite::not_null{currentSector->box},
                      currentSector->box->floor,
                      nextPathFloor,
                      position);
@@ -387,10 +387,10 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
 }
 
 AIAgent::AIAgent(const std::string& name,
-                 const gsl::not_null<world::World*>& world,
-                 const gsl::not_null<const world::Room*>& room,
+                 const gsl_lite::not_null<world::World*>& world,
+                 const gsl_lite::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
-                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                 const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   m_state.collidable = true;
@@ -433,7 +433,7 @@ bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
 bool AIAgent::tryShootAtLara(ModelObject& object,
                              const core::Area& distance,
                              const core::TRVec& bonePos,
-                             size_t boneIndex,
+                             const size_t boneIndex,
                              const core::Angle& muzzleFlashAngle)
 {
   auto& lara = getWorld().getObjectManager().getLara();
@@ -462,13 +462,13 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     lara.emitRicochet(location);
   }
 
-  auto p = object.emitParticle(bonePos, boneIndex, &createMuzzleFlash);
+  const auto p = object.emitParticle(bonePos, boneIndex, &createMuzzleFlash);
   p->angle.Y += muzzleFlashAngle;
 
   return isHit;
 }
 
-void AIAgent::loadObjectInfo(bool withoutGameState)
+void AIAgent::loadObjectInfo(const bool withoutGameState)
 {
   m_collisionRadius = core::Length{getWorld()
                                      .getEngine()
@@ -548,14 +548,14 @@ void AIAgent::finalWalkingAnimation()
 
   m_state.rotation.X = 0_au;
 
-  auto currentSector = m_state.location.updateRoom();
+  const auto currentSector = m_state.location.updateRoom();
   BOOST_ASSERT(m_state.location.isValid());
   setCurrentRoom(m_state.location.room);
   m_state.floor
     = HeightInfo::fromFloor(currentSector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 }
 
-void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& currentSector,
+void AIAgent::finalFlyingAnimation(const gsl_lite::not_null<const world::Sector*>& currentSector,
                                    const core::BoundingBox& bbox,
                                    const Location& oldLocation)
 {
@@ -595,9 +595,8 @@ void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& cu
           .y;
 
     // TODO nah... why, core, why?
-    const auto bboxTopAdjusted = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.min;
-
-    if(m_state.location.position.Y + bboxTopAdjusted + moveY < currentCeiling)
+    if(const auto bboxTopAdjusted = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.min;
+       m_state.location.position.Y + bboxTopAdjusted + moveY < currentCeiling)
     {
       // fly movements ended up penetrating the ceiling
 
@@ -624,7 +623,7 @@ void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& cu
                                         getWorld().getObjectManager().getObjects())
                     .y;
 
-  core::Angle yaw{0_deg};
+  auto yaw{0_deg};
   if(m_state.speed != 0_spd)
     yaw = angleFromAtan(-moveY, m_state.speed * 1_frame);
 
@@ -640,7 +639,7 @@ void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& cu
   setCurrentRoom(m_state.location.room);
 }
 
-gsl::not_null<const world::Sector*>
+gsl_lite::not_null<const world::Sector*>
   AIAgent::fixInvalidPosition(const core::TRVec& oldPosition, const world::Box& oldBox, const core::BoundingBox& bbox)
 {
   auto currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
@@ -667,15 +666,13 @@ gsl::not_null<const world::Sector*>
     };
 
     const auto oldSectorX = sectorOf(oldPosition.X);
-    const auto newSectorX = sectorOf(m_state.location.position.X);
-    if(newSectorX < oldSectorX)
+    if(const auto newSectorX = sectorOf(m_state.location.position.X); newSectorX < oldSectorX)
       m_state.location.position.X = toMin(oldPosition.X);
     else if(newSectorX > oldSectorX)
       m_state.location.position.X = toMax(oldPosition.X);
 
     const auto oldSectorZ = sectorOf(oldPosition.Z);
-    const auto newSectorZ = sectorOf(m_state.location.position.Z);
-    if(newSectorZ < oldSectorZ)
+    if(const auto newSectorZ = sectorOf(m_state.location.position.Z); newSectorZ < oldSectorZ)
       m_state.location.position.Z = toMin(oldPosition.Z);
     else if(newSectorZ > oldSectorZ)
       m_state.location.position.Z = toMax(oldPosition.Z);

@@ -24,7 +24,7 @@
 #include <boost/throw_exception.hpp>
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <stdexcept>
@@ -66,8 +66,7 @@ AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTra
   m_container->fitToContent();
 }
 
-std::unique_ptr<MenuState>
-  AudioSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> AudioSettingsMenuState::tick(engine::world::World& world, MenuDisplay& /*display*/)
 {
   static constexpr float Stepping = 0.1f;
   auto& audioSettings = world.getEngine().getEngineConfig()->audioSettings;
@@ -81,14 +80,12 @@ std::unique_ptr<MenuState>
 
   if(inputHandler.hasDebouncedAction(hid::Action::MenuUp))
   {
-    auto [ignored, y] = m_grid->getSelected(); // lgtm [cpp/unused-local-variable]
-    if(y > 0)
+    if(auto [ignored, y] = m_grid->getSelected(); y > 0)
       m_grid->setSelected({0, y - 1});
   }
   if(inputHandler.hasDebouncedAction(hid::Action::MenuDown))
   {
-    auto [ignored, y] = m_grid->getSelected(); // lgtm [cpp/unused-local-variable]
-    if(y < std::get<1>(m_grid->getExtents()) - 1)
+    if(auto [ignored, y] = m_grid->getSelected(); y < std::get<1>(m_grid->getExtents()) - 1)
       m_grid->setSelected({0, y + 1});
   }
 
@@ -121,7 +118,7 @@ std::unique_ptr<MenuState>
   audioSettings.musicVolume = m_musicVolume->getValue();
   audioSettings.sfxVolume = m_sfxVolume->getValue();
 
-  world.getPresenter().getSoundEngine()->setListenerGain(audioSettings.globalVolume);
+  world.getEngine().getPresenter().getSoundEngine()->setListenerGain(audioSettings.globalVolume);
   world.getAudioEngine().setMusicGain(audioSettings.musicVolume);
   world.getAudioEngine().setSfxGain(audioSettings.sfxVolume);
 
@@ -130,12 +127,15 @@ std::unique_ptr<MenuState>
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
   }
 
-  m_grid->update(true);
-
-  m_container->setPosition(
-    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
-  m_container->draw(ui, world.getPresenter());
+  m_grid->tick(true);
 
   return nullptr;
+}
+
+void AudioSettingsMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+{
+  m_container->setPosition(
+    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
+  m_container->draw(ui, world.getEngine().getPresenter());
 }
 } // namespace menu

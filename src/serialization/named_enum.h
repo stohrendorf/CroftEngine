@@ -37,9 +37,9 @@ struct NamedEnum
   }
 
   template<typename TContext>
-  static NamedEnum<T, Converter> create(const Deserializer<TContext>& ser)
+  static NamedEnum create(const Deserializer<TContext>& ser)
   {
-    NamedEnum<T, Converter> result{};
+    NamedEnum result{};
     result.deserialize(ser);
     return result;
   }
@@ -57,7 +57,7 @@ struct NamedEnum
     return value;
   }
 
-  NamedEnum<T, Converter>& operator=(T e)
+  NamedEnum& operator=(T e)
   {
     value = e;
     return *this;

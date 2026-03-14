@@ -33,5 +33,10 @@ public:
 
     y = m_state.location.position.Y + core::QuarterSectorSize;
   }
+
+  void updateLogic() override
+  {
+    advanceFrame();
+  }
 };
 } // namespace engine::objects

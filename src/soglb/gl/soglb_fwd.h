@@ -83,5 +83,4 @@ class VertexBuffer;
 class Window;
 template<typename T>
 class ElementArrayBuffer;
-class Font;
 } // namespace gl

@@ -19,13 +19,13 @@
 
 #include <bitset>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
 namespace engine::objects
 {
-void SwingingBlade::update()
+void SwingingBlade::updateLogic()
 {
   if(!m_state.updateActivationTimeout())
   {
@@ -50,10 +50,11 @@ void SwingingBlade::update()
       getWorld().getObjectManager().getLara().m_state.location.position.X + util::rand15s(128_len),
       getWorld().getObjectManager().getLara().m_state.location.position.Y - util::rand15(745_len),
       getWorld().getObjectManager().getLara().m_state.location.position.Z + util::rand15s(128_len)};
-    auto fx = createBloodSplat(getWorld(),
-                               Location{m_state.location.room, splatPos},
-                               getWorld().getObjectManager().getLara().m_state.speed,
-                               getWorld().getObjectManager().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
+    const auto fx
+      = createBloodSplat(getWorld(),
+                         Location{m_state.location.room, splatPos},
+                         getWorld().getObjectManager().getLara().m_state.speed,
+                         getWorld().getObjectManager().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
     getWorld().getObjectManager().registerParticle(fx);
   }
 
@@ -62,7 +63,7 @@ void SwingingBlade::update()
   m_state.floor
     = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
-  ModelObject::update();
+  advanceFrame();
 }
 
 void SwingingBlade::collide(CollisionInfo& collisionInfo)
@@ -82,10 +83,10 @@ void SwingingBlade::deserialize(const serialization::Deserializer<world::World>&
 }
 
 SwingingBlade::SwingingBlade(const std::string& name,
-                             const gsl::not_null<world::World*>& world,
-                             const gsl::not_null<const world::Room*>& room,
+                             const gsl_lite::not_null<world::World*>& world,
+                             const gsl_lite::not_null<const world::Room*>& room,
                              const loader::file::Item& item,
-                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   getSkeleton()->getRenderState().setScissorTest(false);

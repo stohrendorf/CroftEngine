@@ -19,14 +19,14 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <utility>
 
 namespace engine::objects
 {
-void Rat::update()
+void Rat::updateLogic()
 {
   activateAi();
 
@@ -35,7 +35,7 @@ void Rat::update()
     if(alive())
     {
       const ai::EnemyLocation enemyLocation{*this};
-      core::Angle headRot = 0_deg;
+      auto headRot = 0_deg;
       if(enemyLocation.laraInView)
       {
         headRot = enemyLocation.visualAngleToLara;
@@ -68,8 +68,8 @@ void Rat::update()
       if(!waterHeight.has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        getSkeleton()->setAnim(
-          gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0]});
+        getSkeleton()->setAnim(gsl_lite::not_null{
+          &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0]});
         goal(getSkeleton()->getAnim()->state_id);
         m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
 
@@ -92,19 +92,19 @@ void Rat::update()
           m_state.location.position.Y = *waterHeight;
         }
       }
-      applyTransform();
+      applyLogicTransform();
     }
     else
     {
       if(m_state.current_anim_state != 3_as)
       {
-        getSkeleton()->setAnim(
-          gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2]});
+        getSkeleton()->setAnim(gsl_lite::not_null{
+          &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2]});
         m_state.current_anim_state = 3_as;
       }
       rotateCreatureHead(0_deg);
       getSkeleton()->patchBone(2, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-      ModelObject::update();
+      advanceFrame();
       if(m_state.triggerState == TriggerState::Deactivated)
       {
         m_state.collidable = false;
@@ -114,12 +114,12 @@ void Rat::update()
       if(!getWaterSurfaceHeight().has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        getSkeleton()->setAnim(
-          gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]});
+        getSkeleton()->setAnim(gsl_lite::not_null{
+          &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]});
         goal(5_as);
         m_state.current_anim_state = m_state.goal_anim_state;
         m_state.location.position.Y = m_state.floor;
-        applyTransform();
+        applyLogicTransform();
 
         loadObjectInfo(true);
       }
@@ -128,8 +128,8 @@ void Rat::update()
   else
   {
     BOOST_ASSERT(m_state.type == TR1ItemId::RatOnLand);
-    core::Angle turn = 0_deg;
-    core::Angle headRot = 0_deg;
+    auto turn = 0_deg;
+    auto headRot = 0_deg;
     if(alive())
     {
       const ai::EnemyLocation enemyLocation{*this};
@@ -184,20 +184,20 @@ void Rat::update()
     }
     else if(m_state.current_anim_state != 5_as)
     {
-      getSkeleton()->setAnim(
-        gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]});
+      getSkeleton()->setAnim(gsl_lite::not_null{
+        &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]});
       m_state.current_anim_state = 5_as;
     }
     rotateCreatureHead(headRot);
     if(const auto waterHeight = getWaterSurfaceHeight())
     {
       m_state.type = TR1ItemId::RatInWater;
-      getSkeleton()->setAnim(
-        gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0]});
+      getSkeleton()->setAnim(gsl_lite::not_null{
+        &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0]});
       goal(getSkeleton()->getAnim()->state_id);
       m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
       m_state.location.position.Y = *waterHeight;
-      applyTransform();
+      applyLogicTransform();
 
       loadObjectInfo(true);
     }

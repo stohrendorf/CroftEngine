@@ -28,7 +28,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -88,7 +88,7 @@ namespace engine::world
 class World final
 {
 public:
-  explicit World(const gsl::not_null<Engine*>& engine,
+  explicit World(const gsl_lite::not_null<Engine*>& engine,
                  std::unique_ptr<loader::file::level::Level>&& level,
                  std::string title,
                  const std::optional<TR1TrackId>& ambient,
@@ -145,7 +145,7 @@ public:
 
   template<typename T>
   std::shared_ptr<T> createDynamicObject(const core::TypeId& type,
-                                         const gsl::not_null<const Room*>& room,
+                                         const gsl_lite::not_null<const Room*>& room,
                                          const core::Angle& angle,
                                          const core::TRVec& position,
                                          const uint16_t activationState)
@@ -156,21 +156,21 @@ public:
 
     loader::file::Item item;
     item.type = type;
-    item.room = uint16_t(-1);
+    item.room = static_cast<uint16_t>(-1);
     item.position = position;
     item.rotation = angle;
     item.shade = core::Shade{core::Shade::type{0}};
     item.activationState = activationState;
 
-    auto object
-      = gsl::make_shared<T>(objects::makeObjectName(type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
-                            gsl::not_null{this},
-                            room,
-                            item,
-                            gsl::not_null{model.get()});
+    auto object = gsl_lite::make_shared<T>(
+      objects::makeObjectName(type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
+      gsl_lite::not_null{this},
+      room,
+      item,
+      gsl_lite::not_null{model.get()});
 
     m_objectManager.registerDynamicObject(object);
-    addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
+    addChild(gsl_lite::not_null{room->node}, gsl_lite::not_null{object->getNode()});
 
     return object;
   }
@@ -191,7 +191,7 @@ public:
   [[nodiscard]] const std::vector<Room>& getRooms() const noexcept;
   std::vector<Room>& getRooms() noexcept;
   [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const noexcept;
-  void update(bool godMode);
+  void updateLogicWorldState(bool godMode);
   void dinoStompEffect(objects::Object& object);
   void laraNormalEffect();
   void laraBubblesEffect(objects::Object& object);
@@ -209,7 +209,7 @@ public:
   void flickerEffect();
   void doGlobalEffect();
   gslu::nn_shared<objects::PickupObject>
-    createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
+    createPickup(const core::TypeId& type, const gsl_lite::not_null<const Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);
   void turn180Effect(objects::Object& object) noexcept;
@@ -217,8 +217,9 @@ public:
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   void serialize(const serialization::Serializer<World>& ser) const;
   void deserialize(const serialization::Deserializer<World>& ser);
-  void gameLoop(bool godMode, float blackAlpha, ui::Ui& ui);
-  bool cinematicLoop();
+  void updateGameLogic(bool godMode);
+  bool tickCinematic();
+  void renderCinematic() const;
   void load(const std::optional<size_t>& slot);
   void save(const std::optional<size_t>& slot);
   void save(const std::filesystem::path& filename);
@@ -270,13 +271,12 @@ public:
 
   void addPickupWidget(Sprite sprite, size_t count)
   {
-    static auto constexpr widgetLifetime = 75_frame;
+    static auto constexpr widgetLifetime = 75_tick;
     auto isSameVirginItem = [&sprite](const ui::PickupWidget& item) -> bool
     {
       return item.getSprite() == sprite && item.getDuration() == widgetLifetime;
     };
-    if(auto it = std::find_if(m_pickupWidgets.begin(), m_pickupWidgets.end(), isSameVirginItem);
-       it != m_pickupWidgets.end())
+    if(const auto it = std::ranges::find_if(m_pickupWidgets, isSameVirginItem); it != m_pickupWidgets.end())
     {
       it->setCount(count); // at this point the picked up ammo is already in the player's inventory
       return;
@@ -345,10 +345,10 @@ public:
 
   void hitLara(const core::Health& damage);
 
-private:
-  void drawPickupWidgets(ui::Ui& ui);
+  void constructPickupWidgets(ui::Ui& ui);
 
-  gsl::not_null<Engine*> m_engine;
+private:
+  gsl_lite::not_null<Engine*> m_engine;
   std::filesystem::path m_levelFilename;
 
   std::unique_ptr<AudioEngine> m_audioEngine;
@@ -365,11 +365,11 @@ private:
 
   bool m_levelFinished = false;
 
-  struct PositionalEmitter final : public audio::Emitter
+  struct PositionalEmitter final : audio::Emitter
   {
     glm::vec3 position;
 
-    PositionalEmitter(const glm::vec3& position, const gsl::not_null<audio::SoundEngine*>& engine)
+    PositionalEmitter(const glm::vec3& position, const gsl_lite::not_null<audio::SoundEngine*>& engine)
         : Emitter{engine}
         , position{position}
     {
@@ -396,7 +396,7 @@ private:
   std::shared_ptr<Player> m_player;
   std::shared_ptr<Player> m_levelStartPlayer;
 
-  engine::floordata::FloorData m_floorData;
+  floordata::FloorData m_floorData;
   std::vector<uint8_t> m_samplesData;
   gslu::nn_shared<WorldGeometry> m_worldGeometry;
 

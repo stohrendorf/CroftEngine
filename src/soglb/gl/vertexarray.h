@@ -5,7 +5,7 @@
 
 #include <cstddef>
 #include <gl/glassert.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <string_view>
 #include <tuple>
@@ -17,7 +17,6 @@ namespace gl
 template<typename IndexT, typename VertexT0, typename... VertexTs>
 class VertexArray final : public BindableResource<api::ObjectIdentifier::VertexArray>
 {
-private:
   template<typename... Ts, size_t... Is>
   void bindVertexAttributes(const std::tuple<Ts...>& t, const Program& p, const std::index_sequence<Is...>&)
   {

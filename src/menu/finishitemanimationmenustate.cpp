@@ -13,27 +13,29 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState>
-  FinishItemAnimationMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> FinishItemAnimationMenuState::tick(engine::world::World& world, MenuDisplay& display)
 {
   auto& object = display.getCurrentRing().getSelectedObject();
-  if(object.animate())
+  if(object.tick())
     return nullptr; // play full animation until its end
 
   if(object.type == engine::TR1ItemId::PassportOpening)
   {
     object.type = engine::TR1ItemId::PassportClosed;
-    object.meshAnimFrame = 0_frame;
+    object.meshAnimFrame = 0_mframe;
     object.initModel(world, display.getLightsBuffer());
   }
 
   return std::move(m_next);
 }
 
-void FinishItemAnimationMenuState::handleObject(ui::Ui& /*ui*/,
-                                                engine::world::World& /*world*/,
-                                                MenuDisplay& display,
-                                                MenuObject& object)
+void FinishItemAnimationMenuState::constructUi(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
+{
+}
+
+void FinishItemAnimationMenuState::handleObjectTick(engine::world::World& /*world*/,
+                                                    MenuDisplay& display,
+                                                    MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);

@@ -10,6 +10,7 @@
 #include "objects/objectstate.h"
 #include "presenter.h"
 #include "qs/qs.h"
+#include "render/material/materialmanager.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
@@ -37,7 +38,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -48,10 +49,37 @@
 
 namespace engine
 {
+namespace
+{
+std::optional<const world::TransitionCase>
+  findTransition(const world::Animation& anim, const core::Frame frame, const core::AnimStateId goal)
+{
+  if(anim.state_id == goal)
+    return std::nullopt;
+
+  for(const world::Transitions& tr : anim.transitions)
+  {
+    if(tr.stateId != goal)
+      continue;
+
+    const auto it = std::ranges::find_if(tr.transitionCases,
+                                         [frame](const world::TransitionCase& trc)
+                                         {
+                                           return frame >= trc.firstFrame && frame <= trc.lastFrame;
+                                         });
+
+    if(it != tr.transitionCases.cend())
+      return *it;
+  }
+
+  return std::nullopt;
+}
+} // namespace
+
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
-                                     gsl::not_null<const world::World*> world,
-                                     gsl::not_null<const world::SkeletalModelType*> model,
-                                     bool shadowCaster)
+                                     gsl_lite::not_null<world::World*> world,
+                                     gsl_lite::not_null<const world::SkeletalModelType*> model,
+                                     const bool shadowCaster)
     : Node{id}
     , m_world{std::move(world)}
     , m_model{std::move(model)}
@@ -63,55 +91,67 @@ core::Speed SkeletalModelNode::calculateFloorSpeed() const
 {
   const auto scaled = m_anim->speed + m_anim->acceleration * getLocalFrame();
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  return scaled / gsl::narrow_cast<core::Speed::type>(1 << 16);
+  return scaled / gsl_lite::narrow_cast<core::Speed::type>(1 << 16);
 }
 
 core::Acceleration SkeletalModelNode::getAcceleration() const noexcept
 {
   const auto scaled = m_anim->acceleration;
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  return scaled / gsl::narrow_cast<core::Acceleration::type>(1 << 16);
+  return scaled / gsl_lite::narrow_cast<core::Acceleration::type>(1 << 16);
 }
 
-InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
+AnimSegmentInterpolationInfo SkeletalModelNode::getInterpolationInfo(const world::Animation& anim,
+                                                                     core::Frame frame) const
 {
-  gsl_Expects(m_anim != nullptr);
+  gsl_Expects(frame >= anim.firstFrame && frame <= anim.lastFrame);
 
-  gsl_Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
-  const auto firstLocalKeyframeIndex = getLocalFrame() / m_anim->segmentLength;
+  const auto localFrame = frame - anim.firstFrame;
+  const auto firstLocalKeyframeIndex = localFrame / anim.segmentLength;
 
-  const auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
+  const auto firstKeyframe = anim.frames->next(firstLocalKeyframeIndex);
   gsl_Assert(m_world->getWorldGeometry().isValid(firstKeyframe));
 
-  const auto segmentDuration = m_anim->segmentLength;
-  const auto segmentFrame = getLocalFrame() % m_anim->segmentLength;
+  const auto segmentFrame = localFrame % anim.segmentLength;
   if(segmentFrame == 0_frame)
   {
-    return InterpolationInfo{firstKeyframe, firstKeyframe, 0.0f};
+    return AnimSegmentInterpolationInfo{firstKeyframe, firstKeyframe, 0.0f};
   }
 
-  const auto bias = segmentFrame.cast<float>() / segmentDuration.cast<float>();
-  BOOST_ASSERT(bias >= 0 && bias <= 1);
+  const auto interKeyframeFactor = segmentFrame.cast<float>() / anim.segmentLength.cast<float>();
+  BOOST_ASSERT(interKeyframeFactor >= 0 && interKeyframeFactor <= 1);
 
   const auto secondKeyframe = firstKeyframe->next();
   gsl_Assert(m_world->getWorldGeometry().isValid(secondKeyframe));
-  return InterpolationInfo{firstKeyframe, secondKeyframe, bias};
+  return AnimSegmentInterpolationInfo{firstKeyframe, secondKeyframe, interKeyframeFactor};
 }
 
-void SkeletalModelNode::updatePose()
+AnimSegmentInterpolationInfo SkeletalModelNode::getInterpolationInfo() const
+{
+  return getInterpolationInfo(*m_anim, m_frame);
+}
+
+AnimSegmentInterpolationInfo SkeletalModelNode::getNextInterpolationInfo() const
+{
+  // TODO this is non-contiguous, check if it can be made smoother by using goal anim states and state transition checks
+  return getInterpolationInfo(*m_anim, std::min(m_frame + 1_frame, m_anim->lastFrame));
+}
+
+void SkeletalModelNode::calculatePoseMatrices(const bool predictive)
 {
   if(m_meshParts.empty())
     return;
 
   BOOST_ASSERT(m_meshParts.size() >= m_model->bones.size());
 
-  updatePose(getInterpolationInfo());
+  calculatePoseMatrices(getInterpolationInfo(), &MeshPart::poseMatrix);
+  calculatePoseMatrices(predictive ? getNextInterpolationInfo() : getInterpolationInfo(), &MeshPart::nextPoseMatrix);
 }
 
-void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
+void SkeletalModelNode::calculatePoseMatrices(const AnimSegmentInterpolationInfo& framePair,
+                                              glm::mat4 MeshPart::* targetMatrix)
 {
   BOOST_ASSERT(!m_model->bones.empty());
-
   BOOST_ASSERT(framePair.firstFrame->numValues > 0);
   BOOST_ASSERT(framePair.secondFrame->numValues > 0);
 
@@ -125,7 +165,8 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
   transformsSecond.push(translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl())
                         * core::fromPackedAngles(angleDataSecond.data()) * m_meshParts[0].patch);
 
-  m_meshParts[0].poseMatrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
+  m_meshParts[0].*targetMatrix
+    = util::lerp(transformsFirst.top(), transformsSecond.top(), framePair.interKeyframeFactor);
 
   if(m_model->bones.size() <= 1)
     return;
@@ -139,8 +180,8 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
     }
     if(m_model->bones[i].pushMatrix)
     {
-      transformsFirst.push({transformsFirst.top()});   // make sure to have a copy, not a reference
-      transformsSecond.push({transformsSecond.top()}); // make sure to have a copy, not a reference
+      transformsFirst.push({transformsFirst.top()});
+      transformsSecond.push({transformsSecond.top()});
     }
 
     if(framePair.firstFrame->numValues < i)
@@ -155,48 +196,35 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
       transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position)
                                 * core::fromPackedAngles(&angleDataSecond[sizeof(uint32_t) * i]) * m_meshParts[i].patch;
 
-    m_meshParts[i].poseMatrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
+    m_meshParts[i].*targetMatrix
+      = util::lerp(transformsFirst.top(), transformsSecond.top(), framePair.interKeyframeFactor);
   }
 }
 
 core::BoundingBox SkeletalModelNode::getBoundingBox() const
 {
   const auto framePair = getInterpolationInfo();
-  BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 1);
+  BOOST_ASSERT(framePair.interKeyframeFactor >= 0 && framePair.interKeyframeFactor <= 1);
 
-  return core::BoundingBox{framePair.firstFrame->bbox.toBBox(), framePair.secondFrame->bbox.toBBox(), framePair.bias};
+  return core::BoundingBox{
+    framePair.firstFrame->bbox.toBBox(), framePair.secondFrame->bbox.toBBox(), framePair.interKeyframeFactor};
 }
 
 bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal)
 {
   gsl_Expects(m_anim != nullptr);
-  if(m_anim->state_id == goal)
-    return false;
 
-  for(const world::Transitions& tr : m_anim->transitions)
+  if(const auto transition = findTransition(*m_anim, m_frame, goal))
   {
-    if(tr.stateId != goal)
-      continue;
-
-    const auto it = std::find_if(tr.transitionCases.cbegin(),
-                                 tr.transitionCases.cend(),
-                                 [this](const world::TransitionCase& trc)
-                                 {
-                                   return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
-                                 });
-
-    if(it != tr.transitionCases.cend())
-    {
-      setAnimation(animState, gsl::not_null{it->targetAnimation}, it->targetFrame);
-      return true;
-    }
+    setAnimation(animState, gsl_lite::not_null{transition->targetAnimation}, transition->targetFrame);
+    return true;
   }
 
   return false;
 }
 
 void SkeletalModelNode::setAnimation(core::AnimStateId& animState,
-                                     const gsl::not_null<const world::Animation*>& animation,
+                                     const gsl_lite::not_null<const world::Animation*>& animation,
                                      core::Frame frame)
 {
   BOOST_ASSERT(m_model->bones.empty() || animation->frames->numValues == m_model->bones.size());
@@ -224,7 +252,7 @@ bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
 
 std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres()
 {
-  updatePose();
+  calculatePoseMatrices(true);
   gsl_Expects(m_meshParts.size() == m_model->bones.size());
   std::vector<Sphere> result;
   result.reserve(m_meshParts.size());
@@ -261,7 +289,7 @@ void SkeletalModelNode::deserialize(const serialization::Deserializer<world::Wor
   {
     m_forceMeshRebuild = true;
     rebuildMesh();
-    updatePose();
+    calculatePoseMatrices(true);
   };
 }
 
@@ -277,7 +305,7 @@ void deserialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::
   bool shadowCaster;
   ser(S_NV("model", model), S_NV("shadowCaster", shadowCaster));
   data = std::make_shared<SkeletalModelNode>(
-    create(serialization::TypeId<std::string>{}, ser["id"]), ser.context, gsl::not_null{model}, shadowCaster);
+    create(serialization::TypeId<std::string>{}, ser["id"]), ser.context, gsl_lite::not_null{model}, shadowCaster);
   data->deserialize(ser);
 }
 
@@ -287,7 +315,7 @@ void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skel
     return;
 
   skeleton->setAnimation(
-    animState, gsl::not_null{&skeleton->m_model->animations[0]}, skeleton->m_model->animations->firstFrame);
+    animState, gsl_lite::not_null{&skeleton->m_model->animations[0]}, skeleton->m_model->animations->firstFrame);
   for(const auto& bone : skeleton->m_model->bones)
   {
     skeleton->m_meshParts.emplace_back(bone.mesh.get());
@@ -295,18 +323,17 @@ void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skel
 
   skeleton->m_forceMeshRebuild = true;
   skeleton->rebuildMesh();
-  skeleton->updatePose();
+  skeleton->calculatePoseMatrices(true);
 }
 
 void SkeletalModelNode::rebuildMesh()
 {
   if(!m_forceMeshRebuild
-     && !std::any_of(m_meshParts.begin(),
-                     m_meshParts.end(),
-                     [](const auto& part)
-                     {
-                       return part.meshChanged();
-                     }))
+     && !std::ranges::any_of(m_meshParts,
+                             [](const auto& part)
+                             {
+                               return part.meshChanged();
+                             }))
   {
     return;
   }
@@ -330,14 +357,14 @@ void SkeletalModelNode::rebuildMesh()
     setRenderable(nullptr);
   else
     setRenderable(compositor.toMesh(
-      *m_world->getPresenter().getMaterialManager(),
+      m_world->getEngine().getPresenter().getRenderSystem().getMaterialManager(),
       true,
       m_shadowCaster,
-      [&engine = m_world->getEngine()]()
+      [&engine = m_world->getEngine()]
       {
         return engine.getEngineConfig()->animSmoothing;
       },
-      [&engine = m_world->getEngine()]()
+      [&engine = m_world->getEngine()]
       {
         const auto& settings = engine.getEngineConfig()->renderSettings;
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
@@ -367,7 +394,7 @@ bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
   return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
 }
 
-void SkeletalModelNode::setAnim(const gsl::not_null<const world::Animation*>& anim,
+void SkeletalModelNode::setAnim(const gsl_lite::not_null<const world::Animation*>& anim,
                                 const std::optional<core::Frame>& frame)
 {
   m_anim = anim;
@@ -379,7 +406,8 @@ core::Frame SkeletalModelNode::getLocalFrame() const noexcept
   return m_frame - m_anim->firstFrame;
 }
 
-void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>& anim, const core::Frame& localFrame)
+void SkeletalModelNode::replaceAnim(const gsl_lite::not_null<const world::Animation*>& anim,
+                                    const core::Frame& localFrame)
 {
   setAnim(anim, anim->firstFrame + localFrame);
 }
@@ -387,26 +415,13 @@ void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>
 const gl::ShaderStorageBuffer<glm::mat4>&
   SkeletalModelNode::getMeshMatricesBuffer(const std::function<bool()>& smooth) const
 {
-  if(smooth())
-  {
-    for(auto& part : m_meshParts)
-    {
-      static constexpr float Smoothing = 0.2f;
-      if(!part.poseMatrixSmooth.has_value())
-        part.poseMatrixSmooth = part.poseMatrix;
-      else
-        part.poseMatrixSmooth = Smoothing * *part.poseMatrixSmooth + (1 - Smoothing) * part.poseMatrix;
-    }
-  }
-
   std::vector<glm::mat4> matrices;
-  std::transform(m_meshParts.begin(),
-                 m_meshParts.end(),
-                 std::back_inserter(matrices),
-                 [smooth](const auto& part)
-                 {
-                   return smooth() ? *part.poseMatrixSmooth : part.poseMatrix;
-                 });
+  std::ranges::transform(m_meshParts,
+                         std::back_inserter(matrices),
+                         [smooth](const auto& part)
+                         {
+                           return smooth() ? part.poseMatrixSmooth.value_or(part.poseMatrix) : part.poseMatrix;
+                         });
 
   if(m_meshMatricesBuffer == nullptr || m_meshMatricesBuffer->size() != matrices.size())
   {
@@ -419,6 +434,52 @@ const gl::ShaderStorageBuffer<glm::mat4>&
   }
 
   return *m_meshMatricesBuffer;
+}
+
+const gl::ShaderStorageBuffer<glm::mat4>&
+  SkeletalModelNode::getNextMeshMatricesBuffer(const std::function<bool()>& smooth) const
+{
+  std::vector<glm::mat4> matrices;
+  std::ranges::transform(m_meshParts,
+                         std::back_inserter(matrices),
+                         [smooth](const auto& part)
+                         {
+                           return smooth() ? part.nextPoseMatrixSmooth.value_or(part.nextPoseMatrix)
+                                           : part.nextPoseMatrix;
+                         });
+
+  if(m_nextMeshMatricesBuffer == nullptr || m_nextMeshMatricesBuffer->size() != matrices.size())
+  {
+    m_nextMeshMatricesBuffer = std::make_unique<gl::ShaderStorageBuffer<glm::mat4>>(
+      "next-mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, matrices);
+  }
+  else
+  {
+    m_nextMeshMatricesBuffer->setSubData(matrices, 0);
+  }
+
+  return *m_nextMeshMatricesBuffer;
+}
+
+void SkeletalModelNode::updateSmoothMatrices()
+{
+  for(auto& part : m_meshParts)
+  {
+    part.updateSmoothMatrices();
+  }
+}
+
+void SkeletalModelNode::MeshPart::updateSmoothMatrices()
+{
+  static constexpr float Smoothing = 0.2f;
+  if(!poseMatrixSmooth.has_value())
+    poseMatrixSmooth = poseMatrix;
+  else
+    poseMatrixSmooth = Smoothing * *poseMatrixSmooth + (1 - Smoothing) * poseMatrix;
+  if(!nextPoseMatrixSmooth.has_value())
+    nextPoseMatrixSmooth = nextPoseMatrix;
+  else
+    nextPoseMatrixSmooth = Smoothing * *nextPoseMatrixSmooth + (1 - Smoothing) * nextPoseMatrix;
 }
 
 void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<world::World>& ser) const

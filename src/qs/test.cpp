@@ -53,17 +53,16 @@ BOOST_AUTO_TEST_CASE(test_drop_all_once_t)
 
 BOOST_AUTO_TEST_CASE(test_symmetric_difference)
 {
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<int, short>, std::tuple<char>>::reduced_l),
+  TEST_SAME(TPL(symmetric_difference<std::tuple<int, short>, std::tuple<char>>::reduced_l),
             TPL(std::tuple<int, short>));
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<int, short>, std::tuple<char>>::reduced_r), std::tuple<char>);
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<short, int>>::reduced_l), std::tuple<>);
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<short, int>>::reduced_r), std::tuple<int>);
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_l),
+  TEST_SAME(TPL(symmetric_difference<std::tuple<int, short>, std::tuple<char>>::reduced_r), std::tuple<char>);
+  TEST_SAME(TPL(symmetric_difference<std::tuple<short>, std::tuple<short, int>>::reduced_l), std::tuple<>);
+  TEST_SAME(TPL(symmetric_difference<std::tuple<short>, std::tuple<short, int>>::reduced_r), std::tuple<int>);
+  TEST_SAME(TPL(symmetric_difference<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_l),
             std::tuple<short>);
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_r),
-            std::tuple<>);
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<>>::reduced_l), std::tuple<short>);
-  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<>>::reduced_r), std::tuple<>);
+  TEST_SAME(TPL(symmetric_difference<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_r), std::tuple<>);
+  TEST_SAME(TPL(symmetric_difference<std::tuple<short>, std::tuple<>>::reduced_l), std::tuple<short>);
+  TEST_SAME(TPL(symmetric_difference<std::tuple<short>, std::tuple<>>::reduced_r), std::tuple<>);
 }
 
 BOOST_AUTO_TEST_CASE(test_fraction_unit_t)

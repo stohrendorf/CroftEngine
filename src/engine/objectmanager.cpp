@@ -10,6 +10,7 @@
 #include "objects/objectfactory.h"
 #include "objects/objectstate.h"
 #include "objects/pickupobject.h"
+#include "particle.h"
 #include "particlecollection.h"
 #include "render/scene/node.h"
 #include "serialization/map.h"
@@ -17,20 +18,21 @@
 #include "serialization/objectreference.h" // IWYU pragma: keep
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
+#include "skeletalmodelnode.h"
 #include "world/room.h"
 #include "world/sprite.h"
 #include "world/world.h"
 
 #include <algorithm>
 #include <boost/range/adaptor/indexed.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
 #include <memory>
+#include <ranges>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -40,7 +42,7 @@ namespace engine
 void ObjectManager::createObjects(world::World& world, std::vector<loader::file::Item>& items)
 {
   gsl_Expects(m_objectCounter == 0);
-  m_objectCounter = gsl::narrow<ObjectId>(items.size());
+  m_objectCounter = gsl_lite::narrow<ObjectId>(items.size());
 
   m_lara = nullptr;
   for(const auto& idItem : items | boost::adaptors::indexed())
@@ -60,7 +62,7 @@ void ObjectManager::createObjects(world::World& world, std::vector<loader::file:
     if(object == nullptr)
       continue;
 
-    m_objects.emplace(gsl::narrow<ObjectId>(idItem.index()), object);
+    m_objects.emplace(gsl_lite::narrow<ObjectId>(idItem.index()), object);
     if(object->isActive())
     {
       object->activate();
@@ -77,24 +79,22 @@ void ObjectManager::applyScheduledDeletions()
   {
     deactivate(del);
 
-    if(auto it = std::find_if(m_dynamicObjects.begin(),
-                              m_dynamicObjects.end(),
-                              [del](const std::shared_ptr<objects::Object>& i) noexcept
-                              {
-                                return i.get() == del;
-                              });
+    if(auto it = std::ranges::find_if(m_dynamicObjects,
+                                      [del](const std::shared_ptr<objects::Object>& i) noexcept
+                                      {
+                                        return i.get() == del;
+                                      });
        it != m_dynamicObjects.end())
     {
       m_dynamicObjects.erase(it);
       continue;
     }
 
-    if(auto it = std::find_if(m_objects.begin(),
-                              m_objects.end(),
-                              [del](const std::pair<uint16_t, gslu::nn_shared<objects::Object>>& i)
-                              {
-                                return i.second.get().get() == del;
-                              });
+    if(auto it = std::ranges::find_if(m_objects,
+                                      [del](const std::pair<uint16_t, gslu::nn_shared<objects::Object>>& i)
+                                      {
+                                        return i.second.get().get() == del;
+                                      });
        it != m_objects.end())
     {
       m_objects.erase(it);
@@ -113,29 +113,28 @@ void ObjectManager::registerObject(const gslu::nn_shared<objects::Object>& objec
   m_objects.emplace(m_objectCounter++, object);
 }
 
-std::shared_ptr<objects::Object> ObjectManager::find(const objects::Object* object, bool includeDynamicObjects) const
+std::shared_ptr<objects::Object> ObjectManager::find(const objects::Object* object,
+                                                     const bool includeDynamicObjects) const
 {
   if(object == nullptr)
     return nullptr;
 
-  auto it = std::find_if(m_objects.begin(),
-                         m_objects.end(),
-                         [object](const std::pair<uint16_t, gslu::nn_shared<objects::Object>>& x)
-                         {
-                           return x.second.get().get() == object;
-                         });
+  const auto it = std::ranges::find_if(m_objects,
+                                       [object](const std::pair<uint16_t, gslu::nn_shared<objects::Object>>& x)
+                                       {
+                                         return x.second.get().get() == object;
+                                       });
 
   if(it != m_objects.end())
     return it->second;
 
   if(includeDynamicObjects)
   {
-    auto it2 = std::find_if(m_dynamicObjects.begin(),
-                            m_dynamicObjects.end(),
-                            [object](const auto& x)
-                            {
-                              return x.get().get() == object;
-                            });
+    const auto it2 = std::ranges::find_if(m_dynamicObjects,
+                                          [object](const auto& x)
+                                          {
+                                            return x.get().get() == object;
+                                          });
     if(it2 != m_dynamicObjects.end())
       return *it2;
   }
@@ -143,7 +142,7 @@ std::shared_ptr<objects::Object> ObjectManager::find(const objects::Object* obje
   return nullptr;
 }
 
-std::shared_ptr<objects::Object> ObjectManager::getObject(ObjectId id) const
+std::shared_ptr<objects::Object> ObjectManager::getObject(const ObjectId id) const
 {
   const auto it = m_objects.find(id);
   if(it == m_objects.end())
@@ -152,7 +151,7 @@ std::shared_ptr<objects::Object> ObjectManager::getObject(ObjectId id) const
   return it->second.get();
 }
 
-void ObjectManager::update(world::World& world, bool godMode)
+void ObjectManager::updateLogic(world::World& world, const bool godMode)
 {
   for(const auto& object : m_dynamicObjects)
   {
@@ -160,18 +159,23 @@ void ObjectManager::update(world::World& world, bool godMode)
     object->updateLighting();
   }
 
-  for(const auto& object : m_objects | boost::adaptors::map_values)
+  for(const auto& object : m_objects | std::views::values)
   {
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
     object->updateLighting();
   }
 
-  const auto activeObjects = m_activeObjects; // need to work on a copy because update() may modify the collection
-  for(const auto& object : activeObjects)
+  // need to work on a copy because updateLogic() may modify the collection
+  for(const auto activeObjects = m_activeObjects; const auto& object : activeObjects)
   {
     if(object.get() == m_lara) // Lara is special and needs to be updated last
       continue;
-    object->update();
+    object->updateLogic();
+    if(const auto modelObject = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
+       modelObject != nullptr && modelObject->getSkeleton() != nullptr)
+    {
+      modelObject->getSkeleton()->updateSmoothMatrices();
+    }
   }
 
   m_particles.update(world);
@@ -184,7 +188,8 @@ void ObjectManager::update(world::World& world, bool godMode)
   {
     if(godMode && !m_lara->isDead())
       m_lara->m_state.health = core::LaraHealth;
-    m_lara->update();
+    m_lara->updateLogic();
+    m_lara->getSkeleton()->updateSmoothMatrices();
     m_lara->updateLighting();
   }
 
@@ -200,12 +205,11 @@ void ObjectManager::serialize(const serialization::Serializer<world::World>& ser
   std::vector<ObjectId> activeObjectIds;
   for(const auto& obj : m_activeObjects)
   {
-    auto it = std::find_if(m_objects.begin(),
-                           m_objects.end(),
-                           [obj](const auto& i)
-                           {
-                             return i.second.get() == obj;
-                           });
+    auto it = std::ranges::find_if(m_objects,
+                                   [obj](const auto& i)
+                                   {
+                                     return i.second.get() == obj;
+                                   });
     if(it != m_objects.end())
     {
       activeObjectIds.emplace_back(it->first);
@@ -232,33 +236,49 @@ void ObjectManager::deserialize(const serialization::Deserializer<world::World>&
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void ObjectManager::replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world)
 {
-  for(const auto& [_, obj] : m_objects)
+  for(const auto& obj : m_objects | std::views::values)
   {
     if(obj->m_state.type != oldId)
       continue;
 
-    const gsl::not_null pickup{std::dynamic_pointer_cast<objects::PickupObject>(obj.get())};
+    const gsl_lite::not_null pickup{std::dynamic_pointer_cast<objects::PickupObject>(obj.get())};
     const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(newId);
     gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
-    pickup->replace(newId, gsl::not_null{spriteSequence->sprites.data()});
+    pickup->replace(newId, gsl_lite::not_null{spriteSequence->sprites.data()});
   }
 }
 
-void ObjectManager::deactivate(const engine::objects::Object* object)
+void ObjectManager::deactivate(const objects::Object* object)
 {
-  if(auto it = std::find_if(m_activeObjects.begin(),
-                            m_activeObjects.end(),
-                            [object](const auto& i)
-                            {
-                              return i.get().get() == object;
-                            });
+  if(const auto it = std::ranges::find_if(m_activeObjects,
+                                          [object](const auto& i)
+                                          {
+                                            return i.get().get() == object;
+                                          });
      it != m_activeObjects.end())
   {
     m_activeObjects.erase(it);
   }
 }
+void ObjectManager::interpolateTransforms(const float interTickFactor)
+{
+  for(const auto& object : m_objects | std::views::values)
+  {
+    object->interpolateTransform(interTickFactor);
+  }
 
-void ObjectManager::activate(const engine::objects::Object* object)
+  for(const auto& object : m_dynamicObjects)
+  {
+    object->interpolateTransform(interTickFactor);
+  }
+
+  for(const auto& particle : m_particles)
+  {
+    particle->interpolateTransform(interTickFactor);
+  }
+}
+
+void ObjectManager::activate(const objects::Object* object)
 {
   const auto ob = find(object, true);
   if(ob == nullptr)
@@ -266,8 +286,7 @@ void ObjectManager::activate(const engine::objects::Object* object)
     return;
   }
 
-  const auto it = std::find(m_activeObjects.begin(), m_activeObjects.end(), gsl::not_null{ob});
-  if(it == m_activeObjects.end())
+  if(const auto it = std::ranges::find(m_activeObjects, gsl_lite::not_null{ob}); it == m_activeObjects.end())
   {
     m_activeObjects.emplace_front(ob);
   }

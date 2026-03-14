@@ -12,7 +12,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iterator>
 #include <memory>
 #include <mutex>
@@ -37,7 +37,7 @@ namespace audio
 {
 namespace
 {
-std::string getAvError(int err)
+std::string getAvError(const int err)
 {
   std::vector<char> tmp(1024, 0);
   if(av_strerror(err, tmp.data(), tmp.size()) < 0)
@@ -46,7 +46,7 @@ std::string getAvError(int err)
   return tmp.data();
 }
 
-void handleSendPacketError(int err, AVCodecContext* ctx)
+void handleSendPacketError(const int err, AVCodecContext* ctx)
 {
   if(err == AVERROR(EINVAL))
   {
@@ -63,7 +63,7 @@ void handleSendPacketError(int err, AVCodecContext* ctx)
     case AVERROR(ENOMEM):
       BOOST_LOG_TRIVIAL(error) << "Failed to add packet to audio decoder queue";
       break;
-      // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     case AVERROR_EOF:
       BOOST_LOG_TRIVIAL(error) << "Audio decoder already flushed";
       break;
@@ -97,8 +97,8 @@ AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFake
 #if LIBAVUTIL_VERSION_MAJOR >= 58
   gsl_Expects(m_stream->context->ch_layout.nb_channels == 1 || m_stream->context->ch_layout.nb_channels == 2);
 
-  auto channelLayout = m_stream->context->ch_layout.nb_channels == 1 ? AVChannelLayout AV_CHANNEL_LAYOUT_MONO
-                                                                     : AVChannelLayout AV_CHANNEL_LAYOUT_STEREO;
+  const auto channelLayout = m_stream->context->ch_layout.nb_channels == 1 ? AVChannelLayout AV_CHANNEL_LAYOUT_MONO
+                                                                           : AVChannelLayout AV_CHANNEL_LAYOUT_STEREO;
   gsl_Assert(swr_alloc_set_opts2(&m_swrContext,
                                  &channelLayout,
                                  AV_SAMPLE_FMT_S16,
@@ -152,7 +152,7 @@ bool AudioStreamDecoder::push(const AVPacket& packet)
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to receive resampled audio data"));
     }
 
-    std::vector<int16_t> audio(gsl::narrow_cast<size_t>(outSamples * getChannels()), 0);
+    std::vector<int16_t> audio(gsl_lite::narrow_cast<size_t>(outSamples * getChannels()), 0);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto* audioData = reinterpret_cast<uint8_t*>(audio.data());
 
@@ -168,7 +168,7 @@ bool AudioStreamDecoder::push(const AVPacket& packet)
     }
 
     // cppcheck-suppress invalidFunctionArg
-    audio.resize(gsl::narrow_cast<size_t>(framesDecoded * getChannels()));
+    audio.resize(gsl_lite::narrow_cast<size_t>(framesDecoded * getChannels()));
 
     m_queue.push(std::move(audio));
   }
@@ -225,8 +225,8 @@ std::chrono::milliseconds AudioStreamDecoder::getPosition() const
 void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 {
   const std::unique_lock lock{m_mutex};
-  const auto ts = ffmpeg::fromDuration(position, m_stream->stream->time_base);
-  if(av_seek_frame(m_fmtContext, m_stream->index, ts, 0) < 0)
+  if(const auto ts = ffmpeg::fromDuration(position, m_stream->stream->time_base);
+     av_seek_frame(m_fmtContext, m_stream->index, ts, 0) < 0)
   {
     BOOST_LOG_TRIVIAL(warning) << "failed to seek audio stream to " << position.count() << "ms";
   }

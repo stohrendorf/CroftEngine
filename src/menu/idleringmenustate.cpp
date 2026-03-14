@@ -5,6 +5,7 @@
 #include "deflateringmenustate.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
+#include "engine/engine.h"
 #include "engine/items_tr1.h"
 #include "engine/presenter.h"
 #include "engine/soundeffects_tr1.h"
@@ -30,35 +31,23 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> IdleRingMenuState::tick(engine::world::World& world, MenuDisplay& display)
 {
-  auto& presenter = world.getPresenter();
+  const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
 
-  {
-    const auto& currentObject = display.getCurrentRing().getSelectedObject();
-    const ui::Text text{world.getItemTitle(currentObject.type).value_or(currentObject.name)};
-    text.draw(ui,
-              presenter.getTrFont(),
-              {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - ui::FontHeight});
-
-    MenuDisplay::drawMenuObjectDescription(ui, world, currentObject);
-  }
-
-  if(presenter.getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Right
-     && display.getCurrentRing().list.size() > 1)
+  if(inputHandler.getInputState().menuXMovement == hid::AxisMovement::Right && display.getCurrentRing().list.size() > 1)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return create<RotateLeftRightMenuState>(true, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(presenter.getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Left
-     && display.getCurrentRing().list.size() > 1)
+  if(inputHandler.getInputState().menuXMovement == hid::AxisMovement::Left && display.getCurrentRing().list.size() > 1)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return create<RotateLeftRightMenuState>(false, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Return) && display.allowMenuClose)
+  if(inputHandler.hasDebouncedAction(hid::Action::Return) && display.allowMenuClose)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
@@ -66,7 +55,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
                                         create<DoneMenuState>(MenuResult::Closed));
   }
 
-  if(m_autoSelect || presenter.getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  if(m_autoSelect || inputHandler.hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     display.passOpen = true;
 
@@ -95,17 +84,17 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     }
 
     currentObject.goalFrame = currentObject.openFrame;
-    currentObject.animDirection = 1_frame;
+    currentObject.animDirection = 1_mframe;
     return create<ApplyItemTransformMenuState>();
   }
 
-  if(presenter.getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward)
+  if(inputHandler.getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward)
      && display.currentRingIndex > 0)
   {
     return create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Down,
                                         create<SwitchRingMenuState>(display.currentRingIndex - 1, false));
   }
-  else if(presenter.getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Backward)
+  else if(inputHandler.getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Backward)
           && display.currentRingIndex + 1 < display.rings.size())
   {
     return create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Up,
@@ -115,10 +104,18 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
   return nullptr;
 }
 
-void IdleRingMenuState::handleObject(ui::Ui& /*ui*/,
-                                     engine::world::World& world,
-                                     MenuDisplay& display,
-                                     MenuObject& object)
+void IdleRingMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  const auto& currentObject = display.getCurrentRing().getSelectedObject();
+  const ui::Text text{world.getItemTitle(currentObject.type).value_or(currentObject.name)};
+  text.draw(ui,
+            world.getEngine().getPresenter().getTrFont(),
+            {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - ui::FontHeight});
+
+  MenuDisplay::constructMenuObjectDescription(ui, world, currentObject);
+}
+
+void IdleRingMenuState::handleObjectTick(engine::world::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {

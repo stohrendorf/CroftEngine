@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace audio
 {
@@ -12,11 +12,11 @@ class Listener
   friend class SoundEngine;
 
 public:
-  explicit Listener(const gsl::not_null<SoundEngine*>& engine);
+  explicit Listener(const gsl_lite::not_null<SoundEngine*>& engine);
   virtual ~Listener();
 
   Listener(const Listener& rhs)
-      : Listener{gsl::not_null{rhs.m_engine}}
+      : Listener{gsl_lite::not_null{rhs.m_engine}}
   {
   }
 

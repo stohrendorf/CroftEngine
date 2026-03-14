@@ -20,7 +20,7 @@ public:
   explicit HauntedCoopClient(const std::string& gameflowId, const std::string& levelId);
   ~HauntedCoopClient();
 
-  void sendState(const PeerData& data);
+  void sendState(const PeerData& data) const;
 
   [[nodiscard]] std::map<PeerId, PeerData> getStates() const;
 
@@ -42,7 +42,7 @@ private:
 namespace network::io
 {
 template<typename T>
-inline void writeLE(std::vector<uint8_t>& msg, const T& data)
+void writeLE(std::vector<uint8_t>& msg, const T& data)
 {
   for(size_t i = 0; i < sizeof(T); ++i)
   {
@@ -51,7 +51,7 @@ inline void writeLE(std::vector<uint8_t>& msg, const T& data)
 }
 
 template<typename T>
-inline T readLE(const uint8_t* data)
+T readLE(const uint8_t* data)
 {
   T result{0};
   for(size_t i = 0; i < sizeof(T); ++i)

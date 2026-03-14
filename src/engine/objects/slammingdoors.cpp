@@ -23,7 +23,7 @@
 
 namespace engine::objects
 {
-void SlammingDoors::update()
+void SlammingDoors::updateLogic()
 {
   if(!m_state.updateActivationTimeout())
   {
@@ -38,7 +38,7 @@ void SlammingDoors::update()
 
       const auto objectSpheres = getSkeleton()->getBoneCollisionSpheres();
 
-      const auto emitBlood = [&objectSpheres, this](const core::TRVec& bitePos, size_t boneId)
+      const auto emitBlood = [&objectSpheres, this](const core::TRVec& bitePos, const size_t boneId)
       {
         const auto position = core::TRVec{objectSpheres.at(boneId).relative(bitePos.toRenderSystem())};
         auto blood
@@ -53,7 +53,7 @@ void SlammingDoors::update()
       }
     }
   }
-  ModelObject::update();
+  advanceFrame();
 }
 
 void SlammingDoors::collide(CollisionInfo& collisionInfo)

@@ -9,24 +9,23 @@
 #include <algorithm>
 #include <array>
 #include <boost/assert.hpp>
-#include <boost/range/adaptor/argument_fwd.hpp>
-#include <boost/range/adaptor/transformed.hpp>
 #include <cmath>
 #include <cstddef>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <limits>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <unordered_set>
 #include <vector>
 
 namespace render
 {
-std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTracer::CullBox& parentCullBox,
+std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const CullBox& parentCullBox,
                                                                  const engine::world::Portal& portal,
                                                                  const engine::CameraController& camera)
 {
@@ -67,7 +66,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
   // 2. intersect it with the parent's bbox
   CullBox portalCullBox{{1, -1}, {1, -1}};
   size_t behindCamera = 0, tooFar = 0;
-  for(const auto& camSpace : portal.vertices | boost::adaptors::transformed(toView))
+  for(const auto& camSpace : portal.vertices | std::views::transform(toView))
   {
     if(-camSpace.z < 0)
     {
@@ -102,7 +101,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
   if(behindCamera > 0)
   {
     glm::vec3 prev = toView(portal.vertices.back());
-    for(const auto& current : portal.vertices | boost::adaptors::transformed(toView))
+    for(const auto& current : portal.vertices | std::views::transform(toView))
     {
       const auto crossing
         = (-prev.z <= camera.getCamera()->getNearPlane()) != (-current.z <= camera.getCamera()->getNearPlane());
@@ -159,13 +158,13 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
 
 // NOLINTNEXTLINE(misc-no-recursion)
 bool PortalTracer::traceRoom(const engine::world::Room& room,
-                             const PortalTracer::CullBox& roomCullBox,
+                             const CullBox& roomCullBox,
                              const engine::world::World& world,
                              std::vector<const engine::world::Room*>& seenRooms,
                              const bool inWater,
                              std::unordered_set<const engine::world::Portal*>& waterSurfacePortals,
                              const bool startFromWater,
-                             int depth)
+                             const int depth)
 {
   if(std::find(seenRooms.rbegin(), seenRooms.rend(), &room) != seenRooms.rend())
     return false;

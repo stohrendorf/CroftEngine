@@ -16,14 +16,14 @@
 #include "render/scene/node.h"
 
 #include <bitset>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::objects
 {
-void AtlanteanLava::update()
+void AtlanteanLava::updateLogic()
 {
   m_state.location.updateRoom();
-  setParent(gsl::not_null{getNode()}, m_state.location.room->node);
+  setParent(gsl_lite::not_null{getNode()}, m_state.location.room->node);
   if(m_state.triggerState != TriggerState::Deactivated)
   {
     auto location = m_state.location;
@@ -47,10 +47,10 @@ void AtlanteanLava::update()
       break;
     }
 
-    applyTransform();
+    applyLogicTransform();
 
-    const auto sector = location.updateRoom();
-    if(HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y
+    if(const auto sector = location.updateRoom();
+       HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y
        != m_state.location.position.Y)
     {
       m_state.triggerState = TriggerState::Deactivated;
@@ -62,7 +62,7 @@ void AtlanteanLava::update()
     getWorld().getObjectManager().getLara().burnIfAlive();
 
     auto& cameraController = getWorld().getCameraController();
-    cameraController.setLookAtObject(gsl::not_null{getWorld().getObjectManager().find(this)});
+    cameraController.setLookAtObject(gsl_lite::not_null{getWorld().getObjectManager().find(this)});
     cameraController.setMode(CameraMode::FixedPosition);
     cameraController.setModifier(CameraModifier::Chase);
     cameraController.setDistance(3_sectors);

@@ -6,14 +6,14 @@
 #include "engine/collisioninfo.h"
 #include "qs/quantity.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_28 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_28(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_28(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::JumpUp}
   {
   }
@@ -88,7 +88,7 @@ public:
       return false;
     }
 
-    auto alignedRotation = snapRotation(getLara().m_state.rotation.Y, 35_deg);
+    const auto alignedRotation = snapRotation(getLara().m_state.rotation.Y, 35_deg);
     if(!alignedRotation.has_value())
     {
       return false;

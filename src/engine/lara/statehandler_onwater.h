@@ -9,7 +9,7 @@
 #include "qs/quantity.h"
 
 #include <boost/throw_exception.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <stdexcept>
 
 namespace engine::lara
@@ -17,7 +17,7 @@ namespace engine::lara
 class StateHandler_OnWater : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_OnWater(const gsl::not_null<objects::LaraObject*>& lara, const LaraStateId id)
+  explicit StateHandler_OnWater(const gsl_lite::not_null<objects::LaraObject*>& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }
@@ -57,8 +57,8 @@ protected:
       }
     }
 
-    auto wsh = getLara().getWaterSurfaceHeight();
-    if(wsh.has_value() && *wsh > getLara().m_state.location.position.Y - core::DefaultCollisionRadius)
+    if(const auto wsh = getLara().getWaterSurfaceHeight();
+       wsh.has_value() && *wsh > getLara().m_state.location.position.Y - core::DefaultCollisionRadius)
     {
       tryClimbOutOfWater(collisionInfo);
       return;
@@ -90,8 +90,8 @@ private:
       return;
     }
 
-    const auto gradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
-    if(gradient >= core::MaxGrabbableGradient)
+    if(const auto gradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
+       gradient >= core::MaxGrabbableGradient)
     {
       return;
     }

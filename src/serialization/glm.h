@@ -3,12 +3,13 @@
 #include "serialization_fwd.h"
 
 #include <glm/glm.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ryml.hpp>
 
 namespace serialization
 {
 template<typename TContext>
-inline void serialize(const glm::mat4& m, const Serializer<TContext>& ser)
+void serialize(const glm::mat4& m, const Serializer<TContext>& ser)
 {
   ser.tag("mat4");
   ser.node |= ryml::SEQ;
@@ -18,7 +19,7 @@ inline void serialize(const glm::mat4& m, const Serializer<TContext>& ser)
 }
 
 template<typename TContext>
-inline void deserialize(glm::mat4& m, const Deserializer<TContext>& ser)
+void deserialize(glm::mat4& m, const Deserializer<TContext>& ser)
 {
   ser.tag("mat4");
   gsl_Expects(ser.node.is_seq() && ser.node.num_children() == 4 * 4);
@@ -34,7 +35,7 @@ inline void deserialize(glm::mat4& m, const Deserializer<TContext>& ser)
 }
 
 template<typename TContext>
-inline glm::mat4 create(const TypeId<glm::mat4>&, const Deserializer<TContext>& ser)
+glm::mat4 create(const TypeId<glm::mat4>&, const Deserializer<TContext>& ser)
 {
   ser.tag("mat4");
   glm::mat4 m{};
@@ -43,7 +44,7 @@ inline glm::mat4 create(const TypeId<glm::mat4>&, const Deserializer<TContext>& 
 }
 
 template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
-inline void serialize(const glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
+void serialize(const glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
 {
   ser.tag("vec");
   ser.node |= ryml::SEQ;
@@ -52,7 +53,7 @@ inline void serialize(const glm::vec<L, T, Q>& v, const Serializer<TContext>& se
 }
 
 template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
-inline void deserialize(glm::vec<L, T, Q>& v, const Deserializer<TContext>& ser)
+void deserialize(glm::vec<L, T, Q>& v, const Deserializer<TContext>& ser)
 {
   ser.tag("vec");
   gsl_Expects(ser.node.is_seq() && ser.node.num_children() == L);
@@ -65,7 +66,7 @@ inline void deserialize(glm::vec<L, T, Q>& v, const Deserializer<TContext>& ser)
 }
 
 template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
-inline glm::vec<L, T, Q> create(const TypeId<glm::vec<L, T, Q>>&, const Deserializer<TContext>& ser)
+glm::vec<L, T, Q> create(const TypeId<glm::vec<L, T, Q>>&, const Deserializer<TContext>& ser)
 {
   ser.tag("vec");
   glm::vec<L, T, Q> v{};

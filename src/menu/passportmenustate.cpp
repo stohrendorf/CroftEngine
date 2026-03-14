@@ -34,10 +34,7 @@
 
 namespace menu
 {
-void PassportMenuState::handleObject(ui::Ui& /*ui*/,
-                                     engine::world::World& /*world*/,
-                                     MenuDisplay& display,
-                                     MenuObject& object)
+void PassportMenuState::handleObjectTick(engine::world::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
@@ -55,7 +52,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
     m_passportText = std::make_unique<ui::Text>(title);
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     return create<SavegameListMenuState>(std::move(display.m_currentState), title, world, true);
   }
@@ -88,7 +85,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showSaveGamePage(en
     m_passportText = std::make_unique<ui::Text>(title);
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     switch(m_saveGamePageMode)
     {
@@ -108,7 +105,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showSaveGamePage(en
   return std::nullopt;
 }
 
-void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDisplay& display, bool returnToTitle)
+void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDisplay& display, const bool returnToTitle)
 {
   if(m_passportText == nullptr)
   {
@@ -117,16 +114,16 @@ void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDispla
                                                  : /* translators: TR charmap encoding */ _("Exit Game"));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     display.result = returnToTitle ? MenuResult::ExitToTitle : MenuResult::ExitGame;
   }
 }
 
-void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passport, engine::world::World& world)
+void PassportMenuState::prevPage(const core::MenuFrame& minFrame, MenuObject& passport, engine::world::World& world)
 {
   passport.goalFrame -= FramesPerPage;
-  passport.animDirection = -1_frame;
+  passport.animDirection = -1_mframe;
   if(const auto firstFrame = passport.openFrame + minFrame; passport.goalFrame < firstFrame)
   {
     passport.goalFrame = firstFrame;
@@ -141,8 +138,8 @@ void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passpo
 void PassportMenuState::nextPage(MenuObject& passport, engine::world::World& world)
 {
   passport.goalFrame += FramesPerPage;
-  passport.animDirection = 1_frame;
-  if(const auto lastFrame = passport.lastMeshAnimFrame - FramesPerPage - 1_frame; passport.goalFrame > lastFrame)
+  passport.animDirection = 1_mframe;
+  if(const auto lastFrame = passport.lastMeshAnimFrame - FramesPerPage - 1_mframe; passport.goalFrame > lastFrame)
   {
     passport.goalFrame = lastFrame;
   }
@@ -153,20 +150,20 @@ void PassportMenuState::nextPage(MenuObject& passport, engine::world::World& wor
   }
 }
 
-std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> PassportMenuState::tick(engine::world::World& world, MenuDisplay& display)
 {
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;
   passport.initModel(world, display.getLightsBuffer());
 
-  if(passport.selectedRotationY == passport.rotationY && passport.animate())
+  if(passport.selectedRotationY == passport.rotationY && passport.tick())
     return nullptr;
 
   const bool hasSavedGames = world.hasSavedGames();
 
   const auto localFrame = passport.goalFrame - passport.openFrame;
-  hid::AxisMovement forcePageTurn = hid::AxisMovement::Null;
-  if(localFrame % FramesPerPage == 0_frame)
+  auto forcePageTurn = hid::AxisMovement::Null;
+  if(localFrame % FramesPerPage == 0_mframe)
   {
     switch(localFrame / FramesPerPage)
     {
@@ -182,7 +179,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     case SaveGamePage:
       if(m_saveGamePageMode == SaveGamePageMode::Skip)
       {
-        if(passport.animDirection == -1_frame)
+        if(passport.animDirection == -1_mframe)
           forcePageTurn = hid::AxisMovement::Left;
         else
           forcePageTurn = hid::AxisMovement::Right;
@@ -199,16 +196,13 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     }
   }
 
-  if(m_passportText != nullptr)
-    m_passportText->draw(
-      ui, world.getPresenter().getTrFont(), {(ui.getSize().x - m_passportText->getWidth()) / 2, ui.getSize().y - 16});
-
   if(forcePageTurn == hid::AxisMovement::Left
-     || world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(hid::AxisMovement::Left))
+     || world.getEngine().getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(
+       hid::AxisMovement::Left))
   {
     if(hasSavedGames)
     {
-      prevPage(0_frame, passport, world);
+      prevPage(0_mframe, passport, world);
       return nullptr;
     }
     else
@@ -221,20 +215,20 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     }
   }
   else if(forcePageTurn == hid::AxisMovement::Right
-          || world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(
+          || world.getEngine().getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(
             hid::AxisMovement::Right))
   {
     nextPage(passport, world);
     return nullptr;
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     if(!m_allowExit && display.mode != InventoryMode::TitleMode)
       return nullptr;
 
     return create<ClosePassportMenuState>(passport, create<IdleRingMenuState>(false));
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     return create<ClosePassportMenuState>(passport, create<IdleRingMenuState>(false));
   }
@@ -242,9 +236,17 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
   return nullptr;
 }
 
+void PassportMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+{
+  if(m_passportText != nullptr)
+    m_passportText->draw(ui,
+                         world.getEngine().getPresenter().getTrFont(),
+                         {(ui.getSize().x - m_passportText->getWidth()) / 2, ui.getSize().y - 16});
+}
+
 PassportMenuState::PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                     bool allowExit,
-                                     SaveGamePageMode saveGamePageMode)
+                                     const bool allowExit,
+                                     const SaveGamePageMode saveGamePageMode)
     : MenuState{ringTransform}
     , m_allowExit{allowExit}
     , m_saveGamePageMode{saveGamePageMode}

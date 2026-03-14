@@ -110,6 +110,8 @@ add_library(
         serialization/serialization.h
         serialization/serialization.cpp
         serialization/serialization_fwd.h
+        serialization/access.h
+        serialization/concepts.h
         serialization/skeletalmodeltype_ptr.h
         serialization/unordered_map.h
         serialization/unordered_set.h
@@ -231,6 +233,8 @@ set( CROFTENGINE_SRCS
         engine/heightinfo.cpp
         engine/inventory.h
         engine/inventory.cpp
+        engine/levelloop.h
+        engine/levelloop.cpp
         engine/lighting.h
         engine/lighting.cpp
         engine/location.h
@@ -436,6 +440,8 @@ set( CROFTENGINE_SRCS
         engine/objects/modelobject.h
         engine/objects/motorboat.cpp
         engine/objects/motorboat.h
+        engine/objects/matrixstack.cpp
+        engine/objects/matrixstack.h
         engine/objects/mummy.cpp
         engine/objects/mummy.h
         engine/objects/mutant.cpp
@@ -465,6 +471,8 @@ set( CROFTENGINE_SRCS
         engine/objects/scionpiece.h
         engine/objects/shatter.cpp
         engine/objects/shatter.h
+        engine/objects/segmentinterpolationmatrixstack.cpp
+        engine/objects/segmentinterpolationmatrixstack.h
         engine/objects/skateboardkid.cpp
         engine/objects/skateboardkid.h
         engine/objects/slammingdoors.cpp
@@ -526,6 +534,8 @@ set( CROFTENGINE_SRCS
         render/portaltracer.cpp
         render/renderpipeline.h
         render/renderpipeline.cpp
+        render/rendersystem.h
+        render/rendersystem.cpp
         render/rendersettings.h
         render/rendersettings.cpp
         render/textureanimator.h
@@ -574,8 +584,8 @@ set( CROFTENGINE_SRCS
         render/scene/node.cpp
         render/scene/renderable.h
         render/scene/rendercontext.h
-        render/scene/renderer.h
-        render/scene/renderer.cpp
+        render/scene/scenegraph.h
+        render/scene/scenegraph.cpp
         render/scene/screenoverlay.h
         render/scene/screenoverlay.cpp
         render/scene/sprite.h
@@ -717,12 +727,6 @@ add_executable( croftengine WIN32 ${CROFTENGINE_SRCS} )
 
 add_definitions( -D "CE_VERSION=\\\"${CMAKE_PROJECT_VERSION}\\\"" )
 
-if(( NOT DEFINED CE_GITHUB_API_KEY ) OR CE_GITHUB_API_KEY STREQUAL "" )
-    message( WARNING "CE_GITHUB_API_KEY is missing, release updates won't be checked" )
-else()
-    add_definitions( -D "CE_GITHUB_API_KEY=\\\"${CE_GITHUB_API_KEY}\\\"" )
-endif()
-
 group_files( ${CROFTENGINE_SRCS} )
 set( CHILLOUT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/3rdparty/chillout/src/chillout )
 target_include_directories( croftengine PRIVATE . ${Intl_INCLUDE_DIRS} ${CHILLOUT_INCLUDE_DIR} )
@@ -731,10 +735,12 @@ add_subdirectory( shared )
 add_subdirectory( soglb )
 add_subdirectory( qs )
 add_subdirectory( core )
+add_subdirectory( util )
 add_subdirectory( archive )
 add_subdirectory( launcher )
 add_subdirectory( dosbox-cdrom )
 add_subdirectory( network )
+add_subdirectory( serialization )
 
 if( WIN32 )
     set( WIN32_SPECIFIC_LIBS dbghelp )

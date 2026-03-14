@@ -7,14 +7,14 @@
 #include "hid/actions.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_3 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_3(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_3(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::JumpForward}
   {
   }
@@ -74,12 +74,13 @@ public:
       return;
     }
 
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(applyLandingDamage())
     {
       setGoalAnimState(LaraStateId::Death);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
-            || getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+    else if(inputHandler.getInputState().zMovement != hid::AxisMovement::Forward
+            || inputHandler.hasAction(hid::Action::Walk))
     {
       setGoalAnimState(LaraStateId::Stop);
     }

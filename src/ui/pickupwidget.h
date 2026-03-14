@@ -14,7 +14,7 @@ namespace ui
 class PickupWidget
 {
 public:
-  explicit PickupWidget(const core::Frame& duration, engine::world::Sprite sprite, size_t count)
+  explicit PickupWidget(const core::Tick& duration, engine::world::Sprite sprite, size_t count)
       : m_duration{duration}
       , m_sprite{std::move(sprite)}
       , m_count{count}
@@ -23,10 +23,10 @@ public:
 
   bool expired() const
   {
-    return m_duration <= 0_frame;
+    return m_duration <= 0_tick;
   }
 
-  void draw(ui::Ui& ui, int x, int y, const TRFont& font, float scale) const
+  void draw(Ui& ui, int x, int y, const TRFont& font, const float scale) const
   {
     ui.draw(m_sprite, {x, y}, scale);
     if(m_count <= 1)
@@ -37,9 +37,9 @@ public:
     txt.draw(ui, font, {x, y});
   }
 
-  void nextFrame()
+  void tick()
   {
-    m_duration -= 1_frame;
+    m_duration -= 1_tick;
   }
 
   [[nodiscard]] auto getWidth() const
@@ -57,13 +57,13 @@ public:
     return m_sprite;
   }
 
-  void setCount(size_t val)
+  void setCount(const size_t val)
   {
     m_count = val;
   }
 
 private:
-  core::Frame m_duration;
+  core::Tick m_duration;
   mutable engine::world::Sprite m_sprite;
   size_t m_count;
 };

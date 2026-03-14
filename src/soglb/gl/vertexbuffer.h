@@ -6,7 +6,7 @@
 
 #include <cstdint>
 #include <gl/glassert.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <map>
 #include <string>
 #include <string_view>
@@ -27,7 +27,7 @@ public:
   template<typename U>
   // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor)
-  VertexAttribute(const U T::*member, const bool normalized = false)
+  VertexAttribute(const U T::* member, const bool normalized = false)
       : m_type{VertexAttribType<U>}
       , m_relativeOffset{static_cast<uint32_t>(
           reinterpret_cast<uintptr_t>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -66,8 +66,8 @@ public:
   explicit VertexBuffer(VertexLayout<T> layout,
                         const std::string_view& label,
                         api::BufferUsage usage,
-                        const gsl::span<const T>& data,
-                        uint32_t divisor = 0)
+                        const gsl_lite::span<const T>& data,
+                        const uint32_t divisor = 0)
       : ArrayBuffer<T>{label, usage, data}
       , m_layout{std::move(layout)}
       , m_divisor{divisor}
@@ -76,7 +76,8 @@ public:
   }
 
   explicit VertexBuffer(
-    VertexLayout<T> layout, const std::string_view& label, api::BufferUsage usage, const T& data, uint32_t divisor = 0)
+    VertexLayout<T> layout, const std::string_view& label, api::BufferUsage usage, const T& data,
+                        const uint32_t divisor = 0)
       : ArrayBuffer<T>{label, usage, data}
       , m_layout{std::move(layout)}
       , m_divisor{divisor}

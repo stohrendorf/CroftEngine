@@ -34,9 +34,8 @@ struct MenuDisplay;
 struct MenuRingTransform;
 class MenuState;
 
-class GameplayRulesMenuState : public SelectedMenuState
+class GameplayRulesMenuState final : public SelectedMenuState
 {
-private:
   std::shared_ptr<ui::widgets::CheckListBox> m_listBox;
   std::vector<std::shared_ptr<ui::widgets::TextBox>> m_descriptions;
   std::unique_ptr<MenuState> m_previous;
@@ -48,7 +47,8 @@ public:
                                   std::unique_ptr<MenuState> previous,
                                   const engine::GameplayRules& rules);
 
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
   ~GameplayRulesMenuState() override;
 };
 } // namespace menu

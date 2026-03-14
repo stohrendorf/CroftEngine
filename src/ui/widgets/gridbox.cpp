@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <functional>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <numeric>
 #include <stdexcept>
@@ -22,7 +22,7 @@ GridBox::GridBox(const glm::ivec2& separation)
 
 GridBox::~GridBox() = default;
 
-void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void GridBox::draw(Ui& ui, const engine::Presenter& presenter) const
 {
   gsl_Assert(m_columnSizes.size() == m_widgets.shape()[0]);
   gsl_Assert(m_alignRight.size() == m_widgets.shape()[0]);
@@ -34,8 +34,7 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     int yPos = m_position.y;
     for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
     {
-      const auto widget = m_widgets[x][y];
-      if(widget != nullptr)
+      if(const auto widget = m_widgets[x][y]; widget != nullptr)
       {
         int alignment = 0;
         if(m_alignRight[x])
@@ -50,11 +49,11 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   }
 }
 
-void GridBox::set(size_t x, size_t y, const std::shared_ptr<Widget>& widget)
+void GridBox::set(const size_t x, const size_t y, const std::shared_ptr<Widget>& widget)
 {
   if(x >= m_widgets.shape()[0] || y >= m_widgets.shape()[1])
     BOOST_THROW_EXCEPTION(std::out_of_range("cell coordinates out of range"));
-  m_widgets[gsl::narrow<WidgetArray::index>(x)][gsl::narrow<WidgetArray::index>(y)] = widget;
+  m_widgets[gsl_lite::narrow<WidgetArray::index>(x)][gsl_lite::narrow<WidgetArray::index>(y)] = widget;
 }
 
 void GridBox::setPosition(const glm::ivec2& position)
@@ -62,7 +61,7 @@ void GridBox::setPosition(const glm::ivec2& position)
   m_position = position;
 }
 
-void GridBox::update(bool hasFocus)
+void GridBox::tick(const bool hasFocus)
 {
   for(WidgetArray::size_type x = 0; x < m_widgets.shape()[0]; ++x)
   {
@@ -72,7 +71,7 @@ void GridBox::update(bool hasFocus)
       if(widget == nullptr)
         continue;
 
-      widget->update(hasFocus && m_selected == std::tuple{x, y});
+      widget->tick(hasFocus && m_selected == std::tuple{x, y});
     }
   }
 }
@@ -126,13 +125,13 @@ void GridBox::fitToContent()
 
 void GridBox::recalculateTotalSize()
 {
-  auto totalWidth = std::accumulate(m_columnSizes.begin(), m_columnSizes.end(), 0, std::plus<>{});
+  auto totalWidth = std::accumulate(m_columnSizes.begin(), m_columnSizes.end(), 0, std::plus{});
   if(!m_columnSizes.empty())
-    totalWidth += gsl::narrow<int>(m_columnSizes.size() - 1) * m_separation.x;
+    totalWidth += gsl_lite::narrow<int>(m_columnSizes.size() - 1) * m_separation.x;
 
-  auto totalHeight = std::accumulate(m_rowSizes.begin(), m_rowSizes.end(), 0, std::plus<>{});
+  auto totalHeight = std::accumulate(m_rowSizes.begin(), m_rowSizes.end(), 0, std::plus{});
   if(!m_rowSizes.empty())
-    totalHeight += gsl::narrow<int>(m_rowSizes.size() - 1) * m_separation.y;
+    totalHeight += gsl_lite::narrow<int>(m_rowSizes.size() - 1) * m_separation.y;
 
   m_size = {totalWidth, totalHeight};
 }

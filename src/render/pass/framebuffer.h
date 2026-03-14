@@ -34,7 +34,7 @@ public:
                        scene::Translucency translucencySelector,
                        const glm::ivec2& size);
 
-  void render(const std::function<void()>& doRender);
+  void render(const std::function<void()>& doRender) const;
 
   [[nodiscard]] const auto& getOutput() const
   {
@@ -46,7 +46,7 @@ public:
     return m_depthBuffer;
   }
 
-  void render();
+  void render() const;
 
 private:
   gslu::nn_shared<material::Material> m_material;

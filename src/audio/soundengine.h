@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -82,8 +82,9 @@ public:
 
   void reset();
 
-  void
-    setSlotStream(size_t slot, const gsl::shared_ptr<StreamVoice>& stream, const std::filesystem::path& absolutePath);
+  void setSlotStream(size_t slot,
+                     const gsl_lite::shared_ptr<StreamVoice>& stream,
+                     const std::filesystem::path& absolutePath);
   [[nodiscard]] std::shared_ptr<StreamVoice> tryGetStream(size_t slot);
   void freeSlot(size_t slot) noexcept;
   void serializeStreams(const serialization::Serializer<engine::world::World>& ser);
@@ -92,6 +93,7 @@ public:
                           VoiceGroup& streamGroup);
   [[nodiscard]] gslu::nn_shared<StreamVoice> createStream(const std::filesystem::path& path,
                                                           const std::chrono::milliseconds& initialPosition);
+
   [[nodiscard]] const auto& getSlots() const noexcept
   {
     return m_slots;

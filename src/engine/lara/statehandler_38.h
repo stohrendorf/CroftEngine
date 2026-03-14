@@ -5,14 +5,14 @@
 #include "engine/collisioninfo.h"
 #include "hid/actions.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_38 final : public StateHandler_Pushable
 {
 public:
-  explicit StateHandler_38(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_38(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : StateHandler_Pushable{lara, LaraStateId::PushableGrab}
   {
   }

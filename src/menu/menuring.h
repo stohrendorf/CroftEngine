@@ -6,7 +6,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string>
 #include <utility>
 #include <vector>
@@ -27,7 +27,7 @@ struct MenuRing
   std::vector<MenuObject> list;
   size_t currentObject = 0;
 
-  explicit MenuRing(Type type, std::string title, std::vector<MenuObject> list)
+  explicit MenuRing(const Type type, std::string title, std::vector<MenuObject> list)
       : title{std::move(title)}
       , type{type}
       , list{std::move(list)}
@@ -37,8 +37,8 @@ struct MenuRing
   [[nodiscard]] auto getAnglePerItem() const
   {
     gsl_Expects(!list.empty());
-    const auto anglePerItemDeg = 360.0f / gsl::narrow_cast<float>(list.size());
-    return core::angleFromDegrees(anglePerItemDeg);
+    const auto anglePerItemDeg = 360_fdeg / gsl_lite::narrow_cast<float>(list.size());
+    return core::toAngle(anglePerItemDeg);
   }
 
   MenuObject& getSelectedObject()
@@ -48,7 +48,7 @@ struct MenuRing
 
   [[nodiscard]] core::Angle getCurrentObjectAngle() const
   {
-    return getAnglePerItem() * gsl::narrow_cast<core::Angle::type>(currentObject);
+    return getAnglePerItem() * gsl_lite::narrow_cast<core::Angle::type>(currentObject);
   }
 };
 } // namespace menu

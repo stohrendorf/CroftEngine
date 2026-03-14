@@ -7,7 +7,7 @@
 #include <boost/log/trivial.hpp>
 #include <cstdint>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <string_view>
 #include <utility>
@@ -20,7 +20,7 @@ void TextureAttachment::attach(const Framebuffer& framebuffer, const api::Frameb
   GL_ASSERT(api::namedFramebufferTexture(framebuffer.getHandle(), attachment, m_texture->getHandle(), m_level));
 }
 
-Framebuffer::Framebuffer(Framebuffer::Attachments attachments,
+Framebuffer::Framebuffer(Attachments attachments,
                          const std::string_view& label,
                          RenderState&& renderState,
                          const glm::ivec2& size)
@@ -47,7 +47,7 @@ Framebuffer::Framebuffer(Framebuffer::Attachments attachments,
   if(!colorAttachments.empty())
   {
     GL_ASSERT(api::namedFramebufferDrawBuffers(
-      getHandle(), gsl::narrow<api::core::SizeType>(colorAttachments.size()), colorAttachments.data()));
+      getHandle(), gsl_lite::narrow<api::core::SizeType>(colorAttachments.size()), colorAttachments.data()));
   }
   else
   {
@@ -100,7 +100,7 @@ bool Framebuffer::isComplete() const
   return result == api::FramebufferStatus::FramebufferComplete;
 }
 
-void Framebuffer::blit(const Framebuffer& target, api::BlitFramebufferFilter filter)
+void Framebuffer::blit(const Framebuffer& target, const api::BlitFramebufferFilter filter) const
 {
   GL_ASSERT(api::memoryBarrier(api::MemoryBarrierMask::FramebufferBarrierBit));
   GL_ASSERT(api::blitNamedFramebuffer(getHandle(),
@@ -117,7 +117,7 @@ void Framebuffer::blit(const Framebuffer& target, api::BlitFramebufferFilter fil
                                       filter));
 }
 
-void Framebuffer::blit(const glm::ivec2& backbufferSize, api::BlitFramebufferFilter filter)
+void Framebuffer::blit(const glm::ivec2& backbufferSize, const api::BlitFramebufferFilter filter) const
 {
   GL_ASSERT(api::blitNamedFramebuffer(getHandle(),
                                       0,
@@ -148,6 +148,6 @@ gslu::nn_shared<Framebuffer> FrameBufferBuilder::build(const std::string_view& l
   }
 
   m_renderState.setViewport(size);
-  return gsl::make_shared<Framebuffer>(std::move(m_attachments), label, std::move(m_renderState), size);
+  return gsl_lite::make_shared<Framebuffer>(std::move(m_attachments), label, std::move(m_renderState), size);
 }
 } // namespace gl

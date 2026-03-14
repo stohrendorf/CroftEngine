@@ -19,7 +19,7 @@ class LevelStats
 {
 public:
   LevelStats(std::string title,
-             size_t totalSecrets,
+             const size_t totalSecrets,
              std::shared_ptr<engine::Player> player,
              std::shared_ptr<engine::Presenter> presenter)
       : m_title{std::move(title)}

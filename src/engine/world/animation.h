@@ -4,7 +4,7 @@
 #include "core/units.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace loader::file
 {
@@ -33,6 +33,6 @@ struct Animation
   const int16_t* animCommands = nullptr;
 
   const Animation* nextAnimation = nullptr;
-  gsl::span<const Transitions> transitions;
+  gsl_lite::span<const Transitions> transitions;
 };
 } // namespace engine::world

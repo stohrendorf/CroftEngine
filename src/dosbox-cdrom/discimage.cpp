@@ -34,7 +34,7 @@ namespace image
 DiscImage::~DiscImage() = default;
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-std::vector<uint8_t> DiscImage::read(size_t sector, size_t size)
+std::vector<uint8_t> DiscImage::read(size_t sector, const size_t size)
 {
   std::vector<uint8_t> buffer;
   buffer.reserve(size);
@@ -61,16 +61,16 @@ std::vector<uint8_t> DiscImage::read(size_t sector, size_t size)
 
 const Track* DiscImage::getTrackForSector(size_t sector)
 {
-  auto it = std::find_if(m_tracks.begin(),
-                         m_tracks.end(),
-                         [sector](const auto& track)
-                         {
-                           return track.startSector <= sector && sector < track.startSector + track.totalSectors;
-                         });
+  const auto it
+    = std::ranges::find_if(m_tracks,
+                           [sector](const auto& track)
+                           {
+                             return track.startSector <= sector && sector < track.startSector + track.totalSectors;
+                           });
   return it == m_tracks.end() ? nullptr : &*it;
 }
 
-std::vector<uint8_t> DiscImage::readSector(size_t sector)
+std::vector<uint8_t> DiscImage::readSector(const size_t sector)
 {
   const auto track = getTrackForSector(sector);
   if(track == nullptr)

@@ -8,7 +8,7 @@
 
 #include <algorithm>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <regex>
 
 namespace launcher
@@ -37,20 +37,20 @@ NetworkConfig NetworkConfig::load()
 {
   serialization::YAMLDocument<true> doc{findUserDataDir().value() / "network.yaml"};
   NetworkConfig cfg{};
-  doc.deserialize("config", gsl::not_null{&cfg}, cfg);
+  doc.deserialize("config", gsl_lite::not_null{&cfg}, cfg);
   return cfg;
 }
 
 void NetworkConfig::save()
 {
   serialization::YAMLDocument<false> doc{findUserDataDir().value() / "network.yaml"};
-  doc.serialize("config", gsl::not_null{this}, *this);
+  doc.serialize("config", gsl_lite::not_null{this}, *this);
   doc.write();
 }
 
 bool NetworkConfig::isValid() const
 {
-  if(std::count(socket.begin(), socket.end(), ':') != 1)
+  if(std::ranges::count(socket, ':') != 1)
     return false;
   if(username.empty())
     return false;

@@ -8,7 +8,7 @@
 #include "serialization/serialization_fwd.h"
 
 #include <boost/throw_exception.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <stdexcept>
@@ -35,7 +35,6 @@ namespace engine::objects
 {
 class SpriteObject : public Object
 {
-private:
   gslu::nn_shared<render::scene::Node> m_objectNode;
   gslu::nn_shared<render::scene::Node> m_displayNode;
   const world::Sprite* m_sprite = nullptr;
@@ -46,17 +45,17 @@ private:
 
 protected:
   SpriteObject(const std::string& name,
-               const gsl::not_null<world::World*>& world,
+               const gsl_lite::not_null<world::World*>& world,
                const Location& location,
                bool billboard);
 
 public:
   SpriteObject(const std::string& name,
-               const gsl::not_null<world::World*>& world,
-               const gsl::not_null<const world::Room*>& room,
+               const gsl_lite::not_null<world::World*>& world,
+               const gsl_lite::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                bool hasUpdateFunction,
-               const gsl::not_null<const world::Sprite*>& sprite,
+               const gsl_lite::not_null<const world::Sprite*>& sprite,
                bool billboard);
 
   SpriteObject(const SpriteObject&) = delete;
@@ -79,7 +78,7 @@ public:
     return m_objectNode;
   }
 
-  void update() override
+  void updateLogic() override
   {
   }
 
@@ -101,22 +100,21 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
-  void replace(const TR1ItemId& itemId, const gsl::not_null<const world::Sprite*>& sprite);
+  void replace(const TR1ItemId& itemId, const gsl_lite::not_null<const world::Sprite*>& sprite);
 };
 
-#define SPRITEOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION, BILLBOARD)                      \
-  CLASS(const std::string& name, const gsl::not_null<world::World*>& world, const Location& location) \
-      : SpriteObject{name, world, location, BILLBOARD}                                                \
-  {                                                                                                   \
-  }                                                                                                   \
-                                                                                                      \
-  CLASS(const std::string& name,                                                                      \
-        const gsl::not_null<world::World*>& world,                                                    \
-        const gsl::not_null<const world::Room*>& room,                                                \
-        const loader::file::Item& item,                                                               \
-        const gsl::not_null<const world::Sprite*>& sprite)                                            \
-      : SpriteObject{name, world, room, item, HAS_UPDATE_FUNCTION, sprite, BILLBOARD}                 \
-  {                                                                                                   \
+#define SPRITEOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION, BILLBOARD)                           \
+  CLASS(const std::string& name, const gsl_lite::not_null<world::World*>& world, const Location& location) \
+      : SpriteObject{name, world, location, BILLBOARD}                                                     \
+  {                                                                                                        \
+  }                                                                                                        \
+                                                                                                           \
+  CLASS(const std::string& name,                                                                           \
+        const gsl_lite::not_null<world::World*>& world,                                                    \
+        const gsl_lite::not_null<const world::Room*>& room,                                                \
+        const loader::file::Item& item,                                                                    \
+        const gsl_lite::not_null<const world::Sprite*>& sprite)                                            \
+      : SpriteObject{name, world, room, item, HAS_UPDATE_FUNCTION, sprite, BILLBOARD}                      \
+  {                                                                                                        \
   }
-
 } // namespace engine::objects

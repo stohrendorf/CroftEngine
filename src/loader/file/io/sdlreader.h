@@ -16,6 +16,7 @@
 #endif
 
 #include <boost/throw_exception.hpp>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -85,7 +86,8 @@ public:
     std::vector<char> uncomp_buffer(uncompressedSize);
 
     auto actuallyUncompressedSize = static_cast<uLongf>(uncompressedSize);
-    if(uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    if(uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()),
+                  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
                   &actuallyUncompressedSize,
                   compressed.data(),
                   static_cast<uLong>(compressed.size()))
@@ -121,22 +123,24 @@ public:
     return size;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void skip(const std::streamoff delta)
   {
     m_stream.seekg(delta, std::ios::cur);
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void seek(const std::streampos& position)
   {
     m_stream.seekg(position, std::ios::beg);
   }
 
-  template<typename T>
+  template<std::integral T>
   void readBytes(T* dest, const size_t n)
   {
-    static_assert(std::is_integral_v<T> && sizeof(T) == 1, "readBytes() only allowed for byte-compatible data");
+    static_assert(sizeof(T) == 1, "readBytes() only allowed for byte-compatible data");
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    m_stream.read(reinterpret_cast<char*>(dest), gsl::narrow<std::streamsize>(n));
+    m_stream.read(reinterpret_cast<char*>(dest), gsl_lite::narrow<std::streamsize>(n));
     if(static_cast<size_t>(m_stream.gcount()) != n)
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("EOF unexpectedly reached"));
@@ -150,21 +154,21 @@ public:
   using StackProducer = T(SDLReader&, Args... args);
 
   template<typename T, typename... Args>
-  void readVector(std::vector<T>& elements, size_t count, PtrProducer<T, Args...> producer, Args... args)
+  void readVector(std::vector<T>& elements, const size_t count, PtrProducer<T, Args...> producer, Args... args)
   {
     elements.clear();
     appendVector(elements, count, producer, args...);
   }
 
   template<typename T, typename... Args>
-  void readVector(std::vector<T>& elements, size_t count, StackProducer<T, Args...> producer, Args... args)
+  void readVector(std::vector<T>& elements, const size_t count, StackProducer<T, Args...> producer, Args... args)
   {
     elements.clear();
     appendVector(elements, count, producer, args...);
   }
 
   template<typename T, typename... Args>
-  void appendVector(std::vector<T>& elements, size_t count, PtrProducer<T, Args...> producer, Args... args)
+  void appendVector(std::vector<T>& elements, const size_t count, PtrProducer<T, Args...> producer, Args... args)
   {
     elements.reserve(elements.size() + count);
     for(size_t i = 0; i < count; ++i)
@@ -175,7 +179,7 @@ public:
   }
 
   template<typename T, typename... Args>
-  void appendVector(std::vector<T>& elements, size_t count, StackProducer<T, Args...> producer, Args... args)
+  void appendVector(std::vector<T>& elements, const size_t count, StackProducer<T, Args...> producer, Args... args)
   {
     elements.reserve(elements.size() + count);
     for(size_t i = 0; i < count; ++i)
@@ -262,7 +266,7 @@ private:
 
   mutable std::istream m_stream;
 
-  template<typename T, int dataSize, bool isIntegral>
+  template<typename, int, bool>
   struct SwapTraits
   {
   };

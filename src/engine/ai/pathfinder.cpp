@@ -23,7 +23,7 @@
 #include <boost/assert.hpp>
 #include <cstdint>
 #include <functional>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <utility>
 
 namespace engine::ai
@@ -41,7 +41,7 @@ template<typename T>
     return value;
 }
 
-struct MovementCalculator
+struct SteeringCalculator
 {
   static constexpr auto Margin = 1_sectors / 2;
 
@@ -52,53 +52,59 @@ struct MovementCalculator
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
   static constexpr uint8_t CanMoveAllDirs = CanMoveXNeg | CanMoveXPos | CanMoveZNeg | CanMoveZPos;
 
-  explicit MovementCalculator(const core::TRVec& startPos)
-      : startPos{startPos}
-      , moveTarget{startPos}
+  explicit SteeringCalculator(const core::TRVec& origin)
+      : m_origin{origin}
+      , m_target{origin}
   {
   }
 
-  core::TRVec startPos;
-  core::TRVec moveTarget;
-  bool frozenRanges = false;
-  uint8_t moveDirs = CanMoveAllDirs;
-  core::Interval<core::Length> xRange{0_len, 0_len};
-  core::Interval<core::Length> zRange{0_len, 0_len};
+  core::TRVec m_origin;       // The current position of the entity
+  core::TRVec m_target;       // The calculated steering target
+  bool m_isDiverging = false; // True if the shortcut path is restricted by box boundaries
+  uint8_t m_directionMask = CanMoveAllDirs;
+  core::Interval<core::Length> m_allowedXRange{0_len, 0_len};
+  core::Interval<core::Length> m_allowedZRange{0_len, 0_len};
 
-  bool calculate(const gsl::not_null<const world::Box*>& startBox,
-                 bool isFlying,
-                 const world::Box* goalBox,
-                 const core::TRVec& goalPos,
-                 const std::function<const world::Box*(const gsl::not_null<const world::Box*>& box)>& getNextPathBox,
-                 const std::function<bool(const world::Box& box)>& canVisit)
+  bool calculate(
+    const gsl_lite::not_null<const world::Box*>& startBox,
+    const bool isFlying,
+    const world::Box* goalBox,
+    const core::TRVec& goalPos,
+    const std::function<const world::Box*(const gsl_lite::not_null<const world::Box*>& box)>& getNextBoxInPath,
+    const std::function<bool(const world::Box& box)>& isBoxVisitable)
   {
     auto box = startBox;
-    BOOST_ASSERT(startBox->xInterval.contains(startPos.X));
-    BOOST_ASSERT(startBox->zInterval.contains(startPos.Z));
-    xRange = {0_len, 0_len};
-    zRange = {0_len, 0_len};
+    BOOST_ASSERT(startBox->xInterval.contains(m_origin.X));
+    BOOST_ASSERT(startBox->zInterval.contains(m_origin.Z));
+    m_allowedXRange = {0_len, 0_len};
+    m_allowedZRange = {0_len, 0_len};
 
-    moveTarget = startPos;
-    frozenRanges = false;
-    moveDirs = CanMoveAllDirs;
+    m_target = m_origin;
+    m_isDiverging = false;
+    m_directionMask = CanMoveAllDirs;
     while(true)
     {
       if(isFlying)
       {
-        moveTarget.Y = std::min(moveTarget.Y, box->floor - 1_sectors);
+        m_target.Y = std::min(m_target.Y, box->floor - 1_sectors);
       }
       else
       {
-        moveTarget.Y = std::min(moveTarget.Y, box->floor);
+        m_target.Y = std::min(m_target.Y, box->floor);
       }
 
-      if(box->xInterval.contains(startPos.X) && box->zInterval.contains(startPos.Z))
+      if(box->xInterval.contains(m_origin.X) && box->zInterval.contains(m_origin.Z))
       {
-        xRange = box->xInterval;
-        zRange = box->zInterval;
+        // Scenario 1: We are still within the boundaries of the current box.
+        // The allowed range for shortcutting is the box itself.
+        m_allowedXRange = box->xInterval;
+        m_allowedZRange = box->zInterval;
       }
       else if(tryMove(*box))
       {
+        // Scenario 2: We are trying to shortcut through a box that doesn't contain the origin.
+        // If tryMove returns true, it means we've reached a point where we must change direction
+        // or stop shortcutting because the next box is not in a straight line.
         return true;
       }
 
@@ -109,11 +115,11 @@ struct MovementCalculator
         return true;
       }
 
-      const auto nextBox = getNextPathBox(box);
-      if(nextBox == nullptr || !canVisit(*nextBox))
+      const auto nextBox = getNextBoxInPath(box);
+      if(nextBox == nullptr || !isBoxVisitable(*nextBox))
         break;
 
-      box = gsl::not_null{nextBox};
+      box = gsl_lite::not_null{nextBox};
     }
 
     calculateFinalIncompleteMove(*box, isFlying);
@@ -123,23 +129,23 @@ struct MovementCalculator
 
   bool tryMove(const world::Box& box)
   {
-    if(startPos.Z < box.zInterval.min)
+    if(m_origin.Z < box.zInterval.min)
     {
       if(tryMoveZPos(box))
         return true;
     }
-    else if(startPos.Z > box.zInterval.max)
+    else if(m_origin.Z > box.zInterval.max)
     {
       if(tryMoveZNeg(box))
         return true;
     }
 
-    if(startPos.X < box.xInterval.min)
+    if(m_origin.X < box.xInterval.min)
     {
       if(tryMoveXPos(box))
         return true;
     }
-    else if(startPos.X > box.xInterval.max)
+    else if(m_origin.X > box.xInterval.max)
     {
       if(tryMoveXNeg(box))
         return true;
@@ -150,15 +156,15 @@ struct MovementCalculator
 
   bool finishInvalid()
   {
-    if(!frozenRanges && moveDirs == CanMoveAllDirs)
+    if(!m_isDiverging && m_directionMask == CanMoveAllDirs)
     {
-      // We reached the maximum possible +Z, and we have no primary direction.
-      frozenRanges = true;
+      // We haven't established a primary movement direction yet.
+      m_isDiverging = true;
       return false;
     }
     else
     {
-      // We didn't go in primary direction. We can call it a day.
+      // We cannot shortcut in the primary direction anymore.
       return true;
     }
   }
@@ -166,38 +172,35 @@ struct MovementCalculator
   bool tryMoveZPos(const world::Box& box)
   {
     // Try to move to +Z, as we're outside the box.
-    if((moveDirs & CanMoveZPos) && box.xInterval.contains(startPos.X))
+    if((m_directionMask & CanMoveZPos) && box.xInterval.contains(m_origin.X))
     {
-      // Scenario 1: We can move to +Z, *and* the new position will have a valid X value. This means we move as little
-      // as we can into the new box.
+      // Scenario 1: We can move to +Z, *and* the current X position is within the new box's X range.
+      // This allows us to extend the current straight-line shortcut.
 
-      // The "max" is to ensure that it won't go to -Z, as the box's Z range may contain the moveTarget Z.
-      moveTarget.Z = std::max(moveTarget.Z, box.zInterval.max - Margin);
-      if(frozenRanges)
+      // The "max" is to ensure that it won't go to -Z, as the box's Z range may contain the m_target Z.
+      m_target.Z = std::max(m_target.Z, box.zInterval.max - Margin);
+      if(m_isDiverging)
       {
         return true;
       }
 
       // We narrow down the valid X values, as the new box may form a narrower passage.
-      xRange = xRange.intersect(box.xInterval);
+      m_allowedXRange = m_allowedXRange.intersect(box.xInterval);
 
       // Now remember our "primary" movement direction, i.e. the initial direction we moved to.
-      moveDirs = CanMoveZPos;
+      m_directionMask = CanMoveZPos;
     }
     else
     {
-      // Scenario 2: We cannot move to +Z, *or* the new position won't have a valid X value. This means we're not
-      // moving in the primary direction anymore, or our X value will become invalid, or both.
-
-      if(moveDirs == CanMoveZPos)
+      // Scenario 2: We cannot move straight to +Z anymore.
+      if(m_directionMask == CanMoveZPos)
       {
-        // We followed our primary direction, so we try to go further in that direction. This usually happens on stairs
-        // or slopes that are made of a line of linearly laid out boxes.
+        // If this was our primary direction, keep going for now (e.g. following a curved corridor).
         return false;
       }
 
-      // Move to the virtual wall of our currently allowed movement area.
-      moveTarget.Z = zRange.max - Margin;
+      // Move to the edge of our currently allowed area.
+      m_target.Z = m_allowedZRange.max - Margin;
 
       return finishInvalid();
     }
@@ -207,26 +210,26 @@ struct MovementCalculator
 
   bool tryMoveZNeg(const world::Box& box)
   {
-    if((moveDirs & CanMoveZNeg) && box.xInterval.contains(startPos.X))
+    if((m_directionMask & CanMoveZNeg) && box.xInterval.contains(m_origin.X))
     {
-      moveTarget.Z = std::min(moveTarget.Z, box.zInterval.min + Margin);
-      if(frozenRanges)
+      m_target.Z = std::min(m_target.Z, box.zInterval.min + Margin);
+      if(m_isDiverging)
       {
         return true;
       }
 
-      xRange = xRange.intersect(box.xInterval);
+      m_allowedXRange = m_allowedXRange.intersect(box.xInterval);
 
-      moveDirs = CanMoveZNeg;
+      m_directionMask = CanMoveZNeg;
     }
     else
     {
-      if(moveDirs == CanMoveZNeg)
+      if(m_directionMask == CanMoveZNeg)
       {
         return false;
       }
 
-      moveTarget.Z = zRange.min + Margin;
+      m_target.Z = m_allowedZRange.min + Margin;
 
       return finishInvalid();
     }
@@ -236,26 +239,26 @@ struct MovementCalculator
 
   bool tryMoveXPos(const world::Box& box)
   {
-    if((moveDirs & CanMoveXPos) && box.zInterval.contains(startPos.Z))
+    if((m_directionMask & CanMoveXPos) && box.zInterval.contains(m_origin.Z))
     {
-      moveTarget.X = std::max(moveTarget.X, box.xInterval.max - Margin);
-      if(frozenRanges)
+      m_target.X = std::max(m_target.X, box.xInterval.max - Margin);
+      if(m_isDiverging)
       {
         return true;
       }
 
-      zRange = zRange.intersect(box.zInterval);
+      m_allowedZRange = m_allowedZRange.intersect(box.zInterval);
 
-      moveDirs = CanMoveXPos;
+      m_directionMask = CanMoveXPos;
     }
     else
     {
-      if(moveDirs == CanMoveXPos)
+      if(m_directionMask == CanMoveXPos)
       {
         return false;
       }
 
-      moveTarget.X = xRange.max - Margin;
+      m_target.X = m_allowedXRange.max - Margin;
 
       return finishInvalid();
     }
@@ -265,26 +268,26 @@ struct MovementCalculator
 
   bool tryMoveXNeg(const world::Box& box)
   {
-    if((moveDirs & CanMoveXNeg) && box.zInterval.contains(startPos.Z))
+    if((m_directionMask & CanMoveXNeg) && box.zInterval.contains(m_origin.Z))
     {
-      moveTarget.X = std::min(moveTarget.X, box.xInterval.min + Margin);
-      if(frozenRanges)
+      m_target.X = std::min(m_target.X, box.xInterval.min + Margin);
+      if(m_isDiverging)
       {
         return true;
       }
 
-      zRange = zRange.intersect(box.zInterval);
+      m_allowedZRange = m_allowedZRange.intersect(box.zInterval);
 
-      moveDirs = CanMoveXNeg;
+      m_directionMask = CanMoveXNeg;
     }
     else
     {
-      if(moveDirs == CanMoveXNeg)
+      if(m_directionMask == CanMoveXNeg)
       {
         return false;
       }
 
-      moveTarget.X = xRange.min + Margin;
+      m_target.X = m_allowedXRange.min + Margin;
 
       return finishInvalid();
     }
@@ -298,64 +301,64 @@ struct MovementCalculator
   void calculateFinalMove(const world::Box& box, const core::TRVec& target)
   {
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-    if(moveDirs & (CanMoveZNeg | CanMoveZPos))
+    if(m_directionMask & (CanMoveZNeg | CanMoveZPos))
     {
-      moveTarget.Z = target.Z;
+      m_target.Z = target.Z;
     }
-    else if(!frozenRanges)
+    else if(!m_isDiverging)
     {
-      moveTarget.Z = uncheckedClamp(moveTarget.Z, box.zInterval.narrowed(Margin));
+      m_target.Z = uncheckedClamp(m_target.Z, box.zInterval.narrowed(Margin));
     }
-    gsl_Assert(box.zInterval.contains(moveTarget.Z));
+    gsl_Assert(box.zInterval.contains(m_target.Z));
 
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-    if(moveDirs & (CanMoveXNeg | CanMoveXPos))
+    if(m_directionMask & (CanMoveXNeg | CanMoveXPos))
     {
-      moveTarget.X = target.X;
+      m_target.X = target.X;
     }
-    else if(!frozenRanges)
+    else if(!m_isDiverging)
     {
-      moveTarget.X = uncheckedClamp(moveTarget.X, box.xInterval.narrowed(Margin));
+      m_target.X = uncheckedClamp(m_target.X, box.xInterval.narrowed(Margin));
     }
-    gsl_Assert(box.xInterval.contains(moveTarget.X));
+    gsl_Assert(box.xInterval.contains(m_target.X));
 
-    moveTarget.Y = target.Y;
+    m_target.Y = target.Y;
   }
 
   /**
-   * Calculate the final movement if we cannot directly reach the target. Depending on the current state, will
-   * randomise the #moveTarget.
+   * Calculate the final movement if we cannot directly reach the target.
+   * Depending on the current state, will randomise the target position within the current box.
    */
-  void calculateFinalIncompleteMove(const world::Box& box, bool isFlying)
+  void calculateFinalIncompleteMove(const world::Box& box, const bool isFlying)
   {
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-    if(moveDirs & (CanMoveZNeg | CanMoveZPos))
+    if(m_directionMask & (CanMoveZNeg | CanMoveZPos))
     {
       const auto range = box.zInterval.size() - 2 * Margin;
-      moveTarget.Z = util::rand15(range) + box.zInterval.min + Margin;
+      m_target.Z = util::rand15(range) + box.zInterval.min + Margin;
     }
-    else if(!frozenRanges)
+    else if(!m_isDiverging)
     {
-      moveTarget.Z = uncheckedClamp(moveTarget.Z, box.zInterval.narrowed(Margin));
+      m_target.Z = uncheckedClamp(m_target.Z, box.zInterval.narrowed(Margin));
     }
-    gsl_Assert(box.zInterval.contains(moveTarget.Z));
+    gsl_Assert(box.zInterval.contains(m_target.Z));
 
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-    if(moveDirs & (CanMoveXNeg | CanMoveXPos))
+    if(m_directionMask & (CanMoveXNeg | CanMoveXPos))
     {
       const auto range = box.xInterval.size() - 2 * Margin;
-      moveTarget.X = util::rand15(range) + box.xInterval.min + Margin;
+      m_target.X = util::rand15(range) + box.xInterval.min + Margin;
     }
-    else if(!frozenRanges)
+    else if(!m_isDiverging)
     {
-      moveTarget.X = uncheckedClamp(moveTarget.X, box.xInterval.narrowed(Margin));
+      m_target.X = uncheckedClamp(m_target.X, box.xInterval.narrowed(Margin));
     }
-    gsl_Assert(box.xInterval.contains(moveTarget.X));
+    gsl_Assert(box.xInterval.contains(m_target.X));
 
     if(isFlying)
-      moveTarget.Y = box.floor - 384_len;
+      m_target.Y = box.floor - 384_len;
     else
-      moveTarget.Y = box.floor;
+      m_target.Y = box.floor;
   }
 };
 } // namespace
@@ -363,17 +366,17 @@ struct MovementCalculator
 bool PathFinder::calculateTarget(const world::World& world,
                                  core::TRVec& moveTarget,
                                  const core::TRVec& startPos,
-                                 const gsl::not_null<const world::Box*>& startBox)
+                                 const gsl_lite::not_null<const world::Box*>& startBox)
 {
   gsl_Expects(m_targetBox != nullptr);
   gsl_Expects(m_targetBox->xInterval.contains(m_target.X));
   gsl_Expects(m_targetBox->zInterval.contains(m_target.Z));
   gsl_Expects(startBox->xInterval.contains(startPos.X));
   gsl_Expects(startBox->zInterval.contains(startPos.Z));
-  expandNodes(world);
+  expandPathGraph(world);
 
-  MovementCalculator calc{startPos};
-  auto result = calc.calculate(
+  SteeringCalculator calc{startPos};
+  const auto result = calc.calculate(
     startBox,
     isFlying(),
     m_targetBox,
@@ -386,98 +389,98 @@ bool PathFinder::calculateTarget(const world::World& world,
     {
       return canVisit(box);
     });
-  moveTarget = calc.moveTarget;
+  moveTarget = calc.m_target;
   return result;
 }
 
-void PathFinder::expandNodes(const world::World& world)
+void PathFinder::expandPathGraph(const world::World& world)
 {
   const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), isFlying(), m_step);
 
-  static constexpr uint8_t MaxExpansions = 50;
+  static constexpr uint8_t MaxExpansionsPerTick = 50;
 
-  for(uint8_t i = 0; i < MaxExpansions && !m_expansions.empty(); ++i)
+  for(uint8_t i = 0; i < MaxExpansionsPerTick && !m_expansions.empty(); ++i)
   {
-    // this does a backwards search from the target (usually Lara) to the source (usually a baddie), as the expansions
-    // are initialised with the target when reset.
+    // This does a backwards search from the target (usually Lara) towards the source (the AI entity).
+    // The m_expansions queue is initialized with the target box.
 
-    const auto currentBox = m_expansions.front();
+    const auto current = m_expansions.front();
     m_expansions.pop_front();
-    const auto searchZone = currentBox.get()->*zoneRef;
+    const auto searchZone = current.get()->*zoneRef;
 
-    for(const auto& predecessorBox : currentBox->overlaps)
+    for(const auto& neighbor : current->overlaps)
     {
-      if(predecessorBox == currentBox)
+      if(neighbor == current)
         continue;
 
-      if(searchZone != predecessorBox.get()->*zoneRef)
+      if(searchZone != neighbor.get()->*zoneRef)
       {
-        setReachable(predecessorBox, false);
+        setReachable(neighbor, false);
         continue;
       }
 
-      if(const auto dy = currentBox->floor - predecessorBox->floor; dy < -m_step || dy > -m_drop)
+      if(const auto dy = current->floor - neighbor->floor; dy < -m_step || dy > -m_drop)
       {
-        setReachable(predecessorBox, false);
+        setReachable(neighbor, false);
         continue;
       }
 
-      // update predecessor reachability and distance
-      if(updateEdge(currentBox, predecessorBox))
+      // Update reachability and distance of the neighbor
+      if(updateEdge(current, neighbor))
         continue;
 
-      const auto reachable = canVisit(*predecessorBox);
+      const auto reachable = canVisit(*neighbor);
       if(reachable)
       {
-        // success! connect both boxes
-        BOOST_ASSERT_MSG(m_edges.find(predecessorBox) == m_edges.end(), "cycle in pathfinder graph detected");
-        m_edges.emplace(predecessorBox, currentBox);
-        m_distances[predecessorBox] = m_distances[currentBox] + 1;
+        // Success! Connect both boxes.
+        BOOST_ASSERT_MSG(!m_edges.contains(neighbor), "cycle in pathfinder graph detected");
+        m_edges.emplace(neighbor, current);
+        m_distances[neighbor] = m_distances[current] + 1;
       }
 
-      setReachable(predecessorBox, reachable);
+      setReachable(neighbor, reachable);
     }
   }
 }
 
-void PathFinder::setReachable(const gsl::not_null<const world::Box*>& box, bool reachable)
+void PathFinder::setReachable(const gsl_lite::not_null<const world::Box*>& box, const bool reachable)
 {
   m_reachable[box] |= reachable;
-  if(reachable && std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
+  if(reachable && std::ranges::find(m_expansions, box) == m_expansions.end())
     m_expansions.emplace_back(box);
 }
 
-void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentBox,
-                                const gsl::not_null<const world::Box*>& predecessorBox)
+void PathFinder::updateDistance(const gsl_lite::not_null<const world::Box*>& current,
+                                const gsl_lite::not_null<const world::Box*>& neighbor)
 {
-  BOOST_ASSERT(m_distances.find(predecessorBox) != m_distances.end());
-  BOOST_ASSERT(m_distances.find(currentBox) != m_distances.end());
+  BOOST_ASSERT(m_distances.contains(neighbor));
+  BOOST_ASSERT(m_distances.contains(current));
 
-  auto& currentPredecessorDistance = m_distances[predecessorBox];
-  auto newPredecessorDistance = m_distances[currentBox] + 1;
-  if(currentPredecessorDistance <= newPredecessorDistance)
+  auto& neighborDistance = m_distances[neighbor];
+  const auto newDistance = m_distances[current] + 1;
+  if(neighborDistance <= newDistance)
     return;
 
-  currentPredecessorDistance = newPredecessorDistance;
-  m_edges.erase(currentBox);
-  m_edges.emplace(currentBox, predecessorBox);
-  m_expansions.emplace_back(predecessorBox);
+  neighborDistance = newDistance;
+  m_edges.erase(current);
+  m_edges.emplace(current, neighbor);
+  m_expansions.emplace_back(neighbor);
 }
 
-bool PathFinder::updateEdge(const gsl::not_null<const world::Box*>& currentBox,
-                            const gsl::not_null<const world::Box*>& predecessorBox)
+bool PathFinder::updateEdge(const gsl_lite::not_null<const world::Box*>& current,
+                            const gsl_lite::not_null<const world::Box*>& neighbor)
 {
-  if(!m_reachable.at(currentBox))
+  if(!m_reachable.at(current))
   {
-    // propagate "unreachable" to all connected boxes if their reachability hasn't been determined yet
-    setReachable(predecessorBox, false);
+    // Propagate "unreachable" to neighbors
+    setReachable(neighbor, false);
     return true;
   }
 
-  if(const auto it = m_reachable.find(predecessorBox); it != m_reachable.end() && it->second)
+  if(const auto it = m_reachable.find(neighbor); it != m_reachable.end() && it->second)
   {
-    // predecessor was already determined to be reachable, but path might be shorter
-    updateDistance(currentBox, predecessorBox);
+    // Neighbor was already reachable, but we might have found a shorter path.
+    updateDistance(current, neighbor);
     return true;
   }
 
@@ -517,7 +520,7 @@ void PathFinder::deserialize(const serialization::Deserializer<world::World>& se
 }
 
 void PathFinder::init(const world::World& world,
-                      const gsl::not_null<const world::Box*>& box,
+                      const gsl_lite::not_null<const world::Box*>& box,
                       const script::ObjectInfo& objectInfo)
 {
   m_cannotVisitBlockable = objectInfo.cannot_visit_blockable;
@@ -536,21 +539,23 @@ bool PathFinder::canVisit(const world::Box& box) const noexcept
   return canVisit(box, false, false);
 }
 
-bool PathFinder::canVisit(const world::Box& box, bool ignoreBlocked, bool ignoreBlockable) const noexcept
+bool PathFinder::canVisit(const world::Box& box, const bool ignoreBlocked, const bool ignoreBlockable) const noexcept
 {
   if(m_cannotVisitBlocked && box.blocked)
     return ignoreBlocked;
+
   if(m_cannotVisitBlockable && box.blockable)
     return ignoreBlockable;
+
   return true;
 }
 
-void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
+void PathFinder::setRandomSearchTarget(const gsl_lite::not_null<const world::Box*>& box)
 {
-  const auto xSize = box->xInterval.size() - 2 * MovementCalculator::Margin;
-  m_target.X = util::rand15(xSize) + box->xInterval.min + MovementCalculator::Margin;
-  const auto zSize = box->zInterval.size() - 2 * MovementCalculator::Margin;
-  m_target.Z = util::rand15(zSize) + box->zInterval.min + MovementCalculator::Margin;
+  const auto xSize = box->xInterval.size() - 2 * SteeringCalculator::Margin;
+  m_target.X = util::rand15(xSize) + box->xInterval.min + SteeringCalculator::Margin;
+  const auto zSize = box->zInterval.size() - 2 * SteeringCalculator::Margin;
+  m_target.Z = util::rand15(zSize) + box->zInterval.min + SteeringCalculator::Margin;
   if(isFlying())
   {
     m_target.Y = box->floor - 384_len;
@@ -561,7 +566,7 @@ void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& b
   }
 }
 
-void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
+void PathFinder::setTargetBox(const gsl_lite::not_null<const world::Box*>& box)
 {
   if(box == m_targetBox)
     return;
@@ -578,13 +583,13 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
   m_edges.clear();
 }
 
-const gsl::not_null<const world::Box*>& PathFinder::getRandomBox() const
+const gsl_lite::not_null<const world::Box*>& PathFinder::getRandomBox() const
 {
   gsl_Expects(!m_boxes.empty());
   return m_boxes[util::rand15(m_boxes.size())];
 }
 
-void PathFinder::resetBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box)
+void PathFinder::resetBoxes(const world::World& world, const gsl_lite::not_null<const world::Box*>& box)
 {
   const auto zoneRef1 = world::Box::getZoneRef(false, isFlying(), m_step);
   const auto zoneRef2 = world::Box::getZoneRef(true, isFlying(), m_step);
@@ -615,13 +620,13 @@ void PathFinder::setLimits(const world::World& world,
   // NOLINTNEXTLINE(hicpp-signed-bitwise, bitwise-instead-of-logical)
   if((std::exchange(m_step, step) != step) | (std::exchange(m_drop, drop) != drop) | (std::exchange(m_fly, fly) != fly))
   {
-    resetBoxes(world, gsl::not_null{box});
+    resetBoxes(world, gsl_lite::not_null{box});
   }
   if(m_targetBox != box)
   {
-    setTargetBox(gsl::not_null{box});
-    BOOST_ASSERT(std::count(m_boxes.begin(), m_boxes.end(), box) != 0);
-    setRandomSearchTarget(gsl::not_null{box});
+    setTargetBox(gsl_lite::not_null{box});
+    BOOST_ASSERT(std::ranges::count(m_boxes, box) != 0);
+    setRandomSearchTarget(gsl_lite::not_null{box});
   }
 }
 } // namespace engine::ai

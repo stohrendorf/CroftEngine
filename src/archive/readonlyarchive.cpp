@@ -6,7 +6,7 @@
 #include <boost/throw_exception.hpp>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iosfwd>
 #include <optional>
 #include <stdexcept>

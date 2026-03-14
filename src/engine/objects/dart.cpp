@@ -17,7 +17,7 @@
 #include "render/scene/node.h"
 
 #include <bitset>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 
@@ -28,19 +28,19 @@ void Dart::collide(CollisionInfo& info)
   collideWithLara(info);
 }
 
-void Dart::update()
+void Dart::updateLogic()
 {
   if(m_state.touch_bits != 0)
   {
     getWorld().hitLara(50_hp);
 
-    auto fx = createBloodSplat(getWorld(), m_state.location, m_state.speed, m_state.rotation.Y);
+    const auto fx = createBloodSplat(getWorld(), m_state.location, m_state.speed, m_state.rotation.Y);
     getWorld().getObjectManager().registerParticle(fx);
   }
 
   const auto oldLocation = m_state.location;
 
-  ModelObject::update();
+  advanceFrame();
   const auto sector = m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 
@@ -55,7 +55,7 @@ void Dart::update()
   const auto ricochetPos
     = std::get<1>(raycastLineOfSight(oldLocation, m_state.location.position, getWorld().getObjectManager()));
 
-  auto particle = gsl::make_shared<RicochetParticle>(ricochetPos, getWorld());
+  auto particle = gsl_lite::make_shared<RicochetParticle>(ricochetPos, getWorld());
   setParent(particle, ricochetPos.room->node);
   particle->angle = m_state.rotation;
   particle->timePerSpriteFrame = 6;

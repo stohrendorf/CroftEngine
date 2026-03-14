@@ -9,14 +9,14 @@
 #include "statehandler_underwater.h"
 
 #include <algorithm>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_17 final : public StateHandler_Underwater
 {
 public:
-  explicit StateHandler_17(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_17(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : StateHandler_Underwater{lara, LaraStateId::UnderwaterForward}
   {
   }
@@ -29,9 +29,10 @@ public:
       return;
     }
 
-    handleDiveRotationInput();
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    handleDiveRotationInput(inputHandler.getInputState().xMovement, inputHandler.getInputState().zMovement);
 
-    if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
+    if(!inputHandler.hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::UnderwaterInertia);
     }

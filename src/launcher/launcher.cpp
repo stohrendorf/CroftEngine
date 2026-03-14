@@ -4,7 +4,7 @@
 #include "paths.h"
 
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 #include <QApplication>
 #include <QDebug>

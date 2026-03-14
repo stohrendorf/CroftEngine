@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace core
 {
@@ -25,7 +25,7 @@ void TRRotationXY::deserialize(const serialization::Deserializer<engine::world::
 
 glm::mat4 TRRotationXY::toMatrix() const
 {
-  return glm::yawPitchRoll(-toRad(Y), toRad(X), 0.0f);
+  return glm::yawPitchRoll(-toRad(Y).get<>(), toRad(X).get<>(), 0.0f);
 }
 
 void TRRotation::serialize(const serialization::Serializer<engine::world::World>& ser) const
@@ -40,7 +40,7 @@ void TRRotation::deserialize(const serialization::Deserializer<engine::world::Wo
 
 glm::mat4 TRRotation::toMatrix() const
 {
-  return glm::yawPitchRoll(-toRad(Y), toRad(X), -toRad(Z));
+  return glm::yawPitchRoll(-toRad(Y).get<>(), toRad(X).get<>(), -toRad(Z).get<>());
 }
 
 TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz)
@@ -48,7 +48,8 @@ TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& d
   const auto y = angleFromAtan(dx, dz);
   const auto dxz = sqrt(dx * dx + dz * dz);
   auto x = angleFromAtan(dy, dxz);
-  if((dy < 0_len) == (toRad(x) < 0))
+  // ReSharper disable once CppRedundantParentheses
+  if((dy < 0_len) == (toRad(x) < 0_rad))
     x = -x;
 
   return TRRotationXY{x, y};
@@ -59,7 +60,7 @@ glm::mat4 fromPackedAngles(const uint8_t* angleData)
   const auto getAngle = [value = util::readUnaligned32LE(angleData)](const uint8_t n) -> Angle
   {
     BOOST_ASSERT(n < 3);
-    return auToAngle(gsl::narrow_cast<int16_t>(((value >> (10u * n)) & 0x3ffu) * 64));
+    return auToAngle(gsl_lite::narrow_cast<int16_t>(((value >> (10u * n)) & 0x3ffu) * 64));
   };
 
   const TRRotation r{getAngle(2), getAngle(1), getAngle(0)};

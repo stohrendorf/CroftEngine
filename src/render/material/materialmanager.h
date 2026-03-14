@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <gl/buffer.h>
@@ -14,7 +15,7 @@
 namespace render::scene
 {
 class CSM;
-class Renderer;
+class Camera;
 } // namespace render::scene
 
 namespace render::material
@@ -27,13 +28,16 @@ class MaterialManager final
 {
 public:
   struct alignas(sizeof(uint64_t)) CsmHandleContainer;
-  explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer);
+  explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache,
+                           gslu::nn_shared<scene::Camera> camera,
+                           std::function<float()> interTickFactorProvider,
+                           std::function<std::chrono::high_resolution_clock::time_point()> gameTimeProvider);
 
   [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode,
                                                     const std::function<int32_t()>& lightingMode);
 
-  [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal, const std::function<bool()>& smooth);
-  [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal, const std::function<bool()>& smooth);
+  [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal, const std::function<bool()>& smooth) const;
+  [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal, const std::function<bool()>& smooth) const;
 
   [[nodiscard]] gslu::nn_shared<Material> getGeometry(bool inWater,
                                                       bool skeletal,
@@ -58,6 +62,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getFXAA(uint8_t preset);
   [[nodiscard]] gslu::nn_shared<Material> getCRTV0();
   [[nodiscard]] gslu::nn_shared<Material> getCRTV1();
+  [[nodiscard]] gslu::nn_shared<Material> getCRTV2();
   [[nodiscard]] gslu::nn_shared<Material> getBrightnessContrast(int8_t brightness, int8_t contrast);
   [[nodiscard]] gslu::nn_shared<Material> getVelvia();
   [[nodiscard]] gslu::nn_shared<Material> getDeath();
@@ -89,13 +94,47 @@ public:
 
   void setDeathStrength(float strength);
 
+  class InterTickFactorOverride final
+  {
+  public:
+    InterTickFactorOverride(MaterialManager& mgr)
+        : m_mgr{mgr}
+        , m_original{std::move(mgr.m_interTickFactorProvider)}
+    {
+      m_mgr.m_interTickFactorProvider = []
+      {
+        return 0.0f;
+      };
+    }
+
+    ~InterTickFactorOverride()
+    {
+      m_mgr.m_interTickFactorProvider = std::move(m_original);
+    }
+
+    InterTickFactorOverride(const InterTickFactorOverride&) = delete;
+    InterTickFactorOverride& operator=(const InterTickFactorOverride&) = delete;
+    InterTickFactorOverride(InterTickFactorOverride&&) = delete;
+    InterTickFactorOverride& operator=(InterTickFactorOverride&&) = delete;
+
+  private:
+    MaterialManager& m_mgr;
+    std::function<float()> m_original;
+  };
+
+  [[nodiscard]] InterTickFactorOverride overrideInterTickFactor()
+  {
+    return InterTickFactorOverride{*this};
+  }
+
 private:
   gslu::nn_shared<ShaderCache> m_shaderCache;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGBA8>>> m_noiseTexture;
 
   std::map<uint8_t, gslu::nn_shared<Material>> m_fxaa;
   std::shared_ptr<Material> m_crtV0{nullptr};
   std::shared_ptr<Material> m_crtV1{nullptr};
+  std::shared_ptr<Material> m_crtV2{nullptr};
   std::map<std::tuple<int8_t, int8_t>, gslu::nn_shared<Material>> m_brightnessContrast;
   std::shared_ptr<Material> m_velvia{nullptr};
   std::shared_ptr<Material> m_death{nullptr};
@@ -127,12 +166,16 @@ private:
   std::shared_ptr<Material> m_ghostName{nullptr};
 
   std::shared_ptr<scene::CSM> m_csm;
-  gslu::nn_shared<scene::Renderer> m_renderer;
+  gslu::nn_shared<scene::Camera> m_camera;
   std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> m_geometryTexturesHandle;
   std::shared_ptr<gl::UniformBuffer<CsmHandleContainer>> m_csmBuffer;
+
+  std::function<float()> m_interTickFactorProvider;
+  std::function<std::chrono::high_resolution_clock::time_point()> m_gameTimeProvider;
 
   void createSampler(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures,
                      bool bilinear,
                      const std::optional<float>& anisotropyLevel);
+  void bindNoiseAndTime(const Material& m) const;
 };
 } // namespace render::material

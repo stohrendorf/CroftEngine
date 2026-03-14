@@ -14,7 +14,7 @@
 #include <functional>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -52,8 +52,8 @@ void play(
     std::move(decoderPtr), audioDevice.getSampleRate() / 30, 4, std::chrono::milliseconds{0});
   stream->setLooping(true);
 
-  const auto streamFinisher = gsl::finally(
-    [&stream, &audioDevice]()
+  const auto streamFinisher = gsl_lite::finally(
+    [&stream, &audioDevice]
     {
       audioDevice.removeStream(stream.get());
     });
@@ -77,7 +77,7 @@ void play(
       }
 
       converter->update(*f);
-      decoder->stopped |= !onFrame(gsl::not_null{converter->textureHandle});
+      decoder->stopped |= !onFrame(gsl_lite::not_null{converter->textureHandle});
     }
   }
 }

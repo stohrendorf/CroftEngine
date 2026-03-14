@@ -6,7 +6,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <vector>
@@ -18,7 +18,7 @@ class BufferHandle;
 class AbstractStreamSource;
 class SourceHandle;
 
-class StreamVoice : public Voice
+class StreamVoice final : public Voice
 {
 public:
   explicit StreamVoice(std::unique_ptr<StreamingSourceHandle>&& streamSource,
@@ -49,7 +49,7 @@ public:
   [[nodiscard]] Clock::duration getDuration() const override;
 
 private:
-  gsl::not_null<StreamingSourceHandle*> m_streamSource;
+  gsl_lite::not_null<StreamingSourceHandle*> m_streamSource;
   std::unique_ptr<AbstractStreamSource> m_stream;
   std::vector<gslu::nn_shared<BufferHandle>> m_buffers;
   std::vector<int16_t> m_sampleBuffer;

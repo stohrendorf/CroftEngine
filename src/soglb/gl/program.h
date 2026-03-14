@@ -15,7 +15,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
 #include <optional>
@@ -39,9 +39,9 @@ public:
   explicit ProgramInterface(const Program& program, uint32_t index);
   virtual ~ProgramInterface() = default;
 
-  ProgramInterface(const ProgramInterface<_Type>& rhs) = default;
+  ProgramInterface(const ProgramInterface& rhs) = default;
 
-  ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs) noexcept
+  ProgramInterface& operator=(ProgramInterface&& rhs) noexcept
   {
     m_name = std::move(rhs.m_name);
     return *this;
@@ -70,9 +70,9 @@ public:
   {
   }
 
-  LocatableProgramInterface(const LocatableProgramInterface<_Type>& rhs) = default;
+  LocatableProgramInterface(const LocatableProgramInterface& rhs) = default;
 
-  LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs) noexcept
+  LocatableProgramInterface& operator=(LocatableProgramInterface&& rhs) noexcept
   {
     m_location = std::exchange(rhs.m_location, std::nullopt);
     ProgramInterface<_Type>::operator=(std::move(rhs));
@@ -105,13 +105,13 @@ public:
     gsl_Ensures(m_binding.has_value());
   }
 
-  ProgramBlock(ProgramBlock<_Type, _Target>&& rhs) noexcept
+  ProgramBlock(ProgramBlock&& rhs) noexcept
       : ProgramInterface<_Type>{std::move(rhs)}
       , m_binding{std::exchange(rhs.m_binding, std::nullopt)}
   {
   }
 
-  ProgramBlock<_Type, _Target>& operator=(ProgramBlock<_Type, _Target>&& rhs) noexcept
+  ProgramBlock& operator=(ProgramBlock&& rhs) noexcept
   {
     ProgramInterface<_Type>::operator=(std::move(rhs));
     m_binding = std::exchange(rhs.m_binding, std::nullopt);
@@ -127,11 +127,10 @@ public:
 
   template<typename T, api::BufferTarget LazyTarget = _Target>
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  auto bindRange(const Buffer<T, _Target>& buffer, size_t start, size_t n)
-    -> std::enable_if_t<
-      LazyTarget == api::BufferTarget::AtomicCounterBuffer || LazyTarget == api::BufferTarget::TransformFeedbackBuffer
-        || LazyTarget == api::BufferTarget::UniformBuffer || LazyTarget == api::BufferTarget::ShaderStorageBuffer,
-      void>
+  void bindRange(const Buffer<T, _Target>& buffer, size_t start, const size_t n)
+    requires(LazyTarget == api::BufferTarget::AtomicCounterBuffer
+             || LazyTarget == api::BufferTarget::TransformFeedbackBuffer
+             || LazyTarget == api::BufferTarget::UniformBuffer || LazyTarget == api::BufferTarget::ShaderStorageBuffer)
   {
     gsl_Expects(start < buffer.size());
     gsl_Expects(start + n <= buffer.size());
@@ -160,7 +159,7 @@ public:
   Uniform& operator=(Uniform&& rhs) noexcept;
 
   template<typename T>
-  std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
+  void set(const T& value) requires(std::is_trivial_v<T>)
   {
     gsl_Expects(m_program.has_value());
     gsl_Expects(getLocation().has_value());
@@ -174,7 +173,7 @@ public:
     gsl_Expects(m_program.has_value());
     if(changeValue(values))
       GL_ASSERT(api::programUniform1(
-        *m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
+        *m_program, getLocation(), gsl_lite::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
   template<typename T, size_t N>
@@ -183,7 +182,7 @@ public:
     gsl_Expects(m_program.has_value());
     if(changeValue(std::vector{values.begin(), values.end()}))
       GL_ASSERT(api::programUniform1(
-        *m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
+        *m_program, getLocation(), gsl_lite::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
   void set(const glm::mat3& value);
@@ -215,13 +214,6 @@ public:
     gsl_Assert(getLocation().has_value());
     gsl_Assert(GL_ASSERT_FN(gl::api::isTextureHandleResident(textureHandle->getHandle())));
     GL_ASSERT(api::programUniformHandle(*m_program, *getLocation(), textureHandle->getHandle()));
-  }
-
-  // NOLINTNEXTLINE(bugprone-reserved-identifier)
-  template<typename TTexture>
-  void set(const gsl::span<const gslu::nn_shared<TextureHandle<TTexture>>>& textureHandles)
-  {
-    setTextures(textureHandles.begin(), textureHandles.end());
   }
 
 private:
@@ -274,7 +266,7 @@ public:
                  label}
   {
     (...,
-     [this, &shaders]()
+     [this, &shaders]
      {
        GL_ASSERT(api::attachShader(getHandle(), shaders.getHandle()));
      }());
@@ -319,8 +311,12 @@ ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t
   const auto nameLength = getProperty(program, index, api::ProgramResourceProperty::NameLength);
   gsl_Assert(nameLength > 0);
   std::vector<char> nameData(nameLength, 0);
-  GL_ASSERT(api::getProgramResourceName(
-    program.getHandle(), Type, index, gsl::narrow<api::core::SizeType>(nameData.size()), nullptr, nameData.data()));
+  GL_ASSERT(api::getProgramResourceName(program.getHandle(),
+                                        Type,
+                                        index,
+                                        gsl_lite::narrow<api::core::SizeType>(nameData.size()),
+                                        nullptr,
+                                        nameData.data()));
   m_name = nameData.data();
 }
 
@@ -331,14 +327,14 @@ int32_t ProgramInterface<_Type>::getProperty(const Program& program,
                                              const api::ProgramResourceProperty what)
 {
   constexpr int32_t NumProperties = 1;
-  const std::array<api::ProgramResourceProperty, NumProperties> properties{what};
+  const std::array properties{what};
   std::array<int32_t, 1> values{};
   GL_ASSERT(api::getProgramResource(program.getHandle(),
                                     Type,
                                     index,
                                     NumProperties,
                                     properties.data(),
-                                    gsl::narrow_cast<api::core::SizeType>(values.size()),
+                                    gsl_lite::narrow_cast<api::core::SizeType>(values.size()),
                                     nullptr,
                                     values.data()));
   return values[0];

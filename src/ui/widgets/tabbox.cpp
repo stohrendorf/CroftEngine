@@ -11,7 +11,7 @@
 #include <engine/presenter.h>
 #include <gl/pixel.h>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -20,8 +20,8 @@ namespace ui::widgets
 {
 constexpr int TitleOffset = 10;
 constexpr int InnerMargin = 10;
-constexpr int WidgetOffsetTop = ui::FontHeight / 2 + InnerMargin + ui::OutlineBorderWidth;
-constexpr int TotalVerticalMargin = WidgetOffsetTop + InnerMargin + 2 * ui::OutlineBorderWidth;
+constexpr int WidgetOffsetTop = FontHeight / 2 + InnerMargin + OutlineBorderWidth;
+constexpr int TotalVerticalMargin = WidgetOffsetTop + InnerMargin + 2 * OutlineBorderWidth;
 
 constexpr int checkboxSize = 6;
 
@@ -32,7 +32,7 @@ Tab::Tab(const std::string& title)
 
 Tab::~Tab() = default;
 
-void Tab::update(bool hasFocus)
+void Tab::tick(const bool hasFocus)
 {
   m_hasFocus = hasFocus;
 }
@@ -42,13 +42,13 @@ void Tab::fitToContent()
   m_size = m_title->getWidth() + glm::ivec2{2 * InnerMargin + checkboxSize, WidgetOffsetTop};
 }
 
-void Tab::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void Tab::draw(Ui& ui, const engine::Presenter& presenter) const
 {
   const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth - TitleOffset, FontHeight - 1};
-  const auto bgSize = glm::ivec2{m_title->getWidth() + 2 * OutlineBorderWidth + checkboxSize * 2, ui::FontHeight};
+  const auto bgSize = glm::ivec2{m_title->getWidth() + 2 * OutlineBorderWidth + checkboxSize * 2, FontHeight};
   ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 255});
   ui.drawOutlineBox(bgPos, bgSize);
-  m_title->draw(ui, presenter.getTrFont(), (m_position + glm::ivec2{InnerMargin + checkboxSize * 2, 0}));
+  m_title->draw(ui, presenter.getTrFont(), m_position + glm::ivec2{InnerMargin + checkboxSize * 2, 0});
   if(m_hasFocus)
   {
     ui.drawBox(bgPos + glm::ivec2{5, 6}, glm::ivec2{checkboxSize, checkboxSize}, 15);
@@ -76,18 +76,18 @@ void TabBox::fitToContent()
     maxWidth = std::max(maxWidth, content->getSize().x);
   }
 
-  m_size = {maxWidth, maxHeight + ui::FontHeight};
+  m_size = {maxWidth, maxHeight + FontHeight};
 }
 
-void TabBox::update(bool /*hasFocus*/)
+void TabBox::tick(bool /*hasFocus*/)
 {
   for(size_t i = 0; i < m_tabs.size(); i++)
   {
-    m_tabs[i].container->update(i == m_selectedTabIndex);
+    m_tabs[i].container->tick(i == m_selectedTabIndex);
   }
 }
 
-void TabBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void TabBox::draw(Ui& ui, const engine::Presenter& presenter) const
 {
   int tabOffsetX = 0;
   for(const auto& [container, content] : m_tabs)

@@ -18,7 +18,7 @@ class MainWindow;
 namespace launcher
 {
 // NOLINTNEXTLINE(*-include-cleaner)
-class MainWindow : public QMainWindow
+class MainWindow final : public QMainWindow
 {
   // NOLINTNEXTLINE(*-include-cleaner)
   Q_OBJECT

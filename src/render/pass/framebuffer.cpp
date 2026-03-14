@@ -16,7 +16,7 @@
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -32,7 +32,7 @@ namespace render::pass
 {
 Framebuffer::Framebuffer(const std::string& name,
                          gslu::nn_shared<material::Material> material,
-                         scene::Translucency translucencySelector,
+                         const scene::Translucency translucencySelector,
                          const glm::ivec2& size)
     : m_material{std::move(material)}
     , m_mesh{scene::createScreenQuad(m_material, translucencySelector, name)}
@@ -40,7 +40,7 @@ Framebuffer::Framebuffer(const std::string& name,
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(size, name + "-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
-        gsl::make_unique<gl::Sampler>(name + "-color" + gl::SamplerSuffix)
+        gsl_lite::make_unique<gl::Sampler>(name + "-color" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -51,7 +51,7 @@ Framebuffer::Framebuffer(const std::string& name,
     , m_translucencySelector{translucencySelector}
 {
   m_mesh->bind("u_input",
-               [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(m_colorBufferHandle);
                });
@@ -59,7 +59,7 @@ Framebuffer::Framebuffer(const std::string& name,
   m_mesh->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
 }
 
-void Framebuffer::render()
+void Framebuffer::render() const
 {
   scene::RenderContext context{m_translucencySelector == scene::Translucency::Opaque
                                  ? material::RenderMode::FullOpaque
@@ -69,7 +69,7 @@ void Framebuffer::render()
   m_mesh->render(nullptr, context);
 }
 
-void Framebuffer::render(const std::function<void()>& doRender)
+void Framebuffer::render(const std::function<void()>& doRender) const
 {
   m_fb->bind();
   gl::RenderState::getWantedState().merge(m_fb->getRenderState());

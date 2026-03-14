@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <functional>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <string>
 #include <utility>
@@ -42,9 +42,9 @@ void CheckListBox::setSize(const glm::ivec2& size)
   m_listBox->setSize(size);
 }
 
-void CheckListBox::update(bool hasFocus)
+void CheckListBox::tick(const bool hasFocus)
 {
-  m_listBox->update(hasFocus);
+  m_listBox->tick(hasFocus);
 }
 
 void CheckListBox::fitToContent()
@@ -64,7 +64,7 @@ gslu::nn_shared<Checkbox> CheckListBox::addSetting(const gslu::nn_shared<Widget>
                                                    std::function<bool()>&& getter,
                                                    std::function<void()>&& toggler)
 {
-  auto checkbox = gsl::make_shared<Checkbox>(content);
+  auto checkbox = gsl_lite::make_shared<Checkbox>(content);
   checkbox->setChecked(getter());
   checkbox->fitToContent();
   m_listBox->append(checkbox);
@@ -75,7 +75,7 @@ gslu::nn_shared<Checkbox> CheckListBox::addSetting(const gslu::nn_shared<Widget>
 gslu::nn_shared<Checkbox>
   CheckListBox::addSetting(const std::string& label, std::function<bool()>&& getter, std::function<void()>&& toggler)
 {
-  return addSetting(gsl::make_shared<Label>(label), std::move(getter), std::move(toggler));
+  return addSetting(gsl_lite::make_shared<Label>(label), std::move(getter), std::move(toggler));
 }
 
 const CheckListBox::CheckBoxData& CheckListBox::getSelected() const
@@ -93,7 +93,7 @@ size_t CheckListBox::getEntryCount() const
   return m_listBox->getWidgets().size();
 }
 
-void CheckListBox::setSelectedEntry(size_t selected)
+void CheckListBox::setSelectedEntry(const size_t selected)
 {
   m_listBox->setSelected(selected);
 }

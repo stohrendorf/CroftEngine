@@ -23,7 +23,7 @@ def generate_header_lines(args, enums: List[Tuple[str, str]]) -> Iterable[str]:
     yield "#pragma once"
     yield ""
     yield "#include <cstdint>"
-    yield "#include <gsl/gsl-lite.hpp>"
+    yield "#include <gsl-lite/gsl-lite.hpp>"
     yield "#include <map>"
     yield "#include <string>"
     for include in args.with_includes:
@@ -42,7 +42,7 @@ def generate_header_lines(args, enums: List[Tuple[str, str]]) -> Iterable[str]:
     yield "};"
 
     yield ""
-    yield f"extern gsl::czstring toString({args.name} val) noexcept;"
+    yield f"extern gsl_lite::czstring toString({args.name} val) noexcept;"
 
     yield ""
     yield "template<typename T> struct EnumUtil;"
@@ -66,7 +66,7 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield f"#include \"{include_path.as_posix()}\""
     yield ""
     yield "#include <cstdint>"
-    yield "#include <gsl/gsl-lite.hpp>"
+    yield "#include <gsl-lite/gsl-lite.hpp>"
     yield "#include <map>"
     yield "#include <stdexcept>"
     yield "#include <string>"
@@ -75,7 +75,7 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield "{"
 
     yield "// NOLINTNEXTLINE(readability-function-cognitive-complexity)"
-    yield f"gsl::czstring toString({args.name} val) noexcept"
+    yield f"gsl_lite::czstring toString({args.name} val) noexcept"
     yield "{"
     yield "    switch(val)"
     yield "    {"

@@ -119,21 +119,23 @@ void TeamcityMessages::setOutput(std::ostream& out)
   m_out = &out;
 }
 
-void TeamcityMessages::suiteStarted(const std::string& name, const std::string& flowId)
+void TeamcityMessages::suiteStarted(const std::string& name, const std::string& flowId) const
 {
   RaiiMessage msg("testSuiteStarted", *m_out);
   msg.writeProperty("name", name);
   msg.writePropertyIfNonEmpty("flowId", flowId);
 }
 
-void TeamcityMessages::suiteFinished(const std::string& name, const std::string& flowId)
+void TeamcityMessages::suiteFinished(const std::string& name, const std::string& flowId) const
 {
   RaiiMessage msg("testSuiteFinished", *m_out);
   msg.writeProperty("name", name);
   msg.writePropertyIfNonEmpty("flowId", flowId);
 }
 
-void TeamcityMessages::testStarted(const std::string& name, const std::string& flowId, const bool captureStandardOutput)
+void TeamcityMessages::testStarted(const std::string& name,
+                                   const std::string& flowId,
+                                   const bool captureStandardOutput) const
 {
   RaiiMessage msg("testStarted", *m_out);
   msg.writeProperty("name", name);
@@ -143,7 +145,7 @@ void TeamcityMessages::testStarted(const std::string& name, const std::string& f
     msg.writeProperty("captureStandardOutput", "true"); // false by default
 }
 
-void TeamcityMessages::testFinished(const std::string& name, const std::string& flowId)
+void TeamcityMessages::testFinished(const std::string& name, const std::string& flowId) const
 {
   RaiiMessage msg("testFinished", *m_out);
 
@@ -151,7 +153,9 @@ void TeamcityMessages::testFinished(const std::string& name, const std::string& 
   msg.writePropertyIfNonEmpty("flowId", flowId);
 }
 
-void TeamcityMessages::testFinished(const std::string& name, const unsigned long durationMs, const std::string& flowId)
+void TeamcityMessages::testFinished(const std::string& name,
+                                    const unsigned long durationMs,
+                                    const std::string& flowId) const
 {
   RaiiMessage msg("testFinished", *m_out);
 
@@ -168,7 +172,7 @@ void TeamcityMessages::testFinished(const std::string& name, const unsigned long
 void TeamcityMessages::testFailed(const std::string& name,
                                   const std::string& message,
                                   const std::string& details,
-                                  const std::string& flowId)
+                                  const std::string& flowId) const
 {
   RaiiMessage msg("testFailed", *m_out);
   msg.writeProperty("name", name);
@@ -177,7 +181,7 @@ void TeamcityMessages::testFailed(const std::string& name,
   msg.writePropertyIfNonEmpty("flowId", flowId);
 }
 
-void TeamcityMessages::testIgnored(const std::string& name, const std::string& message, const std::string& flowId)
+void TeamcityMessages::testIgnored(const std::string& name, const std::string& message, const std::string& flowId) const
 {
   RaiiMessage msg("testIgnored", *m_out);
   msg.writeProperty("name", name);
@@ -188,7 +192,7 @@ void TeamcityMessages::testIgnored(const std::string& name, const std::string& m
 void TeamcityMessages::testOutput(const std::string& name,
                                   const std::string& output,
                                   const std::string& flowId,
-                                  const bool isStdError)
+                                  const bool isStdError) const
 {
   RaiiMessage msg(isStdError ? "testStdErr" : "testStdOut", *m_out);
   msg.writeProperty("name", name);

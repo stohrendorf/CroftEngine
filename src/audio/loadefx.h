@@ -2,13 +2,13 @@
 
 #include <AL/alc.h>
 #include <AL/efx.h> // IWYU pragma: export
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 #ifdef AL_ALEXT_PROTOTYPES
 
 namespace audio
 {
-inline void loadALExtFunctions(const gsl::not_null<ALCdevice*>&)
+inline void loadALExtFunctions(const gsl_lite::not_null<ALCdevice*>&)
 {
   // Nothing to do here
 }
@@ -18,7 +18,7 @@ inline void loadALExtFunctions(const gsl::not_null<ALCdevice*>&)
 
 namespace audio
 {
-void loadALExtFunctions(const gsl::not_null<ALCdevice*>&);
+void loadALExtFunctions(const gsl_lite::not_null<ALCdevice*>&);
 } // namespace audio
 
 // ReSharper disable IdentifierTypo

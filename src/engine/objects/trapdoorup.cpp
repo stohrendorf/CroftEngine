@@ -14,14 +14,14 @@
 
 #include <boost/assert.hpp>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <string>
 
 namespace engine::objects
 {
-void TrapDoorUp::update()
+void TrapDoorUp::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {
@@ -32,16 +32,16 @@ void TrapDoorUp::update()
     m_state.goal_anim_state = 0_as;
   }
 
-  ModelObject::update();
+  advanceFrame();
   m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 }
 
 TrapDoorUp::TrapDoorUp(const std::string& name,
-                       const gsl::not_null<world::World*>& world,
-                       const gsl::not_null<const world::Room*>& room,
+                       const gsl_lite::not_null<world::World*>& world,
+                       const gsl_lite::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
-                       const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+                       const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   getSkeleton()->getRenderState().setScissorTest(false);
@@ -84,7 +84,7 @@ bool TrapDoorUp::possiblyOnTrapdoor(const core::TRVec& pos) const
   const auto trapdoorSectorZ = sectorOf(m_state.location.position.Z);
   const auto posSectorX = sectorOf(pos.X);
   const auto posSectorZ = sectorOf(pos.Z);
-  auto trapdoorAxis = axisFromAngle(m_state.rotation.Y, 1_au);
+  const auto trapdoorAxis = axisFromAngle(m_state.rotation.Y, 1_au);
   BOOST_ASSERT(trapdoorAxis.has_value());
 
   if(*trapdoorAxis == core::Axis::PosZ && trapdoorSectorX == posSectorX

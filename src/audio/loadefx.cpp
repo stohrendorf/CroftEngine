@@ -6,7 +6,7 @@
 #include <AL/alc.h>
 #include <AL/efx.h>
 #include <boost/assert.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 #ifndef AL_ALEXT_PROTOTYPES
 
@@ -53,7 +53,7 @@ LPALGETAUXILIARYEFFECTSLOTIV alGetAuxiliaryEffectSlotiv = nullptr;
 LPALGETAUXILIARYEFFECTSLOTF alGetAuxiliaryEffectSlotf = nullptr;
 LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv = nullptr;
 
-void audio::loadALExtFunctions(const gsl::not_null<ALCdevice*>& device)
+void audio::loadALExtFunctions(const gsl_lite::not_null<ALCdevice*>& device)
 {
   static bool isLoaded = false;
   if(isLoaded)

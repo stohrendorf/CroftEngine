@@ -15,7 +15,7 @@ class DownloadProgress;
 
 namespace launcher
 {
-class DownloadProgress : public QWidget
+class DownloadProgress final : public QWidget
 {
   Q_OBJECT
 

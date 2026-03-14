@@ -12,7 +12,7 @@ void serialize(const std::filesystem::path& data, const Serializer<TContext>& se
 {
   ser.tag("path");
   auto tmp = data.string();
-  access<std::string, false>::dispatch(tmp, ser);
+  access::dispatchSerialize(tmp, ser);
 }
 
 template<typename TContext>
@@ -20,7 +20,7 @@ void deserialize(std::filesystem::path& data, const Deserializer<TContext>& ser)
 {
   ser.tag("path");
   std::string tmp;
-  access<std::string, true>::dispatch(tmp, ser);
+  access::dispatchDeserialize(tmp, ser);
   data = std::filesystem::path{tmp};
 }
 

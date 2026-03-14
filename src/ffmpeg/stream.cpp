@@ -15,7 +15,7 @@ extern "C"
 
 namespace ffmpeg
 {
-Stream::Stream(AVFormatContext* fmtContext, AVMediaType type, bool rplFakeAudioHack)
+Stream::Stream(AVFormatContext* fmtContext, const AVMediaType type, const bool rplFakeAudioHack)
     : index{av_find_best_stream(fmtContext, type, -1, -1, nullptr, 0)}
 {
   if(index < 0)

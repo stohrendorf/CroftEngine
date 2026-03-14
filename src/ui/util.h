@@ -27,7 +27,7 @@ static constexpr char GamepadDPadUpSprite = '\x6b';
 static constexpr char GamepadDPadLeftSprite = '\x6c';
 static constexpr char GamepadDPadRightSprite = '\x6d';
 
-inline std::string getSpriteSelector(char sprite)
+inline std::string getSpriteSelector(const char sprite)
 {
   return std::string{SpriteSelector} + sprite;
 }

@@ -13,20 +13,20 @@
 #include "qs/quantity.h"
 #include "render/scene/node.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::objects
 {
-void WaterfallMist::update()
+void WaterfallMist::updateLogic()
 {
   if(!m_state.activationState.isFullyActivated())
     return;
 
-  const auto d = m_state.location.position - getWorld().getObjectManager().getLara().m_state.location.position;
-  if(abs(d.X) > 20_sectors || abs(d.Y) > 20_sectors || abs(d.Z) > 20_sectors)
+  if(const auto d = m_state.location.position - getWorld().getObjectManager().getLara().m_state.location.position;
+     abs(d.X) > 20_sectors || abs(d.Y) > 20_sectors || abs(d.Z) > 20_sectors)
     return;
 
-  auto particle = gsl::make_shared<SplashParticle>(m_state.location, getWorld(), true);
+  const auto particle = gsl_lite::make_shared<SplashParticle>(m_state.location, getWorld(), true);
   setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
 }

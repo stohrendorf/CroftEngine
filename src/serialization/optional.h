@@ -8,11 +8,11 @@
 namespace serialization
 {
 template<typename T, typename TContext>
-inline void serialize(const std::optional<T>& optional, const Serializer<TContext>& ser)
+void serialize(const std::optional<T>& optional, const Serializer<TContext>& ser)
 {
   if(optional.has_value())
   {
-    access<T, false>::dispatch(*optional, ser);
+    access::dispatchSerialize(*optional, ser);
   }
   else
   {
@@ -21,7 +21,7 @@ inline void serialize(const std::optional<T>& optional, const Serializer<TContex
 }
 
 template<typename T, typename TContext>
-inline void deserialize(std::optional<T>& optional, const Deserializer<TContext>& ser)
+void deserialize(std::optional<T>& optional, const Deserializer<TContext>& ser)
 {
   if(ser.isNull())
   {
@@ -30,14 +30,14 @@ inline void deserialize(std::optional<T>& optional, const Deserializer<TContext>
   else
   {
     if(optional.has_value())
-      access<T, true>::dispatch(*optional, ser);
+      access::dispatchDeserialize(*optional, ser);
     else
-      optional = access<T, true>::dispatch(ser);
+      optional = access::dispatchCreate<T>(ser);
   }
 }
 
 template<typename T, typename TContext>
-inline std::optional<T> create(const TypeId<std::optional<T>>&, const Deserializer<TContext>& ser)
+std::optional<T> create(const TypeId<std::optional<T>>&, const Deserializer<TContext>& ser)
 {
   if(ser.isNull())
   {
@@ -45,7 +45,7 @@ inline std::optional<T> create(const TypeId<std::optional<T>>&, const Deserializ
   }
   else
   {
-    return access<T, true>::dispatch(ser);
+    return access::dispatchCreate<T>(ser);
   }
 }
 } // namespace serialization

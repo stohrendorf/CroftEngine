@@ -6,14 +6,14 @@
 #include "engine/collisioninfo.h"
 
 #include <gl/pixel.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_51 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_51(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_51(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::MidasDeath}
   {
   }
@@ -26,7 +26,7 @@ public:
     if(alternateLara == nullptr)
       return;
 
-    static constexpr gl::SRGBA8 GoldColor{255, 192, 64, 255};
+    static const gl::SRGBA8 GoldColor{255, 192, 64, 255};
     const auto skeleton = getLara().getSkeleton();
     switch(skeleton->getLocalFrame().get())
     {

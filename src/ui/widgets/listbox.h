@@ -4,7 +4,7 @@
 
 #include <cstddef>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <vector>
 
@@ -25,7 +25,7 @@ class ListBox : public Widget
 public:
   explicit ListBox(size_t pageSize = 0);
   ~ListBox() override;
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
   size_t append(const gslu::nn_shared<Widget>& widget);
 
@@ -74,7 +74,7 @@ public:
     return false;
   }
 
-  void setSelected(size_t idx)
+  void setSelected(const size_t idx)
   {
     gsl_Expects(idx < m_widgets.size());
     m_selected = idx;
@@ -89,7 +89,7 @@ public:
 
   void setPosition(const glm::ivec2& position) override;
   void setSize(const glm::ivec2& size) override;
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
   void fitToContent() override;
 
   [[nodiscard]] const auto& getWidgets() const

@@ -4,6 +4,7 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/collisioninfo.h"
+#include "engine/engine.h"
 #include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
@@ -12,14 +13,14 @@
 #include "hid/inputhandler.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_0 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_0(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_0(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::WalkForward}
   {
   }
@@ -32,18 +33,19 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::SlowTurnSpeed);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::SlowTurnSpeed);
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+      if(inputHandler.hasAction(hid::Action::Walk))
       {
         setGoalAnimState(LaraStateId::WalkForward);
       }
@@ -84,8 +86,7 @@ public:
 
     if(checkWallCollision(collisionInfo))
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
-      if(fr >= 29_frame && fr <= 47_frame)
+      if(const auto fr = getLara().getSkeleton()->getFrame(); fr >= 29_frame && fr <= 47_frame)
       {
         setAnimation(AnimationId::END_WALK_LEFT);
       }
@@ -110,8 +111,7 @@ public:
 
     if(collisionInfo.mid.floor.dy > core::SteppableHeight)
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
-      if(fr < 28_frame || fr > 45_frame)
+      if(const auto fr = getLara().getSkeleton()->getFrame(); fr < 28_frame || fr > 45_frame)
       {
         setAnimation(AnimationId::WALK_DOWN_RIGHT);
       }
@@ -123,8 +123,7 @@ public:
 
     if(collisionInfo.mid.floor.dy >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.dy < -core::SteppableHeight)
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
-      if(fr < 27_frame || fr > 44_frame)
+      if(const auto fr = getLara().getSkeleton()->getFrame(); fr < 27_frame || fr > 44_frame)
       {
         setAnimation(AnimationId::WALK_UP_STEP_RIGHT);
       }

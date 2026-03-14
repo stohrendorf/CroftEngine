@@ -27,7 +27,7 @@
 #include <chrono>
 #include <functional>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <initializer_list>
 #include <map>
 #include <memory>
@@ -71,10 +71,10 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
 {
   return [controllerLayoutName, &world](const engine::InputMappingConfig& gameMappingConfig,
                                         const engine::InputMappingConfig& menuMappingConfig,
-                                        hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+                                        const hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
-    auto gameKeys = getKeys(gameMappingConfig, engine::NamedAction{action});
-    auto menuKeys = getKeys(menuMappingConfig, engine::NamedAction{action});
+    const auto gameKeys = getKeys(gameMappingConfig, engine::NamedAction{action});
+    const auto menuKeys = getKeys(menuMappingConfig, engine::NamedAction{action});
 
     auto keys = gameKeys;
     keys.insert(keys.end(), menuKeys.cbegin(), menuKeys.cend());
@@ -130,14 +130,18 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
       case hid::GlfwAxis::LeftX:
         [[fallthrough]];
       case hid::GlfwAxis::RightX:
-        axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Left"),
-                               /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Right"));
+        axisName = makeDirName(
+          /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Left"),
+          /* translators: TR charcmap encoding */
+          pgettext("GamepadAxis", "Right"));
         break;
       case hid::GlfwAxis::LeftY:
         [[fallthrough]];
       case hid::GlfwAxis::RightY:
-        axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Up"),
-                               /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Down"));
+        axisName = makeDirName(
+          /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Up"),
+          /* translators: TR charcmap encoding */
+          pgettext("GamepadAxis", "Down"));
         break;
       case hid::GlfwAxis::LeftTrigger:
         [[fallthrough]];
@@ -147,7 +151,7 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
 
       auto grid = std::make_shared<ui::widgets::GridBox>(glm::ivec2{0, 0});
       grid->setExtents(2, 1);
-      auto s = std::make_shared<ui::widgets::Sprite>(it->second);
+      const auto s = std::make_shared<ui::widgets::Sprite>(it->second);
       s->fitToContent();
       grid->set(0, 0, s);
       grid->set(1, 0, std::make_shared<ui::widgets::Label>(axisName));
@@ -167,7 +171,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                      const engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
-    , m_editing{world.getPresenter().getInputHandler().getMappings()}
+    , m_editing{world.getEngine().getPresenter().getInputHandler().getMappings()}
     , m_layout{std::make_shared<ui::widgets::GridBox>()}
     , m_controls{std::make_shared<ControlsWidget>(m_editing.at(0))}
     , m_resetModernKey{hid::GlfwKey::Backspace, 5}
@@ -179,7 +183,8 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                  /* translators: TR charmap encoding */ _("No"),
                                  /* translators: TR charmap encoding */ _("Return")})}
     , m_error{std::make_shared<ui::widgets::SelectionBox>(
-        ui::breakLines(/* translators: TR charmap encoding */ _("Ensure your menu mapping is fully configured."), 500),
+        ui::breakLines(
+          /* translators: TR charmap encoding */ _("Ensure your menu mapping is fully configured."), 500),
         std::vector<std::string>{/* translators: TR charmap encoding */ _("OK"),
                                  /* translators: TR charmap encoding */ _("Discard changes")})}
 {
@@ -224,9 +229,10 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
   m_error->fitToContent();
 }
 
-std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> ControlsMenuState::tick(engine::world::World& world, MenuDisplay& /*display*/)
 {
-  if(m_mode == Mode::Display && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
+  if(m_mode == Mode::Display
+     && world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     if(m_editing == world.getEngine().getEngineConfig()->inputMappings)
     {
@@ -279,36 +285,23 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
     break;
   }
 
-  m_controls->fitToContent();
-  m_layout->fitToContent();
-
-  m_layout->setPosition({(ui.getSize().x - m_layout->getSize().x) / 2, ui.getSize().y - 90 - m_layout->getSize().y});
   switch(m_mode)
   {
   case Mode::Display:
-    m_layout->update(true);
-    m_layout->draw(ui, world.getPresenter());
+    m_layout->tick(true);
     break;
   case Mode::ChangeKey:
-    m_layout->update(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
-                         .time_since_epoch()
-                         .count()
-                       % BlinkPeriod.count()
-                     < BlinkPeriod.count() / 2);
-    m_layout->draw(ui, world.getPresenter());
+    m_layout->tick(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
+                       .time_since_epoch()
+                       .count()
+                     % BlinkPeriod.count()
+                   < BlinkPeriod.count() / 2);
     break;
   case Mode::ConfirmApply:
-    m_confirm->update(true);
-    m_confirm->setPosition(
-      {(ui.getSize().x - m_confirm->getSize().x) / 2, ui.getSize().y - 200 - m_confirm->getSize().y});
-    m_layout->draw(ui, world.getPresenter());
-    m_confirm->draw(ui, world.getPresenter());
+    m_confirm->tick(true);
     break;
   case Mode::Error:
-    m_error->update(true);
-    m_error->setPosition({(ui.getSize().x - m_error->getSize().x) / 2, ui.getSize().y - 200 - m_error->getSize().y});
-    m_layout->draw(ui, world.getPresenter());
-    m_error->draw(ui, world.getPresenter());
+    m_error->tick(true);
     break;
   case Mode::Apply:
     [[fallthrough]];
@@ -319,9 +312,42 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
   return nullptr;
 }
 
+void ControlsMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+{
+  m_controls->fitToContent();
+  m_layout->fitToContent();
+
+  m_layout->setPosition({(ui.getSize().x - m_layout->getSize().x) / 2, ui.getSize().y - 90 - m_layout->getSize().y});
+
+  switch(m_mode)
+  {
+  case Mode::Display:
+    m_layout->draw(ui, world.getEngine().getPresenter());
+    break;
+  case Mode::ChangeKey:
+    m_layout->draw(ui, world.getEngine().getPresenter());
+    break;
+  case Mode::ConfirmApply:
+    m_confirm->setPosition(
+      {(ui.getSize().x - m_confirm->getSize().x) / 2, ui.getSize().y - 200 - m_confirm->getSize().y});
+    m_layout->draw(ui, world.getEngine().getPresenter());
+    m_confirm->draw(ui, world.getEngine().getPresenter());
+    break;
+  case Mode::Error:
+    m_error->setPosition({(ui.getSize().x - m_error->getSize().x) / 2, ui.getSize().y - 200 - m_error->getSize().y});
+    m_layout->draw(ui, world.getEngine().getPresenter());
+    m_error->draw(ui, world.getEngine().getPresenter());
+    break;
+  case Mode::Apply:
+    [[fallthrough]];
+  case Mode::Discard:
+    break;
+  }
+}
+
 void ControlsMenuState::handleDisplayInput(engine::world::World& world)
 {
-  if(m_resetModernKey.update(world.getPresenter().getInputHandler()))
+  if(m_resetModernKey.update(world.getEngine().getPresenter().getInputHandler()))
   {
     world.getEngine().getEngineConfig()->resetInputMappings(true);
     m_editingIndex = 0;
@@ -331,7 +357,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
-  if(m_resetClassicKey.update(world.getPresenter().getInputHandler()))
+  if(m_resetClassicKey.update(world.getEngine().getPresenter().getInputHandler()))
   {
     world.getEngine().getEngineConfig()->resetInputMappings(false);
     m_editingIndex = 0;
@@ -341,17 +367,17 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
-  if(m_deleteKey.update(world.getPresenter().getInputHandler()))
+  if(m_deleteKey.update(world.getEngine().getPresenter().getInputHandler()))
   {
     auto& editing = m_editing.at(m_editingIndex);
     auto& inputMappings = m_controls->isMenuControlsSelected() ? editing.menuMappings : editing.gameMappings;
-    auto inputs = getKeys(inputMappings, engine::NamedAction{m_controls->getCurrentAction()});
-    for(auto input : inputs)
+    for(const auto inputs = getKeys(inputMappings, engine::NamedAction{m_controls->getCurrentAction()});
+        auto input : inputs)
       inputMappings.erase(input);
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(PrevProfileAction))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(PrevProfileAction))
   {
     if(m_editingIndex == 0)
       m_editingIndex = m_editing.size() - 1;
@@ -361,7 +387,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(NextProfileAction))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(NextProfileAction))
   {
     if(m_editingIndex == m_editing.size() - 1)
       m_editingIndex = 0;
@@ -371,7 +397,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(ChangeControllerTypeAction))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(ChangeControllerTypeAction))
   {
     auto& layouts = world.getWorldGeometry().getControllerLayouts();
     auto& editing = m_editing.at(m_editingIndex);
@@ -385,29 +411,29 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))
   {
     m_controls->nextRow();
   }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuUp))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuUp))
   {
     m_controls->prevRow();
   }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
   {
     m_controls->nextColumn();
   }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft))
   {
     m_controls->prevColumn();
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(EditAction))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(EditAction))
   {
     m_mode = Mode::ChangeKey;
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedButton();
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedAxis();
+    (void)world.getEngine().getPresenter().getInputHandler().takeRecentlyPressedKey();
+    (void)world.getEngine().getPresenter().getInputHandler().takeRecentlyPressedButton();
+    (void)world.getEngine().getPresenter().getInputHandler().takeRecentlyPressedAxis();
   }
 }
 
@@ -417,8 +443,8 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
   {
     // it's fine to assign the same input to the same action in different profiles;
     // otherwise, remove the mapped input from all profiles before assigning it to the new action
-    auto mappingGroup = m_controls->isMenuControlsSelected() ? &engine::NamedInputMappingConfig::menuMappings
-                                                             : &engine::NamedInputMappingConfig::gameMappings;
+    const auto mappingGroup = m_controls->isMenuControlsSelected() ? &engine::NamedInputMappingConfig::menuMappings
+                                                                   : &engine::NamedInputMappingConfig::gameMappings;
 
     for(auto& mapping : m_editing)
     {
@@ -426,23 +452,23 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
     }
 
     auto& mapping = m_editing.at(m_editingIndex);
-    auto boundInputs = getKeys((mapping.*mappingGroup), engine::NamedAction{m_controls->getCurrentAction()});
-    for(auto boundInput : boundInputs)
+    for(const auto boundInputs = getKeys((mapping.*mappingGroup), engine::NamedAction{m_controls->getCurrentAction()});
+        auto boundInput : boundInputs)
       (mapping.*mappingGroup).erase(boundInput);
     (mapping.*mappingGroup)[newInput] = m_controls->getCurrentAction();
     m_mode = Mode::Display;
     m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
   };
 
-  if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
+  if(const auto newKey = world.getEngine().getPresenter().getInputHandler().takeRecentlyPressedKey())
   {
     setInput(*newKey);
   }
-  else if(const auto newButton = world.getPresenter().getInputHandler().takeRecentlyPressedButton())
+  else if(const auto newButton = world.getEngine().getPresenter().getInputHandler().takeRecentlyPressedButton())
   {
     setInput(*newButton);
   }
-  else if(const auto newAxis = world.getPresenter().getInputHandler().takeRecentlyPressedAxis())
+  else if(const auto newAxis = world.getEngine().getPresenter().getInputHandler().takeRecentlyPressedAxis())
   {
     setInput(*newAxis);
   }
@@ -450,16 +476,17 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
 
 void ControlsMenuState::handleConfirmInput(engine::world::World& world)
 {
-  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Backward))
+  if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+       hid::AxisMovement::Backward))
   {
     m_confirm->next();
   }
-  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+  else if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
             hid::AxisMovement::Forward))
   {
     m_confirm->prev();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     switch(m_confirm->getSelected())
     {
@@ -480,16 +507,17 @@ void ControlsMenuState::handleConfirmInput(engine::world::World& world)
 
 void ControlsMenuState::handleErrorInput(engine::world::World& world)
 {
-  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Backward))
+  if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+       hid::AxisMovement::Backward))
   {
     m_error->next();
   }
-  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+  else if(world.getEngine().getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
             hid::AxisMovement::Forward))
   {
     m_error->prev();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     switch(m_error->getSelected())
     {

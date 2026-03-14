@@ -19,11 +19,11 @@
 #include "qs/quantity.h"
 #include "render/scene/node.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 
-void engine::objects::DartGun::update()
+void engine::objects::DartGun::updateLogic()
 {
   if(m_state.updateActivationTimeout())
   {
@@ -39,7 +39,7 @@ void engine::objects::DartGun::update()
 
   if(m_state.current_anim_state != 1_as || getSkeleton()->getLocalFrame() != 0_frame)
   {
-    ModelObject::update();
+    advanceFrame();
     return;
   }
 
@@ -65,16 +65,16 @@ void engine::objects::DartGun::update()
     break;
   }
 
-  auto dart = getWorld().createDynamicObject<Dart>(
+  const auto dart = getWorld().createDynamicObject<Dart>(
     TR1ItemId::Dart, m_state.location.room, m_state.rotation.Y, m_state.location.position - d, 0);
   dart->activate();
   auto& dartState = dart->m_state;
   dartState.triggerState = TriggerState::Active;
 
-  auto particle = gsl::make_shared<SmokeParticle>(dartState.location, getWorld(), dartState.rotation);
+  auto particle = gsl_lite::make_shared<SmokeParticle>(dartState.location, getWorld(), dartState.rotation);
   setParent(particle, dartState.location.room->node);
   getWorld().getObjectManager().registerParticle(std::move(particle));
 
   playSoundEffect(TR1SoundEffect::DartgunShoot);
-  ModelObject::update();
+  advanceFrame();
 }

@@ -58,7 +58,7 @@
 
 - include: [ "@<pybind11/detail/.*>", "private", "<pybind11/pybind11.h>", "public" ]
 
-- symbol: [ "gsl::not_null", "private", "<gsl/gsl-lite.hpp>", "public" ]
+- symbol: [ "gsl::not_null", "private", "<gsl-lite/gsl-lite.hpp>", "public" ]
 
 - symbol: [ "serialization::Serializer", "private", "\"serialization/serialization_fwd.h\"", "public" ]
 

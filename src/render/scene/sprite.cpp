@@ -17,7 +17,7 @@
 #include <gl/vertexbuffer.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -37,7 +37,7 @@ std::array<SpriteVertex, 4> createSpriteVertices(const float x0,
                                                  const int textureIdx)
 {
   BOOST_ASSERT(textureIdx >= 0);
-  const std::array<SpriteVertex, 4> vertices{
+  const std::array vertices{
     SpriteVertex{{x0, y0, 0}, {t0.x, t0.y, textureIdx}},
     SpriteVertex{{x1, y0, 0}, {t1.x, t0.y, textureIdx}},
     SpriteVertex{{x1, y1, 0}, {t1.x, t1.y, textureIdx}},
@@ -46,22 +46,22 @@ std::array<SpriteVertex, 4> createSpriteVertices(const float x0,
   return vertices;
 }
 
-gslu::nn_shared<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(float x0,
-                                                                         float y0,
-                                                                         float x1,
-                                                                         float y1,
+gslu::nn_shared<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(const float x0,
+                                                                         const float y0,
+                                                                         const float x1,
+                                                                         const float y1,
                                                                          const glm::vec2& t0,
                                                                          const glm::vec2& t1,
-                                                                         int textureIdx,
-                                                                         bool instanced,
+                                                                         const int textureIdx,
+                                                                         const bool instanced,
                                                                          const std::string& label)
 {
   const auto vertices = createSpriteVertices(x0, y0, x1, y1, t0, t1, textureIdx);
-  return gsl::make_shared<gl::VertexBuffer<SpriteVertex>>(instanced ? SpriteVertex::getInstancedLayout()
-                                                                    : SpriteVertex::getLayout(),
-                                                          label + gl::VboSuffix,
-                                                          gl::api::BufferUsage::StaticDraw,
-                                                          vertices);
+  return gsl_lite::make_shared<gl::VertexBuffer<SpriteVertex>>(instanced ? SpriteVertex::getInstancedLayout()
+                                                                         : SpriteVertex::getLayout(),
+                                                               label + gl::VboSuffix,
+                                                               gl::api::BufferUsage::StaticDraw,
+                                                               vertices);
 }
 } // namespace
 
@@ -71,21 +71,21 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
                                        const float y1,
                                        const glm::vec2& t0,
                                        const glm::vec2& t1,
-                                       material::RenderMode renderMode,
+                                       const material::RenderMode renderMode,
                                        const gslu::nn_shared<material::Material>& materialFull,
                                        const int textureIdx,
                                        const std::string& label)
 {
   auto vb = createSpriteVertexBuffer(x0, y0, x1, y1, t0, t1, textureIdx, false, label);
-  static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
+  static constexpr std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
+  auto indexBuffer = gsl_lite::make_shared<gl::ElementArrayBuffer<uint16_t>>(
     label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
 
-  auto nonOpaqueVao = gsl::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
+  auto nonOpaqueVao = gsl_lite::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label + gl::VaoSuffix);
   auto mesh
-    = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex>>(nullptr, nonOpaqueVao, gl::api::PrimitiveType::Triangles);
+    = gsl_lite::make_shared<MeshImpl<uint16_t, SpriteVertex>>(nullptr, nonOpaqueVao, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(renderMode, materialFull);
   mesh->getRenderState().setScissorTest(false);
 
@@ -99,7 +99,7 @@ std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
                             const float y1,
                             const glm::vec2& t0,
                             const glm::vec2& t1,
-                            material::RenderMode renderMode,
+                            const material::RenderMode renderMode,
                             const gslu::nn_shared<material::Material>& materialFull,
                             const int textureIdx,
                             const std::string& label)
@@ -108,24 +108,23 @@ std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
 
   static const gl::VertexLayout<glm::mat4> layout{
     {VERTEX_ATTRIBUTE_MODEL_MATRIX_NAME, gl::VertexAttribute<glm::mat4>::Single{}}};
-  const auto modelMatrices
-    = gsl::make_shared<gl::VertexBuffer<glm::mat4>>(layout,
-                                                    label + "-matrices" + gl::VboSuffix,
-                                                    gl::api::BufferUsage::StreamDraw,
-                                                    std::vector<glm::mat4>(4096, glm::mat4{0.0f}),
-                                                    1);
+  const auto modelMatrices = gsl_lite::make_shared<gl::VertexBuffer<glm::mat4>>(layout,
+                                                                                label + "-matrices" + gl::VboSuffix,
+                                                                                gl::api::BufferUsage::StreamDraw,
+                                                                                std::vector(4096, glm::mat4{0.0f}),
+                                                                                1);
 
-  static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
+  static constexpr std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
+  auto indexBuffer = gsl_lite::make_shared<gl::ElementArrayBuffer<uint16_t>>(
     label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
 
-  auto vao = gsl::make_shared<gl::VertexArray<uint16_t, SpriteVertex, glm::mat4>>(
+  auto vao = gsl_lite::make_shared<gl::VertexArray<uint16_t, SpriteVertex, glm::mat4>>(
     indexBuffer,
     std::tuple{vertices, modelMatrices},
     std::vector{&materialFull->getShaderProgram()->getHandle()},
     label + gl::VaoSuffix);
-  auto mesh
-    = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex, glm::mat4>>(nullptr, vao, gl::api::PrimitiveType::Triangles);
+  auto mesh = gsl_lite::make_shared<MeshImpl<uint16_t, SpriteVertex, glm::mat4>>(
+    nullptr, vao, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(renderMode, materialFull);
   mesh->getRenderState().setScissorTest(false);
 

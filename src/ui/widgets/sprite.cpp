@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <glm/common.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <utility>
 
 namespace ui::widgets
@@ -19,7 +19,7 @@ Sprite::Sprite(engine::world::Sprite sprite)
 
 Sprite::~Sprite() = default;
 
-void Sprite::draw(ui::Ui& ui, const engine::Presenter& /*presenter*/) const
+void Sprite::draw(Ui& ui, const engine::Presenter& /*presenter*/) const
 {
   if(m_selectionAlpha != 0)
   {
@@ -31,11 +31,11 @@ void Sprite::draw(ui::Ui& ui, const engine::Presenter& /*presenter*/) const
   ui.draw(m_sprite, m_position);
 }
 
-void Sprite::update(bool hasFocus)
+void Sprite::tick(const bool hasFocus)
 {
   constexpr int FadeSpeed = 30;
   const auto delta = hasFocus ? FadeSpeed : -FadeSpeed;
-  m_selectionAlpha = gsl::narrow_cast<uint8_t>(std::clamp(m_selectionAlpha + delta, 0, 255));
+  m_selectionAlpha = gsl_lite::narrow_cast<uint8_t>(std::clamp(m_selectionAlpha + delta, 0, 255));
 }
 
 void Sprite::setPosition(const glm::ivec2& position)
@@ -60,6 +60,6 @@ void Sprite::setSize(const glm::ivec2& size)
 
 void Sprite::fitToContent()
 {
-  m_size = glm::max(m_sprite.render0, m_sprite.render1) + glm::ivec2{0, ui::FontHeight};
+  m_size = glm::max(m_sprite.render0, m_sprite.render1) + glm::ivec2{0, FontHeight};
 }
 } // namespace ui::widgets

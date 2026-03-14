@@ -27,7 +27,7 @@ class SlammingDoors final : public ModelObject
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(SlammingDoors, true, false)
 
-  void update() override;
+  void updateLogic() override;
 
   void collide(CollisionInfo& collisionInfo) override;
 };

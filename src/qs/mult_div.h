@@ -13,12 +13,6 @@
 
 namespace qs
 {
-namespace detail
-{
-template<typename A, typename B>
-using enable_if_not_same_t = std::enable_if_t<!std::is_same_v<A, B>, bool>;
-}
-
 template<typename... Units>
 struct product_unit
 {
@@ -49,7 +43,7 @@ struct flatten_tuple_product<std::tuple<T>>
 };
 
 template<typename T>
-using flatten_tuple_product_t = typename flatten_tuple_product<T>::type;
+using flatten_tuple_product_t = flatten_tuple_product<T>::type;
 
 template<typename, typename>
 struct flattener;
@@ -59,6 +53,7 @@ struct flattener<std::tuple<Top...>, std::tuple<Bottom...>>
 {
   using type = fraction_unit<std::tuple<Top...>, std::tuple<Bottom...>>;
 };
+
 template<typename... Top>
 struct flattener<std::tuple<Top...>, std::tuple<>>
 {
@@ -72,7 +67,7 @@ struct flattener<std::tuple<Top>, std::tuple<>>
 };
 
 template<typename A, typename B>
-using flattener_t = typename flattener<A, B>::type;
+using flattener_t = flattener<A, B>::type;
 } // namespace detail
 
 template<typename... Top, typename... Bottom>
@@ -80,8 +75,8 @@ struct fraction_unit<std::tuple<Top...>, std::tuple<Bottom...>>
 {
   using _tmp = detail::symmetric_difference<std::tuple<Top...>, std::tuple<Bottom...>>;
 
-  using top = typename _tmp::reduced_l;
-  using bottom = typename _tmp::reduced_r;
+  using top = _tmp::reduced_l;
+  using bottom = _tmp::reduced_r;
   using type = detail::flattener_t<top, bottom>;
 
   static std::string suffix()
@@ -92,7 +87,7 @@ struct fraction_unit<std::tuple<Top...>, std::tuple<Bottom...>>
 };
 
 template<typename A, typename B>
-using fraction_unit_t = typename fraction_unit<A, B>::type;
+using fraction_unit_t = fraction_unit<A, B>::type;
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 #define _QS_COMBINE_TS(T1, OP, T2) decltype(std::declval<T1>() OP std::declval<T2>())
@@ -201,26 +196,20 @@ constexpr auto operator*(const quantity<fraction_unit<std::tuple<Units1Top...>, 
 // Follows: lhs = product_unit, rhs = (unit, product_unit, fraction_unit)
 
 // product_unit / unit
-template<typename Type1,
-         typename Type2,
-         typename... Units1,
-         typename Unit2,
-         typename = detail::enable_if_not_same_t<product_unit<Units1...>, Unit2>>
-constexpr auto operator/(const quantity<product_unit<Units1...>, Type1>& a,
-                         const quantity<Unit2, Type2>& b) noexcept(noexcept(a.get() / b.get()))
+template<typename Type1, typename Type2, typename... Units1, typename Unit2>
+requires(!std::is_same_v<product_unit<Units1...>, Unit2>) constexpr auto
+  operator/(const quantity<product_unit<Units1...>, Type1>& a,
+            const quantity<Unit2, Type2>& b) noexcept(noexcept(a.get() / b.get()))
 {
   return quantity<fraction_unit_t<std::tuple<Units1...>, std::tuple<Unit2>>, _QS_COMBINE_TS(Type1, /, Type2)>{
     a.get() / b.get()};
 }
 
 // product_unit / product_unit
-template<typename Type1,
-         typename Type2,
-         typename... Units1,
-         typename... Units2,
-         typename = detail::enable_if_not_same_t<std::tuple<Units1...>, std::tuple<Units2...>>>
-constexpr auto operator/(const quantity<product_unit<Units1...>, Type1>& a,
-                         const quantity<product_unit<Units2...>, Type2>& b) noexcept(noexcept(a.get() / b.get()))
+template<typename Type1, typename Type2, typename... Units1, typename... Units2>
+requires(!std::is_same_v<std::tuple<Units1...>, std::tuple<Units2...>>) constexpr auto
+  operator/(const quantity<product_unit<Units1...>, Type1>& a,
+            const quantity<product_unit<Units2...>, Type2>& b) noexcept(noexcept(a.get() / b.get()))
 {
   return quantity<fraction_unit_t<std::tuple<Units1...>, std::tuple<Units2...>>, _QS_COMBINE_TS(Type1, /, Type2)>{
     a.get() / b.get()};
@@ -248,13 +237,10 @@ constexpr auto operator/(const quantity<Unit1, Type1>& a,
 }
 
 // unit / product_unit
-template<typename Type1,
-         typename Type2,
-         typename Unit1,
-         typename... Units2,
-         typename = detail::enable_if_not_same_t<Unit1, product_unit<Units2...>>>
-constexpr auto operator/(const quantity<Unit1, Type1>& a,
-                         const quantity<product_unit<Units2...>, Type2>& b) noexcept(noexcept(a.get() / b.get()))
+template<typename Type1, typename Type2, typename Unit1, typename... Units2>
+requires(!std::is_same_v<Unit1, product_unit<Units2...>>) constexpr auto
+  operator/(const quantity<Unit1, Type1>& a,
+            const quantity<product_unit<Units2...>, Type2>& b) noexcept(noexcept(a.get() / b.get()))
 {
   return quantity<fraction_unit_t<std::tuple<Unit1>, std::tuple<Units2...>>, _QS_COMBINE_TS(Type1, /, Type2)>{
     a.get() / b.get()};

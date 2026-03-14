@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 #include <iosfwd>
 #include <stdexcept>
@@ -23,13 +23,13 @@ BinaryFile::BinaryFile(const std::filesystem::path& filepath)
     BOOST_THROW_EXCEPTION(std::runtime_error("failed to open binary file"));
 }
 
-bool BinaryFile::read(const gsl::span<uint8_t>& buffer, const std::streampos& seek)
+bool BinaryFile::read(const gsl_lite::span<uint8_t>& buffer, const std::streampos& seek)
 {
-  std::fill(buffer.begin(), buffer.end(), uint8_t{0});
+  std::ranges::fill(buffer, uint8_t{0});
   m_file.seekg(seek, std::ios::beg);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  if(m_file.read(reinterpret_cast<char*>(buffer.data()), gsl::narrow<std::streamsize>(buffer.size()));
-     gsl::narrow<size_t>(m_file.gcount()) != buffer.size())
+  if(m_file.read(reinterpret_cast<char*>(buffer.data()), gsl_lite::narrow<std::streamsize>(buffer.size()));
+     gsl_lite::narrow<size_t>(m_file.gcount()) != buffer.size())
   {
     BOOST_LOG_TRIVIAL(error) << "read operation failed (partial read)";
     return false;

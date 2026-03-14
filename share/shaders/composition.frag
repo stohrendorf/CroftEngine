@@ -55,7 +55,7 @@ void main()
     #ifndef DOF
     finalColor *= texture(u_texture, uv).rgb;
     #else
-    finalColor *= do_dof(uv);
+    finalColor *= do_dof(uv, shadeDepth);
     #endif
     finalColor = mix(finalColor, vec3(texel_shade(shadeDepth)), whiteness);
 

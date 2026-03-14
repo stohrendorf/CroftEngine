@@ -255,7 +255,7 @@ EngineConfig::EngineConfig()
 {
 }
 
-void EngineConfig::resetInputMappings(bool modern)
+void EngineConfig::resetInputMappings(const bool modern)
 {
   inputMappings = modern ? getDefaultModernMappings() : getDefaultClassicMappings();
 }

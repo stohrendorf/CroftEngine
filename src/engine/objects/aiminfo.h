@@ -8,6 +8,11 @@
 #include <cstddef>
 #include <limits>
 
+namespace hid
+{
+class InputHandler;
+}
+
 namespace loader::file
 {
 struct AnimFrame;
@@ -60,8 +65,8 @@ struct AimInfo
   core::TRRotationXY aimRotation{};
   core::Frame flashTimeout = 0_frame;
 
-  void updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon);
-  void updateAnimShotgun(LaraObject& lara);
+  void updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon, const hid::InputHandler& inputHandler);
+  void updateAnimShotgun(LaraObject& lara, const hid::InputHandler& inputHandler);
   void holsterTwoWeapons(LaraObject& lara, WeaponType weaponType);
   void holsterShotgun(LaraObject& lara);
   void overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
@@ -81,6 +86,6 @@ struct AimInfo
   }
 
 private:
-  void updateAnimShotgunAiming(LaraObject& lara);
+  void updateAnimShotgunAiming(LaraObject& lara, const hid::InputHandler& inputHandler);
 };
 } // namespace engine::objects

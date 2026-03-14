@@ -29,7 +29,7 @@ class Mesh
     , public material::MaterialParameterOverrider
 {
 public:
-  explicit Mesh(gl::api::PrimitiveType primitiveType)
+  explicit Mesh(const gl::api::PrimitiveType primitiveType)
       : m_primitiveType{primitiveType}
   {
   }
@@ -73,7 +73,7 @@ class MeshImpl : public Mesh
 public:
   explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vaoOpaque,
                     std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vaoNonOpaque,
-                    gl::api::PrimitiveType primitiveType)
+                    const gl::api::PrimitiveType primitiveType)
       : Mesh{primitiveType}
       , m_vaoOpaque{std::move(vaoOpaque)}
       , m_vaoNonOpaque{std::move(vaoNonOpaque)}
@@ -91,7 +91,7 @@ private:
   std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> m_vaoOpaque;
   std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> m_vaoNonOpaque;
 
-  void drawElements(Translucency translucencySelector) override
+  void drawElements(const Translucency translucencySelector) override
   {
     switch(translucencySelector)
     {
@@ -106,7 +106,7 @@ private:
     }
   }
 
-  void drawElements(Translucency translucencySelector, gl::api::core::SizeType instanceCount) override
+  void drawElements(const Translucency translucencySelector, gl::api::core::SizeType instanceCount) override
   {
     switch(translucencySelector)
     {
@@ -121,7 +121,7 @@ private:
     }
   }
 
-  [[nodiscard]] bool empty(Translucency translucencySelector) const override
+  [[nodiscard]] bool empty(const Translucency translucencySelector) const override
   {
     switch(translucencySelector)
     {
@@ -143,14 +143,14 @@ extern gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
 
 inline gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& size,
                                               const std::shared_ptr<material::Material>& material,
-                                              Translucency spriteTranslucency,
+                                              const Translucency spriteTranslucency,
                                               const std::string& label)
 {
   return createScreenQuad({0, 0}, size, material, spriteTranslucency, label);
 }
 
 inline gslu::nn_shared<Mesh> createScreenQuad(const std::shared_ptr<material::Material>& material,
-                                              Translucency spriteTranslucency,
+                                              const Translucency spriteTranslucency,
                                               const std::string& label)
 {
   return createScreenQuad({0, 0}, {0, 0}, material, spriteTranslucency, label);

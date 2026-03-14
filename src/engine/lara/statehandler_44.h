@@ -7,14 +7,14 @@
 #include "statehandler_underwater.h"
 
 #include <algorithm>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_44 final : public StateHandler_Underwater
 {
 public:
-  explicit StateHandler_44(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_44(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : StateHandler_Underwater{lara, LaraStateId::WaterDeath}
   {
   }
@@ -44,8 +44,8 @@ public:
     getLara().m_state.health = core::DeadHealth;
     setAir(-1_frame);
     setHandStatus(objects::HandStatus::Grabbing);
-    auto h = getLara().getWaterSurfaceHeight();
-    if(h.has_value() && *h < getLara().m_state.location.position.Y - core::DefaultCollisionRadius)
+    if(const auto h = getLara().getWaterSurfaceHeight();
+       h.has_value() && *h < getLara().m_state.location.position.Y - core::DefaultCollisionRadius)
     {
       getLara().m_state.location.position.Y -= 5_len;
     }

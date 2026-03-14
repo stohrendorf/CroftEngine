@@ -4,7 +4,7 @@
 #include "glassert.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string_view>
 
 #ifndef SOGLB_NO_DEBUG_GROUPS
@@ -34,8 +34,10 @@ class DebugGroup final
 public:
   explicit DebugGroup(const std::string_view& message, const uint32_t id = 0)
   {
-    GL_ASSERT(api::pushDebugGroup(
-      api::DebugSource::DebugSourceApplication, id, gsl::narrow<api::core::SizeType>(message.size()), message.data()));
+    GL_ASSERT(api::pushDebugGroup(api::DebugSource::DebugSourceApplication,
+                                  id,
+                                  gsl_lite::narrow<api::core::SizeType>(message.size()),
+                                  message.data()));
   }
 
   DebugGroup(const DebugGroup&) = delete;

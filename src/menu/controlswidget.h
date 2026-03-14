@@ -45,7 +45,7 @@ public:
 
   void setSize(const glm::ivec2& size) override;
 
-  void update(bool hasFocus) override;
+  void tick(bool hasFocus) override;
 
   void fitToContent() override;
 
@@ -62,7 +62,7 @@ public:
   void prevColumn();
 
   void updateBindings(const engine::NamedInputMappingConfig& mappingConfig,
-                      const std::function<std::shared_ptr<ui::widgets::Widget>(
+                      const std::function<std::shared_ptr<Widget>(
                         const engine::InputMappingConfig&, const engine::InputMappingConfig&, hid::Action)>& factory);
 
   [[nodiscard]] hid::Action getCurrentAction() const;

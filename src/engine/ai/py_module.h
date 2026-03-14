@@ -18,10 +18,10 @@ inline void initAiModule(const pybind11::module& m)
     .def_readwrite("mood", &CreatureInfo::mood)
     .def_readwrite("target", &CreatureInfo::target);
 
-  py::enum_<engine::ai::Mood>(m, "Mood")
-    .value("BORED", engine::ai::Mood::Bored)
-    .value("ATTACK", engine::ai::Mood::Attack)
-    .value("ESCAPE", engine::ai::Mood::Escape)
-    .value("STALK", engine::ai::Mood::Stalk);
+  py::enum_<Mood>(m, "Mood")
+    .value("BORED", Mood::Bored)
+    .value("ATTACK", Mood::Attack)
+    .value("ESCAPE", Mood::Escape)
+    .value("STALK", Mood::Stalk);
 }
 } // namespace engine::ai

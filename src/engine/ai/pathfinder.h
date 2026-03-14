@@ -8,7 +8,7 @@
 
 #include <cstddef>
 #include <deque>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -32,36 +32,37 @@ struct PathFinder
   [[nodiscard]] bool canVisit(const world::Box& box, bool ignoreBlocked, bool ignoreBlockable) const noexcept;
 
   /**
-   * Sets #m_target to a random position within @p box with a margin of #Margin.
-   */
-  void setRandomSearchTarget(const gsl::not_null<const world::Box*>& box);
+* Sets #m_target to a random position within @p box with a margin of #Margin.
+*/
+  void setRandomSearchTarget(const gsl_lite::not_null<const world::Box*>& box);
 
   /**
-   * Calculates the next directly movable position from @p startPos and @p startBox, i.e. a position that's reachable
-   * when moving straight towards it without collisions. @p startBox must contain @p startPos. @p moveTarget is an
-   * output-only parameter and doesn't need to be initialised properly.
-   *
-   * @return @c true if a valid movement target was found, @c false otherwise.
-   */
+* Calculates the next directly movable position from @p startPos and @p startBox, i.e. a position that's reachable
+* when moving straight towards it without collisions. @p startBox must contain @p startPos. @p moveTarget is an
+* output-only parameter and doesn't need to be initialised properly.
+*
+* @return @c true if a valid movement target was found, @c false otherwise.
+*/
   bool calculateTarget(const world::World& world,
                        core::TRVec& moveTarget,
                        const core::TRVec& startPos,
-                       const gsl::not_null<const world::Box*>& startBox);
+                       const gsl_lite::not_null<const world::Box*>& startBox);
 
   /**
-   * Resets the search state and starts a new search for a path to @p box.
-   */
-  void setTargetBox(const gsl::not_null<const world::Box*>& box);
+* Resets the search state and starts a new search for a path to @p box.
+*/
+  void setTargetBox(const gsl_lite::not_null<const world::Box*>& box);
 
   void serialize(const serialization::Serializer<world::World>& ser) const;
   void deserialize(const serialization::Deserializer<world::World>& ser);
 
-  void
-    init(const world::World& world, const gsl::not_null<const world::Box*>& box, const script::ObjectInfo& objectInfo);
+  void init(const world::World& world,
+            const gsl_lite::not_null<const world::Box*>& box,
+            const script::ObjectInfo& objectInfo);
 
   void setLimits(const world::World& world, const core::Length& step, const core::Length& drop, const core::Length& fly)
   {
-    setLimits(world, gsl::not_null{m_targetBox}, step, drop, fly);
+    setLimits(world, gsl_lite::not_null{m_targetBox}, step, drop, fly);
   }
 
   void setLimits(const world::World& world,
@@ -72,17 +73,17 @@ struct PathFinder
 
   //
   /**
-   * Returns @c true if and only if the @p box is visited and marked unreachable.
-   */
-  [[nodiscard]] bool isUnreachable(const gsl::not_null<const world::Box*>& box) const
+* Returns @c true if and only if the @p box is visited and marked unreachable.
+*/
+  [[nodiscard]] bool isUnreachable(const gsl_lite::not_null<const world::Box*>& box) const
   {
     const auto it = m_reachable.find(box);
     return it != m_reachable.end() && !it->second;
   }
 
-  [[nodiscard]] const gsl::not_null<const world::Box*>& getRandomBox() const;
+  [[nodiscard]] const gsl_lite::not_null<const world::Box*>& getRandomBox() const;
 
-  [[nodiscard]] const world::Box* getNextPathBox(const gsl::not_null<const world::Box*>& box) const
+  [[nodiscard]] const world::Box* getNextPathBox(const gsl_lite::not_null<const world::Box*>& box) const
   {
     const auto it = m_edges.find(box);
     return it == m_edges.end() ? nullptr : it->second.get();
@@ -119,24 +120,24 @@ struct PathFinder
   }
 
 private:
-  void resetBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box);
+  void resetBoxes(const world::World& world, const gsl_lite::not_null<const world::Box*>& box);
 
   /**
    * Does a limited expansion of the path graph and propagates reachability information.
    */
-  void expandNodes(const world::World& world);
+  void expandPathGraph(const world::World& world);
 
-  void setReachable(const gsl::not_null<const world::Box*>& box, bool reachable);
-  void updateDistance(const gsl::not_null<const world::Box*>& currentBox,
-                      const gsl::not_null<const world::Box*>& predecessorBox);
-  bool updateEdge(const gsl::not_null<const world::Box*>& currentBox,
-                  const gsl::not_null<const world::Box*>& predecessorBox);
+  void setReachable(const gsl_lite::not_null<const world::Box*>& box, bool reachable);
+  void updateDistance(const gsl_lite::not_null<const world::Box*>& current,
+                      const gsl_lite::not_null<const world::Box*>& neighbor);
+  bool updateEdge(const gsl_lite::not_null<const world::Box*>& current,
+                  const gsl_lite::not_null<const world::Box*>& neighbor);
 
-  std::vector<gsl::not_null<const world::Box*>> m_boxes;
-  std::deque<gsl::not_null<const world::Box*>> m_expansions;
-  std::unordered_map<gsl::not_null<const world::Box*>, bool> m_reachable;
-  std::unordered_map<gsl::not_null<const world::Box*>, size_t> m_distances;
-  std::unordered_map<gsl::not_null<const world::Box*>, gsl::not_null<const world::Box*>> m_edges;
+  std::vector<gsl_lite::not_null<const world::Box*>> m_boxes;
+  std::deque<gsl_lite::not_null<const world::Box*>> m_expansions;
+  std::unordered_map<gsl_lite::not_null<const world::Box*>, bool> m_reachable;
+  std::unordered_map<gsl_lite::not_null<const world::Box*>, size_t> m_distances;
+  std::unordered_map<gsl_lite::not_null<const world::Box*>, gsl_lite::not_null<const world::Box*>> m_edges;
   //! @brief The target box we need to reach
   const world::Box* m_targetBox = nullptr;
   core::TRVec m_target;

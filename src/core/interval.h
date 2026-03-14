@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace core
 {
@@ -12,8 +12,8 @@ struct Interval final
   T max{};
 
   explicit Interval() = default;
-  Interval(const Interval<T>&) = default;
-  Interval(Interval<T>&&) noexcept = default;
+  Interval(const Interval&) = default;
+  Interval(Interval&&) noexcept = default;
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   Interval(const T& min, const T& max) noexcept
@@ -22,21 +22,21 @@ struct Interval final
   {
   }
 
-  constexpr auto& operator=(const Interval<T>& rhs)
+  constexpr auto& operator=(const Interval& rhs)
   {
     min = rhs.min;
     max = rhs.max;
     return *this;
   }
 
-  [[nodiscard]] constexpr bool operator==(const Interval<T>& rhs) const
+  [[nodiscard]] constexpr bool operator==(const Interval& rhs) const
   {
     return min == rhs.min && max == rhs.max;
   }
 
   [[nodiscard]] constexpr auto operator+(const T& value) const
   {
-    return Interval<T>{min + value, max + value};
+    return Interval{min + value, max + value};
   }
 
   constexpr auto& operator+=(const T& value)
@@ -48,7 +48,7 @@ struct Interval final
 
   [[nodiscard]] constexpr auto operator-(const T& value) const
   {
-    return Interval<T>{min - value, max - value};
+    return Interval{min - value, max - value};
   }
 
   [[nodiscard]] constexpr bool isValid() const
@@ -82,19 +82,19 @@ struct Interval final
     return (min + max) / 2;
   }
 
-  [[nodiscard]] constexpr bool intersects(const Interval<T>& rhs) const
+  [[nodiscard]] constexpr bool intersects(const Interval& rhs) const
   {
     return min <= rhs.max && rhs.min <= max;
   }
 
-  [[nodiscard]] constexpr bool intersectsExclusive(const Interval<T>& rhs) const
+  [[nodiscard]] constexpr bool intersectsExclusive(const Interval& rhs) const
   {
     return min < rhs.max && rhs.min < max;
   }
 
   [[nodiscard]] constexpr auto narrowed(const T& value) const
   {
-    return Interval<T>{min + value, max - value};
+    return Interval{min + value, max - value};
   }
 
   [[nodiscard]] constexpr auto broadened(const T& value) const
@@ -102,24 +102,24 @@ struct Interval final
     return narrowed(-value);
   }
 
-  [[nodiscard]] constexpr auto intersect(const Interval<T>& rhs) const
+  [[nodiscard]] constexpr auto intersect(const Interval& rhs) const
   {
-    return Interval<T>{std::max(min, rhs.min), std::min(max, rhs.max)};
+    return Interval{std::max(min, rhs.min), std::min(max, rhs.max)};
   }
 
   [[nodiscard]] constexpr auto union_(const T& rhs) const
   {
-    return Interval<T>{std::min(min, rhs), std::max(max, rhs)};
+    return Interval{std::min(min, rhs), std::max(max, rhs)};
   }
 
-  [[nodiscard]] constexpr auto union_(const core::Interval<T>& rhs) const
+  [[nodiscard]] constexpr auto union_(const Interval& rhs) const
   {
-    return Interval<T>{std::min(min, rhs.min), std::max(max, rhs.max)};
+    return Interval{std::min(min, rhs.min), std::max(max, rhs.max)};
   }
 
   [[nodiscard]] constexpr auto sanitized() const
   {
-    return Interval<T>{std::min(min, max), std::max(min, max)};
+    return Interval{std::min(min, max), std::max(min, max)};
   }
 };
 

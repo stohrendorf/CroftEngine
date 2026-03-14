@@ -31,9 +31,9 @@ class Switch : public ModelObject
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(Switch, true, false)
 
-  void collide(CollisionInfo& collisionInfo) override;
+  void collide(CollisionInfo& /*collisionInfo*/) override;
 
-  void update() final
+  void updateLogic() final
   {
     m_state.activationState.fullyActivate();
     if(!m_state.updateActivationTimeout())
@@ -43,7 +43,7 @@ public:
       m_state.timer = 0_frame;
     }
 
-    ModelObject::update();
+    advanceFrame();
   }
 };
 } // namespace engine::objects

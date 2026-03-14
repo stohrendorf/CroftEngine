@@ -19,7 +19,6 @@ class TextureAttachment final
 {
   friend Framebuffer;
 
-private:
   gslu::nn_shared<Texture> m_texture;
   int32_t m_level;
   glm::ivec2 m_size;
@@ -28,7 +27,7 @@ private:
 
 public:
   template<typename PixelT>
-  explicit TextureAttachment(const gslu::nn_shared<Texture2D<PixelT>>& texture, int32_t level = 0)
+  explicit TextureAttachment(const gslu::nn_shared<Texture2D<PixelT>>& texture, const int32_t level = 0)
       : m_texture{texture}
       , m_level{level}
       , m_size{texture->size()}
@@ -36,7 +35,7 @@ public:
   }
 
   template<typename PixelT>
-  explicit TextureAttachment(const gslu::nn_shared<TextureDepth<PixelT>>& texture, int32_t level = 0)
+  explicit TextureAttachment(const gslu::nn_shared<TextureDepth<PixelT>>& texture, const int32_t level = 0)
       : m_texture{texture}
       , m_level{level}
       , m_size{texture->size()}
@@ -75,14 +74,14 @@ public:
     return m_renderState;
   }
 
-  void blit(const Framebuffer& target, api::BlitFramebufferFilter filter = api::BlitFramebufferFilter::Nearest);
+  void blit(const Framebuffer& target, api::BlitFramebufferFilter filter = api::BlitFramebufferFilter::Nearest) const;
 
-  void blit(const glm::ivec2& backbufferSize, api::BlitFramebufferFilter filter = api::BlitFramebufferFilter::Nearest);
+  void blit(const glm::ivec2& backbufferSize,
+            api::BlitFramebufferFilter filter = api::BlitFramebufferFilter::Nearest) const;
 };
 
 class FrameBufferBuilder final
 {
-private:
   Framebuffer::Attachments m_attachments;
   RenderState m_renderState;
 
@@ -93,7 +92,7 @@ public:
   FrameBufferBuilder& texture(api::FramebufferAttachment attachment,
                               const gslu::nn_shared<Texture2D<TPixel>>& texture,
                               int32_t level = 0,
-                              bool alphaBlend = true)
+                              const bool alphaBlend = true)
   {
     m_attachments.emplace_back(std::make_shared<TextureAttachment>(texture, level), attachment);
     if(attachment >= api::FramebufferAttachment::ColorAttachment0

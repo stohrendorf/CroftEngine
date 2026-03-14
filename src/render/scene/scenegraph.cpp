@@ -1,4 +1,4 @@
-#include "renderer.h"
+#include "scenegraph.h"
 
 #include "camera.h"
 #include "node.h"
@@ -11,7 +11,7 @@
 #include <gl/glassert.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <memory>
@@ -20,15 +20,15 @@
 
 namespace render::scene
 {
-Renderer::Renderer(gslu::nn_shared<Camera> camera)
+SceneGraph::SceneGraph(gslu::nn_shared<Camera> camera)
     : m_rootNode{std::make_shared<Node>("<rootnode>")}
     , m_camera{std::move(camera)}
 {
 }
 
-Renderer::~Renderer() = default;
+SceneGraph::~SceneGraph() = default;
 
-void Renderer::render()
+void SceneGraph::render() const
 {
   for(const auto translucencySelector : {Translucency::Opaque, Translucency::NonOpaque})
   {
@@ -38,11 +38,11 @@ void Renderer::render()
                           translucencySelector};
     {
       gl::RenderState tmp{};
-      tmp.setDepthWrite(translucencySelector == render::scene::Translucency::Opaque);
+      tmp.setDepthWrite(translucencySelector == Translucency::Opaque);
       context.pushState(tmp);
     }
 
-    Visitor visitor{gsl::not_null{&context}};
+    Visitor visitor{gsl_lite::not_null{&context}};
     m_rootNode->accept(visitor);
     visitor.render(m_camera->getPosition());
 
@@ -50,9 +50,9 @@ void Renderer::render()
   }
 }
 
-void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
-                     const gl::SRGBA8& clearColor,
-                     const float clearDepth)
+void SceneGraph::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
+                       const gl::SRGBA8& clearColor,
+                       const float clearDepth)
 {
   gl::api::core::Bitfield<gl::api::ClearBufferMask> bits;
   if(flags.isSet(gl::api::ClearBufferMask::ColorBufferBit))
@@ -85,8 +85,8 @@ void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& fl
   GL_ASSERT(gl::api::clear(bits));
 }
 
-void Renderer::resetRootNode()
+void SceneGraph::resetRootNode()
 {
-  m_rootNode = gsl::make_shared<Node>("<rootnode>");
+  m_rootNode = gsl_lite::make_shared<Node>("<rootnode>");
 }
 } // namespace render::scene

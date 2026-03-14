@@ -8,7 +8,7 @@
 
 namespace menu
 {
-class SelectLevelMenuState : public ListDisplayMenuState
+class SelectLevelMenuState final : public ListDisplayMenuState
 {
 public:
   explicit SelectLevelMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

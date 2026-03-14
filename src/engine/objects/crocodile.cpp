@@ -23,7 +23,7 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <tuple>
@@ -46,7 +46,7 @@ constexpr auto OnLandDead = 7_as;
 
 void Crocodile::updateInWaterAlive()
 {
-  core::Angle headRot = 0_deg;
+  auto headRot = 0_deg;
   const ai::EnemyLocation enemyLocation{*this};
   if(enemyLocation.laraInView)
   {
@@ -91,7 +91,7 @@ void Crocodile::updateInWaterAlive()
   else
   {
     m_state.type = TR1ItemId::CrocodileOnLand;
-    getSkeleton()->setAnim(gsl::not_null{
+    getSkeleton()->setAnim(gsl_lite::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0]});
     goal(getSkeleton()->getAnim()->state_id);
     m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
@@ -109,7 +109,7 @@ void Crocodile::updateInWaterDead()
 {
   if(m_state.current_anim_state != InWaterDead)
   {
-    getSkeleton()->setAnim(gsl::not_null{
+    getSkeleton()->setAnim(gsl_lite::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4]});
     m_state.current_anim_state = InWaterDead;
     m_state.health = core::DeadHealth;
@@ -128,7 +128,7 @@ void Crocodile::updateInWaterDead()
   }
   else
   {
-    getSkeleton()->setAnim(gsl::not_null{
+    getSkeleton()->setAnim(gsl_lite::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
     m_state.type = TR1ItemId::CrocodileOnLand;
     goal(OnLandDead);
@@ -140,7 +140,7 @@ void Crocodile::updateInWaterDead()
 
     loadObjectInfo(true);
   }
-  ModelObject::update();
+  advanceFrame();
   const auto sector = m_state.location.updateRoom();
   m_state.floor
     = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
@@ -161,8 +161,8 @@ void Crocodile::updateInWater()
 
 std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
 {
-  core::Angle turnRot = 0_deg;
-  core::Angle headRot = 0_deg;
+  auto turnRot = 0_deg;
+  auto headRot = 0_deg;
   const ai::EnemyLocation enemyLocation{*this};
   if(enemyLocation.laraInView)
   {
@@ -247,8 +247,8 @@ void Crocodile::updateOnLandDead()
   if(m_state.current_anim_state == OnLandDead)
     return;
 
-  getSkeleton()->setAnim(
-    gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
+  getSkeleton()->setAnim(gsl_lite::not_null{
+    &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
   m_state.current_anim_state = OnLandDead;
   m_state.health = core::DeadHealth;
 }
@@ -256,8 +256,8 @@ void Crocodile::updateOnLandDead()
 void Crocodile::updateOnLand()
 {
   BOOST_ASSERT(m_state.type == TR1ItemId::CrocodileOnLand);
-  core::Angle turn = 0_deg;
-  core::Angle headRot = 0_deg;
+  auto turn = 0_deg;
+  auto headRot = 0_deg;
   if(alive())
   {
     std::tie(headRot, turn) = updateOnLandAlive();
@@ -272,7 +272,7 @@ void Crocodile::updateOnLand()
   }
   if(m_state.location.room->isWaterRoom)
   {
-    getSkeleton()->setAnim(gsl::not_null{
+    getSkeleton()->setAnim(gsl_lite::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0]});
     goal(getSkeleton()->getAnim()->state_id);
     m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
@@ -291,11 +291,11 @@ void Crocodile::updateOnLand()
   }
   else
   {
-    ModelObject::update();
+    advanceFrame();
   }
 }
 
-void Crocodile::update()
+void Crocodile::updateLogic()
 {
   activateAi();
 

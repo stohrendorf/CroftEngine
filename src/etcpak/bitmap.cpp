@@ -4,30 +4,30 @@
 #include <cstddef>
 #include <cstdint>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <mutex>
 #include <tuple>
 #include <utility>
 
 Bitmap::Bitmap(const glm::ivec2& size)
-    : m_linesLeft{gsl::narrow_cast<uint32_t>(size.y / 4)}
+    : m_linesLeft{gsl_lite::narrow_cast<uint32_t>(size.y / 4)}
     , m_size{size}
 {
   gsl_Assert(size.x > 0 && size.y > 0);
-  m_data.resize(gsl::narrow_cast<size_t>(size.x) * gsl::narrow_cast<size_t>(size.y));
+  m_data.resize(gsl_lite::narrow_cast<size_t>(size.x) * gsl_lite::narrow_cast<size_t>(size.y));
   // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
   m_block = m_data.data();
 }
 
-Bitmap::Bitmap(const glm::ivec2& size, const gsl::span<const uint32_t>& rgba)
-    : m_linesLeft{gsl::narrow_cast<uint32_t>(size.y / 4)}
+Bitmap::Bitmap(const glm::ivec2& size, const gsl_lite::span<const uint32_t>& rgba)
+    : m_linesLeft{gsl_lite::narrow_cast<uint32_t>(size.y / 4)}
     , m_size{size}
 {
   gsl_Assert(size.x > 0 && size.y > 0);
-  gsl_Assert(gsl::narrow_cast<size_t>(size.x) * gsl::narrow_cast<size_t>(size.y) == rgba.size());
+  gsl_Assert(gsl_lite::narrow_cast<size_t>(size.x) * gsl_lite::narrow_cast<size_t>(size.y) == rgba.size());
 
-  m_data.resize(gsl::narrow_cast<size_t>(size.x) * gsl::narrow_cast<size_t>(size.y));
-  std::copy(rgba.begin(), rgba.end(), m_data.begin());
+  m_data.resize(gsl_lite::narrow_cast<size_t>(size.x) * gsl_lite::narrow_cast<size_t>(size.y));
+  std::ranges::copy(rgba, m_data.begin());
   // convert to the expected BGRA input from RGBA
   for(auto& px : m_data)
   {
@@ -39,17 +39,17 @@ Bitmap::Bitmap(const glm::ivec2& size, const gsl::span<const uint32_t>& rgba)
   m_block = m_data.data();
 }
 
-Bitmap::Bitmap(uint32_t lines)
+Bitmap::Bitmap(const uint32_t lines)
     : m_linesLeft{lines}
 {
 }
 
-std::tuple<const uint32_t*, uint32_t, bool> Bitmap::nextBlock(uint32_t wantedLines)
+std::tuple<const uint32_t*, uint32_t, bool> Bitmap::nextBlock(const uint32_t wantedLines)
 {
-  const std::lock_guard<std::mutex> lock(m_lock);
+  const std::lock_guard lock(m_lock);
   const auto lines = std::min(wantedLines, m_linesLeft);
   auto ret = m_block;
-  m_block += m_size.x * size_t(4u) * lines;
+  m_block += m_size.x * static_cast<size_t>(4u) * lines;
   m_linesLeft -= lines;
   return {ret, lines, m_linesLeft == 0};
 }

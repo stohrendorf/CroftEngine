@@ -7,14 +7,14 @@
 #include "hid/actions.h"
 #include "hid/inputstate.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_16 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_16(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_16(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::WalkBackward}
   {
   }

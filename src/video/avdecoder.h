@@ -34,7 +34,7 @@ struct AVFramePtr;
 
 namespace video
 {
-struct AVDecoder final : public audio::AbstractStreamSource
+struct AVDecoder final : audio::AbstractStreamSource
 {
   AVFormatContext* fmtContext = nullptr;
   std::unique_ptr<audio::AudioStreamDecoder> audioDecoder;
@@ -82,7 +82,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
   }
 
 private:
-  [[nodiscard]] std::chrono::high_resolution_clock::time_point getVideoTs();
+  [[nodiscard]] std::chrono::high_resolution_clock::time_point getVideoTs() const;
 
   std::chrono::high_resolution_clock::time_point m_playStart;
 };

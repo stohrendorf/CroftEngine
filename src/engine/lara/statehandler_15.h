@@ -8,14 +8,14 @@
 #include "hid/inputstate.h"
 #include "util/helpers.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace engine::lara
 {
 class StateHandler_15 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_15(const gsl::not_null<objects::LaraObject*>& lara)
+  explicit StateHandler_15(const gsl_lite::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::JumpPrepare}
   {
   }
@@ -37,27 +37,28 @@ public:
 
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward
        && getRelativeHeightAtDirection(getLara().m_state.rotation.Y, 256_len) >= -core::ClimbLimit2ClickMin)
     {
       setMovementAngle(getLara().m_state.rotation.Y);
       setGoalAnimState(LaraStateId::JumpForward);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left
             && getRelativeHeightAtDirection(getLara().m_state.rotation.Y - 90_deg, 256_len)
                  >= -core::ClimbLimit2ClickMin)
     {
       setMovementAngle(getLara().m_state.rotation.Y - 90_deg);
       setGoalAnimState(LaraStateId::JumpRight);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right
             && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 90_deg, 256_len)
                  >= -core::ClimbLimit2ClickMin)
     {
       setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
       setGoalAnimState(LaraStateId::JumpLeft);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
+    else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward
             && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 180_deg, 256_len)
                  >= -core::ClimbLimit2ClickMin)
     {

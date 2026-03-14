@@ -18,16 +18,16 @@ class Presenter;
 
 namespace ui::widgets
 {
-class Checkbox : public Widget
+class Checkbox final : public Widget
 {
 public:
   explicit Checkbox(const std::string& label);
   explicit Checkbox(gslu::nn_shared<Widget> content);
   ~Checkbox() override;
-  void update(bool hasFocus) override;
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void tick(bool hasFocus) override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
 
-  void setChecked(bool checked) noexcept
+  void setChecked(const bool checked) noexcept
   {
     m_checked = checked;
   }

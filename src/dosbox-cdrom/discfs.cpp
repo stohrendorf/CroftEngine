@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -78,8 +78,8 @@ void visitDir(DiscImage& drive,
         return;
       }
 
-      const auto nextAction = gsl::final_action(
-        [&]()
+      const auto nextAction = gsl_lite::final_action(
+        [&]
         {
           sectorOffset += record->LEN_DR;
           if(sectorOffset + offsetof(DirectoryRecord, identifierStart) > 2048)
@@ -120,7 +120,7 @@ void visitDir(DiscImage& drive,
       else
       {
         // file
-        gsl_Assert(fileMap.find(entryPath) == fileMap.end());
+        gsl_Assert(!fileMap.contains(entryPath));
         fileMap[entryPath] = FileSpan{record->extentLocation.le, record->dataLength.le};
       }
     }
@@ -129,7 +129,7 @@ void visitDir(DiscImage& drive,
 
 std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive)
 {
-  std::vector<uint8_t> sectorBuffer = drive.readSector(16);
+  const std::vector<uint8_t> sectorBuffer = drive.readSector(16);
   if(sectorBuffer.empty())
     return {};
 
@@ -150,7 +150,7 @@ std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive)
 std::vector<uint8_t> readFile(DiscImage& drive, const FileSpan& span)
 {
   auto buffer = drive.read(span.sector, span.size);
-  if(buffer.size() != gsl::narrow<size_t>(span.size))
+  if(buffer.size() != gsl_lite::narrow<size_t>(span.size))
     BOOST_THROW_EXCEPTION(std::runtime_error("could not read file"));
   return buffer;
 }

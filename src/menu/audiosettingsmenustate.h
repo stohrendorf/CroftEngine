@@ -28,9 +28,8 @@ namespace menu
 struct MenuDisplay;
 struct MenuRingTransform;
 
-class AudioSettingsMenuState : public SelectedMenuState
+class AudioSettingsMenuState final : public SelectedMenuState
 {
-private:
   std::unique_ptr<MenuState> m_previous;
   gslu::nn_shared<ui::widgets::GridBox> m_grid;
   gslu::nn_shared<ui::widgets::GroupBox> m_container;
@@ -41,6 +40,7 @@ private:
 public:
   explicit AudioSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                   std::unique_ptr<MenuState> previous);
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

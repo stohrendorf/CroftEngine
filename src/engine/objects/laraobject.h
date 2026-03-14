@@ -26,7 +26,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -43,7 +43,7 @@ struct SkeletalModelType;
 
 namespace engine
 {
-struct InterpolationInfo;
+struct AnimSegmentInterpolationInfo;
 }
 
 namespace loader::file
@@ -81,7 +81,6 @@ class LaraObject final : public ModelObject
   using LaraStateId = loader::file::LaraStateId;
   using AnimationId = loader::file::AnimationId;
 
-private:
   //! @brief Additional rotation per TR Engine Frame
   core::RotationSpeed m_yRotationSpeed{0_deg / 1_frame};
   core::Speed m_fallSpeedOverride = 0_spd;
@@ -100,19 +99,19 @@ private:
 #endif
 
 public:
-  LaraObject(const gsl::not_null<world::World*>& world, const Location& location)
+  LaraObject(const gsl_lite::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
-      , flashLightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+      , flashLightsBuffer{std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>(
           "dynamic-lights", gl::api::BufferUsage::DynamicDraw, 2)}
   {
     initMuzzleFlashes();
   }
 
   LaraObject(const std::string& name,
-             const gsl::not_null<world::World*>& world,
-             const gsl::not_null<const world::Room*>& room,
+             const gsl_lite::not_null<world::World*>& world,
+             const gsl_lite::not_null<const world::Room*>& room,
              const loader::file::Item& item,
-             const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
+             const gsl_lite::not_null<const world::SkeletalModelType*>& animatedModel);
 
   LaraObject(const LaraObject&) = delete;
   LaraObject(LaraObject&&) = delete;
@@ -141,9 +140,11 @@ public:
     return m_air;
   }
 
-  void advanceFrame();
+  void advanceLaraFrame();
 
-  void update() override;
+  void updateLogic() override;
+
+  void updatePrediction() override;
 
   void applyShift(const CollisionInfo& collisionInfo) noexcept
   {
@@ -152,9 +153,9 @@ public:
   }
 
 private:
-  void handleLaraStateOnLand();
-  void handleLaraStateDiving();
-  void handleLaraStateSwimming();
+  void handleLaraStateOnLand(const hid::InputHandler& inputHandler);
+  void handleLaraStateDiving(const hid::InputHandler& inputHandler);
+  void handleLaraStateSwimming(const hid::InputHandler& inputHandler);
   void testInteractions(CollisionInfo& collisionInfo);
 
   core::Frame m_swimToDiveKeypressDuration = 0_frame;
@@ -328,11 +329,11 @@ public:
   gslu::nn_shared<render::scene::Node> m_muzzleFlashLeft{std::make_shared<render::scene::Node>("muzzle flash left")};
   gslu::nn_shared<render::scene::Node> m_muzzleFlashRight{std::make_shared<render::scene::Node>("muzzle flash right")};
 
-  void updateLarasWeaponsStatus();
+  void updateLaraWeaponsStatus(const hid::InputHandler& inputHandler);
 
-  void updateShotgun();
+  void updateShotgun(const hid::InputHandler& inputHandler);
 
-  void updateTwoWeapons(WeaponType weaponType);
+  void updateTwoWeapons(WeaponType weaponType, const hid::InputHandler& inputHandler);
 
   void updateAimingState(const Weapon& weapon);
 
@@ -351,7 +352,7 @@ public:
 
   void drawShotgun();
 
-  void updateAnimShotgun();
+  void updateAnimShotgun(const hid::InputHandler& inputHandler);
 
   bool tryShootShot(WeaponType weaponType,
                     const std::shared_ptr<ModelObject>& targetObject,
@@ -364,7 +365,7 @@ public:
 
   void holsterTwoWeapons(WeaponType weaponType);
 
-  void updateAnimTwoWeapons(WeaponType weaponType);
+  void updateAnimTwoWeapons(WeaponType weaponType, const hid::InputHandler& inputHandler);
 
   void hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage);
 
@@ -373,9 +374,10 @@ public:
                          const gslu::nn_shared<render::scene::Node>& muzzleFlashNode,
                          bool visible) const;
 
-  void drawRoutine();
+  void updateLogicPose();
 
-  void drawRoutineInterpolated(const InterpolationInfo& interpolationInfo);
+  void updateLogicPoseInterpolated(const AnimSegmentInterpolationInfo& interpolationInfo,
+                                   const AnimSegmentInterpolationInfo& nextInterpolationInfo);
 
   void alignForInteraction(const core::TRVec& offset, const ObjectState& objectState)
   {
@@ -405,7 +407,7 @@ public:
 private:
   uint8_t m_cheatIdx = 0;
   core::Angle m_cheatLastRotation = 0_deg;
-  float m_cheatTotalRotation = 0;
+  core::Angle m_cheatTotalRotation = 0_deg;
 
   void initMuzzleFlashes();
   void updateCheats();
@@ -414,5 +416,10 @@ private:
                           const std::shared_ptr<ModelObject>& targetObject,
                           const ModelObject& weaponHolder,
                           const core::TRRotationXY& aimAngle);
+
+  std::vector<glm::mat4> calcPoseMatrices(const world::SkeletalModelType& objInfo,
+                                          const loader::file::AnimFrame& frame) const;
+  std::vector<glm::mat4> calcPoseMatricesInterpolated(const world::SkeletalModelType& objInfo,
+                                                      const AnimSegmentInterpolationInfo& interpolationInfo) const;
 };
 } // namespace engine::objects

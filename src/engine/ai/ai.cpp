@@ -24,7 +24,7 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <map>
 #include <memory>
 #include <optional>
@@ -33,8 +33,8 @@ namespace engine::ai
 {
 namespace
 {
-std::optional<ai::Mood>
-  getNewViolentMood(const EnemyLocation& enemyLocation, const ai::CreatureInfo& creatureInfo, bool isHit) noexcept
+std::optional<Mood>
+  getNewViolentMood(const EnemyLocation& enemyLocation, const CreatureInfo& creatureInfo, const bool isHit) noexcept
 {
   switch(creatureInfo.mood)
   {
@@ -58,10 +58,10 @@ std::optional<ai::Mood>
   return std::nullopt;
 }
 
-std::optional<ai::Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
-                                             const ai::CreatureInfo& creatureInfo,
-                                             bool isHit,
-                                             bool hasTargetBox)
+std::optional<Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
+                                         const CreatureInfo& creatureInfo,
+                                         const bool isHit,
+                                         const bool hasTargetBox)
 {
   switch(creatureInfo.mood)
   {
@@ -105,8 +105,11 @@ std::optional<ai::Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
   return std::nullopt;
 }
 
-std::optional<ai::Mood> getNewMood(
-  const EnemyLocation& enemyLocation, const ai::CreatureInfo& creatureInfo, bool isHit, bool violent, bool hasTargetBox)
+std::optional<Mood> getNewMood(const EnemyLocation& enemyLocation,
+                               const CreatureInfo& creatureInfo,
+                               const bool isHit,
+                               const bool violent,
+                               const bool hasTargetBox)
 {
   if(violent)
   {
@@ -129,7 +132,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   gsl_Assert(newTargetBox != nullptr);
   auto& lara = aiAgent.getWorld().getObjectManager().getLara();
   if(const auto box = lara.m_state.tryGetCurrentBox();
-     box == nullptr || creatureInfo.pathFinder.isUnreachable(gsl::not_null{box}))
+     box == nullptr || creatureInfo.pathFinder.isUnreachable(gsl_lite::not_null{box}))
   {
     // can't reach lara
     newTargetBox = nullptr;
@@ -151,7 +154,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   {
     creatureInfo.mood = Mood::Bored;
   }
-  else if(auto newMood
+  else if(const auto newMood
           = getNewMood(enemyLocation, creatureInfo, aiAgent.m_state.is_hit, violent, newTargetBox != nullptr);
           newMood.has_value())
   {
@@ -163,7 +166,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     if(originalMood == Mood::Attack)
     {
       gsl_Assert(creatureInfo.pathFinder.getTargetBox() != nullptr);
-      creatureInfo.pathFinder.setRandomSearchTarget(gsl::not_null{creatureInfo.pathFinder.getTargetBox()});
+      creatureInfo.pathFinder.setRandomSearchTarget(gsl_lite::not_null{creatureInfo.pathFinder.getTargetBox()});
     }
     // if we changed the mood, search for a new target, as the current one might have become invalid for the new mood
     newTargetBox = nullptr;
@@ -286,7 +289,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   if(newTargetBox != nullptr)
   {
     // we found a new target
-    creatureInfo.pathFinder.setTargetBox(gsl::not_null{newTargetBox});
+    creatureInfo.pathFinder.setTargetBox(gsl_lite::not_null{newTargetBox});
   }
 
   creatureInfo.pathFinder.calculateTarget(
@@ -345,8 +348,9 @@ EnemyLocation::EnemyLocation(const objects::AIAgent& aiAgent)
                       || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgentBox);
   }
 
-  const gsl::not_null objectInfo{aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
-    aiAgent.m_state.type.get_as<TR1ItemId>())};
+  const gsl_lite::not_null objectInfo{
+    aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
+      aiAgent.m_state.type.get_as<TR1ItemId>())};
   const core::Length pivotLength{objectInfo->pivot_length};
   const auto pivotToLara = lara.m_state.location.position
                            - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));
@@ -365,7 +369,7 @@ EnemyLocation::EnemyLocation(const objects::AIAgent& aiAgent)
 
 CreatureInfo::CreatureInfo(const world::World& world,
                            const core::TypeId& type,
-                           const gsl::not_null<const world::Box*>& initialBox)
+                           const gsl_lite::not_null<const world::Box*>& initialBox)
 {
   const auto& objectInfo
     = *world.getEngine().getScriptEngine().getGameflow().getObjectInfos().at(type.get_as<TR1ItemId>());

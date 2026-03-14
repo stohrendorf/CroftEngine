@@ -2,7 +2,7 @@
 
 #include <gl/renderstate.h>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <optional>
 #include <tuple>
 #include <vector>
@@ -15,7 +15,9 @@ class Node;
 class Visitor final
 {
 public:
-  explicit Visitor(const gsl::not_null<RenderContext*>& context, bool withScissors = true, bool backToFront = false)
+  explicit Visitor(const gsl_lite::not_null<RenderContext*>& context,
+                   const bool withScissors = true,
+                   const bool backToFront = false)
       : m_context{context}
       , m_withScissors{withScissors}
       , m_backToFront{backToFront}
@@ -31,6 +33,7 @@ public:
 
   void visit(const Node& node);
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   [[nodiscard]] RenderContext& getContext()
   {
     return *m_context;
@@ -41,15 +44,15 @@ public:
     return m_withScissors;
   }
 
-  void add(const gsl::not_null<const Node*>& node);
+  void add(const gsl_lite::not_null<const Node*>& node);
 
   void render(const std::optional<glm::vec3>& camera) const;
 
 private:
-  gsl::not_null<RenderContext*> m_context;
+  gsl_lite::not_null<RenderContext*> m_context;
   bool m_withScissors;
   bool m_backToFront;
-  using RenderableInfo = std::tuple<gsl::not_null<const Node*>, gl::RenderState>;
+  using RenderableInfo = std::tuple<gsl_lite::not_null<const Node*>, gl::RenderState>;
   mutable std::vector<RenderableInfo> m_nodes;
 };
 } // namespace render::scene

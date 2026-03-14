@@ -34,7 +34,6 @@ struct MenuRingTransform;
 
 class ControlsMenuState : public SelectedMenuState
 {
-private:
   enum class Mode : uint8_t
   {
     Display,
@@ -61,7 +60,7 @@ private:
   Mode m_mode = Mode::Display;
 
   void handleDisplayInput(engine::world::World& world);
-  void handleChangeKeyInput(engine::world::World& newInput);
+  void handleChangeKeyInput(engine::world::World& world);
   void handleConfirmInput(engine::world::World& world);
   void handleErrorInput(engine::world::World& world);
 
@@ -70,6 +69,7 @@ public:
                              std::unique_ptr<MenuState> previous,
                              const engine::world::World& world);
 
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> tick(engine::world::World& world, MenuDisplay& display) override;
+  void constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

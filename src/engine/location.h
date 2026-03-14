@@ -5,7 +5,7 @@
 #include "serialization/serialization_fwd.h"
 
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iosfwd>
 #include <utility>
 
@@ -20,11 +20,11 @@ namespace engine
 {
 struct Location final
 {
-  gsl::not_null<const world::Room*> room;
+  gsl_lite::not_null<const world::Room*> room;
 
   core::TRVec position;
 
-  explicit Location(gsl::not_null<const world::Room*> r, core::TRVec pos = {}) noexcept
+  explicit Location(gsl_lite::not_null<const world::Room*> r, core::TRVec pos = {}) noexcept
       : room{std::move(r)}
       , position{std::move(pos)}
   {
@@ -34,7 +34,7 @@ struct Location final
   void deserialize(const serialization::Deserializer<world::World>& ser);
   [[nodiscard]] static Location create(const serialization::Deserializer<world::World>& ser);
 
-  gsl::not_null<const world::Sector*> updateRoom();
+  gsl_lite::not_null<const world::Sector*> updateRoom();
 
   [[nodiscard]] auto moved(const core::TRVec& d) const
   {

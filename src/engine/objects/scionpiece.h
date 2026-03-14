@@ -41,7 +41,7 @@ class ScionPiece3 final : public ModelObject
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece3, true, false)
 
-  void update() override;
+  void updateLogic() override;
 
 private:
   core::Frame m_deadTime = 0_frame;
@@ -53,6 +53,8 @@ public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece4, true, false)
 
   void collide(CollisionInfo& info) override;
+
+  void updateLogic() override;
 };
 
 class ScionHolder final : public ModelObject
@@ -61,5 +63,7 @@ public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionHolder, true, false)
 
   void collide(CollisionInfo& info) override;
+
+  void updateLogic() override;
 };
 } // namespace engine::objects

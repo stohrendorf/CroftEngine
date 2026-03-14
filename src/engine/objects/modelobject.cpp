@@ -30,7 +30,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <glm/geometric.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -40,11 +40,11 @@
 namespace engine::objects
 {
 ModelObject::ModelObject(const std::string& name,
-                         const gsl::not_null<world::World*>& world,
-                         const gsl::not_null<const world::Room*>& room,
+                         const gsl_lite::not_null<world::World*>& world,
+                         const gsl_lite::not_null<const world::Room*>& room,
                          const loader::file::Item& item,
                          const bool hasUpdateFunction,
-                         const gsl::not_null<const world::SkeletalModelType*>& model,
+                         const gsl_lite::not_null<const world::SkeletalModelType*>& model,
                          bool shadowCaster)
     : Object{world, room, item, hasUpdateFunction}
     , m_skeleton{std::make_shared<SkeletalModelNode>(name, world, model, shadowCaster)}
@@ -53,7 +53,7 @@ ModelObject::ModelObject(const std::string& name,
   m_lighting.bind(*m_skeleton, *world);
 }
 
-void ModelObject::update()
+void ModelObject::advanceFrame()
 {
   const auto endOfAnim = m_skeleton->advanceFrame(m_state);
 
@@ -75,6 +75,7 @@ void ModelObject::update()
         moveLocal(core::TRVec{core::Length{static_cast<core::Length::type>(cmd[0])},
                               core::Length{static_cast<core::Length::type>(cmd[1])},
                               core::Length{static_cast<core::Length::type>(cmd[2])}});
+        m_skeleton->resetSmoothing();
         cmd += 3;
         break;
       case AnimCommandOpcode::StartFalling:
@@ -83,7 +84,7 @@ void ModelObject::update()
         m_state.falling = true;
         cmd += 2;
         break;
-        // NOLINTNEXTLINE(bugprone-branch-clone)
+      // NOLINTNEXTLINE(bugprone-branch-clone)
       case AnimCommandOpcode::PlaySound:
         cmd += 2;
         break;
@@ -98,7 +99,7 @@ void ModelObject::update()
       }
     }
 
-    m_skeleton->setAnimation(m_state.current_anim_state, gsl::not_null{anim->nextAnimation}, anim->nextFrame);
+    m_skeleton->setAnimation(m_state.current_anim_state, gsl_lite::not_null{anim->nextAnimation}, anim->nextFrame);
     m_state.goal_anim_state = m_state.current_anim_state;
     if(m_state.current_anim_state == m_state.required_anim_state)
       m_state.required_anim_state = 0_as;
@@ -171,9 +172,8 @@ void ModelObject::applyMovement(const bool forLara)
     setCurrentRoom(m_state.location.room);
   }
 
-  applyTransform();
-
-  m_skeleton->updatePose();
+  m_skeleton->calculatePoseMatrices(true);
+  applyLogicTransform();
 }
 
 core::BoundingBox ModelObject::getBoundingBox() const
@@ -186,8 +186,7 @@ bool ModelObject::isNear(const ModelObject& other, const core::Length& radius) c
   const auto bbox = getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
   const auto otherBBox = other.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
   const auto selfY = m_state.location.position.Y + bbox.y;
-  const auto otherY = other.m_state.location.position.Y + otherBBox.y;
-  if(!selfY.intersectsExclusive(otherY))
+  if(const auto otherY = other.m_state.location.position.Y + otherBBox.y; !selfY.intersectsExclusive(otherY))
   {
     return false;
   }
@@ -200,8 +199,7 @@ bool ModelObject::isNear(const Particle& other, const core::Length& radius) cons
 {
   const auto frame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = frame->bbox.toBBox();
-  const auto selfY = m_state.location.position.Y + bbox.y;
-  if(!selfY.containsExclusive(other.location.position.Y))
+  if(const auto selfY = m_state.location.position.Y + bbox.y; !selfY.containsExclusive(other.location.position.Y))
   {
     return false;
   }
@@ -277,11 +275,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     {
       lara.playSoundEffect(TR1SoundEffect::LaraOof);
     }
-    lara.hit_frame += 1_frame;
-    if(lara.hit_frame > 34_frame)
-    {
-      lara.hit_frame = 34_frame;
-    }
+    lara.hit_frame = std::min(lara.hit_frame + 1_frame, core::HitAnimationLastFrame);
   }
   collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
   collisionInfo.validCeilingHeightMin = 0_len;
@@ -319,8 +313,7 @@ bool ModelObject::testBoneCollision(const ModelObject& other)
         continue;
 
       const auto distance = glm::distance(otherSphere.getCollisionPosition(), boneSphere.getCollisionPosition());
-      const auto radii = (boneSphere.radius + otherSphere.radius).get<float>();
-      if(distance >= radii)
+      if(const auto radii = (boneSphere.radius + otherSphere.radius).get<float>(); distance >= radii)
         continue;
 
       m_state.touch_bits.set(boneSphereIdx);
@@ -369,14 +362,7 @@ void ModelObject::deserialize(const serialization::Deserializer<world::World>& s
   m_lighting.bind(*m_skeleton, *ser.context);
 }
 
-std::shared_ptr<ModelObject> ModelObject::create(serialization::Deserializer<world::World>& ser)
-{
-  auto result = std::make_shared<ModelObject>(ser.context, Location::create(ser["@location"]));
-  result->deserialize(ser);
-  return result;
-}
-
-void ModelObject::collideWithLara(CollisionInfo& collisionInfo, bool push)
+void ModelObject::collideWithLara(CollisionInfo& collisionInfo, const bool push)
 {
   const auto& lara = getWorld().getObjectManager().getLara();
 
@@ -408,19 +394,13 @@ ModelObject::~ModelObject()
 {
   if(m_skeleton != nullptr)
   {
-    setParent(gsl::not_null{m_skeleton}, nullptr);
+    setParent(gsl_lite::not_null{m_skeleton}, nullptr);
   }
 }
 
 std::shared_ptr<render::scene::Node> ModelObject::getNode() const
 {
   return m_skeleton;
-}
-
-std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Deserializer<world::World>& ser)
-{
-  return ModelObject::create(ser);
 }
 
 void NullRenderModelObject::serialize(const serialization::Serializer<world::World>& ser) const
@@ -437,11 +417,11 @@ void NullRenderModelObject::deserialize(const serialization::Deserializer<world:
 }
 
 NullRenderModelObject::NullRenderModelObject(const std::string& name,
-                                             const gsl::not_null<world::World*>& world,
-                                             const gsl::not_null<const world::Room*>& room,
+                                             const gsl_lite::not_null<world::World*>& world,
+                                             const gsl_lite::not_null<const world::Room*>& room,
                                              const loader::file::Item& item,
-                                             bool hasUpdateFunction,
-                                             const gsl::not_null<const world::SkeletalModelType*>& model)
+                                             const bool hasUpdateFunction,
+                                             const gsl_lite::not_null<const world::SkeletalModelType*>& model)
     : ModelObject{name, world, room, item, hasUpdateFunction, model, false}
 {
   getSkeleton()->setRenderable(nullptr);

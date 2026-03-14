@@ -84,7 +84,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdlib>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -92,7 +92,7 @@
 namespace engine::lara
 {
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const LaraStateId id,
-                                                                   const gsl::not_null<objects::LaraObject*>& lara)
+                                                                   const gsl_lite::not_null<objects::LaraObject*>& lara)
 {
   switch(id)
   {
@@ -247,7 +247,7 @@ LaraStateId AbstractStateHandler::getCurrentAnimState() const
 void AbstractStateHandler::setAnimation(const AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
   m_lara->setAnimation(anim, firstFrame);
-  m_lara->drawRoutine();
+  m_lara->updateLogicPose();
 }
 
 const world::World& AbstractStateHandler::getWorld() const
@@ -348,20 +348,20 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
     return false;
   }
 
-  const auto floorGradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
-  if(floorGradient >= core::MaxGrabbableGradient)
+  if(const auto floorGradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
+     floorGradient >= core::MaxGrabbableGradient)
   {
     return false;
   }
 
-  auto alignedRotation = snapRotation(m_lara->m_state.rotation.Y, 30_deg);
+  const auto alignedRotation = snapRotation(m_lara->m_state.rotation.Y, 30_deg);
   if(!alignedRotation)
   {
     return false;
   }
 
-  const auto climbHeight = collisionInfo.front.floor.dy;
-  if(climbHeight >= -core::ClimbLimit2ClickMax && climbHeight <= -core::ClimbLimit2ClickMin)
+  if(const auto climbHeight = collisionInfo.front.floor.dy;
+     climbHeight >= -core::ClimbLimit2ClickMax && climbHeight <= -core::ClimbLimit2ClickMin)
   {
     if(climbHeight < collisionInfo.front.ceiling.dy
        || collisionInfo.frontLeft.floor.dy < collisionInfo.frontLeft.ceiling.dy
@@ -397,7 +397,7 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
     setGoalAnimState(LaraStateId::JumpUp);
     setCurrentAnimState(LaraStateId::Stop);
     setFallSpeedOverride(-(sqrt(-2 * core::Gravity * (climbHeight + 800_len)) + 3_spd));
-    m_lara->advanceFrame();
+    m_lara->advanceLaraFrame();
   }
   else
   {
@@ -443,13 +443,12 @@ bool AbstractStateHandler::checkWallCollision(const CollisionInfo& collisionInfo
 bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 {
   const auto slantX = std::labs(collisionInfo.floorSlantX);
-  const auto slantZ = std::labs(collisionInfo.floorSlantZ);
-  if(slantX <= 2 && slantZ <= 2)
+  if(const auto slantZ = std::labs(collisionInfo.floorSlantZ); slantX <= 2 && slantZ <= 2)
   {
     return false;
   }
 
-  core::Angle targetAngle{0_deg};
+  auto targetAngle{0_deg};
   if(collisionInfo.floorSlantX < -2)
   {
     targetAngle = 90_deg;
@@ -614,8 +613,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     return;
   }
 
-  const auto gradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
-  if(gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.dy >= 0_len
+  if(const auto gradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
+     gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.dy >= 0_len
      || collisionInfo.collisionType != CollisionInfo::AxisColl::Front || tooCloseToFloor)
   {
     m_lara->m_state.location.position = collisionInfo.initialPosition;
@@ -643,8 +642,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     break;
   }
 
-  const auto spaceToReach = collisionInfo.front.floor.dy - getLara().getBoundingBox().y.min;
-  if(spaceToReach >= -core::QuarterSectorSize && spaceToReach <= core::QuarterSectorSize)
+  if(const auto spaceToReach = collisionInfo.front.floor.dy - getLara().getBoundingBox().y.min;
+     spaceToReach >= -core::QuarterSectorSize && spaceToReach <= core::QuarterSectorSize)
   {
     m_lara->m_state.location.position.Y += spaceToReach;
   }
@@ -781,6 +780,6 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 
 void AbstractStateHandler::laraAdvanceFrame()
 {
-  m_lara->advanceFrame();
+  m_lara->advanceLaraFrame();
 }
 } // namespace engine::lara

@@ -11,35 +11,35 @@ namespace render::scene
 class Camera;
 class Node;
 
-class Renderer final
+class SceneGraph final
 {
 public:
-  Renderer(const Renderer&) = delete;
-  Renderer(Renderer&&) = delete;
-  Renderer& operator=(const Renderer&) = delete;
-  Renderer& operator=(Renderer&&) = delete;
+  SceneGraph(const SceneGraph&) = delete;
+  SceneGraph(SceneGraph&&) = delete;
+  SceneGraph& operator=(const SceneGraph&) = delete;
+  SceneGraph& operator=(SceneGraph&&) = delete;
 
-  explicit Renderer(gslu::nn_shared<Camera> camera);
+  explicit SceneGraph(gslu::nn_shared<Camera> camera);
 
-  ~Renderer();
+  ~SceneGraph();
 
   [[nodiscard]] std::chrono::high_resolution_clock::time_point getGameTime() const
   {
     return std::chrono::high_resolution_clock::now() - m_constructionTime.time_since_epoch();
   }
 
-  void render();
+  void render() const;
 
   void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
              const gl::SRGBA8& clearColor,
              float clearDepth);
 
   void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
-             uint8_t red,
-             uint8_t green,
-             uint8_t blue,
-             uint8_t alpha,
-             float clearDepth)
+             const uint8_t red,
+             const uint8_t green,
+             const uint8_t blue,
+             const uint8_t alpha,
+             const float clearDepth)
   {
     clear(flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth);
   }
@@ -47,11 +47,6 @@ public:
   [[nodiscard]] const auto& getRootNode() const
   {
     return m_rootNode;
-  }
-
-  [[nodiscard]] const auto& getCamera() const
-  {
-    return m_camera;
   }
 
   void resetRootNode();

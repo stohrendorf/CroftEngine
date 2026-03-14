@@ -24,13 +24,13 @@
 #include "util/helpers.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 
 namespace engine::objects
 {
-void Pierre::update()
+void Pierre::updateLogic()
 {
   if(getWorld().getPierre() == nullptr)
   {
@@ -53,9 +53,9 @@ void Pierre::update()
 
   activateAi();
 
-  core::Angle tiltRot = 0_deg;
-  core::Angle turn = 0_deg;
-  core::Angle headRot = 0_deg;
+  auto tiltRot = 0_deg;
+  auto turn = 0_deg;
+  auto headRot = 0_deg;
   if(m_state.health <= 40_hp && !m_state.activationState.isOneshot())
   {
     m_state.health = 40_hp;
@@ -155,7 +155,7 @@ void Pierre::update()
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
     getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Pierre)->animations[12]});
+      gsl_lite::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Pierre)->animations[12]});
     m_state.current_anim_state = 5_as;
     getWorld().createPickup(TR1ItemId::MagnumsSprite, m_state.location.room, m_state.location.position);
     getWorld().createPickup(TR1ItemId::ScionPiece2, m_state.location.room, m_state.location.position);

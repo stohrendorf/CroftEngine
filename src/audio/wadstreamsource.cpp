@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <iosfwd>
 #include <memory>
 #include <stdexcept>
@@ -33,7 +33,7 @@ std::unique_ptr<FfmpegSubStreamStreamSource> createWadStream(const std::filesyst
   if(!wadFile->is_open())
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
 
-  wadFile->seekg(gsl::narrow<std::ifstream::off_type>(trackIndex * WADStride), std::ios::beg);
+  wadFile->seekg(gsl_lite::narrow<std::ifstream::off_type>(trackIndex * WADStride), std::ios::beg);
 
   std::array<char, WADNameLength> trackName{};
   wadFile->read(trackName.data(), WADNameLength);

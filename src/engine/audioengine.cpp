@@ -31,7 +31,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -164,15 +164,15 @@ void AudioEngine::triggerNormalCdTrack(const script::Gameflow& gameflow,
   }
 }
 
-void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1TrackId trackId, bool stop)
+void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1TrackId trackId, const bool stop)
 {
-  if(gameflow.getTracks().count(trackId) == 0)
+  if(!gameflow.getTracks().contains(trackId))
   {
     BOOST_LOG_TRIVIAL(warning) << "Track " << toString(trackId) << " is not defined in the gameflow";
     return;
   }
 
-  const gsl::not_null trackInfo{gameflow.getTracks().at(trackId)};
+  const gsl_lite::not_null trackInfo{gameflow.getTracks().at(trackId)};
 
   m_currentTrack.reset();
 
@@ -182,8 +182,8 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
     m_soundEngine->getDevice().registerUpdateCallback(audio::FadeVolumeCallback{
       0.0f,
       FadeOutDuration,
-      gsl::not_null{currentlyPlaying},
-      audio::FadeVolumeCallback::FinalCallback{[currentlyPlaying, slot = trackInfo->slot, this]()
+      gsl_lite::not_null{currentlyPlaying},
+      audio::FadeVolumeCallback::FinalCallback{[currentlyPlaying, slot = trackInfo->slot, this]
                                                {
                                                  BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - fade out slot " << slot
                                                                           << " done, removing stream";
@@ -230,7 +230,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     return nullptr;
   }
 
-  const auto soundEffect = gsl::not_null{soundEffectIt->second};
+  const auto soundEffect = gsl_lite::not_null{soundEffectIt->second};
   if(soundEffect->chance != 0 && util::rand15() > soundEffect->chance)
     return nullptr;
 
@@ -259,14 +259,14 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     }
     else
     {
-      auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+      const auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
       m_sfx.add(voice);
       voice->setLooping(true);
       voice->play();
       return voice.get();
     }
   case loader::file::PlaybackType::Restart:
-    if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
+    if(const auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
       gsl_Assert(voices.size() == 1);
       auto voice = voices[0];
@@ -282,7 +282,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     }
     else
     {
-      auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+      const auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
       m_sfx.add(voice);
       return voice.get();
     }
@@ -294,13 +294,13 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     }
     else
     {
-      auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+      const auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
       m_sfx.add(voice);
       return voice.get();
     }
   default:
   {
-    auto handle = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+    const auto handle = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
     m_sfx.add(handle);
     return handle.get();
   }
@@ -313,7 +313,7 @@ void AudioEngine::stopSoundEffect(const core::SoundEffectId& id, const audio::Em
   if(soundEffectIt == m_soundEffects.end())
     return;
 
-  const auto soundEffect = gsl::not_null{soundEffectIt->second};
+  const auto soundEffect = gsl_lite::not_null{soundEffectIt->second};
   const size_t first = soundEffect->sample.get();
   const size_t last = first + soundEffect->getSampleCount();
 
@@ -330,7 +330,7 @@ void AudioEngine::stopSoundEffect(const core::SoundEffectId& id, const audio::Em
     BOOST_LOG_TRIVIAL(debug) << "Stopped samples of sound effect " << toString(id.get_as<TR1SoundEffect>());
 }
 
-void AudioEngine::setUnderwater(bool underwater)
+void AudioEngine::setUnderwater(const bool underwater)
 {
   if(underwater)
   {
@@ -350,7 +350,7 @@ void AudioEngine::setUnderwater(bool underwater)
   }
 }
 
-void AudioEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
+void AudioEngine::addWav(const gsl_lite::not_null<const uint8_t*>& buffer)
 {
   auto handle = std::make_shared<audio::BufferHandle>();
   handle->fillFromWav(buffer.get());
@@ -379,7 +379,7 @@ void AudioEngine::deserialize(const serialization::Deserializer<world::World>& s
   m_soundEngine->deserializeStreams(ser, m_rootPath, m_music);
 }
 
-AudioEngine::AudioEngine(gsl::not_null<world::World*> world,
+AudioEngine::AudioEngine(gsl_lite::not_null<world::World*> world,
                          std::filesystem::path rootPath,
                          std::shared_ptr<audio::SoundEngine> soundEngine)
     : m_world{std::move(world)}
@@ -398,7 +398,7 @@ void AudioEngine::initForWorld(const std::vector<loader::file::SoundEffectProper
     if(soundEffects[i] < 0)
       continue;
 
-    m_soundEffects[gsl::narrow<int>(i)] = &m_soundEffectProperties.at(soundEffects[i]);
+    m_soundEffects[gsl_lite::narrow<int>(i)] = &m_soundEffectProperties.at(soundEffects[i]);
   }
   m_cdTrackActivationStates.clear();
   m_cdTrack50time = 0_frame;

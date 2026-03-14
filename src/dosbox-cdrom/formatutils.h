@@ -2,7 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <ios>
 
 namespace image
@@ -20,7 +20,7 @@ constexpr std::streamsize Mode2XaHeaderSize = 24;
 constexpr std::streamsize Mode2Form1UserDataSize = 2048;
 constexpr std::streamsize Mode2Form2UserDataSize = 2324;
 
-[[nodiscard]] inline std::streamsize getSectorHeaderSize(size_t sectorSize, bool mode2xa)
+[[nodiscard]] inline std::streamsize getSectorHeaderSize(const size_t sectorSize, const bool mode2xa)
 {
   if(sectorSize == Mode1UserDataSize)
     return 0;
@@ -30,7 +30,7 @@ constexpr std::streamsize Mode2Form2UserDataSize = 2324;
     return Mode1HeaderSize;
 }
 
-[[nodiscard]] inline std::streamsize getSectorUserDataSize(const gsl::span<uint8_t>& sector, bool mode2xa)
+[[nodiscard]] inline std::streamsize getSectorUserDataSize(const gsl_lite::span<uint8_t>& sector, const bool mode2xa)
 {
   if(!mode2xa)
     return Mode1UserDataSize;

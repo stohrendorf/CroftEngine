@@ -12,7 +12,7 @@
 #include <bitset>
 #include <cstdint>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <utility>
 
 namespace audio
@@ -45,20 +45,22 @@ enum class TriggerState : uint8_t
 
 class Object;
 
-struct ObjectState final : public audio::Emitter
+struct ObjectState final : audio::Emitter
 {
 private:
   friend Object;
 
-  explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine, Location location)
+  explicit ObjectState(const gsl_lite::not_null<audio::SoundEngine*>& engine, Location location)
       : Emitter{engine}
       , location{std::move(location)}
+      , predictedPosition{location.position}
   {
   }
 
 public:
-  explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine,
-                       const gsl::not_null<const world::Room*>& room,
+  /// Deserialization constructor. Fields will be populated by deserialization code.
+  explicit ObjectState(const gsl_lite::not_null<audio::SoundEngine*>& engine,
+                       const gsl_lite::not_null<const world::Room*>& room,
                        const core::TypeId& type)
       : Emitter{engine}
       , type{type}
@@ -75,9 +77,11 @@ public:
 
   glm::vec3 getPosition() const override;
 
-  core::TypeId type = core::TypeId{uint16_t(-1)};
+  core::TypeId type = core::TypeId{static_cast<uint16_t>(-1)};
   Location location;
+  core::TRVec predictedPosition;
   core::TRRotation rotation;
+  core::TRRotation predictedRotation;
   core::Speed speed = 0_spd;
   core::Speed fallspeed = 0_spd;
   core::AnimStateId current_anim_state = 0_as;
@@ -131,7 +135,7 @@ public:
     return health <= 0_hp;
   }
 
-  gsl::not_null<const world::Box*> getCurrentBox() const;
+  gsl_lite::not_null<const world::Box*> getCurrentBox() const;
   const world::Box* tryGetCurrentBox() const;
 
   void hitLara(const core::Health& damage, bool noHits);

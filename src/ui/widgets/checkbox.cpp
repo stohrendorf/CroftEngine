@@ -6,7 +6,7 @@
 #include "widget.h"
 
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -17,7 +17,7 @@ namespace ui::widgets
 constexpr int ContentOffset = 20;
 
 Checkbox::Checkbox(const std::string& label)
-    : m_content{gsl::make_shared<Label>(label)}
+    : m_content{gsl_lite::make_shared<Label>(label)}
 {
 }
 
@@ -28,28 +28,28 @@ Checkbox::Checkbox(gslu::nn_shared<Widget> content)
 
 Checkbox::~Checkbox() = default;
 
-void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void Checkbox::draw(Ui& ui, const engine::Presenter& presenter) const
 {
   m_content->setSize({m_size.x - ContentOffset, m_size.y});
   m_content->draw(ui, presenter);
 
-  static constexpr int BoxSize = ui::FontHeight - 2 * ui::OutlineBorderWidth;
+  static constexpr int BoxSize = FontHeight - 2 * OutlineBorderWidth;
   static constexpr int InnerOffset = 3;
   static constexpr int InnerSize = BoxSize - 2 * InnerOffset + 1;
-  ui.drawOutlineBox(m_content->getPosition() + glm::ivec2{ui::OutlineBorderWidth - ContentOffset, 3 - ui::FontHeight},
+  ui.drawOutlineBox(m_content->getPosition() + glm::ivec2{OutlineBorderWidth - ContentOffset, 3 - FontHeight},
                     {BoxSize, BoxSize});
   if(m_checked)
   {
     ui.drawBox(m_content->getPosition()
-                 + glm::ivec2{ui::OutlineBorderWidth + InnerOffset - ContentOffset, 3 + InnerOffset - ui::FontHeight},
+                 + glm::ivec2{OutlineBorderWidth + InnerOffset - ContentOffset, 3 + InnerOffset - FontHeight},
                {InnerSize, InnerSize},
                15);
   }
 }
 
-void Checkbox::update(bool hasFocus)
+void Checkbox::tick(const bool hasFocus)
 {
-  m_content->update(hasFocus);
+  m_content->tick(hasFocus);
 }
 
 void Checkbox::setPosition(const glm::ivec2& position)

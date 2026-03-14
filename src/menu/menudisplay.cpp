@@ -45,7 +45,7 @@
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <stdexcept>
@@ -55,7 +55,7 @@
 
 namespace menu
 {
-void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object)
+void MenuDisplay::constructMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object)
 {
   size_t totalItemCount = world.getPlayer().getInventory().count(object.type);
   std::string suffix;
@@ -64,7 +64,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   {
     const ui::Text text{ui::makeAmmoString(ammo.getDisplayString())};
     text.draw(ui,
-              world.getPresenter().getTrFont(),
+              world.getEngine().getPresenter().getTrFont(),
               {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
   };
 
@@ -123,8 +123,9 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   case engine::TR1ItemId::SmallMedipackSprite:
   case engine::TR1ItemId::LargeMedipack:
   case engine::TR1ItemId::LargeMedipackSprite:
-    world.getPresenter().initHealthBarTimeout();
-    world.getPresenter().drawBars(ui, world.getWorldGeometry().getPalette(), world.getObjectManager(), false);
+    world.getEngine().getPresenter().initHealthBarTimeout();
+    world.getEngine().getPresenter().constructBars(
+      ui, world.getWorldGeometry().getPalette(), world.getObjectManager(), false);
     break;
   default:
     break;
@@ -134,41 +135,57 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   {
     const ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
     text.draw(ui,
-              world.getPresenter().getTrFont(),
+              world.getEngine().getPresenter().getTrFont(),
               {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
   }
 }
 
-void MenuDisplay::update(ui::Ui& ui, engine::world::World& world)
+void MenuDisplay::tick(engine::world::World& world)
 {
-  if(auto newState = m_currentState->onFrame(ui, world, *this))
+  for(auto& menuObject : getCurrentRing().list)
+  {
+    m_currentState->handleObjectTick(world, *this, menuObject);
+  }
+  if(auto newState = m_currentState->tick(world, *this))
   {
     m_currentState = std::move(newState);
     m_currentState->begin(world);
   }
+}
 
+void MenuDisplay::constructUi(ui::Ui& ui, engine::world::World& world)
+{
+  m_currentState->constructUi(ui, world, *this);
+  constructNavigationHints(ui, world);
+}
+
+void MenuDisplay::constructNavigationHints(ui::Ui& ui, const engine::world::World& world) const
+{
   static constexpr int RingInfoXMargin = 20;
   if(currentRingIndex > 0)
   {
-    m_upArrow.draw(ui, world.getPresenter().getTrFont(), {RingInfoXMargin, RingInfoYMargin});
-    m_upArrow.draw(
-      ui, world.getPresenter().getTrFont(), {ui.getSize().x - m_upArrow.getWidth() - RingInfoXMargin, RingInfoYMargin});
+    m_upArrow.draw(ui, world.getEngine().getPresenter().getTrFont(), {RingInfoXMargin, RingInfoYMargin});
+    m_upArrow.draw(ui,
+                   world.getEngine().getPresenter().getTrFont(),
+                   {ui.getSize().x - m_upArrow.getWidth() - RingInfoXMargin, RingInfoYMargin});
   }
 
   if(currentRingIndex + 1 < rings.size())
   {
-    m_downArrow.draw(
-      ui, world.getPresenter().getTrFont(), {RingInfoXMargin, ui.getSize().y - RingInfoYMargin + ui::FontHeight});
+    m_downArrow.draw(ui,
+                     world.getEngine().getPresenter().getTrFont(),
+                     {RingInfoXMargin, ui.getSize().y - RingInfoYMargin + ui::FontHeight});
     m_downArrow.draw(
       ui,
-      world.getPresenter().getTrFont(),
+      world.getEngine().getPresenter().getTrFont(),
       {ui.getSize().x - m_downArrow.getWidth() - RingInfoXMargin, ui.getSize().y - RingInfoYMargin + ui::FontHeight});
   }
 
   if(rings.size() > 1)
   {
     const ui::Text title{getCurrentRing().title};
-    title.draw(ui, world.getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
+    title.draw(
+      ui, world.getEngine().getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
   }
 }
 
@@ -206,19 +223,19 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   case engine::TR1ItemId::Flashlight:
     BOOST_THROW_EXCEPTION(std::runtime_error("Gamma options are not implemented"));
   case engine::TR1ItemId::Compass:
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return)
-       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+    if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return)
+       || world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
     {
-      object.animDirection = 1_frame;
-      object.goalFrame = object.lastMeshAnimFrame - 1_frame;
+      object.animDirection = 1_mframe;
+      object.goalFrame = object.lastMeshAnimFrame - 1_mframe;
     }
     break;
   default:
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return)
-       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+    if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return)
+       || world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
     {
-      object.animDirection = -1_frame;
-      object.goalFrame = 0_frame;
+      object.animDirection = -1_mframe;
+      object.goalFrame = 0_mframe;
     }
     break;
   }
@@ -226,12 +243,13 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   return false;
 }
 
-std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::World& world, bool withHomePolaroid)
+std::vector<MenuObject> MenuDisplay::getOptionRingObjects(engine::world::World& world,
+                                                          const bool withHomePolaroid) const
 {
   std::vector objects{MenuObject{/* translators: TR charmap encoding */ _("Game"),
                                  engine::TR1ItemId::PassportClosed,
-                                 30_frame,
-                                 14_frame,
+                                 30_mframe,
+                                 14_mframe,
                                  25_deg,
                                  -24_deg,
                                  0_deg,
@@ -240,24 +258,24 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::W
                                  0x13},
                       MenuObject{/* translators: TR charmap encoding */ _("Controls"),
                                  engine::TR1ItemId::DirectionKeys,
-                                 1_frame,
-                                 0_frame,
+                                 1_mframe,
+                                 0_mframe,
                                  30_deg,
                                  8_deg,
                                  0_deg,
                                  352_len},
                       MenuObject{/* translators: TR charmap encoding */ _("Sound"),
                                  engine::TR1ItemId::CassettePlayer,
-                                 1_frame,
-                                 0_frame,
+                                 1_mframe,
+                                 0_mframe,
                                  26_deg,
                                  -13_deg,
                                  0_deg,
                                  368_len},
                       MenuObject{/* translators: TR charmap encoding */ _("Detail Levels"),
                                  engine::TR1ItemId::Sunglasses,
-                                 1_frame,
-                                 0_frame,
+                                 1_mframe,
+                                 0_mframe,
                                  23_deg,
                                  -37_deg,
                                  0_deg,
@@ -266,33 +284,31 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::W
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Gym"),
                                     engine::TR1ItemId::LarasHomePolaroid,
-                                    1_frame,
-                                    0_frame,
+                                    1_mframe,
+                                    0_mframe,
                                     25_deg,
                                     -24_deg,
                                     0_deg,
                                     384_len});
   }
 
-  objects.erase(std::remove_if(objects.begin(),
-                               objects.end(),
-                               [&world](const MenuObject& obj)
-                               {
-                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
-                               }),
-                objects.end());
+  std::erase_if(objects,
+                [&world](const MenuObject& obj)
+                {
+                  return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
+                });
   for(auto& object : objects)
     object.initModel(world, m_lightsBuffer);
 
   return objects;
 }
 
-std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::World& world)
+std::vector<MenuObject> MenuDisplay::getMainRingObjects(engine::world::World& world) const
 {
   std::vector objects{MenuObject{/* translators: TR charmap encoding */ _("Compass"),
                                  engine::TR1ItemId::Compass,
-                                 25_frame,
-                                 10_frame,
+                                 25_mframe,
+                                 10_mframe,
                                  24_deg,
                                  -45_deg,
                                  0_deg,
@@ -304,8 +320,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Pistols"),
                                     engine::TR1ItemId::Pistols,
-                                    12_frame,
-                                    11_frame,
+                                    12_mframe,
+                                    11_mframe,
                                     18_deg,
                                     -21_deg,
                                     0_deg,
@@ -315,8 +331,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Shotgun"),
                                     engine::TR1ItemId::Shotgun,
-                                    13_frame,
-                                    12_frame,
+                                    13_mframe,
+                                    12_mframe,
                                     18_deg,
                                     0_deg,
                                     -45_deg,
@@ -326,8 +342,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Shotgun Cells"),
                                     engine::TR1ItemId::ShotgunAmmo,
-                                    1_frame,
-                                    0_frame,
+                                    1_mframe,
+                                    0_mframe,
                                     18_deg,
                                     -20_deg,
                                     0_deg,
@@ -338,8 +354,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Magnums"),
                                     engine::TR1ItemId::Magnums,
-                                    12_frame,
-                                    11_frame,
+                                    12_mframe,
+                                    11_mframe,
                                     18_deg,
                                     -20_deg,
                                     0_deg,
@@ -349,8 +365,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Magnum Clips"),
                                     engine::TR1ItemId::MagnumAmmo,
-                                    1_frame,
-                                    0_frame,
+                                    1_mframe,
+                                    0_mframe,
                                     18_deg,
                                     -20_deg,
                                     0_deg,
@@ -361,8 +377,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Uzis"),
                                     engine::TR1ItemId::Uzis,
-                                    13_frame,
-                                    12_frame,
+                                    13_mframe,
+                                    12_mframe,
                                     18_deg,
                                     -20_deg,
                                     0_deg,
@@ -372,8 +388,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Uzi Clips"),
                                     engine::TR1ItemId::UziAmmo,
-                                    1_frame,
-                                    0_frame,
+                                    1_mframe,
+                                    0_mframe,
                                     18_deg,
                                     -20_deg,
                                     0_deg,
@@ -383,8 +399,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Grenade"),
                                     engine::TR1ItemId::Explosive,
-                                    15_frame,
-                                    14_frame,
+                                    15_mframe,
+                                    14_mframe,
                                     28_deg,
                                     0_deg,
                                     0_deg,
@@ -394,8 +410,8 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Large Medi Pack"),
                                     engine::TR1ItemId::LargeMedipack,
-                                    20_frame,
-                                    19_frame,
+                                    20_mframe,
+                                    19_mframe,
                                     20_deg,
                                     -45_deg,
                                     -22.5_deg,
@@ -405,104 +421,104 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Small Medi Pack"),
                                     engine::TR1ItemId::SmallMedipack,
-                                    26_frame,
-                                    25_frame,
+                                    26_mframe,
+                                    25_mframe,
                                     22_deg,
                                     -40_deg,
                                     -22.5_deg,
                                     216_len});
   }
 
-  objects.erase(std::remove_if(objects.begin(),
-                               objects.end(),
-                               [&world](const MenuObject& obj)
-                               {
-                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
-                               }),
-                objects.end());
+  std::erase_if(objects,
+                [&world](const MenuObject& obj)
+                {
+                  return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
+                });
   for(auto& object : objects)
     object.initModel(world, m_lightsBuffer);
 
   return objects;
 }
 
-std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::World& world)
+std::vector<MenuObject> MenuDisplay::getKeysRingObjects(engine::world::World& world) const
 {
   std::vector<MenuObject> objects{};
 
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::LeadBar) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Lead Bar", engine::TR1ItemId::LeadBar, 1_frame, 0_frame, 20_deg, -45_deg, -22.5_deg, 352_len});
+      MenuObject{"Lead Bar", engine::TR1ItemId::LeadBar, 1_mframe, 0_mframe, 20_deg, -45_deg, -22.5_deg, 352_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Key1) > 0)
   {
-    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+    objects.emplace_back(
+      MenuObject{"Key", engine::TR1ItemId::Key1, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Key2) > 0)
   {
-    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+    objects.emplace_back(
+      MenuObject{"Key", engine::TR1ItemId::Key2, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Key3) > 0)
   {
-    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+    objects.emplace_back(
+      MenuObject{"Key", engine::TR1ItemId::Key3, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Key4) > 0)
   {
-    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+    objects.emplace_back(
+      MenuObject{"Key", engine::TR1ItemId::Key4, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Puzzle4) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle4, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Puzzle3) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle3, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Puzzle2) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle2, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Puzzle1) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle1, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Item149) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Pickup", engine::TR1ItemId::Item149, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Pickup", engine::TR1ItemId::Item149, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Item148) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Pickup", engine::TR1ItemId::Item148, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::ScionPieceCounter) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Scion", engine::TR1ItemId::ScionPieceCounter, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Scion", engine::TR1ItemId::ScionPieceCounter, 1_mframe, 0_mframe, 40_deg, -24_deg, 0_deg, 256_len});
   }
 
-  objects.erase(std::remove_if(objects.begin(),
-                               objects.end(),
-                               [&world](const MenuObject& obj)
-                               {
-                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
-                               }),
-                objects.end());
+  std::erase_if(objects,
+                [&world](const MenuObject& obj)
+                {
+                  return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
+                });
   for(auto& object : objects)
     object.initModel(world, m_lightsBuffer);
 
   return objects;
 }
 
-MenuDisplay::MenuDisplay(InventoryMode mode,
-                         SaveGamePageMode saveGamePageMode,
-                         bool allowPassportExit,
+MenuDisplay::MenuDisplay(const InventoryMode mode,
+                         const SaveGamePageMode saveGamePageMode,
+                         const bool allowPassportExit,
                          engine::world::World& world,
                          const glm::ivec2& viewport)
     : mode{mode}
@@ -512,8 +528,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
-    , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
-    , m_fb{gsl::make_shared<render::pass::Framebuffer>(
+    , m_material{world.getEngine().getPresenter().getRenderSystem().getMaterialManager().getFlat(false, false, false)}
+    , m_fb{gsl_lite::make_shared<render::pass::Framebuffer>(
         "menu-objects", m_material, render::scene::Translucency::Opaque, viewport)}
     , m_lightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
         "lights-buffer",
@@ -544,7 +560,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
 
   m_currentState->begin(world);
 
-  world.getCameraController().getCamera()->setFieldOfView(engine::Presenter::DefaultFov);
+  world.getCameraController().getCamera()->setFieldOfView(core::DefaultFov);
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
 }
@@ -552,46 +568,43 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
 void MenuDisplay::setViewport(const glm::ivec2& viewport)
 {
   if(m_fb->getOutput()->getTexture()->size() != viewport)
-    m_fb = gsl::make_shared<render::pass::Framebuffer>(
+    m_fb = gsl_lite::make_shared<render::pass::Framebuffer>(
       "menu-objects", m_material, render::scene::Translucency::Opaque, viewport);
 }
 
-void MenuDisplay::renderObjects(ui::Ui& ui, engine::world::World& world)
+void MenuDisplay::renderObjectsToFramebuffer(engine::world::World& world)
 {
-  setViewport(world.getPresenter().getRenderViewport());
+  setViewport(world.getEngine().getPresenter().getRenderViewport());
 
   const auto& camera = world.getCameraController().getCamera();
   camera->setViewMatrix(ringTransform->getView());
-  const auto resetFov = gsl::finally(
-    [oldFOV = camera->getFieldOfViewY(), &camera]()
+  const auto resetFov = gsl_lite::finally(
+    [oldFOV = camera->getFieldOfViewY(), &camera]
     {
       camera->setFieldOfView(oldFOV);
     });
-  camera->setFieldOfView(engine::Presenter::DefaultFov);
+  camera->setFieldOfView(core::DefaultFov);
 
   m_fb->render(
-    [this, &world, &ui]()
+    [this, &world]
     {
       SOGLB_DEBUGGROUP("menu-objects");
       m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
       m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
       world.getCameraController().getCamera()->setViewport(m_fb->getOutput()->getTexture()->size());
 
-      core::Angle itemAngle{0_deg};
+      auto itemAngle{0_deg};
       for(auto& menuObject : getCurrentRing().list)
       {
-        MenuObject* object = &menuObject;
-        m_currentState->handleObject(ui, world, *this, *object);
-
-        object->draw(world, *ringTransform, itemAngle);
+        menuObject.draw(world, *ringTransform, itemAngle);
         itemAngle += getCurrentRing().getAnglePerItem();
       }
     });
 }
 
-void MenuDisplay::renderRenderedObjects(const engine::world::World& world)
+void MenuDisplay::renderFramebuffer(const engine::world::World& world)
 {
-  gl::RenderState::getWantedState().setViewport(world.getPresenter().getDisplayViewport());
+  gl::RenderState::getWantedState().setViewport(world.getEngine().getPresenter().getDisplayViewport());
   m_fb->render();
 }
 

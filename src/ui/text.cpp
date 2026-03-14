@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -23,14 +23,14 @@ namespace
 constexpr int LetterSpacing = 1;
 constexpr int WordSpacing = 6;
 
-const std::array<const int, 110> charWidths{
+constexpr std::array<const int, 110> charWidths{
   14, 11, 11, 11, 11, 11, 11, 13, 8,  11, 12, 11, 13, 13, 12, 11, 12, 12, 11, 12, 13, 13, 13, 12, 12,
   11, 9,  9,  9,  9,  9,  9,  9,  9,  5,  9,  9,  5,  12, 10, 9,  9,  9,  8,  9,  8,  9,  9,  11, 9,
   9,  9,  12, 8,  10, 10, 10, 10, 10, 9,  10, 10, 5,  5,  5,  11, 9,  10, 8,  6,  6,  7,  7,  3,  /* szlig */ 7,
   8,  13, 16, 9,  4,  12, 12, 7,  5,  7,  7,  7,  7,  7,  7,  7,  7,  16, 14, 14, 14, 16, 16, 16, 16,
   16, 12, 14, 8,  8,  8,  8,  8,  8,  8};
 
-const std::array<const uint8_t, 98> charToSprite{
+constexpr std::array<const uint8_t, 98> charToSprite{
   0,  64, 66, 78, 77, 74, 78, 79, 69, 70, 92, 72, 63, 71, 62, 68, 52,  53,  54,  55, 56, 57, 58, 59, 60,
   61, 73, 73, 66, 74, 75, 65, 0,  0,  1,  2,  3,  4,  5,  6,  7,  8,   9,   10,  11, 12, 13, 14, 15, 16,
   17, 18, 19, 20, 21, 22, 23, 24, 25, 80, 76, 81, 97, 98, 77, 26, 27,  28,  29,  30, 31, 32, 33, 34, 35,
@@ -114,17 +114,17 @@ std::string makeAmmoString(const std::string& str)
 
     if(c < 'A')
     {
-      result += static_cast<char>(int(c) - int('0') + 1);
+      result += static_cast<char>(static_cast<int>(c) - static_cast<int>('0') + 1);
     }
     else
     {
-      result += static_cast<char>(int(c) - int('A') + 12);
+      result += static_cast<char>(static_cast<int>(c) - static_cast<int>('A') + 12);
     }
   }
   return result;
 }
 
-void TRFont::draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy, float scale, float alpha) const
+void TRFont::draw(Ui& ui, const size_t sprite, const glm::ivec2& xy, const float scale, const float alpha) const
 {
   ui.draw(m_sprites[sprite], xy, scale, alpha);
 }
@@ -135,7 +135,7 @@ Text::Text(const std::string& text)
   gsl_Ensures(m_width >= 0);
 }
 
-void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position, float scale, float alpha) const
+void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position, const float scale, const float alpha) const
 {
   for(const auto& [xy, sprite] : m_layout)
   {
@@ -143,14 +143,15 @@ void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position, float sc
   }
 }
 
-void drawBox(const Text& text, Ui& ui, const glm::ivec2& pos, int padding, const gl::SRGBA8& color, float scale)
+void drawBox(
+  const Text& text, Ui& ui, const glm::ivec2& pos, const int padding, const gl::SRGBA8& color, const float scale)
 {
   ui.drawBox(pos + glm::ivec2{-padding, padding},
              glm::ivec2{text.getWidth() * scale + 2 * padding, -FontHeight * scale - 2 * padding - 2},
              color);
 }
 
-std::vector<std::string> breakLines(const std::string& text, int maxWidth)
+std::vector<std::string> breakLines(const std::string& text, const int maxWidth)
 {
   std::vector<std::string> words;
   size_t start = 0;

@@ -6,7 +6,7 @@
 #include "serialization/serialization_fwd.h"
 
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <vector>
 
 namespace engine::world
@@ -25,7 +25,7 @@ struct Box
   mutable bool blocked = true;
   bool blockable = true;
 
-  std::vector<gsl::not_null<Box*>> overlaps;
+  std::vector<gsl_lite::not_null<Box*>> overlaps;
 
   ZoneId zoneFly = 0;
   ZoneId zoneFlySwapped = 0;
@@ -34,7 +34,7 @@ struct Box
   ZoneId zoneGround2 = 0;
   ZoneId zoneGround2Swapped = 0;
 
-  static const ZoneId Box::*getZoneRef(const bool swapped, bool isFlying, const core::Length& step) noexcept
+  static const ZoneId Box::* getZoneRef(const bool swapped, const bool isFlying, const core::Length& step) noexcept
   {
     if(isFlying)
     {

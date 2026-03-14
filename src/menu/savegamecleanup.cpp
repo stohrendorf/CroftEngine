@@ -11,6 +11,7 @@
 #include <iterator>
 #include <map>
 #include <optional>
+#include <ranges>
 #include <system_error>
 #include <vector>
 
@@ -34,7 +35,7 @@ struct PathLess
 
 void renameToTmpFiles(const engine::Engine& engine, const std::map<size_t, engine::SavegameInfo>& savegameInfos)
 {
-  for(const auto& [slot, info] : savegameInfos)
+  for(const auto& slot : savegameInfos | std::views::keys)
   {
     const auto path = engine.getSavegamePath(slot);
     const auto metaPath = engine::makeMetaFilepath(path);
@@ -52,22 +53,20 @@ void orderBy(const engine::Engine& engine,
 
   // then get a list of all used slots
   std::vector<size_t> currentSlots;
-  std::transform(savegameInfos.begin(),
-                 savegameInfos.end(),
-                 std::back_inserter(currentSlots),
-                 [](const auto& slotAndInfo)
-                 {
-                   return slotAndInfo.first;
-                 });
+  std::ranges::transform(savegameInfos,
+                         std::back_inserter(currentSlots),
+                         [](const auto& slotAndInfo)
+                         {
+                           return slotAndInfo.first;
+                         });
 
   // now order the slots according to the predicate
   auto orderedSlots = currentSlots;
-  std::stable_sort(orderedSlots.begin(),
-                   orderedSlots.end(),
-                   [&savegameInfos, &predicate](auto slotA, auto slotB)
-                   {
-                     return predicate(savegameInfos.at(slotA), savegameInfos.at(slotB));
-                   });
+  std::ranges::stable_sort(orderedSlots,
+                           [&savegameInfos, &predicate](auto slotA, auto slotB)
+                           {
+                             return predicate(savegameInfos.at(slotA), savegameInfos.at(slotB));
+                           });
 
   // now rename the temporary saves to the ordinary saves while getting re-ordered
   for(size_t i = 0; i < currentSlots.size(); ++i)
@@ -94,9 +93,9 @@ void deleteSave(const engine::Engine& engine, size_t slot)
 
 void deleteSavesExcept(const engine::Engine& engine,
                        const std::map<size_t, engine::SavegameInfo>& savegameInfos,
-                       size_t slot)
+                       const size_t slot)
 {
-  for(const auto& [n, info] : savegameInfos)
+  for(const auto& n : savegameInfos | std::views::keys)
   {
     if(n != slot)
     {
@@ -124,7 +123,7 @@ size_t compactSaves(const engine::Engine& engine,
 {
   size_t dstSlot = 0;
   size_t newSelectedSlot = 0;
-  for(const auto& [srcSlot, info] : savegameInfos)
+  for(const auto& srcSlot : savegameInfos | std::views::keys)
   {
     const auto srcPath = engine.getSavegamePath(srcSlot);
     const auto srcMetaPath = engine::makeMetaFilepath(srcPath);
@@ -155,8 +154,7 @@ void deleteSavesPerLevelExceptNewest(const engine::Engine& engine,
   std::map<std::filesystem::path, SlotTimestamp, PathLess> newestPerLevel;
   for(const auto& [slot, savegameInfo] : savegameInfos)
   {
-    const auto it = newestPerLevel.find(savegameInfo.meta.filename);
-    if(it == newestPerLevel.end())
+    if(const auto it = newestPerLevel.find(savegameInfo.meta.filename); it == newestPerLevel.end())
     {
       newestPerLevel.emplace(savegameInfo.meta.filename, SlotTimestamp{slot, savegameInfo.saveTime});
     }

@@ -27,7 +27,7 @@ class AtlanteanLava final : public ModelObject
 public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(AtlanteanLava, true, false)
 
-  void update() override;
+  void updateLogic() override;
 
   void collide(CollisionInfo& collisionInfo) override;
 };

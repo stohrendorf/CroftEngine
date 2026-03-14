@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -19,7 +19,7 @@ extern std::string makeAmmoString(const std::string& str);
 
 class TRFont final
 {
-  gsl::span<const engine::world::Sprite> m_sprites;
+  gsl_lite::span<const engine::world::Sprite> m_sprites;
 
 public:
   explicit TRFont(const engine::world::SpriteSequence& sequence)
@@ -27,7 +27,7 @@ public:
   {
   }
 
-  void draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy, float scale, float alpha) const;
+  void draw(Ui& ui, size_t sprite, const glm::ivec2& xy, float scale, float alpha) const;
 };
 
 class Text

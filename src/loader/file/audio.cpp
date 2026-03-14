@@ -21,7 +21,7 @@ std::unique_ptr<SoundSource> SoundSource::read(io::SDLReader& reader)
 std::unique_ptr<SoundEffectProperties> SoundEffectProperties::readTr1(io::SDLReader& reader)
 {
   auto result = std::make_unique<SoundEffectProperties>();
-  result->sample = core::SampleId::type(reader.readU16());
+  result->sample = static_cast<core::SampleId::type>(reader.readU16());
   result->volume = reader.readU16();
   result->chance = reader.readU16();
   result->sampleCountAndLoopType = reader.readU8();
@@ -32,7 +32,7 @@ std::unique_ptr<SoundEffectProperties> SoundEffectProperties::readTr1(io::SDLRea
 std::unique_ptr<SoundEffectProperties> SoundEffectProperties::readTr3(io::SDLReader& reader)
 {
   auto result = std::make_unique<SoundEffectProperties>();
-  result->sample = core::SampleId::type(reader.readU16());
+  result->sample = static_cast<core::SampleId::type>(reader.readU16());
   result->volume = reader.readU8();
   result->sound_range = reader.readU8();
   result->chance = reader.readU8();

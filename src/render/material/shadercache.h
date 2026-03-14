@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <string>
 #include <unordered_map>
@@ -34,7 +34,7 @@ public:
                                                    const std::filesystem::path& geomPath,
                                                    const std::vector<std::string>& defines = {});
 
-  [[nodiscard]] auto getFlat(bool withAlphaMultiplier, bool invertY, bool withAspectRatio)
+  [[nodiscard]] auto getFlat(const bool withAlphaMultiplier, const bool invertY, const bool withAspectRatio)
   {
     std::vector<std::string> defines;
     if(withAlphaMultiplier)
@@ -46,7 +46,7 @@ public:
     return get("flat.vert", "flat.frag", defines);
   }
 
-  [[nodiscard]] auto getBackdrop(bool withAlphaMultiplier)
+  [[nodiscard]] auto getBackdrop(const bool withAlphaMultiplier)
   {
     std::vector<std::string> defines;
     if(withAlphaMultiplier)
@@ -54,7 +54,8 @@ public:
     return get("backdrop.vert", "flat.frag", defines);
   }
 
-  [[nodiscard]] auto getGeometry(bool inWater, bool skeletal, bool roomShadowing, bool opaque, uint8_t spriteMode)
+  [[nodiscard]] auto getGeometry(
+    const bool inWater, const bool skeletal, const bool roomShadowing, const bool opaque, const uint8_t spriteMode)
   {
     std::vector<std::string> defines;
     if(inWater)
@@ -65,11 +66,11 @@ public:
       defines.emplace_back("ROOM_SHADOWING");
     if(opaque)
       defines.emplace_back("EARLY_FRAGMENT_TEST");
-    defines.emplace_back("SPRITEMODE " + std::to_string(int(spriteMode)));
+    defines.emplace_back("SPRITEMODE " + std::to_string(static_cast<int>(spriteMode)));
     return get("geometry.vert", "geometry.frag", defines);
   }
 
-  [[nodiscard]] auto getCSMDepthOnly(bool skeletal)
+  [[nodiscard]] auto getCSMDepthOnly(const bool skeletal)
   {
     std::vector<std::string> defines;
     if(skeletal)
@@ -77,7 +78,7 @@ public:
     return get("csm_depth_only.vert", "empty.frag", defines);
   }
 
-  [[nodiscard]] auto getDepthOnly(bool skeletal)
+  [[nodiscard]] auto getDepthOnly(const bool skeletal)
   {
     std::vector<std::string> defines;
     if(skeletal)
@@ -90,10 +91,10 @@ public:
     return get("water_surface.vert", "water_surface.frag");
   }
 
-  [[nodiscard]] auto getFXAA(uint8_t preset)
+  [[nodiscard]] auto getFXAA(const uint8_t preset)
   {
     return get(
-      "flat.vert", "fx_fxaa.frag", std::vector<std::string>{"FXAA_QUALITY__PRESET " + std::to_string(int(preset))});
+      "flat.vert", "fx_fxaa.frag", std::vector{"FXAA_QUALITY__PRESET " + std::to_string(static_cast<int>(preset))});
   }
 
   [[nodiscard]] auto getCRTV0()
@@ -106,12 +107,17 @@ public:
     return get("flat.vert", "fx_crt_v1.frag");
   }
 
-  [[nodiscard]] auto getBrightnessContrast(int8_t brightness, int8_t contrast)
+  [[nodiscard]] auto getCRTV2()
+  {
+    return get("flat.vert", "fx_crt_v2.frag");
+  }
+
+  [[nodiscard]] auto getBrightnessContrast(const int8_t brightness, const int8_t contrast)
   {
     return get("flat.vert",
                "fx_brightness_contrast.frag",
-               std::vector<std::string>{"BRIGHTNESS " + std::to_string(int(brightness)),
-                                        "CONTRAST " + std::to_string(int(contrast))});
+               std::vector{"BRIGHTNESS " + std::to_string(static_cast<int>(brightness)),
+                           "CONTRAST " + std::to_string(static_cast<int>(contrast))});
   }
 
   [[nodiscard]] auto getVelvia()
@@ -134,7 +140,7 @@ public:
     return get("flat.vert", "fx_lens_distortion.frag");
   }
 
-  [[nodiscard]] auto getMasking(bool ao, bool edges)
+  [[nodiscard]] auto getMasking(const bool ao, const bool edges)
   {
     std::vector<std::string> defines;
     if(ao)
@@ -174,21 +180,21 @@ public:
     return get("flat.vert", "fx_bloom.frag");
   }
 
-  [[nodiscard]] auto getFastGaussBlur(const uint8_t extent, uint8_t blurDim)
+  [[nodiscard]] auto getFastGaussBlur(const uint8_t extent, const uint8_t blurDim)
   {
     gsl_Expects(extent > 0);
     gsl_Expects(blurDim > 0);
     gsl_Expects(blurDim <= 3);
-    const std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
+    const std::vector defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_gauss_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 
-  [[nodiscard]] auto getFastBoxBlur(const uint8_t extent, uint8_t blurDim)
+  [[nodiscard]] auto getFastBoxBlur(const uint8_t extent, const uint8_t blurDim)
   {
     gsl_Expects(extent > 0);
     gsl_Expects(blurDim > 0);
     gsl_Expects(blurDim <= 3);
-    const std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
+    const std::vector defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_box_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 
@@ -207,7 +213,7 @@ public:
     return get("flat.vert", "vsm_square.frag");
   }
 
-  [[nodiscard]] auto getWorldComposition(bool inWater, bool dof)
+  [[nodiscard]] auto getWorldComposition(const bool inWater, const bool dof)
   {
     std::vector<std::string> defines;
     if(inWater)
@@ -229,7 +235,7 @@ public:
 
   [[nodiscard]] auto getDustParticle()
   {
-    return get("dust.vert", "dust.frag", "dust.geom");
+    return get("dust.vert", "dust.frag");
   }
 
   [[nodiscard]] auto getGhost()

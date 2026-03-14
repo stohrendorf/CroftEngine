@@ -38,15 +38,15 @@ public:
   [[nodiscard]] glm::ivec2 getSize() const override;
   void setPosition(const glm::ivec2& position) override;
   void setSize(const glm::ivec2& size) override;
-  void update(bool hasFocus) override;
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void tick(bool hasFocus) override;
+  void draw(Ui& ui, const engine::Presenter& presenter) const override;
   void fitToContent() override;
 
   void setText(const std::string& text);
 
 private:
   std::string m_text;
-  std::vector<std::unique_ptr<ui::Text>> m_lines;
+  std::vector<std::unique_ptr<Text>> m_lines;
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size;
   Alignment m_alignment = Alignment::Left;

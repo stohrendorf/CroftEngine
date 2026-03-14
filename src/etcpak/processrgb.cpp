@@ -17,7 +17,7 @@
 #include <glm/ext/vector_uint4_sized.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <limits>
 #include <stdexcept>
 #include <tuple>
@@ -72,19 +72,20 @@ struct BgraVec
   uint8_t r;
   uint8_t a;
 };
+
 static_assert(sizeof(BgraVec) == 4);
 
-using BgraVecBlock = std::array<BgraVec, size_t(4u * 4u)>;
-static_assert(sizeof(BgraVecBlock) == size_t(4u * 4u) * sizeof(BgraVec));
+using BgraVecBlock = std::array<BgraVec, static_cast<size_t>(4u * 4u)>;
+static_assert(sizeof(BgraVecBlock) == static_cast<size_t>(4u * 4u) * sizeof(BgraVec));
 
 struct BgrVec
 {
   [[nodiscard]] static constexpr auto fromUnchecked(const glm::ivec3& rhs)
   {
     return BgrVec{
-      gsl::narrow_cast<uint8_t>(rhs.r),
-      gsl::narrow_cast<uint8_t>(rhs.g),
-      gsl::narrow_cast<uint8_t>(rhs.b),
+      gsl_lite::narrow_cast<uint8_t>(rhs.r),
+      gsl_lite::narrow_cast<uint8_t>(rhs.g),
+      gsl_lite::narrow_cast<uint8_t>(rhs.b),
     };
   }
 
@@ -92,39 +93,39 @@ struct BgrVec
   uint8_t g;
   uint8_t r;
 
-  [[nodiscard]] constexpr auto operator-(uint8_t rhs) const
+  [[nodiscard]] constexpr auto operator-(const uint8_t rhs) const
   {
     return BgrVec{
-      gsl::narrow_cast<uint8_t>(std::max(0, b - rhs)),
-      gsl::narrow_cast<uint8_t>(std::max(0, g - rhs)),
-      gsl::narrow_cast<uint8_t>(std::max(0, r - rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::max(0, b - rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::max(0, g - rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::max(0, r - rhs)),
     };
   }
 
-  [[nodiscard]] constexpr auto operator+(uint8_t rhs) const
+  [[nodiscard]] constexpr auto operator+(const uint8_t rhs) const
   {
     return BgrVec{
-      gsl::narrow_cast<uint8_t>(std::min(255, b - rhs)),
-      gsl::narrow_cast<uint8_t>(std::min(255, g - rhs)),
-      gsl::narrow_cast<uint8_t>(std::min(255, r - rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::min(255, b - rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::min(255, g - rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::min(255, r - rhs)),
     };
   }
 
-  [[nodiscard]] constexpr auto operator<<(uint8_t rhs) const
+  [[nodiscard]] constexpr auto operator<<(const uint8_t rhs) const
   {
     return BgrVec{
-      gsl::narrow_cast<uint8_t>(b << rhs),
-      gsl::narrow_cast<uint8_t>(g << rhs),
-      gsl::narrow_cast<uint8_t>(r << rhs),
+      gsl_lite::narrow_cast<uint8_t>(b << rhs),
+      gsl_lite::narrow_cast<uint8_t>(g << rhs),
+      gsl_lite::narrow_cast<uint8_t>(r << rhs),
     };
   }
 
   [[nodiscard]] constexpr auto operator|(const BgrVec& rhs) const
   {
     return BgrVec{
-      gsl::narrow_cast<uint8_t>(b | rhs.b),
-      gsl::narrow_cast<uint8_t>(g | rhs.g),
-      gsl::narrow_cast<uint8_t>(r | rhs.r),
+      gsl_lite::narrow_cast<uint8_t>(b | rhs.b),
+      gsl_lite::narrow_cast<uint8_t>(g | rhs.g),
+      gsl_lite::narrow_cast<uint8_t>(r | rhs.r),
     };
   }
 
@@ -161,7 +162,7 @@ void insertionSort(std::array<uint8_t, 16>& values, std::array<uint8_t, 16>& ind
 //converts indices from  |a0|a1|e0|e1|i0|i1|m0|m1|b0|b1|f0|f1|j0|j1|n0|n1|c0|c1|g0|g1|k0|k1|o0|o1|d0|d1|h0|h1|l0|l1|p0|p1| previously used by T- and H-modes
 //                     into  |p0|o0|n0|m0|l0|k0|j0|i0|h0|g0|f0|e0|d0|c0|b0|a0|p1|o1|n1|m1|l1|k1|j1|i1|h1|g1|f1|e1|d1|c1|b1|a1| which should be used for all modes.
 // NO WARRANTY --- SEE STATEMENT IN TOP OF FILE (C) Ericsson AB 2005-2013. All Rights Reserved.
-uint32_t indexConversion(uint32_t pixelIndices)
+uint32_t indexConversion(const uint32_t pixelIndices)
 {
   uint32_t correctIndices = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
@@ -194,7 +195,7 @@ uint32_t indexConversion(uint32_t pixelIndices)
 }
 
 // calculates quantized colors for T or H modes
-std::array<BgrVec, 2> compressColor(const std::array<BgrVec, 2>& currColorBgr, bool tMode)
+std::array<BgrVec, 2> compressColor(const std::array<BgrVec, 2>& currColorBgr, const bool tMode)
 {
   return {
     tMode ? BgrVec::fromUnchecked(glm::min(15 * (currColorBgr[0].toGlmIVec() + 8) / 255, 15))
@@ -220,7 +221,7 @@ std::array<BgrVec, 2> decompressColor(const std::array<BgrVec, 2>& colorsBGR444)
   }};
 }
 
-std::array<BgrVec, 4> calculatePaintColors58H(uint8_t d, const std::array<BgrVec, 2>& bgr)
+std::array<BgrVec, 4> calculatePaintColors58H(const uint8_t d, const std::array<BgrVec, 2>& bgr)
 {
   return {
     // C1
@@ -235,7 +236,7 @@ std::array<BgrVec, 4> calculatePaintColors58H(uint8_t d, const std::array<BgrVec
 
 // calculates the paint colors from the block colors
 // using a distance d and one of the H- or T-patterns.
-std::array<BgrVec, 4> calculatePaintColors59T(uint8_t d, const std::array<BgrVec, 2>& bgr)
+std::array<BgrVec, 4> calculatePaintColors59T(const uint8_t d, const std::array<BgrVec, 2>& bgr)
 {
   //////////////////////////////////////////////
   //
@@ -327,13 +328,12 @@ std::array<std::array<uint32_t, 4>, 4> sumHalvesBgr(const BgraBlockImm& bgra)
   (y03x03_2 + y47x03_2).storeu(&err[3]);
 
   std::array<std::array<uint32_t, 4>, 4> result{};
-  std::transform(err.begin(),
-                 err.end(),
-                 result.begin(),
-                 [](const __m128i& x)
-                 {
-                   return *reinterpret_cast<const std::array<uint32_t, 4>*>(&x);
-                 });
+  std::ranges::transform(err,
+                         result.begin(),
+                         [](const __m128i& x)
+                         {
+                           return *reinterpret_cast<const std::array<uint32_t, 4>*>(&x);
+                         });
 
   return result;
 }
@@ -355,7 +355,6 @@ std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerH
   // process top/bottom, then left/right
   for(size_t i = 0; i < avgPerHalfRgba.size(); i++)
   {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto& avg = avgPerHalfRgba[i];
 
     const auto t31 = avg * IVec16{31} + IVec16{128};
@@ -379,7 +378,7 @@ std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerH
   return result;
 }
 
-void encodeAverages(uint64_t& _d, const std::array<glm::u16vec4, 8>& avgRgb, size_t idx)
+void encodeAverages(uint64_t& _d, const std::array<glm::u16vec4, 8>& avgRgb, const size_t idx)
 {
   auto d = _d | (idx << 24u);
   const size_t base = idx << 1u;
@@ -388,18 +387,18 @@ void encodeAverages(uint64_t& _d, const std::array<glm::u16vec4, 8>& avgRgb, siz
   {
     for(uint8_t i = 0; i < 3; i++)
     {
-      d |= uint64_t(avgRgb[base + 0][i] >> 4u) << (i * 8u);
-      d |= uint64_t(avgRgb[base + 1][i] >> 4u) << (i * 8u + 4u);
+      d |= static_cast<uint64_t>(avgRgb[base + 0][i] >> 4u) << (i * 8u);
+      d |= static_cast<uint64_t>(avgRgb[base + 1][i] >> 4u) << (i * 8u + 4u);
     }
   }
   else
   {
     for(uint8_t i = 0; i < 3; i++)
     {
-      d |= uint64_t(avgRgb[base + 1][i] & 0xF8u) << (i * 8u);
+      d |= static_cast<uint64_t>(avgRgb[base + 1][i] & 0xF8u) << (i * 8u);
       uint32_t c = ((avgRgb[base + 0][i] & 0xF8u) - (avgRgb[base + 1][i] & 0xF8u)) >> 3u;
       c &= 7u;
-      d |= ((uint64_t)c) << (i * 8u);
+      d |= static_cast<uint64_t>(c) << (i * 8u);
     }
   }
   _d = d;
@@ -407,24 +406,23 @@ void encodeAverages(uint64_t& _d, const std::array<glm::u16vec4, 8>& avgRgb, siz
 
 uint32_t checkSolid(const BgraBlockImm& bgra)
 {
-  auto d0 = bgra[0];
-  auto d1 = bgra[1];
-  auto d2 = bgra[2];
-  auto d3 = bgra[3];
+  const auto d0 = bgra[0];
+  const auto d1 = bgra[1];
+  const auto d2 = bgra[2];
+  const auto d3 = bgra[3];
 
-  auto c = d0.shuffled32<0, 0, 0, 0>();
+  const auto c = d0.shuffled32<0, 0, 0, 0>();
 
-  auto m = (d0 == c) & (d1 == c) & (d2 == c) & (d3 == c);
-
-  if(!m.testC(IVec{-1}))
+  if(const auto m = (d0 == c) & (d1 == c) & (d2 == c) & (d3 == c); !m.testC(IVec{-1}))
   {
     return 0;
   }
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint8_t, sizeof(__m128i)> tmp;
-  (bgra[0] & IVec8{uint8_t(0xf8)}).storeu(&tmp);
-  return 0x02000000u | ((uint32_t)tmp[0] << 16u) | ((uint32_t)tmp[1] << 8u) | ((uint32_t)tmp[2]);
+  (bgra[0] & IVec8{static_cast<uint8_t>(0xf8)}).storeu(&tmp);
+  return 0x02000000u | (static_cast<uint32_t>(tmp[0]) << 16u) | (static_cast<uint32_t>(tmp[1]) << 8u)
+         | static_cast<uint32_t>(tmp[2]);
 }
 
 std::tuple<std::array<glm::u16vec4, 8>, std::array<uint32_t, 4>> prepareAverages(const BgraBlockImm& immBgra)
@@ -467,7 +465,7 @@ std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_
 
     // The scaling values are divided by two and rounded, to allow the differences to be in the range of signed int16
     // This produces slightly different results, but is significant faster
-    auto pixel = IVec16{gsl::narrow_cast<int16_t>(dr * LumaWeightR + dg * LumaWeightG + db * LumaWeightB)};
+    auto pixel = IVec16{gsl_lite::narrow_cast<int16_t>(dr * LumaWeightR + dg * LumaWeightG + db * LumaWeightB)};
     auto pix = pixel.abs();
 
     // Taking the absolute value is way faster. The values are only used to sort, so the result will be the same.
@@ -508,16 +506,16 @@ std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_
   return {terr, tsel};
 }
 
-uint8_t convert6(float f)
+uint8_t convert6(const float f)
 {
   const int i = (std::clamp(static_cast<int>(f), 0, 1023) - 15) >> 1;
-  return gsl::narrow_cast<uint8_t>((i + 11 - ((i + 11) >> 7) - ((i + 4) >> 7)) >> 3);
+  return gsl_lite::narrow_cast<uint8_t>((i + 11 - ((i + 11) >> 7) - ((i + 4) >> 7)) >> 3);
 }
 
-uint8_t convert7(float f)
+uint8_t convert7(const float f)
 {
   const int i = (std::clamp(static_cast<int>(f), 0, 1023) - 15) >> 1;
-  return gsl::narrow_cast<uint8_t>((i + 9 - ((i + 9) >> 8) - ((i + 6) >> 8)) >> 2);
+  return gsl_lite::narrow_cast<uint8_t>((i + 9 - ((i + 9) >> 8) - ((i + 6) >> 8)) >> 2);
 }
 
 std::pair<uint64_t, uint64_t> planar(const BgraVecBlock& bgra, const uint8_t mode, bool useHeuristics)
@@ -544,9 +542,9 @@ std::pair<uint64_t, uint64_t> planar(const BgraVecBlock& bgra, const uint8_t mod
 
   for(size_t i = 0; i < bgra.size(); ++i)
   {
-    const int32_t difB = gsl::narrow_cast<int>(bgra[i].b << 4u) - b;
-    const int32_t difG = gsl::narrow_cast<int>(bgra[i].g << 4u) - g;
-    const int32_t difR = gsl::narrow_cast<int>(bgra[i].r << 4u) - r;
+    const int32_t difB = gsl_lite::narrow_cast<int>(bgra[i].b << 4u) - b;
+    const int32_t difG = gsl_lite::narrow_cast<int>(bgra[i].g << 4u) - g;
+    const int32_t difR = gsl_lite::narrow_cast<int>(bgra[i].r << 4u) - r;
 
     difRyz += difR * scaling[i % 4u];
     difGyz += difG * scaling[i % 4u];
@@ -557,19 +555,19 @@ std::pair<uint64_t, uint64_t> planar(const BgraVecBlock& bgra, const uint8_t mod
     difBxz += difB * scaling[i / 4u];
   }
 
-  static const float scale = -4.0f / ((255 * 255 * 8.0f + 85 * 85 * 8.0f) * 16.0f);
+  static constexpr float scale = -4.0f / ((255 * 255 * 8.0f + 85 * 85 * 8.0f) * 16.0f);
 
-  const float aR = gsl::narrow_cast<float>(difRxz) * scale;
-  const float aG = gsl::narrow_cast<float>(difGxz) * scale;
-  const float aB = gsl::narrow_cast<float>(difBxz) * scale;
+  const float aR = gsl_lite::narrow_cast<float>(difRxz) * scale;
+  const float aG = gsl_lite::narrow_cast<float>(difGxz) * scale;
+  const float aB = gsl_lite::narrow_cast<float>(difBxz) * scale;
 
-  const float bR = gsl::narrow_cast<float>(difRyz) * scale;
-  const float bG = gsl::narrow_cast<float>(difGyz) * scale;
-  const float bB = gsl::narrow_cast<float>(difByz) * scale;
+  const float bR = gsl_lite::narrow_cast<float>(difRyz) * scale;
+  const float bG = gsl_lite::narrow_cast<float>(difGyz) * scale;
+  const float bB = gsl_lite::narrow_cast<float>(difByz) * scale;
 
-  const float dR = gsl::narrow_cast<float>(r) * (4.0f / 16.0f);
-  const float dG = gsl::narrow_cast<float>(g) * (4.0f / 16.0f);
-  const float dB = gsl::narrow_cast<float>(b) * (4.0f / 16.0f);
+  const float dR = gsl_lite::narrow_cast<float>(r) * (4.0f / 16.0f);
+  const float dG = gsl_lite::narrow_cast<float>(g) * (4.0f / 16.0f);
+  const float dB = gsl_lite::narrow_cast<float>(b) * (4.0f / 16.0f);
 
   // calculating the three colors RGBO, RGBH, and RGBV.  RGB = df - af * x - bf * y;
   const float cofR = std::fma(aR, 255.0f, std::fma(bR, 255.0f, dR));
@@ -663,16 +661,16 @@ std::pair<uint64_t, uint64_t> planar(const BgraVecBlock& bgra, const uint8_t mod
   return std::make_pair(result, error);
 }
 
-uint32_t calculateErrorTH(bool tMode,
+uint32_t calculateErrorTH(const bool tMode,
                           const BgraVecBlock& bgra,
                           const std::array<BgrVec, 2>& colorsBGR444,
                           uint8_t& dist,
                           uint32_t& pixIndices,
-                          uint8_t startDist)
+                          const uint8_t startDist)
 {
   uint32_t bestBlockErr = MaxError;
 
-  auto colors = decompressColor(colorsBGR444);
+  const auto colors = decompressColor(colorsBGR444);
 
   // test distances
   for(uint8_t d = startDist; d < 8; ++d)
@@ -702,10 +700,9 @@ uint32_t calculateErrorTH(bool tMode,
           };
 
           const uint32_t err = LumaWeightR * abs(diff.r) + LumaWeightG * abs(diff.g) + LumaWeightB * abs(diff.b);
-          const uint32_t pixErr = err * err;
 
           // Choose best error
-          if(pixErr < bestPixErr)
+          if(const uint32_t pixErr = err * err; pixErr < bestPixErr)
           {
             bestPixErr = pixErr;
             pixColors ^= (pixColors & 3u); // Reset the two first bits
@@ -744,11 +741,10 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
   uint16_t minSumRangeValue = luma[15] - luma[1] + diffBonus[0];
 
   {
-    const auto temp = gsl::narrow_cast<int16_t>(luma[15] - luma[0]);
-    for(uint8_t i = 1; i < gsl::narrow_cast<uint8_t>(luma.size() - 1u); i++)
+    const auto temp = gsl_lite::narrow_cast<int16_t>(luma[15] - luma[0]);
+    for(uint8_t i = 1; i < gsl_lite::narrow_cast<uint8_t>(luma.size() - 1u); i++)
     {
-      const uint16_t sum = temp - luma[i + 1] + luma[i] + diffBonus[i];
-      if(minSumRangeValue > sum)
+      if(const uint16_t sum = temp - luma[i + 1] + luma[i] + diffBonus[i]; minSumRangeValue > sum)
       {
         minSumRangeValue = sum;
         minSumRangeIdx = i;
@@ -796,9 +792,9 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
   std::array<BgrVec, 2> midBgr;
   if(swap)
   {
-    midBgr[1].b = gsl::narrow_cast<uint8_t>((b[0] + b[1]) / 2);
-    midBgr[1].g = gsl::narrow_cast<uint8_t>((g[0] + g[1]) / 2);
-    midBgr[1].r = gsl::narrow_cast<uint8_t>((r[0] + r[1]) / 2);
+    midBgr[1].b = gsl_lite::narrow_cast<uint8_t>((b[0] + b[1]) / 2);
+    midBgr[1].g = gsl_lite::narrow_cast<uint8_t>((g[0] + g[1]) / 2);
+    midBgr[1].r = gsl_lite::narrow_cast<uint8_t>((r[0] + r[1]) / 2);
 
     glm::u16vec3 sumBgr{0, 0, 0};
     for(uint8_t i = minSumRangeIdx + 1; i < 16; i++)
@@ -809,15 +805,15 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
       sumBgr.r += bgra[idx].r;
     }
     const uint8_t temp = 15 - minSumRangeIdx;
-    midBgr[0].b = gsl::narrow_cast<uint8_t>(sumBgr.b / temp);
-    midBgr[0].g = gsl::narrow_cast<uint8_t>(sumBgr.g / temp);
-    midBgr[0].r = gsl::narrow_cast<uint8_t>(sumBgr.r / temp);
+    midBgr[0].b = gsl_lite::narrow_cast<uint8_t>(sumBgr.b / temp);
+    midBgr[0].g = gsl_lite::narrow_cast<uint8_t>(sumBgr.g / temp);
+    midBgr[0].r = gsl_lite::narrow_cast<uint8_t>(sumBgr.r / temp);
   }
   else
   {
-    midBgr[0].b = gsl::narrow_cast<uint8_t>((b[0] + b[1]) / 2);
-    midBgr[0].g = gsl::narrow_cast<uint8_t>((g[0] + g[1]) / 2);
-    midBgr[0].r = gsl::narrow_cast<uint8_t>((r[0] + r[1]) / 2);
+    midBgr[0].b = gsl_lite::narrow_cast<uint8_t>((b[0] + b[1]) / 2);
+    midBgr[0].g = gsl_lite::narrow_cast<uint8_t>((g[0] + g[1]) / 2);
+    midBgr[0].r = gsl_lite::narrow_cast<uint8_t>((r[0] + r[1]) / 2);
     if(tMode)
     {
       glm::u16vec3 sumBgr{0, 0, 0};
@@ -829,15 +825,15 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
         sumBgr.r += bgra[idx].r;
       }
       const uint8_t temp = 15 - minSumRangeIdx;
-      midBgr[1].b = gsl::narrow_cast<uint8_t>(sumBgr.b / temp);
-      midBgr[1].g = gsl::narrow_cast<uint8_t>(sumBgr.g / temp);
-      midBgr[1].r = gsl::narrow_cast<uint8_t>(sumBgr.r / temp);
+      midBgr[1].b = gsl_lite::narrow_cast<uint8_t>(sumBgr.b / temp);
+      midBgr[1].g = gsl_lite::narrow_cast<uint8_t>(sumBgr.g / temp);
+      midBgr[1].r = gsl_lite::narrow_cast<uint8_t>(sumBgr.r / temp);
     }
     else
     {
-      midBgr[1].b = gsl::narrow_cast<uint8_t>((b[2] + b[3]) / 2u);
-      midBgr[1].g = gsl::narrow_cast<uint8_t>((g[2] + g[3]) / 2u);
-      midBgr[1].r = gsl::narrow_cast<uint8_t>((r[2] + r[3]) / 2u);
+      midBgr[1].b = gsl_lite::narrow_cast<uint8_t>((b[2] + b[3]) / 2u);
+      midBgr[1].g = gsl_lite::narrow_cast<uint8_t>((g[2] + g[3]) / 2u);
+      midBgr[1].r = gsl_lite::narrow_cast<uint8_t>((r[2] + r[3]) / 2u);
     }
   }
 
@@ -937,7 +933,7 @@ uint64_t encodeSelectors(uint64_t d,
                          const uint64_t value,
                          const uint64_t error)
 {
-  std::array<size_t, 2> tidx{{
+  const std::array<size_t, 2> tidx{{
     getLeastErrorIndex(terr[0]),
     getLeastErrorIndex(terr[1]),
   }};
@@ -962,7 +958,7 @@ uint64_t encodeSelectors(uint64_t d,
 // During search it is not convenient to store the bits the way they are stored in the
 // file format. Hence, after search, it is converted to this format.
 // NO WARRANTY --- SEE STATEMENT IN TOP OF FILE (C) Ericsson AB 2005-2013. All Rights Reserved.
-inline void stuff59bits(uint32_t thumbT59W1, uint32_t thumbT59W2, uint32_t& thumbTW1, uint32_t& thumbTW2)
+void stuff59bits(const uint32_t thumbT59W1, const uint32_t thumbT59W2, uint32_t& thumbTW1, uint32_t& thumbTW2)
 {
   // Put bits in twotimer configuration for 59 (red overflows)
   //
@@ -1021,7 +1017,7 @@ inline void stuff59bits(uint32_t thumbT59W1, uint32_t thumbT59W2, uint32_t& thum
 // During search it is not convenient to store the bits the way they are stored in the
 // file format. Hence, after search, it is converted to this format.
 // NO WARRANTY --- SEE STATEMENT IN TOP OF FILE (C) Ericsson AB 2005-2013. All Rights Reserved.
-inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thumbHW1, uint32_t& thumbHW2)
+void stuff58bits(const uint32_t thumbH58W1, const uint32_t thumbH58W2, uint32_t& thumbHW1, uint32_t& thumbHW2)
 {
   // Put bits in twotimer configuration for 58 (red doesn't overflow, green does)
   //
@@ -1064,21 +1060,18 @@ inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thum
   //     |//|part0               |// // //|part1|//|part2                                          |df|part3|
   //      --------------------------------------------------------------------------------------------------|
 
-  uint8_t bit;
-
   // move parts
   const auto part0 = (thumbH58W1 >> 19u) & 0x7fu;
   const auto part1 = (thumbH58W1 >> 17u) & 0x3u;
   const auto part2 = (thumbH58W1 >> 1u) & 0xffffu;
   const auto part3 = thumbH58W1 & 0x1u;
-  thumbHW1 = 0;
-  thumbHW1 = (thumbHW1 & ~(0x7fu << 24u)) | ((part0 & 0x7fu) << 24u);
+  thumbHW1 = (part0 & 0x7fu) << 24u;
   thumbHW1 = (thumbHW1 & ~(0x3u << 19u)) | ((part1 & 0x3u) << 19u);
   thumbHW1 = (thumbHW1 & ~(0xffffu << 2u)) | ((part2 & 0xffffu) << 2u);
   thumbHW1 = (thumbHW1 & ~0x1u) | (part3 & 0x1u);
 
   // Make sure that red does not overflow:
-  bit = (thumbHW1 >> 30u) & 0x1u;
+  uint8_t bit = (thumbHW1 >> 30u) & 0x1u;
   thumbHW1 = (thumbHW1 & ~(0x1u << 31u)) | ((~bit & 0x1u) << 31u);
 
   // Make sure that green overflows:
@@ -1127,9 +1120,8 @@ void calculateLuma(const BgraBlockImm& immBgra, Luma& luma)
 
 uint8_t selectModeETC2(const Luma& luma)
 {
-  const float lumaRange = gsl::narrow_cast<float>(luma.max - luma.min) / 255.0f;
   // filters a very-low-contrast block
-  if(lumaRange <= ecmdThreshold[0])
+  if(const float lumaRange = gsl_lite::narrow_cast<float>(luma.max - luma.min) / 255.0f; lumaRange <= ecmdThreshold[0])
   {
     return ModePlanar;
   }
@@ -1153,7 +1145,7 @@ uint8_t selectModeETC2(const Luma& luma)
   return ModeUndecided;
 }
 
-uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const BgraBlockImm& immRgba, bool useHeuristics)
+uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const BgraBlockImm& immRgba, const bool useHeuristics)
 {
   uint64_t d = checkSolid(immRgba);
   if(d != 0)
@@ -1194,7 +1186,7 @@ uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const BgraBlockImm& immRgba, 
         stuff58bits(compressed[0], compressed[1], compressed[2], compressed[3]);
       }
 
-      encoded = (uint32_t)_bswap(compressed[2]);
+      encoded = static_cast<uint32_t>(_bswap(compressed[2]));
       encoded |= static_cast<uint64_t>(_bswap(compressed[3])) << 32u;
     }
     else
@@ -1219,7 +1211,7 @@ IVec16 widen(const IVec16& src)
   return IVec16{_mm_shuffle_epi32(tmp, _MM_SHUFFLE(s2, s2, s2, s2))};
 }
 
-constexpr int getMulSel(size_t sel)
+constexpr int getMulSel(const size_t sel)
 {
   switch(sel)
   {
@@ -1378,7 +1370,7 @@ uint64_t processAlpha_ETC2(const IVec8& alphas)
       const auto err1 = sri - recVal16;
       const auto err2 = err1 * err1;
       const auto minerr = err2.minPos();
-      rangeErr += gsl::narrow_cast<int>(minerr.get64() & 0xFFFFu);
+      rangeErr += gsl_lite::narrow_cast<int>(minerr.get64() & 0xFFFFu);
     }
 
     if(rangeErr < err)
@@ -1405,15 +1397,17 @@ uint64_t processAlpha_ETC2(const IVec8& alphas)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint16_t, sizeof(__m128i) / sizeof(uint16_t)> rm;
   mul.storeu(&rm);
-  const auto sm = gsl::narrow_cast<uint16_t>(srcMid.get64());
+  const auto sm = gsl_lite::narrow_cast<uint16_t>(srcMid.get64());
 
-  const uint64_t d = (uint64_t(sm) << 56u) | (uint64_t(rm[getMulSel(sel)]) << 52u) | (uint64_t(sel) << 48u) | idx;
+  const uint64_t d = (static_cast<uint64_t>(sm) << 56u) | (static_cast<uint64_t>(rm[getMulSel(sel)]) << 52u)
+                     | (static_cast<uint64_t>(sel) << 48u) | idx;
 
   return _bswap64(d);
 }
 } // namespace
 
-void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, size_t width, bool useHeuristics)
+void compressEtc2Bgra(
+  const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, const size_t width, const bool useHeuristics)
 {
   int w = 0;
   while(blocks--)

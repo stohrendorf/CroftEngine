@@ -24,9 +24,8 @@ namespace loader::file::level
 void TR4Level::loadFileData()
 {
   // Version
-  const uint32_t file_version = m_reader.readU32();
-
-  if(file_version != 0x00345254 /*&& file_version != 0x63345254*/) // +TRLE
+  if(const uint32_t file_version = m_reader.readU32();
+     file_version != 0x00345254 /*&& file_version != 0x63345254*/) // +TRLE
     BOOST_THROW_EXCEPTION(std::runtime_error("TR4 Level: Wrong level version"));
 
   std::vector<WordTexture> texture16;
@@ -34,7 +33,7 @@ void TR4Level::loadFileData()
     const auto numRoomTextiles = m_reader.readU16();
     const auto numObjTextiles = m_reader.readU16();
     const auto numBumpTextiles = m_reader.readU16();
-    const auto numMiscTextiles = 2;
+    constexpr auto numMiscTextiles = 2;
     const auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
 
     uint32_t uncomp_size = m_reader.readU32();
@@ -145,7 +144,7 @@ void TR4Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SkeletalModelType::readTr1(m_reader);
-      if(m_animatedModels.find(m->type) != m_animatedModels.end())
+      if(m_animatedModels.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_animatedModels[m->type] = std::move(m);
@@ -170,7 +169,7 @@ void TR4Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SpriteSequence::read(m_reader);
-      if(m_spriteSequences.find(m->type) != m_spriteSequences.end())
+      if(m_spriteSequences.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_spriteSequences[m->type] = std::move(m);

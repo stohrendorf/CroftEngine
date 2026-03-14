@@ -38,7 +38,7 @@ struct drop_one<T, std::tuple<A, Args...>>
 };
 
 template<typename T, typename Tuple>
-using drop_one_t = typename drop_one<T, Tuple>::type;
+using drop_one_t = drop_one<T, Tuple>::type;
 
 template<typename>
 struct first_type;
@@ -50,7 +50,7 @@ struct first_type<std::tuple<T, Args...>>
 };
 
 template<typename T>
-using first_t = typename first_type<T>::type;
+using first_t = first_type<T>::type;
 
 template<typename>
 struct except_first;
@@ -62,12 +62,12 @@ struct except_first<std::tuple<T, Args...>>
 };
 
 template<typename T>
-using except_first_t = typename except_first<T>::type;
+using except_first_t = except_first<T>::type;
 
 template<typename Needles, typename Haystack>
 struct drop_all_once
 {
-  using type = typename drop_all_once<except_first_t<Needles>, drop_one_t<first_t<Needles>, Haystack>>::type;
+  using type = drop_all_once<except_first_t<Needles>, drop_one_t<first_t<Needles>, Haystack>>::type;
 };
 
 template<>
@@ -89,7 +89,7 @@ struct drop_all_once<std::tuple<>, Haystack>
 };
 
 template<typename T, typename U>
-using drop_all_once_t = typename drop_all_once<T, U>::type;
+using drop_all_once_t = drop_all_once<T, U>::type;
 
 template<typename L, typename R>
 struct symmetric_difference;

@@ -26,9 +26,7 @@ namespace loader::file::level
 void TR2Level::loadFileData()
 {
   // Version
-  const uint32_t file_version = m_reader.readU32();
-
-  if(file_version != 0x0000002d)
+  if(const uint32_t file_version = m_reader.readU32(); file_version != 0x0000002d)
     BOOST_THROW_EXCEPTION(std::runtime_error("TR2 Level: Wrong level version"));
 
   m_palette = Palette::readTr1(m_reader);
@@ -66,7 +64,7 @@ void TR2Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SkeletalModelType::readTr1(m_reader);
-      if(m_animatedModels.find(m->type) != m_animatedModels.end())
+      if(m_animatedModels.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_animatedModels[m->type] = std::move(m);
@@ -84,7 +82,7 @@ void TR2Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SpriteSequence::read(m_reader);
-      if(m_spriteSequences.find(m->type) != m_spriteSequences.end())
+      if(m_spriteSequences.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_spriteSequences[m->type] = std::move(m);
@@ -138,8 +136,7 @@ void TR2Level::loadFileData()
   // In TR2, samples are stored in separate file called MAIN.SFX.
   // If there is no such files, no samples are loaded.
 
-  const io::SDLReader newsrc(m_sfxPath);
-  if(!newsrc.isOpen())
+  if(const io::SDLReader newsrc(m_sfxPath); !newsrc.isOpen())
   {
     BOOST_LOG_TRIVIAL(warning) << "TR2 Level: failed to open '" << m_sfxPath << "', no samples loaded.";
   }

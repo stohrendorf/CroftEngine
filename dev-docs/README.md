@@ -118,7 +118,7 @@ the prior level ends during the stats screen.
 First, the engine initializes the script engine for the chosen game-flow. Then, the engine sets up a `Presenter`, which
 basically is a container around everything a user can sense - audio and video currently, but may also include gamepad
 rumble effects in the future once it's implemented in GLFW (blocked
-by [issue #57](https://github.com/glfw/glfw/issues/57) and [pull 1687](https://github.com/glfw/glfw/pull/1678)). The
+by [issue #57](https://github.com/glfw/glfw/issues/57) and [pull #1678](https://github.com/glfw/glfw/pull/1678)). The
 presenter also handles the [`hid`](#hid) and OpenGL window using [`soglb`](#soglb).
 
 Once the `Presenter` is initialized, the user's chosen render settings are applied, their input config is applied, and (
@@ -166,7 +166,11 @@ different animation state handler.
 ### objects
 
 Contains everything that defines the game entities. The enemies' behaviours are defined here, as well as objects'
-behaviours. The `update()` function is called each frame for every active object. There are usually custom serialization
+behaviours. To support smooth rendering at higher frame rates, the engine uses a predictive interpolation system. At
+the end of each logic tick, the predicted state for the next tick is calculated. During rendering, transforms are
+interpolated between the predicted and actual state.
+
+There are usually custom serialization
 overrides for entities that have specific state variables (see also [`serialization`](#serialization)), and also custom
 `collide()` overrides to handle collisions with Lara (like the hand of Midas or switches). Some entities like bridges
 are also able to change the effective ceiling or floor height when they're activated through [`floordata`](#floordata).

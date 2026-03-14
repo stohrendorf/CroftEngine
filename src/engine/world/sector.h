@@ -22,7 +22,7 @@ struct Room;
 
 struct Sector
 {
-  const engine::floordata::FloorDataValue* floorData = nullptr;
+  const floordata::FloorDataValue* floorData = nullptr;
   Room* boundaryRoom = nullptr;
 
   const Box* box = nullptr;
@@ -35,7 +35,7 @@ struct Sector
   Sector(const loader::file::Sector& src,
          std::vector<Room>& rooms,
          const std::vector<Box>& boxes,
-         const engine::floordata::FloorData& newFloorData);
+         const floordata::FloorData& newFloorData);
 
   void connect(std::vector<Room>& rooms);
 

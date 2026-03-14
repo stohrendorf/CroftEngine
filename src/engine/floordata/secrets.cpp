@@ -10,7 +10,6 @@
 
 namespace engine::floordata
 {
-
 std::bitset<16> getSecretsMask(const FloorDataValue* floorData)
 {
   if(floorData == nullptr)

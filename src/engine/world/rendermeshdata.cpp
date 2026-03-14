@@ -29,7 +29,7 @@
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <memory>
@@ -44,7 +44,7 @@ class Program;
 namespace engine::world
 {
 RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
-                               const std::vector<engine::world::AtlasTile>& atlasTiles,
+                               const std::vector<AtlasTile>& atlasTiles,
                                const std::array<gl::SRGBA8, 256>& palette)
 {
   for(const auto& quad : mesh.textured_rectangles)
@@ -81,17 +81,17 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       {
         if(i <= 2)
         {
-          static const std::array<int, 3> indices{0, 1, 2};
-          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          static constexpr std::array indices{0, 1, 2};
+          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
         else
         {
-          static const std::array<int, 3> indices{0, 2, 3};
-          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          static constexpr std::array indices{0, 2, 3};
+          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
       }
       else
@@ -106,7 +106,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 
     for(const size_t i : {0, 1, 2, 0, 2, 3})
     {
-      const auto idx = gsl::narrow<IndexType>(firstVertex + i);
+      const auto idx = gsl_lite::narrow<IndexType>(firstVertex + i);
       if(tile.isOpaque())
         m_opaqueIndices.emplace_back(idx);
       else
@@ -133,17 +133,17 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       {
         if(i <= 2)
         {
-          static const std::array<int, 3> indices{0, 1, 2};
-          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          static constexpr std::array indices{0, 1, 2};
+          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
         else
         {
-          static const std::array<int, 3> indices{0, 2, 3};
-          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          static constexpr std::array indices{0, 2, 3};
+          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
       }
       else
@@ -154,7 +154,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
     }
     for(const size_t i : {0, 1, 2, 0, 2, 3})
     {
-      const auto idx = gsl::narrow<IndexType>(firstVertex + i);
+      const auto idx = gsl_lite::narrow<IndexType>(firstVertex + i);
       if(color.a >= 1.0f)
         m_opaqueIndices.emplace_back(idx);
       else
@@ -177,16 +177,16 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
-        static const std::array<int, 3> indices{0, 1, 2};
-        iv.normal = engine::world::generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                                  tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                                  tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+        static constexpr std::array indices{0, 1, 2};
+        iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                   tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                   tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
       }
       else
       {
         iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
       }
-      const auto idx = gsl::narrow<IndexType>(m_vertices.size());
+      const auto idx = gsl_lite::narrow<IndexType>(m_vertices.size());
       if(tile.isOpaque())
         m_opaqueIndices.emplace_back(idx);
       else
@@ -211,16 +211,16 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
-        static const std::array<int, 3> indices{0, 1, 2};
-        iv.normal = engine::world::generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                                  tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                                  tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+        static constexpr std::array indices{0, 1, 2};
+        iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                   tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                   tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
       }
       else
       {
         iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
       }
-      const auto idx = gsl::narrow<IndexType>(m_vertices.size());
+      const auto idx = gsl_lite::narrow<IndexType>(m_vertices.size());
       if(color.a >= 1.0f)
         m_opaqueIndices.emplace_back(idx);
       else
@@ -232,28 +232,28 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 
 gslu::nn_shared<render::scene::Mesh>
   RenderMeshDataCompositor::toMesh(render::material::MaterialManager& materialManager,
-                                   bool skeletal,
-                                   bool shadowCaster,
+                                   const bool skeletal,
+                                   const bool shadowCaster,
                                    const std::function<bool()>& smooth,
                                    const std::function<int32_t()>& lightingMode,
                                    const std::string& label)
 {
-  auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
+  auto vb = gsl_lite::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
     RenderMeshData::RenderVertex::getLayout(), label + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, m_vertices);
 
 #ifndef NDEBUG
-  for(auto idx : m_opaqueIndices)
+  for(const auto idx : m_opaqueIndices)
   {
     BOOST_ASSERT(idx < m_vertices.size());
   }
-  for(auto idx : m_nonOpaqueIndices)
+  for(const auto idx : m_nonOpaqueIndices)
   {
     BOOST_ASSERT(idx < m_vertices.size());
   }
 #endif
-  auto indexBufferOpaque = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
+  auto indexBufferOpaque = gsl_lite::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
     label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, m_opaqueIndices);
-  auto indexBufferNonOpaque = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
+  auto indexBufferNonOpaque = gsl_lite::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
     label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, m_nonOpaqueIndices);
 
   const auto materialOpaque = materialManager.getGeometry(false, skeletal, false, true, smooth, lightingMode);
@@ -261,21 +261,21 @@ gslu::nn_shared<render::scene::Mesh>
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal, smooth);
   const auto materialDepthOnly = materialManager.getDepthOnly(skeletal, smooth);
 
-  auto vaoOpaque = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+  auto vaoOpaque = gsl_lite::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     indexBufferOpaque,
     vb,
-    std::vector<const gl::Program*>{&materialOpaque->getShaderProgram()->getHandle(),
+    std::vector{&materialOpaque->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
     label + "-opaque" + gl::VaoSuffix);
-  auto vaoNonOpaque = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+  auto vaoNonOpaque = gsl_lite::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     indexBufferNonOpaque,
     vb,
-    std::vector<const gl::Program*>{&materialNonOpaque->getShaderProgram()->getHandle(),
+    std::vector{&materialNonOpaque->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
     label + "-nonopaque" + gl::VaoSuffix);
-  auto mesh = gsl::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+  auto mesh = gsl_lite::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     vaoOpaque, vaoNonOpaque, gl::api::PrimitiveType::Triangles);
 
   mesh->getMaterialGroup()

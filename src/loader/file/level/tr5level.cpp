@@ -24,15 +24,14 @@ namespace loader::file::level
 void TR5Level::loadFileData()
 {
   // Version
-  const uint32_t file_version = m_reader.readU32();
 
-  if(file_version != 0x00345254)
+  if(const uint32_t file_version = m_reader.readU32(); file_version != 0x00345254)
     BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: Wrong level version"));
 
   const auto numRoomTextiles = m_reader.readU16();
   const auto numObjTextiles = m_reader.readU16();
   const auto numBumpTextiles = m_reader.readU16();
-  const auto numMiscTextiles = 3;
+  constexpr auto numMiscTextiles = 3;
   const auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
 
   auto uncomp_size = m_reader.readU32();
@@ -144,7 +143,7 @@ void TR5Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SkeletalModelType::readTr5(m_reader);
-      if(m_animatedModels.find(m->type) != m_animatedModels.end())
+      if(m_animatedModels.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_animatedModels[m->type] = std::move(m);
@@ -172,7 +171,7 @@ void TR5Level::loadFileData()
     for(uint32_t i = 0; i < n; ++i)
     {
       auto m = SpriteSequence::read(m_reader);
-      if(m_spriteSequences.find(m->type) != m_spriteSequences.end())
+      if(m_spriteSequences.contains(m->type))
         BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
       m_spriteSequences[m->type] = std::move(m);

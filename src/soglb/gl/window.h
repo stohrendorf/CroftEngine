@@ -4,7 +4,7 @@
 
 #include <filesystem>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <vector>
 
 namespace gl
@@ -28,9 +28,9 @@ public:
 
   void swapBuffers() const;
 
-  [[nodiscard]] gsl::not_null<GLFWwindow*> getWindow() const
+  [[nodiscard]] gsl_lite::not_null<GLFWwindow*> getWindow() const
   {
-    return gsl::not_null{m_window};
+    return gsl_lite::not_null{m_window};
   }
 
   [[nodiscard]] const glm::ivec2& getViewport() const
@@ -41,7 +41,7 @@ public:
   void setFullscreen();
   void setWindowed();
 
-  void setFullscreen(bool value)
+  void setFullscreen(const bool value)
   {
     if(value)
       setFullscreen();

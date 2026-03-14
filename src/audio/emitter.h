@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace audio
 {
@@ -12,11 +12,11 @@ class Emitter
   friend class SoundEngine;
 
 public:
-  explicit Emitter(const gsl::not_null<SoundEngine*>& engine);
+  explicit Emitter(const gsl_lite::not_null<SoundEngine*>& engine);
   virtual ~Emitter();
 
   Emitter(const Emitter& rhs)
-      : Emitter{gsl::not_null{rhs.m_engine}}
+      : Emitter{gsl_lite::not_null{rhs.m_engine}}
   {
   }
 

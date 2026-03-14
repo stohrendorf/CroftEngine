@@ -10,11 +10,10 @@
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <cerrno>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -38,7 +37,7 @@ namespace video
 {
 namespace
 {
-std::string getAvError(int err)
+std::string getAvError(const int err)
 {
   std::vector<char> tmp(1024, 0);
   if(av_strerror(err, tmp.data(), tmp.size()) < 0)
@@ -127,9 +126,7 @@ std::optional<ffmpeg::AVFramePtr> AVDecoder::takeFrame()
   std::optional<ffmpeg::AVFramePtr> img;
   if(!imgQueue.empty())
   {
-    const auto delta = getVideoTs() - std::chrono::high_resolution_clock::now();
-
-    if(delta.count() > 0)
+    if(const auto delta = getVideoTs() - std::chrono::high_resolution_clock::now(); delta.count() > 0)
     {
       // video frame is in the future
       lock.unlock();
@@ -245,7 +242,7 @@ int AVDecoder::getChannels() const
   return audioDecoder->getChannels();
 }
 
-std::chrono::high_resolution_clock::time_point AVDecoder::getVideoTs()
+std::chrono::high_resolution_clock::time_point AVDecoder::getVideoTs() const
 {
   gsl_Assert(!imgQueue.empty());
 

@@ -62,6 +62,7 @@ public:
 
   bool bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram) override;
   void bindBoneTransformBuffer(const std::function<bool()>& smooth);
+  void bindNextBoneTransformBuffer(const std::function<bool()>& smooth);
 
 private:
   [[nodiscard]] gl::ShaderStorageBlock* findShaderStorageBlock(ShaderProgram& shaderProgram) const;

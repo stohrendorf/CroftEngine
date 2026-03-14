@@ -9,7 +9,7 @@
 #include <gl/image.h>
 #include <gl/pixel.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <limits>
 #include <memory>
 #include <string>
@@ -100,8 +100,8 @@ struct UVCoordinates
   {
     BOOST_ASSERT(uv.x >= 0 && uv.x < 1);
     BOOST_ASSERT(uv.y >= 0 && uv.y < 1);
-    x = Component{gsl::narrow_cast<Component::type>(uv.x * ComponentScale)};
-    y = Component{gsl::narrow_cast<Component::type>(uv.y * ComponentScale)};
+    x = Component{gsl_lite::narrow_cast<Component::type>(uv.x * ComponentScale)};
+    y = Component{gsl_lite::narrow_cast<Component::type>(uv.y * ComponentScale)};
   }
 
   [[nodiscard]] constexpr bool isUnset() const

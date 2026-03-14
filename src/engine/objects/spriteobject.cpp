@@ -28,7 +28,7 @@
 #include <glm/fwd.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -42,12 +42,12 @@ class Mesh;
 namespace engine::objects
 {
 SpriteObject::SpriteObject(const std::string& name,
-                           const gsl::not_null<world::World*>& world,
-                           const gsl::not_null<const world::Room*>& room,
+                           const gsl_lite::not_null<world::World*>& world,
+                           const gsl_lite::not_null<const world::Room*>& room,
                            const loader::file::Item& item,
                            const bool hasUpdateFunction,
-                           const gsl::not_null<const world::Sprite*>& sprite,
-                           bool billboard)
+                           const gsl_lite::not_null<const world::Sprite*>& sprite,
+                           const bool billboard)
     : Object{world, room, item, hasUpdateFunction}
     , m_objectNode{std::make_shared<render::scene::Node>(name)}
     , m_displayNode{std::make_shared<render::scene::Node>(name + "-display")}
@@ -56,15 +56,15 @@ SpriteObject::SpriteObject(const std::string& name,
     , m_billboard{billboard}
 {
   createModel();
-  addChild(gsl::not_null{room->node}, m_objectNode);
+  addChild(gsl_lite::not_null{room->node}, m_objectNode);
   addChild(m_objectNode, m_displayNode);
-  applyTransform();
+  applyLogicTransform();
 }
 
 SpriteObject::SpriteObject(const std::string& name,
-                           const gsl::not_null<world::World*>& world,
+                           const gsl_lite::not_null<world::World*>& world,
                            const Location& location,
-                           bool billboard)
+                           const bool billboard)
     : Object{world, location}
     , m_objectNode{std::make_shared<render::scene::Node>(name)}
     , m_displayNode{std::make_shared<render::scene::Node>(name + "-display")}
@@ -102,8 +102,8 @@ void SpriteObject::createModel()
   m_displayNode->bind(
     "b_lights",
     [this,
-     emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
-       "lights-buffer-empty", gl::api::BufferUsage::StaticDraw, gsl::span<engine::ShaderLight>{})](
+     emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>(
+       "lights-buffer-empty", gl::api::BufferUsage::StaticDraw, gsl_lite::span<ShaderLight>{})](
       const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
     {
       if(getWorld().getEngine().getEngineConfig()->renderSettings.lightingModeActive)
@@ -139,7 +139,7 @@ void SpriteObject::deserialize(const serialization::Deserializer<world::World>& 
   m_objectNode->setVisible(m_state.triggerState != TriggerState::Invisible);
 }
 
-void SpriteObject::replace(const TR1ItemId& itemId, const gsl::not_null<const world::Sprite*>& sprite)
+void SpriteObject::replace(const TR1ItemId& itemId, const gsl_lite::not_null<const world::Sprite*>& sprite)
 {
   m_sprite = sprite;
   m_state.type = itemId;

@@ -4,7 +4,7 @@
 #include "material.h"
 #include "render/scene/csm.h"
 #include "render/scene/node.h"
-#include "render/scene/renderer.h"
+#include "render/scene/scenegraph.h"
 #include "shadercache.h"
 #include "spritematerialmode.h"
 #include "uniformparameter.h"
@@ -27,7 +27,7 @@
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
@@ -46,7 +46,7 @@ namespace render::material
 {
 namespace
 {
-void configureForScreenSpaceEffect(Material& m, bool enableBlend)
+void configureForScreenSpaceEffect(Material& m, const bool enableBlend)
 {
   m.getRenderState().setDepthTest(false);
   m.getRenderState().setDepthWrite(false);
@@ -58,27 +58,27 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 
 struct alignas(sizeof(uint64_t)) MaterialManager::CsmHandleContainer
 {
-  std::array<glm::uvec4, render::scene::CSMBuffer::NSplits> handles;
+  std::array<glm::uvec4, scene::CSMBuffer::NSplits> handles;
 };
 
 gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
                                                      const std::function<int32_t()>& lightingMode)
 {
-  if(auto it = m_sprite.find(mode); it != m_sprite.end())
+  if(const auto it = m_sprite.find(mode); it != m_sprite.end())
     return it->second;
 
-  auto m
-    = gsl::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, false, static_cast<uint8_t>(mode)));
+  auto m = gsl_lite::make_shared<Material>(
+    m_shaderCache->getGeometry(false, false, true, false, static_cast<uint8_t>(mode)));
   m->getRenderState().setCullFace(false);
 
   if(mode != SpriteMaterialMode::InstancedBillboard)
     m->getUniformBlock("Transform")->bindTransformBuffer();
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
-        uniform.set(gsl::not_null{m_geometryTexturesHandle});
+        uniform.set(gsl_lite::not_null{m_geometryTexturesHandle});
       });
   m->getUniform("u_lightingMode")
     ->bind(
@@ -91,9 +91,10 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, const std::function<bool()>& smooth)
+gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(const bool skeletal,
+                                                           const std::function<bool()>& smooth) const
 {
-  auto m = gsl::make_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
   m->getUniform("u_mvp")->bind(
     [this](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
@@ -105,52 +106,76 @@ gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, const 
   m->getRenderState().setDepthWrite(true);
   m->getRenderState().setDepthClamp(true);
   m->getRenderState().setCullFaceSide(gl::api::TriangleFace::Front);
-  if(auto buffer = m->tryGetBuffer("BoneTransform"))
+  if(const auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer(smooth);
-
-  return m;
-}
-
-gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, const std::function<bool()>& smooth)
-{
-  auto m = gsl::make_shared<Material>(m_shaderCache->getDepthOnly(skeletal));
-  m->getRenderState().setDepthTest(true);
-  m->getRenderState().setDepthWrite(true);
-  m->getUniformBlock("Transform")->bindTransformBuffer();
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  if(auto buffer = m->tryGetBuffer("BoneTransform"))
-    buffer->bindBoneTransformBuffer(smooth);
-  m->getUniform("u_diffuseTextures")
-    ->bind(
+  if(const auto buffer = m->tryGetBuffer("NextBoneTransform"))
+    buffer->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"))
+    uniform->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
-        uniform.set(gsl::not_null{m_geometryTexturesHandle});
+        uniform.set(m_interTickFactorProvider());
       });
 
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
-                                                       bool skeletal,
-                                                       bool roomShadowing,
-                                                       bool opaque,
+gslu::nn_shared<Material> MaterialManager::getDepthOnly(const bool skeletal, const std::function<bool()>& smooth) const
+{
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getDepthOnly(skeletal));
+  m->getRenderState().setDepthTest(true);
+  m->getRenderState().setDepthWrite(true);
+  m->getUniformBlock("Transform")->bindTransformBuffer();
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
+  if(const auto buffer = m->tryGetBuffer("BoneTransform"))
+    buffer->bindBoneTransformBuffer(smooth);
+  if(const auto buffer = m->tryGetBuffer("NextBoneTransform"))
+    buffer->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"))
+    uniform->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(m_interTickFactorProvider());
+      });
+  m->getUniform("u_diffuseTextures")
+    ->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(gsl_lite::not_null{m_geometryTexturesHandle});
+      });
+
+  return m;
+}
+
+gslu::nn_shared<Material> MaterialManager::getGeometry(const bool inWater,
+                                                       const bool skeletal,
+                                                       const bool roomShadowing,
+                                                       const bool opaque,
                                                        const std::function<bool()>& smooth,
                                                        const std::function<int32_t()>& lightingMode)
 {
   gsl_Expects(m_geometryTexturesHandle != nullptr);
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, opaque, 0));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, opaque, 0));
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
-        uniform.set(gsl::not_null{m_geometryTexturesHandle});
+        uniform.set(gsl_lite::not_null{m_geometryTexturesHandle});
       });
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
-  if(auto buffer = m->tryGetBuffer("BoneTransform"))
+  if(const auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer(smooth);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  if(const auto buffer = m->tryGetBuffer("NextBoneTransform"))
+    buffer->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"))
+    uniform->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(m_interTickFactorProvider());
+      });
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniformBlock("CSM")->bind(
     [this](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::UniformBlock& ub)
     {
@@ -160,15 +185,15 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
     });
 
   m->getUniformBlock("CSMVSM")->bind(
-    [this](const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
+    [this](const scene::Node*, const scene::Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
     {
       BOOST_ASSERT(m_csm != nullptr);
       if(m_csmBuffer == nullptr)
         m_csmBuffer = std::make_shared<gl::UniformBuffer<CsmHandleContainer>>(
           "csm-handles", gl::api::BufferUsage::StreamDraw, sizeof(CsmHandleContainer));
       CsmHandleContainer data{};
-      auto textures = m_csm->getTextures();
-      for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+      const auto textures = m_csm->getTextures();
+      for(size_t i = 0; i < scene::CSMBuffer::NSplits; ++i)
         *reinterpret_cast<uint64_t*>(&data.handles[i]) = textures[i]->getHandle();
       m_csmBuffer->setSubData(data, 0);
       uniformBlock.bind(*m_csmBuffer);
@@ -181,18 +206,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
         uniform.set(lightingMode());
       });
 
-  if(auto uniform = m->tryGetUniform("u_noise"))
-    uniform->set(gsl::not_null{m_noiseTexture});
-
-  if(auto uniform = m->tryGetUniform("u_time"))
-  {
-    uniform->bind(
-      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      {
-        const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-        uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-      });
-  }
+  bindNoiseAndTime(*m);
 
   return m;
 }
@@ -200,12 +214,21 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
 gslu::nn_shared<Material> MaterialManager::getGhost(const std::function<bool()>& smooth)
 {
   if(m_ghost != nullptr)
-    return gsl::not_null{m_ghost};
+    return gsl_lite::not_null{m_ghost};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getGhost());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getGhost());
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getBuffer("BoneTransform")->bindBoneTransformBuffer(smooth);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getBuffer("NextBoneTransform")->bindNextBoneTransformBuffer(smooth);
+  if(const auto uniform = m->tryGetUniform("u_interTickFactor"); uniform != nullptr)
+  {
+    uniform->bind(
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(m_interTickFactorProvider());
+      });
+  }
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m_ghost = m;
   return m;
 }
@@ -213,58 +236,60 @@ gslu::nn_shared<Material> MaterialManager::getGhost(const std::function<bool()>&
 gslu::nn_shared<Material> MaterialManager::getWaterSurface()
 {
   if(m_waterSurface != nullptr)
-    return gsl::not_null{m_waterSurface};
+    return gsl_lite::not_null{m_waterSurface};
 
   m_waterSurface = std::make_shared<Material>(m_shaderCache->getWaterSurface());
   m_waterSurface->getRenderState().setCullFace(false);
   m_waterSurface->getRenderState().setBlend(0, false);
   m_waterSurface->getRenderState().setBlend(1, false);
 
-  m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m_waterSurface->getUniform("u_time")->bind(
-    [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-    });
+  m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
+  bindNoiseAndTime(*m_waterSurface);
 
-  m_waterSurface->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  bindNoiseAndTime(*m_waterSurface);
 
-  return gsl::not_null{m_waterSurface};
+  return gsl_lite::not_null{m_waterSurface};
 }
 
 gslu::nn_shared<Material> MaterialManager::getLightning()
 {
   if(m_lightning != nullptr)
-    return gsl::not_null{m_lightning};
+    return gsl_lite::not_null{m_lightning};
 
   m_lightning = std::make_shared<Material>(m_shaderCache->getLightning());
   m_lightning->getUniformBlock("Transform")->bindTransformBuffer();
-  m_lightning->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m_lightning->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
 
-  return gsl::not_null{m_lightning};
+  return gsl_lite::not_null{m_lightning};
 }
 
-MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer)
+MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache,
+                                 gslu::nn_shared<scene::Camera> camera,
+                                 std::function<float()> interTickFactorProvider,
+                                 std::function<std::chrono::high_resolution_clock::time_point()> gameTimeProvider)
     : m_shaderCache{std::move(shaderCache)}
-    , m_renderer{std::move(renderer)}
+    , m_camera{std::move(camera)}
+    , m_interTickFactorProvider{std::move(interTickFactorProvider)}
+    , m_gameTimeProvider{std::move(gameTimeProvider)}
 {
   static constexpr size_t NoiseTextureSize = 128;
-  std::vector<gl::RGB8> noiseData;
+  std::vector<gl::RGBA8> noiseData;
   noiseData.resize(NoiseTextureSize * NoiseTextureSize);
   std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)
   std::uniform_int_distribution<uint16_t> randomInts(0, 255);
   for(auto& i : noiseData)
   {
-    const auto value = randomInts(generator);
-    i = gl::RGB8{gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value)};
+    i = gl::RGBA8{gsl_lite::narrow_cast<uint8_t>(randomInts(generator)),
+                  gsl_lite::narrow_cast<uint8_t>(randomInts(generator)),
+                  gsl_lite::narrow_cast<uint8_t>(randomInts(generator)),
+                  gsl_lite::narrow_cast<uint8_t>(randomInts(generator))};
   }
 
-  auto noiseTexture = gsl::make_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
+  auto noiseTexture = gsl_lite::make_shared<gl::Texture2D<gl::RGBA8>>(glm::ivec2{NoiseTextureSize}, "noise");
   noiseTexture->assign(noiseData);
-  m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(
+  m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGBA8>>>(
     noiseTexture,
-    gsl::make_unique<gl::Sampler>("noise" + gl::SamplerSuffix)
+    gsl_lite::make_unique<gl::Sampler>("noise" + gl::SamplerSuffix)
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
@@ -273,22 +298,11 @@ MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu:
 gslu::nn_shared<Material> MaterialManager::getWorldComposition(bool inWater, bool dof)
 {
   const std::tuple key{inWater, dof};
-  if(auto it = m_composition.find(key); it != m_composition.end())
+  if(const auto it = m_composition.find(key); it != m_composition.end())
     return it->second;
-  auto m = gsl::make_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof));
 
-  if(auto uniform = m->tryGetUniform("u_time"))
-  {
-    uniform->bind(
-      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      {
-        const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-        uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-      });
-  }
-
-  if(auto uniform = m->tryGetUniform("u_noise"))
-    uniform->set(gsl::not_null{m_noiseTexture});
+  bindNoiseAndTime(*m);
 
   configureForScreenSpaceEffect(*m, false);
 
@@ -299,31 +313,31 @@ gslu::nn_shared<Material> MaterialManager::getWorldComposition(bool inWater, boo
 gslu::nn_shared<Material> MaterialManager::getUi()
 {
   if(m_ui != nullptr)
-    return gsl::not_null{m_ui};
+    return gsl_lite::not_null{m_ui};
 
-  auto m = std::make_shared<Material>(m_shaderCache->getUi());
+  const auto m = std::make_shared<Material>(m_shaderCache->getUi());
   m->getUniform("u_input")->bind(
     [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
-      uniform.set(gsl::not_null{m_geometryTexturesHandle});
+      uniform.set(gsl_lite::not_null{m_geometryTexturesHandle});
     });
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   configureForScreenSpaceEffect(*m, true);
   m_ui = m;
-  return gsl::not_null{m_ui};
+  return gsl_lite::not_null{m_ui};
 }
 
 gslu::nn_shared<Material> MaterialManager::getFlat(bool withAlpha, bool invertY, bool withAspectRatio)
 {
   const std::tuple key{withAlpha, invertY, withAspectRatio};
-  if(auto it = m_flat.find(key); it != m_flat.end())
+  if(const auto it = m_flat.find(key); it != m_flat.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
   m->getRenderState().setBlend(0, withAlpha);
   m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
   if(const auto uniformBlock = m->tryGetUniformBlock("Camera"))
-    uniformBlock->bindCameraBuffer(m_renderer->getCamera());
+    uniformBlock->bindCameraBuffer(m_camera);
   configureForScreenSpaceEffect(*m, withAlpha);
   m_flat.emplace(key, m);
   return m;
@@ -331,11 +345,11 @@ gslu::nn_shared<Material> MaterialManager::getFlat(bool withAlpha, bool invertY,
 
 gslu::nn_shared<Material> MaterialManager::getBackdrop(bool withAlphaMultiplier)
 {
-  if(auto it = m_backdrop.find(withAlphaMultiplier); it != m_backdrop.end())
+  if(const auto it = m_backdrop.find(withAlphaMultiplier); it != m_backdrop.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getBackdrop(withAlphaMultiplier));
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getBackdrop(withAlphaMultiplier));
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   configureForScreenSpaceEffect(*m, withAlphaMultiplier);
   m_backdrop.emplace(withAlphaMultiplier, m);
   return m;
@@ -343,10 +357,10 @@ gslu::nn_shared<Material> MaterialManager::getBackdrop(bool withAlphaMultiplier)
 
 gslu::nn_shared<Material> MaterialManager::getFXAA(uint8_t preset)
 {
-  if(auto it = m_fxaa.find(preset); it != m_fxaa.end())
+  if(const auto it = m_fxaa.find(preset); it != m_fxaa.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getFXAA(preset));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getFXAA(preset));
   configureForScreenSpaceEffect(*m, false);
   m_fxaa.emplace(preset, m);
   return m;
@@ -355,10 +369,10 @@ gslu::nn_shared<Material> MaterialManager::getFXAA(uint8_t preset)
 gslu::nn_shared<Material> MaterialManager::getCRTV0()
 {
   if(m_crtV0 != nullptr)
-    return gsl::not_null{m_crtV0};
+    return gsl_lite::not_null{m_crtV0};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getCRTV0());
-  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getCRTV0());
+  bindNoiseAndTime(*m);
   configureForScreenSpaceEffect(*m, false);
   m_crtV0 = m;
   return m;
@@ -367,21 +381,32 @@ gslu::nn_shared<Material> MaterialManager::getCRTV0()
 gslu::nn_shared<Material> MaterialManager::getCRTV1()
 {
   if(m_crtV1 != nullptr)
-    return gsl::not_null{m_crtV1};
+    return gsl_lite::not_null{m_crtV1};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getCRTV1());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getCRTV1());
   configureForScreenSpaceEffect(*m, false);
   m_crtV1 = m;
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getCRTV2()
+{
+  if(m_crtV2 != nullptr)
+    return gsl_lite::not_null{m_crtV2};
+
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getCRTV2());
+  configureForScreenSpaceEffect(*m, false);
+  m_crtV2 = m;
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getBrightnessContrast(int8_t brightness, int8_t contrast)
 {
-  const std::tuple<int8_t, int8_t> key{brightness, contrast};
-  if(auto it = m_brightnessContrast.find(key); it != m_brightnessContrast.end())
+  const std::tuple key{brightness, contrast};
+  if(const auto it = m_brightnessContrast.find(key); it != m_brightnessContrast.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getBrightnessContrast(brightness, contrast));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getBrightnessContrast(brightness, contrast));
   configureForScreenSpaceEffect(*m, false);
   m_brightnessContrast.emplace(key, m);
   return m;
@@ -390,9 +415,9 @@ gslu::nn_shared<Material> MaterialManager::getBrightnessContrast(int8_t brightne
 gslu::nn_shared<Material> MaterialManager::getVelvia()
 {
   if(m_velvia != nullptr)
-    return gsl::not_null{m_velvia};
+    return gsl_lite::not_null{m_velvia};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getVelvia());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getVelvia());
   configureForScreenSpaceEffect(*m, false);
   m_velvia = m;
   return m;
@@ -401,9 +426,9 @@ gslu::nn_shared<Material> MaterialManager::getVelvia()
 gslu::nn_shared<Material> MaterialManager::getDeath()
 {
   if(m_death != nullptr)
-    return gsl::not_null{m_death};
+    return gsl_lite::not_null{m_death};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getDeath());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getDeath());
   configureForScreenSpaceEffect(*m, false);
   m_death = m;
   return m;
@@ -412,10 +437,10 @@ gslu::nn_shared<Material> MaterialManager::getDeath()
 gslu::nn_shared<Material> MaterialManager::getFilmGrain()
 {
   if(m_filmGrain != nullptr)
-    return gsl::not_null{m_filmGrain};
+    return gsl_lite::not_null{m_filmGrain};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getFilmGrain());
-  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getFilmGrain());
+  bindNoiseAndTime(*m);
   configureForScreenSpaceEffect(*m, false);
   m_filmGrain = m;
   return m;
@@ -424,10 +449,10 @@ gslu::nn_shared<Material> MaterialManager::getFilmGrain()
 gslu::nn_shared<Material> MaterialManager::getLensDistortion()
 {
   if(m_lensDistortion != nullptr)
-    return gsl::not_null{m_lensDistortion};
+    return gsl_lite::not_null{m_lensDistortion};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getLensDistortion());
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getLensDistortion());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
 
   m_lensDistortion = m;
   return m;
@@ -436,10 +461,10 @@ gslu::nn_shared<Material> MaterialManager::getLensDistortion()
 gslu::nn_shared<Material> MaterialManager::getMasking(bool ao, bool edges)
 {
   const std::tuple key{ao, edges};
-  if(auto it = m_masking.find(key); it != m_masking.end())
+  if(const auto it = m_masking.find(key); it != m_masking.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getMasking(ao, edges));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getMasking(ao, edges));
   m_masking.emplace(key, m);
   return m;
 }
@@ -447,9 +472,9 @@ gslu::nn_shared<Material> MaterialManager::getMasking(bool ao, bool edges)
 gslu::nn_shared<Material> MaterialManager::getUnderwaterMovement()
 {
   if(m_underwaterMovement != nullptr)
-    return gsl::not_null{m_underwaterMovement};
+    return gsl_lite::not_null{m_underwaterMovement};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getUnderwaterMovement());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getUnderwaterMovement());
   m_underwaterMovement = m;
   return m;
 }
@@ -457,9 +482,9 @@ gslu::nn_shared<Material> MaterialManager::getUnderwaterMovement()
 gslu::nn_shared<Material> MaterialManager::getReflective()
 {
   if(m_reflective != nullptr)
-    return gsl::not_null{m_reflective};
+    return gsl_lite::not_null{m_reflective};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getReflective());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getReflective());
   configureForScreenSpaceEffect(*m, false);
   m_reflective = m;
   return m;
@@ -468,9 +493,9 @@ gslu::nn_shared<Material> MaterialManager::getReflective()
 gslu::nn_shared<Material> MaterialManager::getBloom()
 {
   if(m_bloom != nullptr)
-    return gsl::not_null{m_bloom};
+    return gsl_lite::not_null{m_bloom};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getBloom());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getBloom());
   configureForScreenSpaceEffect(*m, false);
   m_bloom = m;
   return m;
@@ -479,10 +504,10 @@ gslu::nn_shared<Material> MaterialManager::getBloom()
 gslu::nn_shared<Material> MaterialManager::getHBAO()
 {
   if(m_hbao != nullptr)
-    return gsl::not_null{m_hbao};
+    return gsl_lite::not_null{m_hbao};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getHBAO());
-  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getHBAO());
+  bindNoiseAndTime(*m);
   configureForScreenSpaceEffect(*m, false);
   m_hbao = m;
   return m;
@@ -491,9 +516,9 @@ gslu::nn_shared<Material> MaterialManager::getHBAO()
 gslu::nn_shared<Material> MaterialManager::getEdgeDetection()
 {
   if(m_edgeDetection != nullptr)
-    return gsl::not_null{m_edgeDetection};
+    return gsl_lite::not_null{m_edgeDetection};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getEdgeDetection());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getEdgeDetection());
   configureForScreenSpaceEffect(*m, false);
   m_edgeDetection = m;
   return m;
@@ -502,9 +527,9 @@ gslu::nn_shared<Material> MaterialManager::getEdgeDetection()
 gslu::nn_shared<Material> MaterialManager::getEdgeDilation()
 {
   if(m_edgeDilation != nullptr)
-    return gsl::not_null{m_edgeDilation};
+    return gsl_lite::not_null{m_edgeDilation};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getEdgeDilation());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getEdgeDilation());
   configureForScreenSpaceEffect(*m, false);
   m_edgeDilation = m;
   return m;
@@ -513,9 +538,9 @@ gslu::nn_shared<Material> MaterialManager::getEdgeDilation()
 gslu::nn_shared<Material> MaterialManager::getVSMSquare()
 {
   if(m_vsmSquare != nullptr)
-    return gsl::not_null{m_vsmSquare};
+    return gsl_lite::not_null{m_vsmSquare};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getVSMSquare());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getVSMSquare());
   configureForScreenSpaceEffect(*m, false);
   m_vsmSquare = m;
   return m;
@@ -527,7 +552,7 @@ void MaterialManager::setGeometryTextures(
   createSampler(geometryTextures, false, std::nullopt);
 }
 
-void MaterialManager::setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel)
+void MaterialManager::setFiltering(const bool bilinear, const std::optional<float>& anisotropyLevel)
 {
   if(m_geometryTexturesHandle == nullptr)
     return;
@@ -538,12 +563,12 @@ void MaterialManager::setFiltering(bool bilinear, const std::optional<float>& an
 gslu::nn_shared<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
 {
   const std::tuple key{extent, blurDir, blurDim};
-  if(auto it = m_fastGaussBlur.find(key); it != m_fastGaussBlur.end())
+  if(const auto it = m_fastGaussBlur.find(key); it != m_fastGaussBlur.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDim));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDim));
   configureForScreenSpaceEffect(*m, false);
-  m->getUniform("u_blurDir")->set(int(blurDir));
+  m->getUniform("u_blurDir")->set(static_cast<int>(blurDir));
   m_fastGaussBlur.emplace(key, m);
   return m;
 }
@@ -551,12 +576,12 @@ gslu::nn_shared<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint
 gslu::nn_shared<Material> MaterialManager::getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
 {
   const std::tuple key{extent, blurDir, blurDim};
-  if(auto it = m_fastBoxBlur.find(key); it != m_fastBoxBlur.end())
+  if(const auto it = m_fastBoxBlur.find(key); it != m_fastBoxBlur.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDim));
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDim));
   configureForScreenSpaceEffect(*m, false);
-  m->getUniform("u_blurDir")->set(int(blurDir));
+  m->getUniform("u_blurDir")->set(static_cast<int>(blurDir));
   m_fastBoxBlur.emplace(key, m);
   return m;
 }
@@ -564,9 +589,9 @@ gslu::nn_shared<Material> MaterialManager::getFastBoxBlur(uint8_t extent, uint8_
 gslu::nn_shared<Material> MaterialManager::getBloomDownsample()
 {
   if(m_bloomDownsample != nullptr)
-    return gsl::not_null{m_bloomDownsample};
+    return gsl_lite::not_null{m_bloomDownsample};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getBloomDownsample());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getBloomDownsample());
   configureForScreenSpaceEffect(*m, false);
   m_bloomDownsample = m;
   return m;
@@ -575,9 +600,9 @@ gslu::nn_shared<Material> MaterialManager::getBloomDownsample()
 gslu::nn_shared<Material> MaterialManager::getBloomUpsample()
 {
   if(m_bloomUpsample != nullptr)
-    return gsl::not_null{m_bloomUpsample};
+    return gsl_lite::not_null{m_bloomUpsample};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getBloomUpsample());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getBloomUpsample());
   configureForScreenSpaceEffect(*m, false);
   m_bloomUpsample = m;
   return m;
@@ -586,23 +611,18 @@ gslu::nn_shared<Material> MaterialManager::getBloomUpsample()
 gslu::nn_shared<Material> MaterialManager::getDustParticle()
 {
   if(m_dustParticle != nullptr)
-    return gsl::not_null{m_dustParticle};
+    return gsl_lite::not_null{m_dustParticle};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getDustParticle());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getDustParticle());
   m->getRenderState().setCullFace(false);
   m->getRenderState().setBlend(0, true);
   m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
   m->getRenderState().setDepthTest(true);
+  m->getRenderState().setDepthFunction(gl::api::DepthFunction::Lequal);
   m->getRenderState().setDepthWrite(false);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniformBlock("Transform")->bindTransformBuffer();
-  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
-  m->getUniform("u_time")->bind(
-    [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-    });
+  bindNoiseAndTime(*m);
   m_dustParticle = m;
   return m;
 }
@@ -610,9 +630,9 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
 gslu::nn_shared<Material> MaterialManager::getGhostName()
 {
   if(m_ghostName != nullptr)
-    return gsl::not_null{m_ghostName};
+    return gsl_lite::not_null{m_ghostName};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getGhostName());
+  auto m = gsl_lite::make_shared<Material>(m_shaderCache->getGhostName());
   auto& renderState = m->getRenderState();
   renderState.setCullFace(false);
   renderState.setBlend(0, true);
@@ -620,24 +640,24 @@ gslu::nn_shared<Material> MaterialManager::getGhostName()
   renderState.setDepthTest(true);
   // TODO this seems wrong, need to verify
   renderState.setDepthWrite(false);
-  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_camera);
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m_ghostName = m;
   return m;
 }
 
-void MaterialManager::setDeathStrength(float strength)
+void MaterialManager::setDeathStrength(const float strength)
 {
-  auto m = getDeath();
+  const auto m = getDeath();
   m->getUniform("u_strength")->set(strength);
 }
 
 void MaterialManager::createSampler(
   const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures,
-  bool bilinear,
+  const bool bilinear,
   const std::optional<float>& anisotropyLevel)
 {
-  auto sampler = gsl::make_unique<gl::Sampler>("geometry")
+  auto sampler = gsl_lite::make_unique<gl::Sampler>("geometry")
                  | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
                  | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
   if(bilinear)
@@ -654,5 +674,23 @@ void MaterialManager::createSampler(
 
   m_geometryTexturesHandle = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
     geometryTextures, std::move(sampler));
+}
+
+void MaterialManager::bindNoiseAndTime(const Material& m) const
+{
+  if(const auto uniform = m.tryGetUniform("u_noise"))
+    uniform->set(gsl_lite::not_null{m_noiseTexture});
+
+  if(const auto uniform = m.tryGetUniform("u_time"); uniform != nullptr)
+  {
+    uniform->bind(
+      [this](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        const auto now = m_gameTimeProvider();
+        const auto duration
+          = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(now.time_since_epoch());
+        uniform.set(duration.count());
+      });
+  }
 }
 } // namespace render::material

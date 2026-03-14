@@ -64,7 +64,7 @@ protected:
     BOOST_ASSERT(maxLabelLength > 0);
 
     GL_ASSERT(api::objectLabel(
-      Identifier, m_handle, std::min(maxLabelLength, gsl::narrow<int32_t>(label.size())), label.data()));
+      Identifier, m_handle, std::min(maxLabelLength, gsl_lite::narrow<int32_t>(label.size())), label.data()));
   }
 
 private:

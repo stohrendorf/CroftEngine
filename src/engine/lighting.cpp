@@ -8,7 +8,7 @@
 #include "render/scene/node.h"
 
 #include <gl/program.h>
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <gslu.h>
 #include <vector>
 
@@ -28,7 +28,7 @@ void Lighting::update(const core::Shade& shade, const world::Room& baseRoom)
     return;
   }
 
-  m_buffer = gsl::not_null{baseRoom.lightsBuffer};
+  m_buffer = gsl_lite::not_null{baseRoom.lightsBuffer};
   fadeAmbient(baseRoom.ambientShade);
 }
 

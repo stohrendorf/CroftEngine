@@ -13,7 +13,7 @@
 #include "selectedmenustate.h"
 #include "ui/detailedlevelstats.h"
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 
@@ -24,23 +24,25 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
                                    engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
-    , m_stats{gsl::make_shared<ui::DetailedLevelStats>(world)}
+    , m_stats{gsl_lite::make_shared<ui::DetailedLevelStats>(world)}
 {
 }
 
-std::unique_ptr<MenuState> CompassMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> CompassMenuState::tick(engine::world::World& world, MenuDisplay& display)
 {
-  const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
-  if(inputHandler.hasDebouncedAction(hid::Action::Return))
+  if(world.getEngine().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     auto& object = display.getCurrentRing().getSelectedObject();
-    object.animDirection = -1_frame;
-    object.goalFrame = 0_frame;
+    object.animDirection = -1_mframe;
+    object.goalFrame = 0_mframe;
     return std::move(m_previous);
   }
 
-  m_stats->draw(ui, world.getPresenter(), true);
-
   return nullptr;
+}
+
+void CompassMenuState::constructUi(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+{
+  m_stats->draw(ui, world.getEngine().getPresenter(), true);
 }
 } // namespace menu

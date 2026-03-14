@@ -16,7 +16,7 @@
 
 namespace engine::objects
 {
-void FallingCeiling::update()
+void FallingCeiling::updateLogic()
 {
   if(m_state.current_anim_state == 0_as)
   {
@@ -28,7 +28,7 @@ void FallingCeiling::update()
     getWorld().hitLara(300_hp);
   }
 
-  ModelObject::update();
+  advanceFrame();
 
   if(m_state.triggerState == TriggerState::Deactivated)
   {
