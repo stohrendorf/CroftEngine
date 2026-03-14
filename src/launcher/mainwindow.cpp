@@ -58,7 +58,7 @@ namespace
 {
 const auto LanguageConfigKey = "launcher-language";
 const auto GameflowConfigKey = "launcher-gameflow";
-#ifdef CE_GITHUB_API_KEY
+#ifdef _WIN32
 const auto LastUpdateCheck = "launcher-updatecheck";
 #endif
 const auto LastCheckedVersion = "launcher-updateversion";
@@ -202,7 +202,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
   }
 
-#ifdef CE_GITHUB_API_KEY
+#ifdef _WIN32
   if(const auto lastCheck = settings.value(LastUpdateCheck);
      lastCheck.isValid() && lastCheck.toDate().addDays(7) >= QDate::currentDate())
   {
@@ -218,8 +218,6 @@ MainWindow::MainWindow(QWidget* parent)
     QNetworkRequest request{QUrl{"https://api.github.com/repos/stohrendorf/CroftEngine/releases"}};
     request.setRawHeader(QByteArray::fromStdString("Accept"), QByteArray::fromStdString("application/vnd.github+json"));
     request.setRawHeader(QByteArray::fromStdString("X-GitHub-Api-Version"), QByteArray::fromStdString("2022-11-28"));
-    request.setRawHeader(QByteArray::fromStdString("Authorization"),
-                         QByteArray::fromStdString(std::string{"Bearer "} + CE_GITHUB_API_KEY));
     m_releasesNetworkAccessManager.get(request);
   }
 #endif
