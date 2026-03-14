@@ -56,14 +56,27 @@ public:
 
   void collide(CollisionInfo& info) override;
 
+  void interpolateTransform(float interTickFactor) override;
+
   static constexpr size_t SegmentSplits = 8;
   static constexpr size_t ControlPoints = (1u << SegmentSplits) + 1;
 
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
+  void interpolateAndUploadBolts(float interTickFactor);
+
 private:
   static constexpr size_t ChildBolts = 5;
+
+  using BoltVertices = std::array<glm::vec3, ControlPoints>;
+
+  struct BoltState
+  {
+    BoltVertices current{};
+    BoltVertices previous{};
+    bool isActive = false;
+  };
 
   void prepareRender();
 
@@ -73,6 +86,9 @@ private:
   int m_chargeTimeout = 1;
   bool m_shooting = false;
   core::TRVec m_mainBoltEnd;
+
+  BoltState m_mainBoltState;
+  std::array<BoltState, ChildBolts> m_childBoltStates;
 
   struct ChildBolt
   {

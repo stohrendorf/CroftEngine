@@ -90,7 +90,7 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
 
 using Bolt = std::array<glm::vec3, LightningEmitter::ControlPoints>;
 
-Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
+Bolt generateBolt(const glm::vec3& start, const glm::vec3& end)
 {
   std::vector data{start, end};
   static constexpr float RadiusRatio = 0.3f;
@@ -125,18 +125,21 @@ Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_
     radius /= 2;
   }
 
-  gsl_Assert(gsl_lite::narrow<size_t>(vb->size()) == data.size());
-
   Bolt bolt;
-  auto boltData
-    = vb->map(gl::api::MapBufferAccessMask::MapWriteBit | gl::api::MapBufferAccessMask::MapFlushExplicitBit);
-  gsl_Assert(boltData.size() == data.size());
-  gsl_Assert(boltData.size() == bolt.size());
-  std::ranges::copy(data, boltData.begin());
+  gsl_Assert(data.size() == bolt.size());
   std::ranges::copy(data, bolt.begin());
-  boltData.flush();
 
   return bolt;
+}
+
+void uploadBolt(const Bolt& bolt, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
+{
+  gsl_Assert(gsl_lite::narrow<size_t>(vb->size()) == bolt.size());
+  auto boltData
+    = vb->map(gl::api::MapBufferAccessMask::MapWriteBit | gl::api::MapBufferAccessMask::MapFlushExplicitBit);
+  gsl_Assert(boltData.size() == bolt.size());
+  std::ranges::copy(bolt, boltData.begin());
+  boltData.flush();
 }
 } // namespace
 
@@ -252,21 +255,66 @@ void LightningEmitter::prepareRender()
   m_mainBoltNode->setVisible(m_shooting);
   for(const auto& child : m_childBolts)
     child.node->setVisible(m_shooting);
+
   if(!m_shooting)
+  {
+    m_mainBoltState.isActive = false;
+    for(auto& childState : m_childBoltStates)
+      childState.isActive = false;
     return;
+  }
 
   const auto nearestFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto segmentStart = glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData().data())
                                       * glm::vec4(nearestFrame->pos.toGl(), 1.0f));
 
-  const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd.toRenderSystem(), m_mainVb);
+  m_mainBoltState.previous = m_mainBoltState.current;
+  m_mainBoltState.current = generateBolt(segmentStart, m_mainBoltEnd.toRenderSystem());
+  m_mainBoltState.isActive = true;
 
-  for(const auto& childBolt : m_childBolts)
+  for(size_t i = 0; i < ChildBolts; ++i)
   {
+    auto& childState = m_childBoltStates[i];
+    childState.previous = childState.current;
+
     const auto end
       = m_mainBoltEnd
         + core::TRVec{util::rand15s(core::QuarterSectorSize / 2), 0_len, util::rand15s(core::QuarterSectorSize / 2)};
-    updateBolt(mainBolt[util::rand15(ControlPoints - 1)], end.toRenderSystem(), childBolt.vb);
+    childState.current = generateBolt(m_mainBoltState.current[util::rand15(ControlPoints - 1)], end.toRenderSystem());
+    childState.isActive = true;
+  }
+}
+
+void LightningEmitter::interpolateTransform(const float interTickFactor)
+{
+  Object::interpolateTransform(interTickFactor);
+  interpolateAndUploadBolts(interTickFactor);
+}
+
+void LightningEmitter::interpolateAndUploadBolts(const float interTickFactor)
+{
+  if(!m_mainBoltState.isActive)
+    return;
+
+  Bolt interpolatedBolt;
+  for(size_t i = 0; i < ControlPoints; ++i)
+  {
+    interpolatedBolt[i] = glm::mix(m_mainBoltState.previous[i], m_mainBoltState.current[i], interTickFactor);
+  }
+  uploadBolt(interpolatedBolt, m_mainVb);
+
+  for(size_t childIdx = 0; childIdx < ChildBolts; ++childIdx)
+  {
+    const auto& childState = m_childBoltStates[childIdx];
+    if(!childState.isActive)
+      continue;
+
+    Bolt interpolatedChildBolt;
+    for(size_t i = 0; i < ControlPoints; ++i)
+    {
+      interpolatedChildBolt[i] = glm::mix(childState.previous[i], childState.current[i], interTickFactor);
+    }
+    uploadBolt(interpolatedChildBolt, m_childBolts[childIdx].vb);
   }
 }
 

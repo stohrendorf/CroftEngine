@@ -114,7 +114,7 @@ public:
   void setCurrentRoom(const gsl_lite::not_null<const world::Room*>& newRoom);
 
   void applyLogicTransform();
-  void interpolateTransform(float interTickFactor);
+  virtual void interpolateTransform(float interTickFactor);
 
   virtual void updatePrediction();
 
