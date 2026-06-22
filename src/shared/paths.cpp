@@ -13,6 +13,9 @@ std::filesystem::path getExpectedSysUserDataDir()
   gsl_Assert(appData != nullptr && std::filesystem::is_directory(appData));
   return std::filesystem::path{appData} / "croftengine";
 #else
+  if(const char* xdg = getenv("XDG_DATA_HOME"); xdg != nullptr && *xdg != '\0')
+    return std::filesystem::path{xdg} / "croftengine";
+
   const char* home = getenv("HOME");
   gsl_Assert(home != nullptr && std::filesystem::is_directory(home));
   return std::filesystem::path{home} / ".local" / "share" / "croftengine";
