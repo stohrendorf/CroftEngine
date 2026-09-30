@@ -47,9 +47,9 @@ enum class AttribMask : core::EnumType
   DepthBufferBit = 0x00000100,
   StencilBufferBit = 0x00000400,
 };
-constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right)
+constexpr auto operator|(AttribMask left, AttribMask right)
 {
-  return core::Bitfield<AttribMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class AttributeType : core::EnumType
@@ -264,9 +264,9 @@ enum class BufferStorageMask : core::EnumType
   MapCoherentBit = 0x0080,
   MapPersistentBit = 0x0040,
 };
-constexpr core::Bitfield<BufferStorageMask> operator|(BufferStorageMask left, BufferStorageMask right)
+constexpr auto operator|(BufferStorageMask left, BufferStorageMask right)
 {
-  return core::Bitfield<BufferStorageMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class BufferStorageTarget : core::EnumType
@@ -336,9 +336,9 @@ enum class ClearBufferMask : core::EnumType
   DepthBufferBit = 0x00000100,
   StencilBufferBit = 0x00000400,
 };
-constexpr core::Bitfield<ClearBufferMask> operator|(ClearBufferMask left, ClearBufferMask right)
+constexpr auto operator|(ClearBufferMask left, ClearBufferMask right)
 {
-  return core::Bitfield<ClearBufferMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class ClipControlDepth : core::EnumType
@@ -464,9 +464,9 @@ enum class ContextFlagMask : core::EnumType
   ContextFlagDebugBit = 0x00000002,
   ContextFlagRobustAccessBit = 0x00000004,
 };
-constexpr core::Bitfield<ContextFlagMask> operator|(ContextFlagMask left, ContextFlagMask right)
+constexpr auto operator|(ContextFlagMask left, ContextFlagMask right)
 {
-  return core::Bitfield<ContextFlagMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class ContextProfileMask : core::EnumType
@@ -474,9 +474,9 @@ enum class ContextProfileMask : core::EnumType
   ContextCompatibilityProfileBit = 0x00000002,
   ContextCoreProfileBit = 0x00000001,
 };
-constexpr core::Bitfield<ContextProfileMask> operator|(ContextProfileMask left, ContextProfileMask right)
+constexpr auto operator|(ContextProfileMask left, ContextProfileMask right)
 {
-  return core::Bitfield<ContextProfileMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class CopyBufferSubDataTarget : core::EnumType
@@ -715,20 +715,18 @@ enum class FragmentShaderDestMaskATI : core::EnumType
 {
   None = 0,
 };
-constexpr core::Bitfield<FragmentShaderDestMaskATI> operator|(FragmentShaderDestMaskATI left,
-                                                              FragmentShaderDestMaskATI right)
+constexpr auto operator|(FragmentShaderDestMaskATI left, FragmentShaderDestMaskATI right)
 {
-  return core::Bitfield<FragmentShaderDestMaskATI>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class FragmentShaderDestModMaskATI : core::EnumType
 {
   None = 0,
 };
-constexpr core::Bitfield<FragmentShaderDestModMaskATI> operator|(FragmentShaderDestModMaskATI left,
-                                                                 FragmentShaderDestModMaskATI right)
+constexpr auto operator|(FragmentShaderDestModMaskATI left, FragmentShaderDestModMaskATI right)
 {
-  return core::Bitfield<FragmentShaderDestModMaskATI>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class FragmentShaderGenericSourceATI : core::EnumType
@@ -1482,9 +1480,9 @@ enum class MapBufferAccessMask : core::EnumType
   MapCoherentBit = 0x0080,
   MapPersistentBit = 0x0040,
 };
-constexpr core::Bitfield<MapBufferAccessMask> operator|(MapBufferAccessMask left, MapBufferAccessMask right)
+constexpr auto operator|(MapBufferAccessMask left, MapBufferAccessMask right)
 {
-  return core::Bitfield<MapBufferAccessMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class MapTypeNV : core::EnumType
@@ -1524,9 +1522,9 @@ enum class MemoryBarrierMask : core::EnumType
   ClientMappedBufferBarrierBit = 0x00004000,
   QueryBufferBarrierBit = 0x00008000,
 };
-constexpr core::Bitfield<MemoryBarrierMask> operator|(MemoryBarrierMask left, MemoryBarrierMask right)
+constexpr auto operator|(MemoryBarrierMask left, MemoryBarrierMask right)
 {
-  return core::Bitfield<MemoryBarrierMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class MeshMode1 : core::EnumType
@@ -1590,9 +1588,9 @@ enum class PathFontStyle : core::EnumType
 {
   None = 0,
 };
-constexpr core::Bitfield<PathFontStyle> operator|(PathFontStyle left, PathFontStyle right)
+constexpr auto operator|(PathFontStyle left, PathFontStyle right)
 {
-  return core::Bitfield<PathFontStyle>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class PathGenMode : core::EnumType
@@ -2138,9 +2136,9 @@ enum class SyncObjectMask : core::EnumType
 {
   SyncFlushCommandsBit = 0x00000001,
 };
-constexpr core::Bitfield<SyncObjectMask> operator|(SyncObjectMask left, SyncObjectMask right)
+constexpr auto operator|(SyncObjectMask left, SyncObjectMask right)
 {
-  return core::Bitfield<SyncObjectMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class SyncParameterName : core::EnumType
@@ -2473,9 +2471,9 @@ enum class UseProgramStageMask : core::EnumType
   VertexShaderBit = 0x00000001,
   ComputeShaderBit = 0x00000020,
 };
-constexpr core::Bitfield<UseProgramStageMask> operator|(UseProgramStageMask left, UseProgramStageMask right)
+constexpr auto operator|(UseProgramStageMask left, UseProgramStageMask right)
 {
-  return core::Bitfield<UseProgramStageMask>(left) | right;
+  return core::Bitfield{left} | right;
 }
 
 enum class VertexArrayPName : core::EnumType

@@ -527,7 +527,7 @@ def load_xml():
 
                 if enum_data.is_bitmask:
                     f.write(
-                        'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
+                        'constexpr auto operator|({0} left, {0} right) {{ return core::Bitfield{{left}} | right;}}\n'.format(
                             enum_name))
 
                 f.write('\n')
@@ -569,7 +569,7 @@ def load_xml():
 
                     if enum_data.is_bitmask:
                         f.write(
-                            'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
+                            'constexpr auto operator|({0} left, {0} right) {{ return core::Bitfield{{left}} | right;}}\n'.format(
                                 enum_name))
 
                     if API_LEVEL_FILTER is None and len(guards) != total_guards:
@@ -599,7 +599,7 @@ def load_xml():
 
                     if enum_data.is_bitmask:
                         f.write(
-                            'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
+                            'constexpr auto operator|({0} left, {0} right) {{ return core::Bitfield{{left}} | right;}}\n'.format(
                                 enum_name))
 
                 f.write('\n')
