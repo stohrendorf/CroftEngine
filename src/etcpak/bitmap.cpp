@@ -13,7 +13,7 @@ Bitmap::Bitmap(const glm::ivec2& size)
     : m_linesLeft{gsl_lite::narrow_cast<uint32_t>(size.y / 4)}
     , m_size{size}
 {
-  gsl_Assert(size.x > 0 && size.y > 0);
+  gsl_Assert(size.x > 0 && size.y > 0 && size.x % 4 == 0 && size.y % 4 == 0);
   m_data.resize(gsl_lite::narrow_cast<size_t>(size.x) * gsl_lite::narrow_cast<size_t>(size.y));
   // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
   m_block = m_data.data();
@@ -23,7 +23,7 @@ Bitmap::Bitmap(const glm::ivec2& size, const gsl_lite::span<const uint32_t>& rgb
     : m_linesLeft{gsl_lite::narrow_cast<uint32_t>(size.y / 4)}
     , m_size{size}
 {
-  gsl_Assert(size.x > 0 && size.y > 0);
+  gsl_Assert(size.x > 0 && size.y > 0 && size.x % 4 == 0 && size.y % 4 == 0);
   gsl_Assert(gsl_lite::narrow_cast<size_t>(size.x) * gsl_lite::narrow_cast<size_t>(size.y) == rgba.size());
 
   m_data.resize(gsl_lite::narrow_cast<size_t>(size.x) * gsl_lite::narrow_cast<size_t>(size.y));

@@ -105,9 +105,9 @@ struct BgrVec
   [[nodiscard]] constexpr auto operator+(const uint8_t rhs) const
   {
     return BgrVec{
-      gsl_lite::narrow_cast<uint8_t>(std::min(255, b - rhs)),
-      gsl_lite::narrow_cast<uint8_t>(std::min(255, g - rhs)),
-      gsl_lite::narrow_cast<uint8_t>(std::min(255, r - rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::min(255, b + rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::min(255, g + rhs)),
+      gsl_lite::narrow_cast<uint8_t>(std::min(255, r + rhs)),
     };
   }
 

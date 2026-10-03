@@ -14,6 +14,7 @@
 #include <glm/vec2.hpp>
 #include <gsl-lite/gsl-lite.hpp>
 #include <ios>
+#include <limits>
 #include <memory>
 
 #ifdef WIN32
@@ -33,9 +34,21 @@
 
 namespace
 {
+constexpr size_t PvrHeaderSize = 52u;
 constexpr std::array<uint8_t, 8> table59T58H{{3, 6, 11, 16, 23, 32, 41, 64}};
 
-boost::iostreams::mapped_file_sink openForWriting(const char* fn, const size_t len, const glm::ivec2& size)
+[[nodiscard]] size_t compressedDataSize(const glm::ivec2& size)
+{
+  gsl_Expects(size.x > 0 && size.y > 0 && size.x % 4 == 0 && size.y % 4 == 0);
+
+  const auto blocksX = gsl_lite::narrow_cast<size_t>(size.x / 4);
+  const auto blocksY = gsl_lite::narrow_cast<size_t>(size.y / 4);
+  gsl_Assert(blocksX <= std::numeric_limits<size_t>::max() / blocksY / (sizeof(uint64_t) * 2u));
+  return blocksX * blocksY * sizeof(uint64_t) * 2u;
+}
+
+[[nodiscard]] boost::iostreams::mapped_file_sink
+  openForWriting(const char* fn, const size_t len, const glm::ivec2& size)
 {
   {
     std::ofstream tmp{fn, std::ios::binary | std::ios::trunc};
@@ -72,6 +85,7 @@ BlockData::BlockData(const char* fn)
 {
   gsl_Assert(m_file->is_open());
   m_maplen = m_file->size();
+  gsl_Assert(m_maplen >= PvrHeaderSize);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   m_data = reinterpret_cast<uint8_t*>(m_file->data());
 
@@ -83,17 +97,19 @@ BlockData::BlockData(const char* fn)
 
   m_size.y = gsl_lite::narrow_cast<int32_t>(*(data32 + 6));
   m_size.x = gsl_lite::narrow_cast<int32_t>(*(data32 + 7));
-  gsl_Assert(m_size.x > 0 && m_size.y > 0);
-  m_dataOffset = 52u + *(data32 + 12);
+  gsl_Assert(m_size.x > 0 && m_size.y > 0 && m_size.x % 4 == 0 && m_size.y % 4 == 0);
+
+  const auto metadataSize = gsl_lite::narrow_cast<size_t>(*(data32 + 12));
+  gsl_Assert(metadataSize <= m_maplen - PvrHeaderSize);
+  m_dataOffset = PvrHeaderSize + metadataSize;
+  gsl_Assert(compressedDataSize(m_size) <= m_maplen - m_dataOffset);
 }
 
 BlockData::BlockData(const char* fn, const glm::ivec2& size)
     : m_size(size)
-    , m_dataOffset(52)
-    , m_maplen(gsl_lite::narrow_cast<size_t>((m_size.x / 4) * (m_size.y / 4)) * sizeof(uint64_t) * 2u)
+    , m_dataOffset(PvrHeaderSize)
+    , m_maplen(compressedDataSize(m_size))
 {
-  gsl_Expects(m_size.x % 4 == 0 && m_size.y % 4 == 0);
-
   m_maplen += m_dataOffset;
   m_file = std::make_unique<boost::iostreams::mapped_file_sink>(openForWriting(fn, m_maplen, m_size));
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -102,12 +118,9 @@ BlockData::BlockData(const char* fn, const glm::ivec2& size)
 
 BlockData::BlockData(const glm::ivec2& size)
     : m_size(size)
-    , m_dataOffset(52)
-    , m_maplen{gsl_lite::narrow_cast<size_t>((m_size.x / 4) * (m_size.y / 4)) * sizeof(uint64_t) * 2u}
+    , m_dataOffset(PvrHeaderSize)
+    , m_maplen{compressedDataSize(m_size)}
 {
-  gsl_Assert(m_size.x > 0 && m_size.y > 0);
-  gsl_Assert(m_size.x % 4 == 0 && m_size.y % 4 == 0);
-
   m_maplen += m_dataOffset;
   m_data = new uint8_t[m_maplen];
 }
@@ -504,7 +517,8 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, const uint32_t w)
 
 std::shared_ptr<Bitmap> BlockData::decode()
 {
-  gsl_Assert(m_dataOffset < m_maplen);
+  gsl_Assert(m_dataOffset <= m_maplen);
+  gsl_Assert(compressedDataSize(m_size) <= m_maplen - m_dataOffset);
 
   auto ret = std::make_shared<Bitmap>(m_size);
 

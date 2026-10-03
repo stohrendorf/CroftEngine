@@ -44,6 +44,6 @@ inline std::filesystem::path getTextureSizesYamlPath(const std::filesystem::path
 
 inline std::filesystem::path getTextureCacheVersionFilePath(const std::filesystem::path& cacheDir)
 {
-  return cacheDir / "_cache_v3.txt";
+  return cacheDir / "_cache_v4.txt";
 }
 } // namespace engine::world
